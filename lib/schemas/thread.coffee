@@ -1,0 +1,1 @@
+@Thread = new Mongo.Collection('thread')
