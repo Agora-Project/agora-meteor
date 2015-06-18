@@ -13,3 +13,8 @@ matb33:collection-hooks
 iron:router
 meteorhacks:inject-initial
 d3js:d3
+reactive-var
+accounts-password
+useraccounts:core
+less
+softwarerero:accounts-t9n

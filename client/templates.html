@@ -1,6 +1,51 @@
+<template name="login">
+    <form is="iron-form" id="login-form" method="post">
+        {{> atForm }}
+    </form>
+</template>
+
+<template name="graph">
+    <h1>Graph</h1>
+    <div id="GraphPanel">
+        <svg></svg>
+    </div>
+</template>
+
+<template name="post">
+    <h1>New thread</h1>
+    <form is="iron-form" id="form" method="post" action="/form/handler">
+        <paper-input id="thread-title" name="title" label="Title"></paper-input>
+        <iron-autogrow-textarea name="body" class="underline" id="thread-body" placeholder="Content"></iron-autogrow-textarea>
+        <div>
+            <paper-button raised id="new-thread">Submit</paper-button>
+        </div>
+    </form>
+</template>
+
+<template name="users">
+    <h1>Users</h1>
+</template>
+
+<template name="layout" is="dom-bind" id="app">
+    <paper-header-panel>
+        <paper-toolbar>
+            <paper-icon-button icon="home" class="button-home"></paper-icon-button>
+            <div title>Agora Project</div>
+            <paper-icon-button icon="account-box" class="button-users"></paper-icon-button>
+            <paper-icon-button icon="exit-to-app" class="button-logout"></paper-icon-button>
+            {{> atNavButton }}
+        </paper-toolbar>
+        <div>
+            <paper-material elevation="1">
+                {{> yield}}
+            </paper-material>
+        </div>
+    </paper-header-panel>
+    <paper-fab icon="add" class="button-post"></paper-fab>
+</template>
+
 <head>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-
     <script src="/components/webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="/components/paper-styles/paper-styles-classes.html">
     <link rel="import" href="/components/paper-header-panel/paper-header-panel.html">
@@ -11,50 +56,12 @@
     <link rel="import" href="/components/paper-button/paper-button.html">
     <link rel="import" href="/components/paper-material/paper-material.html">
     <link rel="import" href="/components/paper-input/paper-input.html">
+    <link rel="import" href="/components/paper-input/paper-input-container.html">
     <link rel="import" href="/components/iron-form/iron-form.html">
     <link rel="import" href="/components/iron-autogrow-textarea/iron-autogrow-textarea.html">
     <link rel="import" href="/components/paper-fab/paper-fab.html">
 
+    <link href="//fonts.googleapis.com/css?family=RobotoDraft:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet" type="text/css">
+
     <link rel="import" href="/components/app-theme.html">
 </head>
-
-<template name="layout" is="dom-bind" id="app">
-  <paper-header-panel>
-    <paper-toolbar>
-      <paper-icon-button icon="home" class="button-home"></paper-icon-button>
-      <div title>Agora Project</div>
-      <paper-icon-button icon="account-box" class="button-users"></paper-icon-button>
-      <paper-icon-button icon="exit-to-app" class="button-logout"></paper-icon-button>
-    </paper-toolbar>
-    <div>
-      <paper-material elevation="1">
-        {{> yield}}
-      </paper-material>
-    </div>
-  </paper-header-panel>
-  <paper-fab icon="add" class="button-post"></paper-fab>  
-</template>
-
-<template name="graph">
-  <h1>Graph</h1>
-  <div id="GraphPanel">
-    <svg></svg>
-  </div>
-</template>
-
-<template name="post">
-  <h1>New thread</h1>
-  <form is="iron-form" id="form" method="post" action="/form/handler">
-      <paper-input name="title" label="Title"></paper-input>
-      <iron-autogrow-textarea id="thread-body">
-        <textarea id="thread-body-text"></textarea>
-      </iron-autogrow-textarea>
-      <div>
-        <paper-button raised id="add-thread">Submit</paper-button>
-      </div>
-  </form>
-</template>
-
-<template name="users">
-  <h1>Users</h1>
-</template>

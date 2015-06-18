@@ -9,3 +9,6 @@ Router.route '/post', ->
   
 Router.route '/users', ->
   this.render('users')
+
+Router.route '/login', ->
+  this.render('login')
