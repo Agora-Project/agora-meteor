@@ -1,7 +1,7 @@
 @Schema ||= {}
 
 @Schema.Vote = new SimpleSchema(
-  votable_id:
+  votableId:
     type: String
     regEx: SimpleSchema.RegEx.Id
 
@@ -13,6 +13,9 @@
 
 )
 
-@Vote = new Mongo.Collection('vote')
+@Vote = new Mongo.Collection('votes')
 
 @Vote.attachSchema @Schema.Vote
+
+@Vote.before.insert (userId, argument)->
+  argument.createdAt = Date.now();

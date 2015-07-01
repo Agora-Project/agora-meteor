@@ -5,25 +5,34 @@
 </template>
 
 <template name="graph">
-    <h1>Graph</h1>
-    <div id="GraphPanel">
-        <svg></svg>
+    <div id="arguments-graph">
     </div>
 </template>
 
 <template name="post">
-    <h1>New thread</h1>
-    <form is="iron-form" id="form" method="post" action="/form/handler">
+    <h1>New Argument</h1>
+    <form is="iron-form" id="form" method="post">
         <paper-input id="thread-title" name="title" label="Title"></paper-input>
-        <iron-autogrow-textarea name="body" class="underline" id="thread-body" placeholder="Content"></iron-autogrow-textarea>
+        <paper-input id="thread-body" name="body" label="Body"></paper-input>
         <div>
-            <paper-button raised id="new-thread">Submit</paper-button>
+            <paper-button raised id="new-thread">
+                <div>Submit</div>
+            </paper-button>
         </div>
     </form>
 </template>
 
 <template name="users">
     <h1>Users</h1>
+    <paper-item>
+        <paper-material elevation="1">
+        <paper-item-body two-line>
+            <div>Show your status</div>
+            <div secondary>Your status is visible to everyone</div>
+        </paper-item-body>
+        <iron-icon icon="warning"></iron-icon>
+        </paper-material>
+    </paper-item>
 </template>
 
 <template name="layout" is="dom-bind" id="app">
@@ -32,14 +41,11 @@
             <paper-icon-button icon="home" class="button-home"></paper-icon-button>
             <div title>Agora Project</div>
             <paper-icon-button icon="account-box" class="button-users"></paper-icon-button>
-            <paper-icon-button icon="exit-to-app" class="button-logout"></paper-icon-button>
             {{> atNavButton }}
         </paper-toolbar>
-        <div>
-            <paper-material elevation="1">
-                {{> yield}}
-            </paper-material>
-        </div>
+        <paper-material class="fit-graph" elevation="1">
+            {{> yield}}
+        </paper-material>
     </paper-header-panel>
     <paper-fab icon="add" class="button-post"></paper-fab>
 </template>
@@ -60,8 +66,9 @@
     <link rel="import" href="/components/iron-form/iron-form.html">
     <link rel="import" href="/components/iron-autogrow-textarea/iron-autogrow-textarea.html">
     <link rel="import" href="/components/paper-fab/paper-fab.html">
+    <!--<link rel="import" href="/components/patch-dom.html">-->
 
-    <link href="//fonts.googleapis.com/css?family=RobotoDraft:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en" rel="stylesheet" type="text/css">
+    <!--<script src="/components/dom-patch.js"></script>-->
 
     <link rel="import" href="/components/app-theme.html">
 </head>
