@@ -31,19 +31,23 @@
 
 @Argument.attachSchema @Schema.Argument
 
+@Argument.removeWithLinks = (argumentId)->
+  for link in Link.find({ sourceId: argumentId }).fetch()
+    Link.remove(link._id)
+  for link in Link.find({ tragetId: argumentId }).fetch()
+    Link.remove(link._id)
+  Argument.remove(argumentId);
+
 @Argument.before.insert (userId, argument)->
   argument.createdAt = Date.now();
 
-@Argument.before.remove (userId, argument)->
-  for link in Link.find({ sourceId: argument._id }).fetch()
-    Link.remove(link._id)
-  for link in Link.find({ tragetId: argument._id }).fetch()
-    Link.remove(link._id)
+#@Argument.before.remove (userId, argument)->
+#  Meteor.call('removeLinks', {argumentId: argument._id})
 
-
-if Meteor.isServer
+if Meteor.isClient
   @Argument.after.insert (userId, argument)->
-    if !argument.isRoot && (!argument.links || argument.links.size == 0)
+    return true if argument.isRoot
+    if !argument.links || argument.links.length == 0
       Meteor.call('insertLink', {sourceId: @_id, targetId: Argument.findOne(isRoot: true)._id})
     else
       for link in argument.links
