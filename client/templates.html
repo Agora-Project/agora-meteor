@@ -1,74 +1,60 @@
 <template name="login">
-    <form is="iron-form" id="login-form" method="post">
-        {{> atForm }}
+    <form id="login-form" method="post">
+      {{> atForm }}
     </form>
 </template>
 
 <template name="graph">
-    <div id="arguments-graph">
+    <div id="arguments-graph" class="fit-graph">
     </div>
 </template>
 
 <template name="post">
     <h1>New Argument</h1>
-    <form is="iron-form" id="form" method="post">
-        <paper-input id="thread-title" name="title" label="Title"></paper-input>
-        <paper-input id="thread-body" name="body" label="Body"></paper-input>
-        <div>
-            <paper-button raised id="new-thread">
-                <div>Submit</div>
-            </paper-button>
+    <div class="row">
+      <form class="col s12">
+        <div class="input-field col s6">
+          <input placeholder="Title" id="thread-title" name="title" type="text" class="validate">
+          <label for="thread-title">Title</label>
         </div>
-    </form>
+        <div class="row">
+          <div class="input-field col s12">
+            <textarea id="thread-body" name=body class="materialize-textarea"></textarea>
+            <label for="textarea1">Body</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s6">
+            <input type="checkbox" id="thread-is-attack" />
+            <label for="test5">Attack</label>
+          </div>
+          <div class="input-field col s6">
+            <button class="btn waves-effect waves-light" id="new-thread" type="submit" name="action">Submit
+              <i class="material-icons">done</i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
 </template>
 
 <template name="users">
     <h1>Users</h1>
-    <paper-item>
-        <paper-material elevation="1">
-        <paper-item-body two-line>
-            <div>Show your status</div>
-            <div secondary>Your status is visible to everyone</div>
-        </paper-item-body>
-        <iron-icon icon="warning"></iron-icon>
-        </paper-material>
-    </paper-item>
 </template>
 
 <template name="layout" is="dom-bind" id="app">
-    <paper-header-panel>
-        <paper-toolbar>
-            <paper-icon-button icon="home" class="button-home"></paper-icon-button>
-            <div title>Agora Project</div>
-            <paper-icon-button icon="account-box" class="button-users"></paper-icon-button>
-            {{> atNavButton }}
-        </paper-toolbar>
-        <paper-material class="fit-graph" elevation="1">
-            {{> yield}}
-        </paper-material>
-    </paper-header-panel>
-    <paper-fab icon="add" class="button-post"></paper-fab>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo">Agora Project</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+        <li><a href="/" class="button-home">Graph</a></li>
+        <li><a href="/users">Users</a></li>
+        <li>{{> atNavButton }}</li>
+      </ul>
+    </div>
+    <div>
+      {{> yield}}
+    </div>
+    <a class="button-post btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a>
+  </nav>
 </template>
-
-<head>
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
-    <script src="/components/webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="/components/paper-styles/paper-styles-classes.html">
-    <link rel="import" href="/components/paper-header-panel/paper-header-panel.html">
-    <link rel="import" href="/components/iron-icons/iron-icons.html">
-    <link rel="import" href="/components/iron-icon/iron-icon.html">
-    <link rel="import" href="/components/paper-toolbar/paper-toolbar.html">
-    <link rel="import" href="/components/paper-icon-button/paper-icon-button.html">
-    <link rel="import" href="/components/paper-button/paper-button.html">
-    <link rel="import" href="/components/paper-material/paper-material.html">
-    <link rel="import" href="/components/paper-input/paper-input.html">
-    <link rel="import" href="/components/paper-input/paper-input-container.html">
-    <link rel="import" href="/components/iron-form/iron-form.html">
-    <link rel="import" href="/components/iron-autogrow-textarea/iron-autogrow-textarea.html">
-    <link rel="import" href="/components/paper-fab/paper-fab.html">
-    <!--<link rel="import" href="/components/patch-dom.html">-->
-
-    <!--<script src="/components/dom-patch.js"></script>-->
-
-    <link rel="import" href="/components/app-theme.html">
-</head>
