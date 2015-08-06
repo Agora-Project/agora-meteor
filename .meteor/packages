@@ -5,13 +5,10 @@
 # but you can also edit it by hand.
 
 meteor-platform
-autopublish
-insecure
 coffeescript
 aldeed:collection2
 matb33:collection-hooks
 iron:router
-meteorhacks:inject-initial
 d3js:d3
 reactive-var
 accounts-password
@@ -20,5 +17,5 @@ less
 softwarerero:accounts-t9n
 simoes:d3plus
 alanning:roles
-materialize:materialize
-useraccounts:materialize
+zodiase:mdl
+momentjs:moment
