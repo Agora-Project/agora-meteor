@@ -41,9 +41,6 @@
 @Argument.before.insert (userId, argument)->
   argument.createdAt = Date.now();
 
-#@Argument.before.remove (userId, argument)->
-#  Meteor.call('removeLinks', {argumentId: argument._id})
-
 if Meteor.isClient
   @Argument.after.insert (userId, argument)->
     return true if argument.isRoot

@@ -1,33 +1,33 @@
-/*
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-*/
-
-body {
-    background: #fafafa;
-    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    color: #333;
-}
-
 .root-argument .control {
     display: none;
 }
 
-.paper-fab-0 {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
+.post-button-box {
+  position: fixed;
+  right: 25px;
+  top: 80px;
 }
 
+.page-content {
+  padding: 20px;
+}
 
-.fit-graph, #arguments-graph {
+.at-error {
+  height: auto !important;
+  width: 100%;
+  padding:5px;
+  margin: 10px;
+}
+
+.create-post, .at-form {
+  width: 33%;
+  margin: 0 auto 0 auto;
+}
+
+/*.fit-graph, #arguments-graph {
     position: absolute;
     top:0px;
     right: 0px;
     bottom: 0px;
     left: 0px;
-}
+}*/

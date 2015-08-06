@@ -27,6 +27,7 @@ var LinksToD3Array = function(linksCol, nodesCol) {
 };
 
 Template.graph.rendered = function() {
+    console.log('Graph rendered!!!!!!!!!!!!@');
     Session.setDefault('selectedTargets', {})
 
     var viewWidth = 1000,
@@ -208,8 +209,8 @@ Template.graph.rendered = function() {
 
 Template.post.events({
     "click #new-thread": function (event) {
-        var title = $('#thread-title input').val();
-        var body = $('#thread-body input').val();
+        var title = $('#thread-title').val();
+        var body = $('#thread-body').val();
 
         var links = [];
 
@@ -227,5 +228,6 @@ Template.post.events({
         resetTargetsSelection();
 
         Router.go('/');
+        event.preventDefault();
     }
 });
