@@ -33,8 +33,8 @@ Template.userItem.helpers({
     createdAtFormatted: function (date) {
       return moment(date).format('LLL');
     },
-    defaultEmail: function (emails) {
-      if (emails && this.emails.length)
+    defaultEmail: function () {
+      if (this.emails && this.emails.length)
         return this.emails[0].address;
 
   		if (this.services) {

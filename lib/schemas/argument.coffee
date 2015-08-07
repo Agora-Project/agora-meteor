@@ -17,6 +17,10 @@
     type: [String]
     optional: true
 
+  isAttack:
+    type: Boolean
+    optional: true
+
   isRoot:
     type: Boolean
     optional: true
@@ -45,7 +49,7 @@ if Meteor.isClient
   @Argument.after.insert (userId, argument)->
     return true if argument.isRoot
     if !argument.links || argument.links.length == 0
-      Meteor.call('insertLink', {sourceId: @_id, targetId: Argument.findOne(isRoot: true)._id})
+      Meteor.call('insertLink', {isAttack: argument.isAttack, sourceId: @_id, targetId: Argument.findOne(isRoot: true)._id})
     else
       for link in argument.links
-        Meteor.call('insertLink', {sourceId: @_id, targetId: link})
+        Meteor.call('insertLink', {isAttack: argument.isAttack, sourceId: @_id, targetId: link})

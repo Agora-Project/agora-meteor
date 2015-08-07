@@ -211,7 +211,7 @@ Template.post.events({
     "click #new-thread": function (event) {
         var title = $('#thread-title').val();
         var body = $('#thread-body').val();
-
+        var isAttack = $('#thread-is-attack').is(':checked');
         var links = [];
 
         for (var key in Session.get('selectedTargets')) {
@@ -222,6 +222,7 @@ Template.post.events({
             ownerId: Meteor.userId(),
             title: title,
             body: body,
+            isAttack: isAttack,
             links: links
         });
 
