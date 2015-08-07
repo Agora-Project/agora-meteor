@@ -9,6 +9,10 @@ Meteor.methods({
     Meteor.users.update(targetUserId, {
       $set: {isBanned: isBanned}
     });
+    if (isBanned){
+      //Immediately logout user
+      Meteor.users.update({_id: targetUserId}, {$set : { "services.resume.loginTokens" : [] }})
+    }
   },
   switchModerator: function (targetUserId, isModerator) {
     var loggedInUser = Meteor.user()

@@ -2,8 +2,11 @@ Router.onBeforeAction ->
   if (!Meteor.userId())
     this.render('login')
   else
-    $('.mdl-layout__drawer').removeClass('is-visible')
-    this.next()
+    if Meteor.user().isBanned
+      this.render('forbidden')
+    else
+      $('.mdl-layout__drawer').removeClass('is-visible')
+      this.next()
 
 Router.configure
   layoutTemplate: 'layout'
