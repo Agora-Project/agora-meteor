@@ -4,12 +4,6 @@ Accounts.onLogin ->
     #Logout on login
     Meteor.users.update({_id: user._id}, {$set : { "services.resume.loginTokens" : [] }})
 
-Template.layout.events
+Template.forumIndex.events
   'click .button-post': ->
-    Router.go('/post')
-  'click .button-users': ->
-    Router.go('/users')
-  'click .button-home': ->
-    Router.go('/');
-  'click #at-nav-button': ->
-    Router.go('/login');
+    Router.go('/forum/post')

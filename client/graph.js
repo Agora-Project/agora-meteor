@@ -26,8 +26,7 @@ var LinksToD3Array = function(linksCol, nodesCol) {
     return result;
 };
 
-Template.graph.rendered = function() {
-    console.log('Graph rendered!!!!!!!!!!!!@');
+Template.forumIndex.rendered = function() {
     Session.setDefault('selectedTargets', {})
 
     var viewWidth = 1000,
@@ -207,7 +206,7 @@ Template.graph.rendered = function() {
     });
 }
 
-Template.post.events({
+Template.forumPost.events({
     "click #new-thread": function (event) {
         var title = $('#thread-title').val();
         var body = $('#thread-body').val();
@@ -228,7 +227,7 @@ Template.post.events({
 
         resetTargetsSelection();
 
-        Router.go('/');
+        Router.go('/forum');
         event.preventDefault();
     }
 });

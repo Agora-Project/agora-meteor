@@ -1,4 +1,4 @@
-Template.users.helpers({
+Template.forumUsers.helpers({
     userList: Meteor.users.find({})
 });
 

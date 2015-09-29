@@ -7,4 +7,3 @@ Meteor.methods
       Link.remove(link._id)
     for link in Link.find({ tragetId: argumentId }).fetch()
       Link.remove(link._id)
-

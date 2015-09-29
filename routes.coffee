@@ -1,31 +1,21 @@
+subs = new SubsManager
+  cacheLimit: 10, # Maximum number of cache subscriptions
+  expireIn: 5 # Any subscription will be expire after 5 minute, if it's not subscribed again
+
 Router.onBeforeAction ->
-  if (!Meteor.userId())
-    this.render('login')
+  if Meteor.user() && Meteor.user().isBanned
+    this.render('forbidden')
   else
-    if Meteor.user().isBanned
-      this.render('forbidden')
-    else
-      $('.mdl-layout__drawer').removeClass('is-visible')
-      this.next()
+    this.next()
 
-Router.configure
-  layoutTemplate: 'layout'
+Router.route '/forum',
+  name: 'forumIndex'
+  template: 'forumIndex'
 
-Router.route '/', ->
-  this.render('graph')
+Router.route '/forum/post',
+  name: 'forumPost'
+  template: 'forumPost'
 
-Router.route '/post', ->
-  this.render('post')
-
-Router.route '/users', ->
-  this.render('users')
-
-Router.route '/account', ->
-  this.render('account')
-
-Router.route '/settings', ->
-  this.render('settings')
-
-
-Router.route '/login', ->
-  this.render('login')
+Router.route '/forum/users',
+  name: 'forumUsers'
+  template: 'forumUsers'

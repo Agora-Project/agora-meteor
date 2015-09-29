@@ -3,15 +3,11 @@
   <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
 </head>
 
-<template name="login">
-  {{> atForm }}
-</template>
-
 <template name="forbidden">
   <h1>You are banned from the site</h1>
 </template>
 
-<template name="graph">
+<template name="forumIndex">
     <div id="arguments-graph" class="fit-graph">
     </div>
     <div class="post-button-box">
@@ -21,7 +17,7 @@
     </div>
 </template>
 
-<template name="post">
+<template name="forumPost">
   <div class="create-post">
     <h3>New Argument</h3>
     <form action="#">
@@ -52,55 +48,5 @@
         </div>
       </div>
     </form>
-  </div>
-</template>
-
-<template name="account">
-    <h1>My Account</h1>
-    <p>Here will be account settings</p>
-</template>
-
-<template name="settings">
-    <h1>Settings</h1>
-    <p>Here will be site settings</p>
-</template>
-
-
-<template name="layout">
-  <div>
-  <!-- Always shows a header, even in smaller screens. -->
-  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
-    <header class="mdl-layout__header">
-      <div class="mdl-layout__header-row">
-        <!-- Title -->
-        <span class="mdl-layout-title">Agora Project</span>
-        <!-- Add spacer, to align navigation to the right -->
-        <div class="mdl-layout-spacer"></div>
-        <!-- Navigation. We hide it in small screens. -->
-        <nav class="mdl-navigation mdl-layout--large-screen-only">
-          {{#if currentUser }}
-          <a class="mdl-navigation__link" href="/">Graph</a>
-          {{/if}}
-          <a class="mdl-navigation__link" href="/login">{{> atNavButton }}</a>
-        </nav>
-      </div>
-    </header>
-    <div class="mdl-layout__drawer">
-      <span class="mdl-layout-title">Agora Project</span>
-      <nav class="mdl-navigation">
-        {{#if isInRole 'moderator'}}
-          <a class="mdl-navigation__link" href="/users">Users</a>
-          <a class="mdl-navigation__link" href="/settings">Settings</a>
-        {{/if }}
-        <a class="mdl-navigation__link" href="/account">Account</a>
-      </nav>
-    </div>
-    <main class="mdl-layout__content">
-      <div class="page-content">
-        <!-- Your content goes here -->
-        {{> yield}}
-      </div>
-    </main>
-  </div>
   </div>
 </template>
