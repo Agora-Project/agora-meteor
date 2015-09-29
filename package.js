@@ -37,6 +37,9 @@ Package.onUse(function(api) {
     ], 'server');
 
     api.use([
+      'session',
+      'templating',
+      'ui',
       'd3js:d3@3.5.5',
       'simoes:d3plus@1.7.3',
       'zodiase:mdl@1.0.2'
