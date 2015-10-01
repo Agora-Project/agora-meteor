@@ -1,6 +1,6 @@
 Package.describe({
   name: 'agoraforum:core',
-  version: '0.0.2',
+  version: '0.0.3',
   summary: 'Graph-based forum',
   git: 'https://github.com/Agora-Project/agora-meteor',
   documentation: 'README.md'
@@ -51,10 +51,11 @@ Package.onUse(function(api) {
       'iron:router@1.0.0',
       'aldeed:collection2@2.3.3',
       'matb33:collection-hooks@0.7.13',
+      'meteor@1.1.7',
       'accounts-base',
       'mrt:moment@2.8.1',
       'alanning:roles@1.2.13',
-      'meteorhacks:subs-manager@1.2.0',
+//      'meteorhacks:subs-manager@1.2.0'
     ], both);
 });
 
