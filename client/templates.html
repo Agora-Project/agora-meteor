@@ -10,11 +10,13 @@
 <template name="forumIndex">
     <div id="arguments-graph" class="fit-graph">
     </div>
+    {{#if currentUser }}
     <div class="post-button-box">
       <button class="button-post mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
         <i class="material-icons">add</i>
       </button>
     </div>
+    {{/if }}
 </template>
 
 <template name="forumPost">

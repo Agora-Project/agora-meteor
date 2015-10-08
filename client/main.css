@@ -1,4 +1,4 @@
-.root-argument .control {
+.root-argument .control, .root-argument rect, .root-argument text {
     display: none;
 }
 
