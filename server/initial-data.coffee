@@ -1,7 +1,10 @@
 Meteor.startup ->
+  Argument.remove({});
+  Link.remove({});
+  
   if (!Argument.findOne({isRoot: true}))
     console.log("Adding root argument")
-    Argument.insert(title: 'Forum', isRoot: true)
+    Argument.insert(title: 'Forum', body: "This node is the root of the forum.", isRoot: true);
 
   moderatorEmail = "moderator@example.com";
   if (!Meteor.users.findOne("emails.address" : moderatorEmail))

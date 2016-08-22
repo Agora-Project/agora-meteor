@@ -11,6 +11,7 @@ Router.onBeforeAction ->
 Router.route '/forum',
   name: 'forumIndex'
   template: 'forumIndex'
+  #onAfterAction: -> location.reload()
 
 Router.route '/forum/post',
   name: 'forumPost'

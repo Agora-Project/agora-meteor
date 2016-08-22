@@ -39,26 +39,30 @@ Template.forumIndex.rendered = function() {
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
-      tree.addNode(doc);
-      tree.render();
+      console.log("Adding Node: " + doc._id);
+      if( tree.addNode(doc))
+        tree.render();
+      console.log("Tree Rendered");
     },
     removed: function(doc) {
       if (init) { return; }
-      tree.removeNode(doc);
-      tree.render();
+      if (tree.removeNode(doc))
+        tree.render();
+      console.log("Tree Rendered");
     }
   });
 
   linksCursor.observe({
     added: function(doc) {
       if (init) { return; }
-      tree.addLink(doc);
-      tree.render();
+      console.log("Adding Link: " + doc._id);
+      if(tree.addLink(doc))
+        tree.render();
     },
     removed: function(doc) {
       if (init) { return; }
-      tree.removeLink(doc);
-      tree.render();
+      if(tree.removeLink(doc))
+        tree.render();
     }
   });
 
@@ -155,7 +159,8 @@ function ForumTree(nodes, links) {
 
   // tick
   function tick() {
-    if(!force.nodes()[0].y) { return; }
+    //This isf statement keeps the app from choking when reloading the page.
+    if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
       linkElements.attr("x1", function (d) {
           return d.source.x + argumentWidth / 2
       })
@@ -171,14 +176,18 @@ function ForumTree(nodes, links) {
 
       var links = force.links();
       var nodes = force.nodes();
+
       for (i = 0; i < links.length; i++) {
+        if (nodes[links[i].target.index] && nodes[links[i].source.index]) {
           var targy = nodes[links[i].target.index].y;
           var sorcy = nodes[links[i].source.index].y;
           if (sorcy - targy < 80) {
               nodes[links[i].target.index].y -= 1;
               nodes[links[i].source.index].y += 1;
           }
+        }
       }
+
       nodeElements.attr("transform", function (d) {
           return "translate(" + d.x + "," + d.y + ")";
       });
@@ -195,24 +204,22 @@ function ForumTree(nodes, links) {
   // dynamically update the graph
   this.render = function() {
     // add links
-    linkElements =  linkElements.data(force.links());
+
+    console.log("Rendering");
+
+    linkElements = linkElements.data(force.links(), function(d, i) { return d._id; });
+
+    //console.log("Fetched Link list");
 
     linkElements.exit().remove();
+    //console.log("Removed dead links");
 
-    var edgeSelection = linkElements.enter().append("line")
-      .attr('stroke', function (d) {
-        if (d.isAttack) {
-          return 'red';
-        } else {
-          return 'black';
-        }
-      });
-
-    nodeElements = nodeElements.data(force.nodes());
+    nodeElements = nodeElements.data(force.nodes(), function(d, i) { return d._id;});
 
     nodeElements.exit().remove();
+    //console.log("Removed dead nodes");
 
-    var nodeSelection = nodeElements.enter().append("g").call(drag).attr("class", function (d) {
+    var nodeSelection = nodeElements.enter().append("g").call(drag); /*.attr("class", function (d) {
         if(d.isRoot) { return "root-argument"; } else { return ""; }
     });
 
@@ -224,6 +231,18 @@ function ForumTree(nodes, links) {
           .attr("y", 18)
           .attr("width", 24)
           .attr("height", 24);
+          */
+    //console.log("Added graphics containers to nodes and called drag function.");
+
+    var edgeSelection = linkElements.enter().append("line")
+      .attr('stroke', function (d) {
+        if (d.isAttack) {
+          return 'red';
+        } else {
+          return 'black';
+        }
+      });
+    //console.log("added line objects.");
 
     nodeSelection.append('rect')
         .attr("id", function (d) {
@@ -235,12 +254,16 @@ function ForumTree(nodes, links) {
         .attr("stroke-width", 1)
         .attr('fill', '#fafafa');
 
+    //console.log("Added rect objects.");
+
     var titles = nodeSelection.append("text")
         .text(function (d) {
             return d.title;
         })
         .attr("font-family", "sans-serif")
         .attr("font-size", "11px");
+
+    //console.log("Added titles.");
 
     var bodys = nodeSelection.append("text")
         .text(function (d) {
@@ -252,7 +275,7 @@ function ForumTree(nodes, links) {
         .call(function (wrapSelection) {
             wrapSelection.each (function(d){
                 if (!d.body) { return; }
-                console.log("Wrapping "+ d);
+                console.log("Wrapping "+ d._id);
                 d3plus.textwrap()
                     .container(d3.select(this))
                     .width(argumentWidth)
@@ -264,6 +287,8 @@ function ForumTree(nodes, links) {
             return "text-" + d._id;
         });
 
+    //console.log("Added bodies.");
+
     var removeButtons = nodeSelection.append("circle").attr("cx", function (d) {
             return argumentWidth;
         })
@@ -274,6 +299,8 @@ function ForumTree(nodes, links) {
             Argument.removeWithLinks(d._id);
             resetTargetsSelection();
         });
+
+    //console.log("Added remove buttons.");
 
     var replyButtons = nodeSelection.append("rect")
         .attr("y", function(d) {
@@ -303,58 +330,86 @@ function ForumTree(nodes, links) {
             console.log(st);
         });
 
-        var expandButtons = nodeSelection.append("rect")
-            .attr("y", function(d) {
-                return argumentHeight -10;
-            })
-            .attr("x", function(d) {
-                return argumentWidth -30;
-            })
-            .attr("width", 30)
-            .attr("height", 10)
-            .attr("class", 'control expand-button')
-            .attr("id", function(d) { return "expandButton-" + d._id;})
-            .style("fill", "rebeccapurple")
-            .on("click", function (d) {
-              if (d.children) {
-                  d._children = d.children;
-                  d.children = null;
-                } else {
-                  d.children = d._children;
-                  d._children = null;
-                }
-                tree.render();
-            });
+    //console.log("Added reply buttons.");
 
+    var expandButtons = nodeSelection.append("rect")
+        .attr("y", function(d) {
+            return argumentHeight -10;
+        })
+        .attr("x", function(d) {
+            return argumentWidth -30;
+        })
+        .attr("width", 30)
+        .attr("height", 10)
+        .attr("class", 'control expand-button')
+        .attr("id", function(d) { return "expandButton-" + d._id;})
+        .style("fill", "rebeccapurple")
+        .on("click", function (d) {
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+            } else {
+                d.children = d._children;
+                d._children = null;
+            }
+            tree.render();
+        });
+
+    //console.log("Added expand buttons.");
 
     force.start();
   };
 
   this.addNode = function(doc) {
-    this.nodes.push(doc);
+    if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
+      this.nodes.push(doc);
+      return true;
+    }
+    return false;
   };
 
   this.addLink = function(doc) {
-    this.links.push(linksToD3Array([doc], this.nodes)[0]);
+    link = linksToD3Array([doc], this.nodes)[0];
+    console.log(link);
+    if (link && !this.links.find(function(l) {return (link._id == l._id)})) {
+      this.links.push(link);
+      return true;
+    }
+    return false;
   };
 
   this.removeNode = function(doc) {
-    var iToRemove;
-    this.nodes.forEach(function(node, i) {
-      if (node._id === doc._id) {
-        iToRemove = i;
-      }
-    });
-    this.nodes.splice(iToRemove, 1);
+    console.log("Trying to remove node:" + doc._id);
+    var iToRemove = -1;
+    var forumTree = this;
+    if (this.nodes.length !== 0)
+      this.nodes.forEach(function(node, i) {
+        if (node._id === doc._id) {
+          console.log("Found Node to remove!");
+          iToRemove = i;
+        }
+      });
+    if (iToRemove != -1) {
+      this.nodes.splice(iToRemove, 1);
+      console.log("Successfully removed node");
+      return true;
+    } else console.log("Failed to remove node");
+    return false;
   };
 
   this.removeLink = function(doc) {
-    var iToRemove;
+    console.log("Trying to remove link:" + doc._id);
+    var iToRemove = -1;
     this.links.forEach(function(link, i) {
       if (link._id === doc._id) {
         iToRemove = i;
       }
     });
-    this.links.splice(iToRemove, 1);
+    if (iToRemove != -1) {
+      this.links.splice(iToRemove, 1);
+      console.log("Successfully removed link");
+      return true;
+    } else console.log("Failed to remove link");
+    return false;
   };
 }

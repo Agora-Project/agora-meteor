@@ -5,5 +5,5 @@ Meteor.methods
   removeLinks: (argumentId)->
     for link in Link.find({ sourceId: argumentId }).fetch()
       Link.remove(link._id)
-    for link in Link.find({ tragetId: argumentId }).fetch()
+    for link in Link.find({ targetId: argumentId }).fetch()
       Link.remove(link._id)

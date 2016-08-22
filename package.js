@@ -53,7 +53,7 @@ Package.onUse(function(api) {
       'coffeescript',
       'reactive-var',
       'iron:router@1.0.0',
-      'aldeed:collection2@2.3.3',
+      'aldeed:collection2',
       'matb33:collection-hooks@0.7.13',
       'accounts-base',
       'mrt:moment@2.8.1',

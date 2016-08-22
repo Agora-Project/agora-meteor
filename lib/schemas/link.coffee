@@ -9,6 +9,11 @@
     type: String
     regEx: SimpleSchema.RegEx.Id
 
+  ownerId:
+    type: String
+    regEx: SimpleSchema.RegEx.Id
+    optional: true
+
   isAttack:
     type: Boolean
     optional: true
@@ -24,3 +29,6 @@
 
 @Link.before.insert (userId, argument)->
   argument.createdAt = Date.now();
+
+@Link.before.remove (userId, argument)->
+  console.log(argument);
