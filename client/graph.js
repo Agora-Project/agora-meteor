@@ -34,14 +34,20 @@ Template.forumIndex.rendered = function() {
   var nodes = nodesCursor.fetch(),
       links = linksToD3Array(linksCursor.fetch(), nodes);
 
-  tree = new ForumTree(nodes, links);
+  tree = new ForumTree(this, nodes, links);
 
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
       console.log("Adding Node: " + doc._id);
-      if( tree.addNode(doc))
-        tree.render();
+      if(tree.addNode(doc)) {
+        console.log("Node Added, checking links...");
+        Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
+          console.log("Adding Link: " + link._id);
+          tree.addLink(link);
+        });
+      }
+      tree.render();
       console.log("Tree Rendered");
     },
     removed: function(doc) {
@@ -54,20 +60,20 @@ Template.forumIndex.rendered = function() {
 
   linksCursor.observe({
     added: function(doc) {
-      if (init) { return; }
-      console.log("Adding Link: " + doc._id);
-      if(tree.addLink(doc))
-        tree.render();
     },
     removed: function(doc) {
       if (init) { return; }
-      if(tree.removeLink(doc))
+      if (tree.removeLink(doc))
         tree.render();
     }
   });
 
   tree.render();
   init = false;
+  this.handlers = {};
+  handler = this.subscribe("forum");
+  this.handlers['rootNode'] = handler;
+
 };
 
 
@@ -98,7 +104,9 @@ function linksToD3Array(linksCol, nodesCol) {
     return result;
 };
 
-function ForumTree(nodes, links) {
+function ForumTree(forumIndex, nodes, links) {
+
+  this.forumIndex = forumIndex;
 
   this.nodes = nodes;
   this.links = links;
@@ -296,7 +304,10 @@ function ForumTree(nodes, links) {
         .attr("class", 'control')
         .style("fill", "red")
         .on("click", function (d) {
-            Argument.removeWithLinks(d._id);
+            console.log(forumIndex.handlers);
+            console.log(d._id);
+            if (d.isRoot) forumIndex.handlers['rootNode'].stop();
+            if (forumIndex.handlers[d._id]) forumIndex.handlers[d._id].stop();
             resetTargetsSelection();
         });
 
@@ -345,14 +356,17 @@ function ForumTree(nodes, links) {
         .attr("id", function(d) { return "expandButton-" + d._id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
-            if (d.children) {
-                d._children = d.children;
-                d.children = null;
-            } else {
-                d.children = d._children;
-                d._children = null;
-            }
-            tree.render();
+            console.log(d);
+            Link.find({sourceId: d._id}).fetch().forEach(function(link) {
+              console.log(link._id);
+              handler = forumIndex.subscribe("forum", link.targetId);
+              forumIndex.handlers[link.targetId] = handler;
+            });
+            Link.find({targetId: d._id}).fetch().forEach(function(link) {
+              console.log(link._id);
+              handler = forumIndex.subscribe("forum", link.sourceId);
+              forumIndex.handlers[link.sourceId] = handler;
+            });
         });
 
     //console.log("Added expand buttons.");
@@ -390,6 +404,13 @@ function ForumTree(nodes, links) {
         }
       });
     if (iToRemove != -1) {
+      for (i = 0; i < this.links.length;) {
+        link = this.links[i];
+        console.log(link);
+        if (link.source._id === doc._id || link.target._id == doc._id)
+          this.links.splice(i, 1);
+        else i++;
+      }
       this.nodes.splice(iToRemove, 1);
       console.log("Successfully removed node");
       return true;
