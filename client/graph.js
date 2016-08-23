@@ -69,6 +69,10 @@ Template.forumIndex.rendered = function() {
 
   linksCursor.observe({
     added: function(doc) {
+      if (init) { return; }
+      //console.log("Adding Link: " + doc._id);
+      if(tree.addLink(doc))
+        tree.render();
     },
     removed: function(doc) {
       if (init) { return; }
