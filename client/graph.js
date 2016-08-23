@@ -9,7 +9,12 @@ Template.forumPost.events({
             links.push(key);
         }
 
-        Argument.insert({
+        if (links.length === 0) {
+          event.preventDefault();
+          return;
+        }
+
+        var argumentId = Argument.insert({
             ownerId: Meteor.userId(),
             title: title,
             body: body,
@@ -21,6 +26,10 @@ Template.forumPost.events({
 
         Router.go('/forum');
         event.preventDefault();
+        if (!handlers[argumentId]) {
+          var handler = Meteor.subscribe("forum", argumentId);
+          handlers[argumentId] = handler;
+        }
     }
 });
 
@@ -39,22 +48,22 @@ Template.forumIndex.rendered = function() {
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
-      console.log("Adding Node: " + doc._id);
+      //console.log("Adding Node: " + doc._id);
       if(tree.addNode(doc)) {
-        console.log("Node Added, checking links...");
+        //console.log("Node Added, checking links...");
         Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
-          console.log("Adding Link: " + link._id);
+          //console.log("Adding Link: " + link._id);
           tree.addLink(link);
         });
       }
       tree.render();
-      console.log("Tree Rendered");
+      //console.log("Tree Rendered");
     },
     removed: function(doc) {
       if (init) { return; }
       if (tree.removeNode(doc))
         tree.render();
-      console.log("Tree Rendered");
+      //console.log("Tree Rendered");
     }
   });
 
@@ -70,10 +79,11 @@ Template.forumIndex.rendered = function() {
 
   tree.render();
   init = false;
-  this.handlers = {};
-  handler = this.subscribe("forum");
-  this.handlers['rootNode'] = handler;
-
+  if (!handlers) handlers = {};
+  if (!handlers["rootNode"]) {
+    var handler = Meteor.subscribe("forum");
+    handlers['rootNode'] = handler;
+  }
 };
 
 
@@ -213,7 +223,7 @@ function ForumTree(forumIndex, nodes, links) {
   this.render = function() {
     // add links
 
-    console.log("Rendering");
+    //console.log("Rendering");
 
     linkElements = linkElements.data(force.links(), function(d, i) { return d._id; });
 
@@ -304,10 +314,14 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("class", 'control')
         .style("fill", "red")
         .on("click", function (d) {
-            console.log(forumIndex.handlers);
-            console.log(d._id);
-            if (d.isRoot) forumIndex.handlers['rootNode'].stop();
-            if (forumIndex.handlers[d._id]) forumIndex.handlers[d._id].stop();
+            if (d.isRoot) {
+              handlers['rootNode'].stop();
+              delete handlers['rootNode'];
+            }
+            if (handlers[d._id]) {
+              handlers[d._id].stop();
+              delete handlers[d._id];
+            }
             resetTargetsSelection();
         });
 
@@ -338,7 +352,7 @@ function ForumTree(forumIndex, nodes, links) {
                 Session.set('selectedTargets', st);
                 d3.select("#replyButton-" + d._id).style("fill", "white");
             }
-            console.log(st);
+            //console.log(st);
         });
 
     //console.log("Added reply buttons.");
@@ -356,16 +370,17 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function(d) { return "expandButton-" + d._id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
-            console.log(d);
             Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-              console.log(link._id);
-              handler = forumIndex.subscribe("forum", link.targetId);
-              forumIndex.handlers[link.targetId] = handler;
+              if (!handlers[link.targetId]) {
+                var handler = Meteor.subscribe("forum", link.targetId);
+                handlers[link.targetId] = handler;
+              }
             });
             Link.find({targetId: d._id}).fetch().forEach(function(link) {
-              console.log(link._id);
-              handler = forumIndex.subscribe("forum", link.sourceId);
-              forumIndex.handlers[link.sourceId] = handler;
+              if (!handlers[link.sourceId]) {
+                var handler = Meteor.subscribe("forum", link.sourceId);
+                handlers[link.sourceId] = handler;
+              }
             });
         });
 
@@ -384,7 +399,6 @@ function ForumTree(forumIndex, nodes, links) {
 
   this.addLink = function(doc) {
     link = linksToD3Array([doc], this.nodes)[0];
-    console.log(link);
     if (link && !this.links.find(function(l) {return (link._id == l._id)})) {
       this.links.push(link);
       return true;
@@ -393,33 +407,32 @@ function ForumTree(forumIndex, nodes, links) {
   };
 
   this.removeNode = function(doc) {
-    console.log("Trying to remove node:" + doc._id);
+    //console.log("Trying to remove node:" + doc._id);
     var iToRemove = -1;
     var forumTree = this;
     if (this.nodes.length !== 0)
       this.nodes.forEach(function(node, i) {
         if (node._id === doc._id) {
-          console.log("Found Node to remove!");
+          //console.log("Found Node to remove!");
           iToRemove = i;
         }
       });
     if (iToRemove != -1) {
       for (i = 0; i < this.links.length;) {
         link = this.links[i];
-        console.log(link);
         if (link.source._id === doc._id || link.target._id == doc._id)
           this.links.splice(i, 1);
         else i++;
       }
       this.nodes.splice(iToRemove, 1);
-      console.log("Successfully removed node");
+      //console.log("Successfully removed node");
       return true;
-    } else console.log("Failed to remove node");
+    } //else console.log("Failed to remove node");
     return false;
   };
 
   this.removeLink = function(doc) {
-    console.log("Trying to remove link:" + doc._id);
+    //console.log("Trying to remove link:" + doc._id);
     var iToRemove = -1;
     this.links.forEach(function(link, i) {
       if (link._id === doc._id) {
@@ -428,9 +441,9 @@ function ForumTree(forumIndex, nodes, links) {
     });
     if (iToRemove != -1) {
       this.links.splice(iToRemove, 1);
-      console.log("Successfully removed link");
+      //console.log("Successfully removed link");
       return true;
-    } else console.log("Failed to remove link");
+    } //else console.log("Failed to remove link");
     return false;
   };
 }

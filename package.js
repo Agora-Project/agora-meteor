@@ -17,7 +17,7 @@ Package.onUse(function(api) {
       'client/users.js',
       'client/templates.html',
       'client/graph.js',
-      'client/navigation.coffee',
+      'client/navigation.js',
       'client/main.css'
     ], 'client');
 
