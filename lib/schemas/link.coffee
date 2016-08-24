@@ -27,8 +27,8 @@
 
 @Link.attachSchema @Schema.Link
 
-@Link.before.insert (userId, argument)->
-  argument.createdAt = Date.now();
+@Link.before.insert (userId, link)->
+  link.createdAt = Date.now();
 
-@Link.before.remove (userId, argument)->
-  console.log(argument);
+@Link.before.remove (userId, link)->
+  console.log(link);

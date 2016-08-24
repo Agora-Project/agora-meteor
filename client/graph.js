@@ -14,7 +14,7 @@ Template.forumPost.events({
           return;
         }
 
-        var argumentId = Argument.insert({
+        var postId = Post.insert({
             ownerId: Meteor.userId(),
             title: title,
             body: body,
@@ -26,9 +26,9 @@ Template.forumPost.events({
 
         Router.go('/forum');
         event.preventDefault();
-        if (!handlers[argumentId]) {
-          var handler = Meteor.subscribe("forum", argumentId);
-          handlers[argumentId] = handler;
+        if (!handlers[postId]) {
+          var handler = Meteor.subscribe("forum", postId);
+          handlers[postId] = handler;
         }
     }
 });
@@ -38,7 +38,7 @@ Template.forumIndex.rendered = function() {
 
   var init = true;
 
-  var nodesCursor = Argument.find({}),
+  var nodesCursor = Post.find({}),
       linksCursor = Link.find({});
   var nodes = nodesCursor.fetch(),
       links = linksToD3Array(linksCursor.fetch(), nodes);
@@ -125,14 +125,14 @@ function ForumTree(forumIndex, nodes, links) {
   this.nodes = nodes;
   this.links = links;
 
-  var argumentWidth = 150,
-      argumentHeight = 60;
+  var postWidth = 120,
+      postHeight = 80;
 
   var key = function (d) {
     return d._id;
   };
 
-  var svg = d3.select("#arguments-graph").append("svg");
+  var svg = d3.select("#posts-graph").append("svg");
 
   svg.selectAll("*").remove();
 
@@ -152,7 +152,7 @@ function ForumTree(forumIndex, nodes, links) {
       .links(links)
       .gravity(0.082)
       .charge(-500)
-      .linkDistance(150)
+      .linkDistance(180)
       .on("tick", tick);
 
       var drag = d3.behavior.drag()
@@ -184,16 +184,16 @@ function ForumTree(forumIndex, nodes, links) {
     //This isf statement keeps the app from choking when reloading the page.
     if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
       linkElements.attr("x1", function (d) {
-          return d.source.x + argumentWidth / 2
+          return d.source.x + postWidth / 2
       })
           .attr("y1", function (d) {
-              return d.source.y + argumentHeight / 2;
+              return d.source.y + postHeight / 2;
           })
           .attr("x2", function (d) {
-              return d.target.x + argumentWidth / 2;
+              return d.target.x + postWidth / 2;
           })
           .attr("y2", function (d) {
-              return d.target.y + argumentHeight / 2;
+              return d.target.y + postHeight / 2;
           });
 
       var links = force.links();
@@ -203,7 +203,7 @@ function ForumTree(forumIndex, nodes, links) {
         if (nodes[links[i].target.index] && nodes[links[i].source.index]) {
           var targy = nodes[links[i].target.index].y;
           var sorcy = nodes[links[i].source.index].y;
-          if (sorcy - targy < 80) {
+          if (sorcy - targy < 20) {
               nodes[links[i].target.index].y -= 1;
               nodes[links[i].source.index].y += 1;
           }
@@ -242,10 +242,10 @@ function ForumTree(forumIndex, nodes, links) {
     //console.log("Removed dead nodes");
 
     var nodeSelection = nodeElements.enter().append("g").call(drag); /*.attr("class", function (d) {
-        if(d.isRoot) { return "root-argument"; } else { return ""; }
+        if(d.isRoot) { return "root-post"; } else { return ""; }
     });
 
-    var rootSelection = svg.selectAll("g.root-argument");
+    var rootSelection = svg.selectAll("g.root-post");
 
     rootSelection.append("image")
           .attr("xlink:href", "/packages/agoraforum_core/public/agoraforum.png")
@@ -270,8 +270,8 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function (d) {
             return "rect-" + d._id;
         })
-        .attr("width", argumentWidth)
-        .attr("height", argumentHeight)
+        .attr("width", postWidth)
+        .attr("height", postHeight)
         .attr('stroke', '#dbdbdb')
         .attr("stroke-width", 1)
         .attr('fill', '#fafafa');
@@ -300,8 +300,8 @@ function ForumTree(forumIndex, nodes, links) {
                 console.log("Wrapping "+ d._id);
                 d3plus.textwrap()
                     .container(d3.select(this))
-                    .width(argumentWidth)
-                    .height(argumentHeight)
+                    .width(postWidth)
+                    .height(postHeight)
                     .draw();
             });
         })
@@ -312,7 +312,7 @@ function ForumTree(forumIndex, nodes, links) {
     //console.log("Added bodies.");
 
     var removeButtons = nodeSelection.append("circle").attr("cx", function (d) {
-            return argumentWidth;
+            return postWidth;
         })
         .attr("r", 10)
         .attr("class", 'control')
@@ -333,7 +333,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     var replyButtons = nodeSelection.append("rect")
         .attr("y", function(d) {
-            return argumentHeight -10;
+            return postHeight -10;
         })
         .attr("width", 30)
         .attr("height", 10)
@@ -363,10 +363,10 @@ function ForumTree(forumIndex, nodes, links) {
 
     var expandButtons = nodeSelection.append("rect")
         .attr("y", function(d) {
-            return argumentHeight -10;
+            return postHeight -10;
         })
         .attr("x", function(d) {
-            return argumentWidth -30;
+            return postWidth -30;
         })
         .attr("width", 30)
         .attr("height", 10)

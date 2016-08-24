@@ -26,7 +26,7 @@ Package.onUse(function(api) {
     ], 'client');
 
   api.addFiles([
-      'lib/schemas/argument.coffee',
+      'lib/schemas/post.coffee',
       'lib/schemas/link.coffee',
       'lib/schemas/vote.coffee',
       'routes.coffee'

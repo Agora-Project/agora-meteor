@@ -16,5 +16,5 @@ Meteor.publish "users", ->
 
 Meteor.publish "forum", (id) ->
   if (!id)
-    id = Argument.findOne({isRoot: true})._id;
-  return [Argument.find({_id: id}), Link.find({ $or: [ { sourceId: id}, { targetId: id} ] }) ];
+    id = Post.findOne({isRoot: true})._id;
+  return [Post.find({_id: id}), Link.find({ $or: [ { sourceId: id}, { targetId: id} ] }) ];

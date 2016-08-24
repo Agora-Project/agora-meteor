@@ -2,8 +2,8 @@ Meteor.methods
   insertLink: (attributes)->
     Link.insert attributes
 
-  removeLinks: (argumentId)->
-    for link in Link.find({ sourceId: argumentId }).fetch()
+  removeLinks: (postId)->
+    for link in Link.find({ sourceId: postId }).fetch()
       Link.remove(link._id)
-    for link in Link.find({ targetId: argumentId }).fetch()
+    for link in Link.find({ targetId: postId }).fetch()
       Link.remove(link._id)

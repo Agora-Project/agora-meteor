@@ -1,11 +1,11 @@
-Argument.allow
-  insert: (userId, argument)->
-    return argument.ownerId == userId
-  remove: (userId, argument)->
+Post.allow
+  insert: (userId, post)->
+    return post.ownerId == userId
+  remove: (userId, post)->
     return true
 
 Link.allow
   insert: (userId, link)->
     return link.ownerId == userId
-  remove: (userId, argument)->
+  remove: (userId, link)->
     return true

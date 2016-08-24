@@ -1,4 +1,4 @@
-.root-argument .control, .root-argument rect, .root-argument text {
+.root-post .control, .root-post rect, .root-post text {
     display: none;
 }
 
@@ -24,7 +24,7 @@
   margin: 0 auto 0 auto;
 }
 
-/*.fit-graph, #arguments-graph {
+/*.fit-graph, #posts-graph {
     position: absolute;
     top:0px;
     right: 0px;

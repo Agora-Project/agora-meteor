@@ -17,5 +17,5 @@
 
 @Vote.attachSchema @Schema.Vote
 
-@Vote.before.insert (userId, argument)->
-  argument.createdAt = Date.now();
+@Vote.before.insert (userId, vote)->
+  vote.createdAt = Date.now();
