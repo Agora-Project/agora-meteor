@@ -1,6 +1,6 @@
 Package.describe({
   name: 'agoraforum:core',
-  version: '0.0.4',
+  version: '0.0.5',
   summary: 'Graph-based forum',
   git: 'https://github.com/Agora-Project/agora-meteor',
   documentation: 'README.md'
@@ -53,7 +53,7 @@ Package.onUse(function(api) {
       'coffeescript',
       'reactive-var',
       'iron:router@1.0.0',
-      'aldeed:collection2',
+      'aldeed:collection2@2.3.3',
       'matb33:collection-hooks@0.7.13',
       'accounts-base',
       'mrt:moment@2.8.1',
