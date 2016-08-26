@@ -21,6 +21,11 @@
     type: Boolean
     optional: true
 
+  respondable:
+    type: Number
+    optional: true
+    defaultValue: 0
+
   isRoot:
     type: Boolean
     optional: true

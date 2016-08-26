@@ -34,7 +34,7 @@ Package.onUse(function(api) {
 
   api.addFiles([
       'server/initial-data.coffee',
-      'server/links.coffee',
+      'server/methods.coffee',
       'server/permits.coffee',
       'server/publish.coffee',
       'server/users.js'

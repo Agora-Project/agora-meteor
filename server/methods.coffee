@@ -7,3 +7,7 @@ Meteor.methods
       Link.remove(link._id)
     for link in Link.find({ targetId: postId }).fetch()
       Link.remove(link._id)
+
+  insertPost: (post)->
+    console.log post 
+    Post.insert post

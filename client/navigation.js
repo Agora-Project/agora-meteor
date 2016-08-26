@@ -12,3 +12,10 @@ Template.forumIndex.events({
       Router.go('/forum/post');
   }
 });
+
+Template.forumIndex.helpers({
+  checkIfModerator: function() {
+    return Roles.userIsInRole(Meteor.userId(), ['moderator']);
+  }
+
+});

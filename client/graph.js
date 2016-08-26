@@ -33,6 +33,19 @@ Template.forumPost.events({
     }
 });
 
+Template.forumIndex.events({
+  'click .button-delete': function() {
+    for (var post in Session.get('selectedTargets')) {
+      if (tree.removeNode(post))
+        tree.render();
+      if (handlers[post._id])
+        handlers[post._id].stop();
+      Post.removeWithLinks(post);
+    }
+
+  }
+});
+
 Template.forumIndex.rendered = function() {
   Session.setDefault('selectedTargets', {})
 
@@ -150,9 +163,9 @@ function ForumTree(forumIndex, nodes, links) {
   var force = d3.layout.force()
       .nodes(nodes)
       .links(links)
-      .gravity(0.082)
-      .charge(-500)
-      .linkDistance(180)
+      .gravity(0.060)
+      .charge(-1000)
+      .linkDistance(150)
       .on("tick", tick);
 
       var drag = d3.behavior.drag()
@@ -203,7 +216,7 @@ function ForumTree(forumIndex, nodes, links) {
         if (nodes[links[i].target.index] && nodes[links[i].source.index]) {
           var targy = nodes[links[i].target.index].y;
           var sorcy = nodes[links[i].source.index].y;
-          if (sorcy - targy < 20) {
+          if (sorcy - targy < 40) {
               nodes[links[i].target.index].y -= 1;
               nodes[links[i].source.index].y += 1;
           }
