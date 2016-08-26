@@ -47,9 +47,6 @@
 @Post.before.insert (userId, post)->
   post.createdAt = Date.now();
 
-@Post.before.remove (userId, post)->
-  console.log post
-
 if Meteor.isClient
   @Post.after.insert (userId, post)->
     return true if post.isRoot

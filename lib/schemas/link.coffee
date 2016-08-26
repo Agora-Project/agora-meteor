@@ -29,6 +29,3 @@
 
 @Link.before.insert (userId, link)->
   link.createdAt = Date.now();
-
-@Link.before.remove (userId, link)->
-  console.log(link);
