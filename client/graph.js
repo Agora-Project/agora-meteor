@@ -196,17 +196,17 @@ function ForumTree(forumIndex, nodes, links) {
   function tick() {
     //This isf statement keeps the app from choking when reloading the page.
     if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
-      linkElements.attr("x1", function (d) {
-          return d.source.x + postWidth / 2
-      })
+          linkElements.attr("x1", function (d) {
+              return d.source.x;
+          })
           .attr("y1", function (d) {
-              return d.source.y + postHeight / 2;
+              return d.source.y;
           })
           .attr("x2", function (d) {
-              return d.target.x + postWidth / 2;
+              return d.target.x;
           })
           .attr("y2", function (d) {
-              return d.target.y + postHeight / 2;
+              return d.target.y;
           });
 
       var links = force.links();
@@ -224,7 +224,8 @@ function ForumTree(forumIndex, nodes, links) {
       }
 
       nodeElements.attr("transform", function (d) {
-          return "translate(" + d.x + "," + d.y + ")";
+          return "translate(" + (d.x - document.getElementById("rect-"+ d._id).getBBox().width/2) + ","
+          + (d.y - document.getElementById("rect-"+ d._id).getBBox().height/2) + ")";
       });
   }
 
@@ -292,7 +293,9 @@ function ForumTree(forumIndex, nodes, links) {
     //console.log("Added rect objects.");
 
     var titles = nodeSelection.append("text")
-        .text(function (d) {
+        .attr("id", function (d) {
+          return "title-" + d._id;
+        }).text(function (d) {
             return d.title;
         })
         .attr("font-family", "sans-serif")
@@ -316,7 +319,12 @@ function ForumTree(forumIndex, nodes, links) {
                     .width(postWidth)
                     .height(postHeight)
                     .draw();
+                //console.log(this.getBBox().width);
+                //console.log(parseFloat(window.getComputedStyle(this, null).getPropertyValue('font-size')));
+                d3.select("#rect-"+ d._id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d._id).getBBox().width), 180));
+                d3.select("#rect-"+ d._id).attr('height', Math.max(this.getBBox().height + 10, 20));
             });
+
         })
         .attr("id", function (d) {
             return "text-" + d._id;
@@ -325,7 +333,7 @@ function ForumTree(forumIndex, nodes, links) {
     //console.log("Added bodies.");
 
     var removeButtons = nodeSelection.append("circle").attr("cx", function (d) {
-            return postWidth;
+            return document.getElementById("rect-"+ d._id).getBBox().width;
         })
         .attr("r", 10)
         .attr("class", 'control')
@@ -346,7 +354,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     var replyButtons = nodeSelection.append("rect")
         .attr("y", function(d) {
-            return postHeight -10;
+            return document.getElementById("rect-"+ d._id).getBBox().height -10;
         })
         .attr("width", 30)
         .attr("height", 10)
@@ -376,10 +384,10 @@ function ForumTree(forumIndex, nodes, links) {
 
     var expandButtons = nodeSelection.append("rect")
         .attr("y", function(d) {
-            return postHeight -10;
+            return document.getElementById("rect-"+ d._id).getBBox().height -10;
         })
         .attr("x", function(d) {
-            return postWidth -30;
+            return document.getElementById("rect-"+ d._id).getBBox().width -30;
         })
         .attr("width", 30)
         .attr("height", 10)
