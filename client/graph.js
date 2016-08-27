@@ -26,10 +26,7 @@ Template.forumPost.events({
 
         Router.go('/forum');
         event.preventDefault();
-        if (!handlers[postId]) {
-          var handler = Meteor.subscribe("forum", postId);
-          handlers[postId] = handler;
-        }
+        handlers.addHandler(postId);
     }
 });
 
@@ -96,11 +93,18 @@ Template.forumIndex.rendered = function() {
 
   tree.render();
   init = false;
-  if (!handlers) handlers = {};
-  if (!handlers["rootNode"]) {
-    var handler = Meteor.subscribe("forum");
-    handlers['rootNode'] = handler;
+  if (!handlers) {
+    handlers = {};
+    handlers.addHandler = function(id) {
+      if (!id) id = "rootNode";
+      if (!this[id]) {
+        if (id === "rootNode") var handler = Meteor.subscribe("forum");
+        else var handler = Meteor.subscribe("forum", id);
+        this[id] = handler;
+      }
+    }
   }
+  handlers.addHandler();
 };
 
 
@@ -398,16 +402,11 @@ function ForumTree(forumIndex, nodes, links) {
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
             Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-              if (!handlers[link.targetId]) {
-                var handler = Meteor.subscribe("forum", link.targetId);
-                handlers[link.targetId] = handler;
-              }
+              handlers.addHandler(link.targetId);
+
             });
             Link.find({targetId: d._id}).fetch().forEach(function(link) {
-              if (!handlers[link.sourceId]) {
-                var handler = Meteor.subscribe("forum", link.sourceId);
-                handlers[link.sourceId] = handler;
-              }
+              handlers.addHandler(link.sourceId);
             });
         });
 
