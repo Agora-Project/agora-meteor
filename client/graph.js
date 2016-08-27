@@ -224,8 +224,10 @@ function ForumTree(forumIndex, nodes, links) {
       }
 
       nodeElements.attr("transform", function (d) {
+        if (document.getElementById("rect-"+ d._id))
           return "translate(" + (d.x - document.getElementById("rect-"+ d._id).getBBox().width/2) + ","
-          + (d.y - document.getElementById("rect-"+ d._id).getBBox().height/2) + ")";
+                 + (d.y - document.getElementById("rect-"+ d._id).getBBox().height/2) + ")";
+        else return "translate(" + d.x + ","+ d.y + ")";
       });
   }
 
