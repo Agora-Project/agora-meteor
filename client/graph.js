@@ -53,12 +53,33 @@ Template.forumIndex.rendered = function() {
   var nodes = nodesCursor.fetch(),
       links = linksToD3Array(linksCursor.fetch(), nodes);
 
+  //the NodeIDMap exists so that we don't need to have a 1:1 correspondence
+  //between nodes loaded into out local collection and nodes loaded into the
+  //graph. We can have posts that aren't shown on the graph, and things in the graph that aren't posts.
+  NodeIDMap = {map: {}, reverseMap: {}, count:0};
+  NodeIDMap.add = function(_id) {
+    if (!this.map[_id]) {
+      this.map[_id] = this.count;
+      this.reverseMap[this.count] = _id;
+      this.count++;
+    }
+    return this.map[_id];
+  }
+  NodeIDMap.get = function(_id) {
+    return this.map[_id];
+  }
+  NodeIDMap.getReverse = function(id) {
+    return this.reverseMap[id];
+  }
+
   tree = new ForumTree(this, nodes, links);
 
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
       //console.log("Adding Node: " + doc._id);
+      doc.id = NodeIDMap.add(doc._id);
+      console.log(doc);
       if(tree.addNode(doc)) {
         //console.log("Node Added, checking links...");
         Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
@@ -116,13 +137,13 @@ function resetTargetsSelection() {
 function linksToD3Array(linksCol, nodesCol) {
     var nodes = {};
     nodesCol.forEach(function(node) {
-        nodes[node._id] = node;
+        nodes[node.id] = node;
       });
     var result = [];
     linksCol.forEach(function(link) {
         var tmp = {
-            source: nodes[link.sourceId],
-            target: nodes[link.targetId],
+            source: nodes[NodeIDMap.get(link.sourceId)],
+            target: nodes[NodeIDMap.get(link.targetId)],
             isAttack: link.isAttack,
             _id: link._id
         };
@@ -228,9 +249,9 @@ function ForumTree(forumIndex, nodes, links) {
       }
 
       nodeElements.attr("transform", function (d) {
-        if (document.getElementById("rect-"+ d._id))
-          return "translate(" + (d.x - document.getElementById("rect-"+ d._id).getBBox().width/2) + ","
-                 + (d.y - document.getElementById("rect-"+ d._id).getBBox().height/2) + ")";
+        if (document.getElementById("rect-"+ d.id))
+          return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
+                 + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
         else return "translate(" + d.x + ","+ d.y + ")";
       });
   }
@@ -256,7 +277,7 @@ function ForumTree(forumIndex, nodes, links) {
     linkElements.exit().remove();
     //console.log("Removed dead links");
 
-    nodeElements = nodeElements.data(force.nodes(), function(d, i) { return d._id;});
+    nodeElements = nodeElements.data(force.nodes(), function(d, i) { return d.id;});
 
     nodeElements.exit().remove();
     //console.log("Removed dead nodes");
@@ -288,7 +309,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     nodeSelection.append('rect')
         .attr("id", function (d) {
-            return "rect-" + d._id;
+            return "rect-" + d.id;
         })
         .attr("width", postWidth)
         .attr("height", postHeight)
@@ -300,7 +321,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     var titles = nodeSelection.append("text")
         .attr("id", function (d) {
-          return "title-" + d._id;
+          return "title-" + d.id;
         }).text(function (d) {
             return d.title;
         })
@@ -327,19 +348,19 @@ function ForumTree(forumIndex, nodes, links) {
                     .draw();
                 //console.log(this.getBBox().width);
                 //console.log(parseFloat(window.getComputedStyle(this, null).getPropertyValue('font-size')));
-                d3.select("#rect-"+ d._id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d._id).getBBox().width), 180));
-                d3.select("#rect-"+ d._id).attr('height', Math.max(this.getBBox().height + 10, 20));
+                d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 180));
+                d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 10, 20));
             });
 
         })
         .attr("id", function (d) {
-            return "text-" + d._id;
+            return "text-" + d.id;
         });
 
     //console.log("Added bodies.");
 
     var removeButtons = nodeSelection.append("circle").attr("cx", function (d) {
-            return document.getElementById("rect-"+ d._id).getBBox().width;
+            return document.getElementById("rect-"+ d.id).getBBox().width;
         })
         .attr("r", 10)
         .attr("class", 'control')
@@ -360,12 +381,12 @@ function ForumTree(forumIndex, nodes, links) {
 
     var replyButtons = nodeSelection.append("rect")
         .attr("y", function(d) {
-            return document.getElementById("rect-"+ d._id).getBBox().height -10;
+            return document.getElementById("rect-"+ d.id).getBBox().height -10;
         })
         .attr("width", 30)
         .attr("height", 10)
         .attr("class", 'control reply-button')
-        .attr("id", function(d) { return "replyButton-" + d._id;})
+        .attr("id", function(d) { return "replyButton-" + d.id;})
         .style("fill", function(d) {
             if (Session.get('selectedTargets')[d._id]) {
                 return "white";
@@ -377,11 +398,11 @@ function ForumTree(forumIndex, nodes, links) {
             if (st[d._id]) {
                 delete st[d._id];
                 Session.set('selectedTargets', st);
-                d3.select("#replyButton-" + d._id).style("fill", "green");
+                d3.select("#replyButton-" + d.id).style("fill", "green");
             } else {
                 st[d._id] = true;
                 Session.set('selectedTargets', st);
-                d3.select("#replyButton-" + d._id).style("fill", "white");
+                d3.select("#replyButton-" + d.id).style("fill", "white");
             }
             //console.log(st);
         });
@@ -390,15 +411,15 @@ function ForumTree(forumIndex, nodes, links) {
 
     var expandButtons = nodeSelection.append("rect")
         .attr("y", function(d) {
-            return document.getElementById("rect-"+ d._id).getBBox().height -10;
+            return document.getElementById("rect-"+ d.id).getBBox().height -10;
         })
         .attr("x", function(d) {
-            return document.getElementById("rect-"+ d._id).getBBox().width -30;
+            return document.getElementById("rect-"+ d.id).getBBox().width -30;
         })
         .attr("width", 30)
         .attr("height", 10)
         .attr("class", 'control expand-button')
-        .attr("id", function(d) { return "expandButton-" + d._id;})
+        .attr("id", function(d) { return "expandButton-" + d.id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
             Link.find({sourceId: d._id}).fetch().forEach(function(link) {
