@@ -48,16 +48,11 @@ Template.forumIndex.rendered = function() {
 
   var init = true;
 
-  var nodesCursor = Post.find({}),
-      linksCursor = Link.find({});
-  var nodes = nodesCursor.fetch(),
-      links = linksToD3Array(linksCursor.fetch(), nodes);
-
-  //the NodeIDMap exists so that we don't need to have a 1:1 correspondence
+  //the nodeIDMap exists so that we don't need to have a 1:1 correspondence
   //between nodes loaded into out local collection and nodes loaded into the
   //graph. We can have posts that aren't shown on the graph, and things in the graph that aren't posts.
-  NodeIDMap = {map: {}, reverseMap: {}, count:0};
-  NodeIDMap.add = function(_id) {
+  nodeIDMap = {map: {}, reverseMap: {}, count:0};
+  nodeIDMap.add = function(_id) {
     if (!this.map[_id]) {
       this.map[_id] = this.count;
       this.reverseMap[this.count] = _id;
@@ -65,30 +60,56 @@ Template.forumIndex.rendered = function() {
     }
     return this.map[_id];
   }
-  NodeIDMap.get = function(_id) {
+  nodeIDMap.get = function(_id) {
     return this.map[_id];
   }
-  NodeIDMap.getReverse = function(id) {
+  nodeIDMap.getReverse = function(id) {
     return this.reverseMap[id];
   }
 
+  if (!handlers) {
+    handlers = {};
+    handlers.addHandler = function(id) {
+      if (!id) id = "rootNode";
+      if (!this[id]) {
+        if (id === "rootNode") var handler = Meteor.subscribe("forum");
+        else var handler = Meteor.subscribe("forum", id);
+        this[id] = handler;
+      }
+    }
+  }
+  handlers.addHandler();
+
+  var nodesCursor = Post.find({}),
+      linksCursor = Link.find({});
+  var nodes = [];
+
+  nodesCursor.fetch().forEach(function(n) {
+    n.id = nodeIDMap.add(n._id);
+    if (nodesToAddToGraph.contains(n)) nodes.push(n);
+  });
+
+  var links = linksToD3Array(linksCursor.fetch(), nodes);
+
   tree = new ForumTree(this, nodes, links);
+
+  nodesToAddToGraph = {ids: {}};
+  nodesToAddToGraph.contains = function(node) {
+    return (node.isRoot || this.ids[node._id]);
+  }
+  nodesToAddToGraph.add = function(_id) {
+    var post = Post.findOne({_id: _id});
+    if (post) tree.addNode(post);
+    else this.ids[_id] = true;
+  }
 
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
       //console.log("Adding Node: " + doc._id);
-      doc.id = NodeIDMap.add(doc._id);
-      console.log(doc);
-      if(tree.addNode(doc)) {
-        //console.log("Node Added, checking links...");
-        Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
-          //console.log("Adding Link: " + link._id);
-          tree.addLink(link);
-        });
-      }
-      tree.render();
-      //console.log("Tree Rendered");
+      if (nodesToAddToGraph.contains(doc))
+        tree.addNode(doc);
+      else console.log("Skipped adding node: " + doc.title);
     },
     removed: function(doc) {
       if (init) { return; }
@@ -114,18 +135,6 @@ Template.forumIndex.rendered = function() {
 
   tree.render();
   init = false;
-  if (!handlers) {
-    handlers = {};
-    handlers.addHandler = function(id) {
-      if (!id) id = "rootNode";
-      if (!this[id]) {
-        if (id === "rootNode") var handler = Meteor.subscribe("forum");
-        else var handler = Meteor.subscribe("forum", id);
-        this[id] = handler;
-      }
-    }
-  }
-  handlers.addHandler();
 };
 
 
@@ -142,8 +151,8 @@ function linksToD3Array(linksCol, nodesCol) {
     var result = [];
     linksCol.forEach(function(link) {
         var tmp = {
-            source: nodes[NodeIDMap.get(link.sourceId)],
-            target: nodes[NodeIDMap.get(link.targetId)],
+            source: nodes[nodeIDMap.get(link.sourceId)],
+            target: nodes[nodeIDMap.get(link.targetId)],
             isAttack: link.isAttack,
             _id: link._id
         };
@@ -190,6 +199,7 @@ function ForumTree(forumIndex, nodes, links) {
       .links(links)
       .gravity(0.060)
       .charge(-1000)
+      .friction(0.5)
       .linkDistance(150)
       .on("tick", tick);
 
@@ -267,6 +277,8 @@ function ForumTree(forumIndex, nodes, links) {
   // dynamically update the graph
   this.render = function() {
     // add links
+
+    contextMenuShowing = false;
 
     //console.log("Rendering");
 
@@ -423,10 +435,12 @@ function ForumTree(forumIndex, nodes, links) {
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
             Link.find({sourceId: d._id}).fetch().forEach(function(link) {
+              nodesToAddToGraph.add(link.targetId);
               handlers.addHandler(link.targetId);
 
             });
             Link.find({targetId: d._id}).fetch().forEach(function(link) {
+              nodesToAddToGraph.add(link.sourceId);
               handlers.addHandler(link.sourceId);
             });
         });
@@ -438,7 +452,15 @@ function ForumTree(forumIndex, nodes, links) {
 
   this.addNode = function(doc) {
     if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
+      doc.id = nodeIDMap.add(doc._id);
       this.nodes.push(doc);
+      //console.log("Node Added, checking links...");
+      Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
+        //console.log("Adding Link: " + link._id);
+        tree.addLink(link);
+      });
+
+      tree.render();
       return true;
     }
     return false;
