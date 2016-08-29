@@ -77,6 +77,16 @@ Template.forumIndex.rendered = function() {
         this[id] = handler;
       }
     }
+    handlers.stop = function(node) {
+      if (node.isRoot) {
+        this['rootNode'].stop();
+        delete this['rootNode'];
+      }
+      if (this[node._id]) {
+        this[node._id].stop();
+        delete this[node._id];
+      }
+    }
   }
   handlers.addHandler();
 
@@ -86,35 +96,41 @@ Template.forumIndex.rendered = function() {
 
   nodesCursor.fetch().forEach(function(n) {
     n.id = nodeIDMap.add(n._id);
-    if (nodesToAddToGraph.contains(n)) nodes.push(n);
+    if (nodesInGraph.contains(n)) nodes.push(n);
   });
 
   var links = linksToD3Array(linksCursor.fetch(), nodes);
 
   tree = new ForumTree(this, nodes, links);
 
-  nodesToAddToGraph = {ids: {}};
-  nodesToAddToGraph.contains = function(node) {
-    return (node.isRoot || this.ids[node._id]);
-  }
-  nodesToAddToGraph.add = function(_id) {
-    var post = Post.findOne({_id: _id});
-    if (post) tree.addNode(post);
-    else this.ids[_id] = true;
+  if (!nodesInGraph) {
+    nodesInGraph = {ids: {}};
+    nodesInGraph.contains = function(node) {
+      return (node.isRoot || this.ids[node._id]);
+    };
+    nodesInGraph.add = function(_id) {
+      var post = Post.findOne({_id: _id});
+      if (post) tree.addNode(post);
+      else this.ids[_id] = true;
+    };
+    nodesInGraph.remove = function(_id) {
+      if (!this.ids[_id]) return false;
+      delete this.ids[_id];
+      return true;
+    };
   }
 
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
       //console.log("Adding Node: " + doc._id);
-      if (nodesToAddToGraph.contains(doc))
+      if (nodesInGraph.contains(doc))
         tree.addNode(doc);
       else console.log("Skipped adding node: " + doc.title);
     },
     removed: function(doc) {
       if (init) { return; }
-      if (tree.removeNode(doc))
-        tree.render();
+      tree.removeNode(doc);
       //console.log("Tree Rendered");
     }
   });
@@ -123,6 +139,10 @@ Template.forumIndex.rendered = function() {
     added: function(doc) {
       if (init) { return; }
       //console.log("Adding Link: " + doc._id);
+      if (nodesInGraph.contains(doc.sourceId))
+        handlers.addHandler(doc.targetId);
+      else if (nodesInGraph.contains(doc.targetId))
+        handlers.addHandler(doc.sourceId);
       if(tree.addLink(doc))
         tree.render();
     },
@@ -165,6 +185,104 @@ function linksToD3Array(linksCol, nodesCol) {
     return result;
 };
 
+function contextMenu() {
+    var height,
+        width,
+        margin = 0.1, // fraction of width
+        items = [],
+        rescale = false,
+        style = {
+            'rect': {
+                'mouseout': {
+                    'fill': 'rgb(244,244,244)',
+                    'stroke': 'white',
+                    'stroke-width': '1px'
+                },
+                'mouseover': {
+                    'fill': 'rgb(200,200,200)'
+                }
+            },
+            'text': {
+                'fill': 'steelblue',
+                'font-size': '13'
+            }
+        };
+
+    function menu(x, y) {
+        d3.select('.context-menu').remove();
+        scaleItems();
+
+        // Draw the menu
+        d3.select('svg')
+            .append('g').attr('class', 'context-menu')
+            .selectAll('tmp')
+            .data(items).enter()
+            .append('g').attr('class', 'menu-entry')
+            .style({'cursor': 'pointer'})
+            .on('mouseover', function(){
+                d3.select(this).select('rect').style(style.rect.mouseover) })
+            .on('mouseout', function(){
+                d3.select(this).select('rect').style(style.rect.mouseout) });
+
+        d3.selectAll('.menu-entry')
+            .append('rect')
+            .attr('x', x)
+            .attr('y', function(d, i){ return y + (i * height); })
+            .attr('width', width)
+            .attr('height', height)
+            .style(style.rect.mouseout);
+
+        d3.selectAll('.menu-entry')
+            .append('text')
+            .text(function(d){ return d; })
+            .attr('x', x)
+            .attr('y', function(d, i){ return y + (i * height); })
+            .attr('dy', height - margin / 2)
+            .attr('dx', margin)
+            .style(style.text);
+
+        // Other interactions
+        d3.select('body')
+            .on('click', function() {
+                d3.select('.context-menu').remove();
+            });
+
+    }
+
+    menu.items = function(e) {
+        if (!arguments.length) return items;
+        for (i in arguments) items.push(arguments[i]);
+        rescale = true;
+        return menu;
+    }
+
+    // Automatically set width, height, and margin;
+    function scaleItems() {
+        if (rescale) {
+            d3.select('svg').selectAll('tmp')
+                .data(items).enter()
+                .append('text')
+                .text(function(d){ return d; })
+                .style(style.text)
+                .attr('x', -1000)
+                .attr('y', -1000)
+                .attr('class', 'tmp');
+            var z = d3.selectAll('.tmp')[0]
+                      .map(function(x){ return x.getBBox(); });
+            width = d3.max(z.map(function(x){ return x.width; }));
+            margin = margin * width;
+            width =  width + 2 * margin;
+            height = d3.max(z.map(function(x){ return x.height + margin / 2; }));
+
+            // cleanup
+            d3.selectAll('.tmp').remove();
+            rescale = false;
+        }
+    }
+
+    return menu;
+}
+
 function ForumTree(forumIndex, nodes, links) {
 
   this.forumIndex = forumIndex;
@@ -197,8 +315,8 @@ function ForumTree(forumIndex, nodes, links) {
   var force = d3.layout.force()
       .nodes(nodes)
       .links(links)
-      .gravity(0.060)
-      .charge(-1000)
+      .gravity(0.10)
+      .charge(-5000)
       .friction(0.5)
       .linkDistance(150)
       .on("tick", tick);
@@ -378,14 +496,8 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("class", 'control')
         .style("fill", "red")
         .on("click", function (d) {
-            if (d.isRoot) {
-              handlers['rootNode'].stop();
-              delete handlers['rootNode'];
-            }
-            if (handlers[d._id]) {
-              handlers[d._id].stop();
-              delete handlers[d._id];
-            }
+            //handlers.stop(d);
+            tree.removeNode(d)
             resetTargetsSelection();
         });
 
@@ -433,14 +545,22 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("class", 'control expand-button')
         .attr("id", function(d) { return "expandButton-" + d.id;})
         .style("fill", "rebeccapurple")
-        .on("click", function (d) {
+        .on("contextmenu", function (d) {
+            // Build the popup
+            d3.event.preventDefault();
+            var menu = contextMenu().items('first item', 'second option', 'whatever, man');
+            menu(d.x + document.getElementById("expandButton-"+ d.id).getBBox().x,
+                 d.y + document.getElementById("expandButton-"+ d.id).getBBox().y);
+
+
+
             Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-              nodesToAddToGraph.add(link.targetId);
+              nodesInGraph.add(link.targetId);
               handlers.addHandler(link.targetId);
 
             });
             Link.find({targetId: d._id}).fetch().forEach(function(link) {
-              nodesToAddToGraph.add(link.sourceId);
+              nodesInGraph.add(link.sourceId);
               handlers.addHandler(link.sourceId);
             });
         });
@@ -494,7 +614,9 @@ function ForumTree(forumIndex, nodes, links) {
         else i++;
       }
       this.nodes.splice(iToRemove, 1);
+      nodesInGraph.remove(doc._id);
       //console.log("Successfully removed node");
+      tree.render();
       return true;
     } //else console.log("Failed to remove node");
     return false;
