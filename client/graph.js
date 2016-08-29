@@ -77,6 +77,16 @@ Template.forumIndex.rendered = function() {
         this[id] = handler;
       }
     }
+    handlers.stop = function(node) {
+      if (node.isRoot) {
+        this['rootNode'].stop();
+        delete this['rootNode'];
+      }
+      if (this[node._id]) {
+        this[node._id].stop();
+        delete this[node._id];
+      }
+    }
   }
   handlers.addHandler();
 
@@ -86,35 +96,41 @@ Template.forumIndex.rendered = function() {
 
   nodesCursor.fetch().forEach(function(n) {
     n.id = nodeIDMap.add(n._id);
-    if (nodesToAddToGraph.contains(n)) nodes.push(n);
+    if (nodesInGraph.contains(n)) nodes.push(n);
   });
 
   var links = linksToD3Array(linksCursor.fetch(), nodes);
 
   tree = new ForumTree(this, nodes, links);
 
-  nodesToAddToGraph = {ids: {}};
-  nodesToAddToGraph.contains = function(node) {
-    return (node.isRoot || this.ids[node._id]);
-  }
-  nodesToAddToGraph.add = function(_id) {
-    var post = Post.findOne({_id: _id});
-    if (post) tree.addNode(post);
-    else this.ids[_id] = true;
+  if (!nodesInGraph) {
+    nodesInGraph = {ids: {}};
+    nodesInGraph.contains = function(node) {
+      return (node.isRoot || this.ids[node._id]);
+    };
+    nodesInGraph.add = function(_id) {
+      var post = Post.findOne({_id: _id});
+      if (post) tree.addNode(post);
+      else this.ids[_id] = true;
+    };
+    nodesInGraph.remove = function(_id) {
+      if (!this.ids[_id]) return false;
+      delete this.ids[_id];
+      return true;
+    };
   }
 
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
       //console.log("Adding Node: " + doc._id);
-      if (nodesToAddToGraph.contains(doc))
+      if (nodesInGraph.contains(doc))
         tree.addNode(doc);
       else console.log("Skipped adding node: " + doc.title);
     },
     removed: function(doc) {
       if (init) { return; }
-      if (tree.removeNode(doc))
-        tree.render();
+      tree.removeNode(doc);
       //console.log("Tree Rendered");
     }
   });
@@ -123,6 +139,10 @@ Template.forumIndex.rendered = function() {
     added: function(doc) {
       if (init) { return; }
       //console.log("Adding Link: " + doc._id);
+      if (nodesInGraph.contains(doc.sourceId))
+        handlers.addHandler(doc.targetId);
+      else if (nodesInGraph.contains(doc.targetId))
+        handlers.addHandler(doc.sourceId);
       if(tree.addLink(doc))
         tree.render();
     },
@@ -197,9 +217,9 @@ function ForumTree(forumIndex, nodes, links) {
   var force = d3.layout.force()
       .nodes(nodes)
       .links(links)
-      .gravity(0.060)
-      .charge(-1000)
-      .friction(0.5)
+      .gravity(0.10)
+      .charge(-5000)
+      .friction(0.9)
       .linkDistance(150)
       .on("tick", tick);
 
@@ -378,14 +398,8 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("class", 'control')
         .style("fill", "red")
         .on("click", function (d) {
-            if (d.isRoot) {
-              handlers['rootNode'].stop();
-              delete handlers['rootNode'];
-            }
-            if (handlers[d._id]) {
-              handlers[d._id].stop();
-              delete handlers[d._id];
-            }
+            //handlers.stop(d);
+            tree.removeNode(d)
             resetTargetsSelection();
         });
 
@@ -434,18 +448,19 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function(d) { return "expandButton-" + d.id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
+
+
+
             Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-              nodesToAddToGraph.add(link.targetId);
+              nodesInGraph.add(link.targetId);
               handlers.addHandler(link.targetId);
 
             });
             Link.find({targetId: d._id}).fetch().forEach(function(link) {
-              nodesToAddToGraph.add(link.sourceId);
+              nodesInGraph.add(link.sourceId);
               handlers.addHandler(link.sourceId);
             });
         });
-
-    //console.log("Added expand buttons.");
 
     force.start();
   };
@@ -494,7 +509,9 @@ function ForumTree(forumIndex, nodes, links) {
         else i++;
       }
       this.nodes.splice(iToRemove, 1);
+      nodesInGraph.remove(doc._id);
       //console.log("Successfully removed node");
+      tree.render();
       return true;
     } //else console.log("Failed to remove node");
     return false;
