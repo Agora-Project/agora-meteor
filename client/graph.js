@@ -90,6 +90,26 @@ Template.forumIndex.rendered = function() {
   }
   handlers.addHandler();
 
+  if (!nodesInGraph) {
+    nodesInGraph = {ids: {}};
+    nodesInGraph.contains = function(node) {
+      return (node.isRoot || this.ids[node._id]);
+    };
+    nodesInGraph.containsID = function(_id) {
+      return (this.ids[_id] || (Post.findOne({_id: _id}) && Post.findOne({_id: _id}).isRoot));
+    };
+    nodesInGraph.add = function(_id) {
+      this.ids[_id] = true;
+      var post = Post.findOne({_id: _id});
+      if (post) tree.addNode(post);
+    };
+    nodesInGraph.remove = function(_id) {
+      if (!this.ids[_id]) return false;
+      delete this.ids[_id];
+      return true;
+    };
+  }
+
   var nodesCursor = Post.find({}),
       linksCursor = Link.find({});
   var nodes = [];
@@ -103,29 +123,14 @@ Template.forumIndex.rendered = function() {
 
   tree = new ForumTree(this, nodes, links);
 
-  if (!nodesInGraph) {
-    nodesInGraph = {ids: {}};
-    nodesInGraph.contains = function(node) {
-      return (node.isRoot || this.ids[node._id]);
-    };
-    nodesInGraph.add = function(_id) {
-      var post = Post.findOne({_id: _id});
-      if (post) tree.addNode(post);
-      else this.ids[_id] = true;
-    };
-    nodesInGraph.remove = function(_id) {
-      if (!this.ids[_id]) return false;
-      delete this.ids[_id];
-      return true;
-    };
-  }
-
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
       //console.log("Adding Node: " + doc._id);
-      if (nodesInGraph.contains(doc))
+      if (nodesInGraph.contains(doc)) {
         tree.addNode(doc);
+        //Link.find({})
+      }
       else console.log("Skipped adding node: " + doc.title);
     },
     removed: function(doc) {
@@ -139,6 +144,13 @@ Template.forumIndex.rendered = function() {
     added: function(doc) {
       if (init) { return; }
       console.log("Adding Link: " + doc._id);
+      if (nodesInGraph.containsID(doc.sourceId)) {
+        //console.log(doc.sourceId);
+        handlers.addHandler(doc.targetId);
+      } else if (nodesInGraph.containsID(doc.targetId)) {
+        //console.log(doc.targetId);
+        handlers.addHandler(doc.sourceId);
+      } else console.log("Unconnected link!")
       if(tree.addLink(doc))
         tree.render();
     },
@@ -202,7 +214,7 @@ function contextMenu() {
 
         d3.selectAll('.menu-entry')
             .append('text')
-            .text(function(d){ return d; })
+            .text(function(d){ return d.title; })
             .attr('x', x)
             .attr('y', function(d, i){ return y + (i * height); })
             .attr('dy', height - margin / 2)
@@ -212,14 +224,18 @@ function contextMenu() {
         // Other interactions
         d3.select('body')
             .on('click', function() {
-                //d3.select('.context-menu').remove();
+                d3.select('.context-menu').remove();
             });
 
     }
 
     menu.items = function(e) {
-        if (!arguments.length) return items;
-        for (i in arguments) items.push(arguments[i]);
+        if (!arguments[0].length) {
+          items.push({title: "Emptiness..."});
+          rescale = true;
+          return menu;
+        }
+        for (i in arguments[0]) items.push(arguments[0][i]);
         rescale = true;
         return menu;
     }
@@ -230,7 +246,7 @@ function contextMenu() {
             d3.select('svg').selectAll('tmp')
                 .data(items).enter()
                 .append('text')
-                .text(function(d){ return d; })
+                .text(function(d){ return d.title; })
                 .style(style.text)
                 .attr('x', -1000)
                 .attr('y', -1000)
@@ -422,6 +438,24 @@ function ForumTree(forumIndex, nodes, links) {
           */
     //console.log("Added graphics containers to nodes and called drag function.");
 
+    var menuFunction = function(d) {
+      var menuNodes = [];
+      Link.find({sourceId: d._id}).fetch().forEach(function(link) {
+        var post = Post.findOne({_id: link.targetId});
+        if (post) menuNodes.push(post);
+        else (console.log("Missing node:" + link.targetId))
+      });
+      Link.find({targetId: d._id}).fetch().forEach(function(link) {
+        var post = Post.findOne({_id: link.sourceId});
+        if (post) menuNodes.push(post);
+        else (console.log("Missing node:" + link.sourceId))
+      });
+
+      d3.event.preventDefault();
+      var menu = contextMenu().items(menuNodes);
+      menu(d3.mouse(d3.select("svg")[0][0])[0], d3.mouse(d3.select("svg")[0][0])[1]);
+    };
+
     var edgeSelection = linkElements.enter().append("line")
       .attr('stroke', function (d) {
         if (d.isAttack) {
@@ -440,7 +474,8 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("height", postHeight)
         .attr('stroke', '#dbdbdb')
         .attr("stroke-width", 1)
-        .attr('fill', '#fafafa');
+        .attr('fill', '#fafafa')
+        .on('contextmenu', menuFunction);
 
     //console.log("Added rect objects.");
 
@@ -451,7 +486,8 @@ function ForumTree(forumIndex, nodes, links) {
             return d.title;
         })
         .attr("font-family", "sans-serif")
-        .attr("font-size", "11px");
+        .attr("font-size", "11px")
+        .on('contextmenu', menuFunction);
 
     //console.log("Added titles.");
 
@@ -480,7 +516,8 @@ function ForumTree(forumIndex, nodes, links) {
         })
         .attr("id", function (d) {
             return "text-" + d.id;
-        });
+        })
+        .on('contextmenu', menuFunction);
 
     //console.log("Added bodies.");
 
@@ -494,7 +531,8 @@ function ForumTree(forumIndex, nodes, links) {
             //handlers.stop(d);
             tree.removeNode(d)
             resetTargetsSelection();
-        });
+        })
+        .on('contextmenu', menuFunction);
 
     //console.log("Added remove buttons.");
 
@@ -524,7 +562,8 @@ function ForumTree(forumIndex, nodes, links) {
                 d3.select("#replyButton-" + d.id).style("fill", "white");
             }
             //console.log(st);
-        });
+        })
+        .on('contextmenu', menuFunction);
 
     //console.log("Added reply buttons.");
 
@@ -541,10 +580,6 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function(d) { return "expandButton-" + d.id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
-
-            var menu = contextMenu().items('first item', 'second option', 'whatever, man');
-            d3.event.preventDefault();
-            menu(d3.mouse(d3.select("svg")[0][0])[0], d3.mouse(d3.select("svg")[0][0])[1]);
             Link.find({sourceId: d._id}).fetch().forEach(function(link) {
               nodesInGraph.add(link.targetId);
               handlers.addHandler(link.targetId);
@@ -554,7 +589,8 @@ function ForumTree(forumIndex, nodes, links) {
               nodesInGraph.add(link.sourceId);
               handlers.addHandler(link.sourceId);
             });
-        });
+        })
+        .on('contextmenu', menuFunction);
 
     force.start();
   };
