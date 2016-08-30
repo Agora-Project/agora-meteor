@@ -218,8 +218,8 @@ function ForumTree(forumIndex, nodes, links) {
       .nodes(nodes)
       .links(links)
       .gravity(0.10)
-      .charge(-5000)
-      .friction(0.9)
+      .charge(-2000)
+      .friction(0.7)
       .linkDistance(150)
       .on("tick", tick);
 
@@ -435,16 +435,18 @@ function ForumTree(forumIndex, nodes, links) {
 
     //console.log("Added reply buttons.");
 
-    var expandButtons = nodeSelection.append("rect")
+    var buttons = [];
+
+    var expandButtons = nodeSelection.append("button")
         .attr("y", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().height -10;
         })
         .attr("x", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().width -30;
         })
-        .attr("width", 30)
+        //.attr("width", 30)
         .attr("height", 10)
-        .attr("class", 'control expand-button')
+        .attr("class", 'mdl-button mdl-js-button mdl-button--icon control expand-button')
         .attr("id", function(d) { return "expandButton-" + d.id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
@@ -460,6 +462,22 @@ function ForumTree(forumIndex, nodes, links) {
               nodesInGraph.add(link.sourceId);
               handlers.addHandler(link.sourceId);
             });
+        })
+        .append("i")
+        .attr("class", 'material-icons')
+        .text("more_vert")
+        .call(function (wrapSelection) {
+            wrapSelection.each (function(d) {
+          console.log(d);
+            buttons.push(d.id);
+            //componentHandler.upgradeElement(button);
+        });
+      });
+
+        buttons.forEach(function(id) {
+          var button = document.getElementById("expandButton-" + id);
+          console.log(button);
+          componentHandler.upgradeElement(button);
         });
 
     force.start();
