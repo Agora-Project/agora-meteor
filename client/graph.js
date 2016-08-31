@@ -51,64 +51,6 @@ Template.forumIndex.rendered = function() {
   //the nodeIDMap exists so that we don't need to have a 1:1 correspondence
   //between nodes loaded into out local collection and nodes loaded into the
   //graph. We can have posts that aren't shown on the graph, and things in the graph that aren't posts.
-  nodeIDMap = {map: {}, reverseMap: {}, count:0};
-  nodeIDMap.add = function(_id) {
-    if (!this.map[_id]) {
-      this.map[_id] = this.count;
-      this.reverseMap[this.count] = _id;
-      this.count++;
-    }
-    return this.map[_id];
-  }
-  nodeIDMap.get = function(_id) {
-    return this.map[_id];
-  }
-  nodeIDMap.getReverse = function(id) {
-    return this.reverseMap[id];
-  }
-
-  if (!handlers) {
-    handlers = {};
-    handlers.addHandler = function(id) {
-      if (!id) id = "rootNode";
-      if (!this[id]) {
-        if (id === "rootNode") var handler = Meteor.subscribe("forum");
-        else var handler = Meteor.subscribe("forum", id);
-        this[id] = handler;
-      }
-    }
-    handlers.stop = function(node) {
-      if (node.isRoot) {
-        this['rootNode'].stop();
-        delete this['rootNode'];
-      }
-      if (this[node._id]) {
-        this[node._id].stop();
-        delete this[node._id];
-      }
-    }
-  }
-  handlers.addHandler();
-
-  if (!nodesInGraph) {
-    nodesInGraph = {ids: {}};
-    nodesInGraph.contains = function(node) {
-      return (node.isRoot || this.ids[node._id]);
-    };
-    nodesInGraph.containsID = function(_id) {
-      return (this.ids[_id] || (Post.findOne({_id: _id}) && Post.findOne({_id: _id}).isRoot));
-    };
-    nodesInGraph.add = function(_id) {
-      this.ids[_id] = true;
-      var post = Post.findOne({_id: _id});
-      if (post) tree.addNode(post);
-    };
-    nodesInGraph.remove = function(_id) {
-      if (!this.ids[_id]) return false;
-      delete this.ids[_id];
-      return true;
-    };
-  }
 
   var nodesCursor = Post.find({}),
       linksCursor = Link.find({});
@@ -129,7 +71,15 @@ Template.forumIndex.rendered = function() {
       //console.log("Adding Node: " + doc._id);
       if (nodesInGraph.contains(doc)) {
         tree.addNode(doc);
-        //Link.find({})
+        Link.find({sourceId: d._id}).fetch().forEach(function(link) {
+          //nodesInGraph.add(link.targetId);
+          handlers.addHandler(link.targetId);
+
+        });
+        Link.find({targetId: d._id}).fetch().forEach(function(link) {
+          //nodesInGraph.add(link.sourceId);
+          handlers.addHandler(link.sourceId);
+        });
       }
       else console.log("Skipped adding node: " + doc.title);
     },
