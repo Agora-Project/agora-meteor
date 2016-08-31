@@ -27,6 +27,7 @@ Template.forumPost.events({
         Router.go('/forum');
         event.preventDefault();
         handlers.addHandler(postId);
+        nodesInGraph.add(postId);
     }
 });
 
@@ -238,7 +239,7 @@ function linksToD3Array(linksCol, nodesCol) {
         var tmp = {
             source: nodes[nodeIDMap.get(link.sourceId)],
             target: nodes[nodeIDMap.get(link.targetId)],
-            isAttack: link.isAttack,
+            type: link.type,
             _id: link._id
         };
         if(tmp.source && tmp.target){
@@ -420,7 +421,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     var edgeSelection = linkElements.enter().append("line")
       .attr('stroke', function (d) {
-        if (d.isAttack) {
+        if (d.type == "Attack") {
           return 'red';
         } else {
           return 'black';
