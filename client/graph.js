@@ -51,44 +51,6 @@ Template.forumIndex.rendered = function() {
   //the nodeIDMap exists so that we don't need to have a 1:1 correspondence
   //between nodes loaded into out local collection and nodes loaded into the
   //graph. We can have posts that aren't shown on the graph, and things in the graph that aren't posts.
-  nodeIDMap = {map: {}, reverseMap: {}, count:0};
-  nodeIDMap.add = function(_id) {
-    if (!this.map[_id]) {
-      this.map[_id] = this.count;
-      this.reverseMap[this.count] = _id;
-      this.count++;
-    }
-    return this.map[_id];
-  }
-  nodeIDMap.get = function(_id) {
-    return this.map[_id];
-  }
-  nodeIDMap.getReverse = function(id) {
-    return this.reverseMap[id];
-  }
-
-  if (!handlers) {
-    handlers = {};
-    handlers.addHandler = function(id) {
-      if (!id) id = "rootNode";
-      if (!this[id]) {
-        if (id === "rootNode") var handler = Meteor.subscribe("forum");
-        else var handler = Meteor.subscribe("forum", id);
-        this[id] = handler;
-      }
-    }
-    handlers.stop = function(node) {
-      if (node.isRoot) {
-        this['rootNode'].stop();
-        delete this['rootNode'];
-      }
-      if (this[node._id]) {
-        this[node._id].stop();
-        delete this[node._id];
-      }
-    }
-  }
-  handlers.addHandler();
 
   var nodesCursor = Post.find({}),
       linksCursor = Link.find({});
@@ -103,29 +65,22 @@ Template.forumIndex.rendered = function() {
 
   tree = new ForumTree(this, nodes, links);
 
-  if (!nodesInGraph) {
-    nodesInGraph = {ids: {}};
-    nodesInGraph.contains = function(node) {
-      return (node.isRoot || this.ids[node._id]);
-    };
-    nodesInGraph.add = function(_id) {
-      var post = Post.findOne({_id: _id});
-      if (post) tree.addNode(post);
-      else this.ids[_id] = true;
-    };
-    nodesInGraph.remove = function(_id) {
-      if (!this.ids[_id]) return false;
-      delete this.ids[_id];
-      return true;
-    };
-  }
-
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
       //console.log("Adding Node: " + doc._id);
-      if (nodesInGraph.contains(doc))
+      if (nodesInGraph.contains(doc)) {
         tree.addNode(doc);
+        Link.find({sourceId: d._id}).fetch().forEach(function(link) {
+          //nodesInGraph.add(link.targetId);
+          handlers.addHandler(link.targetId);
+
+        });
+        Link.find({targetId: d._id}).fetch().forEach(function(link) {
+          //nodesInGraph.add(link.sourceId);
+          handlers.addHandler(link.sourceId);
+        });
+      }
       else console.log("Skipped adding node: " + doc.title);
     },
     removed: function(doc) {
@@ -138,11 +93,14 @@ Template.forumIndex.rendered = function() {
   linksCursor.observe({
     added: function(doc) {
       if (init) { return; }
-      //console.log("Adding Link: " + doc._id);
-      if (nodesInGraph.contains(doc.sourceId))
+      console.log("Adding Link: " + doc._id);
+      if (nodesInGraph.containsID(doc.sourceId)) {
+        //console.log(doc.sourceId);
         handlers.addHandler(doc.targetId);
-      else if (nodesInGraph.contains(doc.targetId))
+      } else if (nodesInGraph.containsID(doc.targetId)) {
+        //console.log(doc.targetId);
         handlers.addHandler(doc.sourceId);
+      } else console.log("Unconnected link!")
       if(tree.addLink(doc))
         tree.render();
     },
@@ -157,6 +115,113 @@ Template.forumIndex.rendered = function() {
   init = false;
 };
 
+function contextMenu() {
+    var height,
+        width,
+        margin = 0.1, // fraction of width
+        items = [],
+        rescale = false,
+        style = {
+            'rect': {
+                'mouseout': {
+                    'fill': 'rgb(244,244,244)',
+                    'stroke': 'white',
+                    'stroke-width': '1px'
+                },
+                'mouseover': {
+                    'fill': 'rgb(200,200,200)'
+                }
+            },
+            'text': {
+                'fill': 'steelblue',
+                'font-size': '13'
+            }
+        };
+
+    function menu(x, y) {
+        d3.select('.context-menu').remove();
+        scaleItems();
+
+        // Draw the menu
+        d3.select('svg')
+            .append('g').attr('class', 'context-menu')
+            .selectAll('tmp')
+            .data(items).enter()
+            .append('g').attr('class', 'menu-entry')
+            .style({'cursor': 'pointer'})
+            .on('mouseover', function(){
+                d3.select(this).select('rect').style(style.rect.mouseover) })
+            .on('mouseout', function(){
+                d3.select(this).select('rect').style(style.rect.mouseout) });
+
+        d3.selectAll('.menu-entry')
+            .append('rect')
+            .attr('x', x)
+            .attr('y', function(d, i){ return y + (i * height); })
+            .attr('width', width)
+            .attr('height', height)
+            .on('click', function(d) {
+              nodesInGraph.add(d._id);
+            })
+            .style(style.rect.mouseout);
+
+        d3.selectAll('.menu-entry')
+            .append('text')
+            .text(function(d){ return d.title; })
+            .attr('x', x)
+            .attr('y', function(d, i){ return y + (i * height); })
+            .attr('dy', height - margin / 2)
+            .attr('dx', margin)
+            .on('click', function(d) {
+              nodesInGraph.add(d._id);
+            })
+            .style(style.text);
+
+        // Other interactions
+        d3.select('body')
+            .on('click', function() {
+                d3.select('.context-menu').remove();
+            });
+
+    }
+
+    menu.items = function(e) {
+        if (!arguments[0].length) {
+          items.push({title: "Emptiness..."});
+          rescale = true;
+          return menu;
+        }
+        for (i in arguments[0]) items.push(arguments[0][i]);
+        rescale = true;
+        return menu;
+    }
+
+    // Automatically set width, height, and margin;
+    function scaleItems() {
+        if (rescale) {
+            d3.select('svg').selectAll('tmp')
+                .data(items).enter()
+                .append('text')
+                .text(function(d){ return d.title; })
+                .style(style.text)
+                .attr('x', -1000)
+                .attr('y', -1000)
+                .attr('class', 'tmp');
+            var z = d3.selectAll('.tmp')[0]
+                      .map(function(x){ return x.getBBox(); });
+            width = d3.max(z.map(function(x){ return x.width; }));
+            margin = margin * width;
+            width =  width + 2 * margin;
+            height = d3.max(z.map(function(x){ return x.height + margin / 2; }));
+
+            // cleanup
+            d3.selectAll('.tmp').remove();
+            rescale = false;
+        }
+    }
+
+    return menu;
+}
 
 function resetTargetsSelection() {
     Session.set('selectedTargets', {});
@@ -329,6 +394,30 @@ function ForumTree(forumIndex, nodes, links) {
           */
     //console.log("Added graphics containers to nodes and called drag function.");
 
+    var menuFunction = function(d) {
+      var menuNodes = [];
+      Link.find({sourceId: d._id}).fetch().forEach(function(link) {
+        if (!nodesInGraph.containsID(link.targetId)) {
+          var post = Post.findOne({_id: link.targetId});
+          if (post)
+            menuNodes.push(post);
+          else (console.log("Missing node:" + link.targetId))
+        }
+      });
+      Link.find({targetId: d._id}).fetch().forEach(function(link) {
+        if (!nodesInGraph.containsID(link.sourceId)) {
+          var post = Post.findOne({_id: link.sourceId});
+          if (post)
+            menuNodes.push(post);
+          else (console.log("Missing node:" + link.sourceId))
+        }
+      });
+
+      d3.event.preventDefault();
+      var menu = contextMenu().items(menuNodes);
+      menu(d3.mouse(d3.select("svg")[0][0])[0], d3.mouse(d3.select("svg")[0][0])[1]);
+    };
+
     var edgeSelection = linkElements.enter().append("line")
       .attr('stroke', function (d) {
         if (d.isAttack) {
@@ -347,7 +436,8 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("height", postHeight)
         .attr('stroke', '#dbdbdb')
         .attr("stroke-width", 1)
-        .attr('fill', '#fafafa');
+        .attr('fill', '#fafafa')
+        .on('contextmenu', menuFunction);
 
     //console.log("Added rect objects.");
 
@@ -358,7 +448,8 @@ function ForumTree(forumIndex, nodes, links) {
             return d.title;
         })
         .attr("font-family", "sans-serif")
-        .attr("font-size", "11px");
+        .attr("font-size", "11px")
+        .on('contextmenu', menuFunction);
 
     //console.log("Added titles.");
 
@@ -387,7 +478,8 @@ function ForumTree(forumIndex, nodes, links) {
         })
         .attr("id", function (d) {
             return "text-" + d.id;
-        });
+        })
+        .on('contextmenu', menuFunction);
 
     //console.log("Added bodies.");
 
@@ -401,7 +493,8 @@ function ForumTree(forumIndex, nodes, links) {
             //handlers.stop(d);
             tree.removeNode(d)
             resetTargetsSelection();
-        });
+        })
+        .on('contextmenu', menuFunction);
 
     //console.log("Added remove buttons.");
 
@@ -431,7 +524,8 @@ function ForumTree(forumIndex, nodes, links) {
                 d3.select("#replyButton-" + d.id).style("fill", "white");
             }
             //console.log(st);
-        });
+        })
+        .on('contextmenu', menuFunction);
 
     //console.log("Added reply buttons.");
 
@@ -448,9 +542,6 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function(d) { return "expandButton-" + d.id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
-
-
-
             Link.find({sourceId: d._id}).fetch().forEach(function(link) {
               nodesInGraph.add(link.targetId);
               handlers.addHandler(link.targetId);
@@ -460,7 +551,8 @@ function ForumTree(forumIndex, nodes, links) {
               nodesInGraph.add(link.sourceId);
               handlers.addHandler(link.sourceId);
             });
-        });
+        })
+        .on('contextmenu', menuFunction);
 
     force.start();
   };

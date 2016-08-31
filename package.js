@@ -15,6 +15,7 @@ Package.onUse(function(api) {
       'client/subscribe.coffee',
       'client/users.html',
       'client/users.js',
+      'client/data.js',
       'client/templates.html',
       'client/graph.js',
       'client/navigation.js',
