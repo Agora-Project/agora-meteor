@@ -160,6 +160,9 @@ function contextMenu() {
             .attr('y', function(d, i){ return y + (i * height); })
             .attr('width', width)
             .attr('height', height)
+            .on('click', function(d) {
+              nodesInGraph.add(d._id);
+            })
             .style(style.rect.mouseout);
 
         d3.selectAll('.menu-entry')
@@ -169,6 +172,9 @@ function contextMenu() {
             .attr('y', function(d, i){ return y + (i * height); })
             .attr('dy', height - margin / 2)
             .attr('dx', margin)
+            .on('click', function(d) {
+              nodesInGraph.add(d._id);
+            })
             .style(style.text);
 
         // Other interactions
@@ -391,14 +397,20 @@ function ForumTree(forumIndex, nodes, links) {
     var menuFunction = function(d) {
       var menuNodes = [];
       Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-        var post = Post.findOne({_id: link.targetId});
-        if (post) menuNodes.push(post);
-        else (console.log("Missing node:" + link.targetId))
+        if (!nodesInGraph.containsID(link.targetId)) {
+          var post = Post.findOne({_id: link.targetId});
+          if (post)
+            menuNodes.push(post);
+          else (console.log("Missing node:" + link.targetId))
+        }
       });
       Link.find({targetId: d._id}).fetch().forEach(function(link) {
-        var post = Post.findOne({_id: link.sourceId});
-        if (post) menuNodes.push(post);
-        else (console.log("Missing node:" + link.sourceId))
+        if (!nodesInGraph.containsID(link.sourceId)) {
+          var post = Post.findOne({_id: link.sourceId});
+          if (post)
+            menuNodes.push(post);
+          else (console.log("Missing node:" + link.sourceId))
+        }
       });
 
       d3.event.preventDefault();
