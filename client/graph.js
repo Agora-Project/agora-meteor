@@ -446,7 +446,9 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function (d) {
           return "title-" + d.id;
         }).text(function (d) {
-            return d.title;
+          var titleText = d.title;
+          if (titleText.length > 15) titleText = titleText.substr(0, 15);
+          return titleText;
         })
         .attr("font-family", "sans-serif")
         .attr("font-size", "11px")
