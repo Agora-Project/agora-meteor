@@ -27,6 +27,7 @@ Template.forumPost.events({
         Router.go('/forum');
         event.preventDefault();
         handlers.addHandler(postId);
+        nodesInGraph.add(postId);
     }
 });
 
