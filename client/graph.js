@@ -239,7 +239,7 @@ function linksToD3Array(linksCol, nodesCol) {
         var tmp = {
             source: nodes[nodeIDMap.get(link.sourceId)],
             target: nodes[nodeIDMap.get(link.targetId)],
-            isAttack: link.isAttack,
+            type: link.type,
             _id: link._id
         };
         if(tmp.source && tmp.target){
@@ -258,8 +258,8 @@ function ForumTree(forumIndex, nodes, links) {
   this.nodes = nodes;
   this.links = links;
 
-  var postWidth = 120,
-      postHeight = 80;
+  var postWidth = 140,
+      postHeight = 200;
 
   var key = function (d) {
     return d._id;
@@ -421,7 +421,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     var edgeSelection = linkElements.enter().append("line")
       .attr('stroke', function (d) {
-        if (d.isAttack) {
+        if (d.type == "Attack") {
           return 'red';
         } else {
           return 'black';
@@ -472,7 +472,7 @@ function ForumTree(forumIndex, nodes, links) {
                     .draw();
                 //console.log(this.getBBox().width);
                 //console.log(parseFloat(window.getComputedStyle(this, null).getPropertyValue('font-size')));
-                d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 180));
+                d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
                 d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 10, 20));
             });
 
