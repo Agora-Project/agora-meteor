@@ -396,6 +396,10 @@ function ForumTree(forumIndex, nodes, links) {
     //console.log("Added graphics containers to nodes and called drag function.");
 
     var menuFunction = function(d) {
+      d.fixed = true;
+      setTimeout(function() {
+        d.fixed = false;
+      }, 4000);
       var menuNodes = [];
       Link.find({sourceId: d._id}).fetch().forEach(function(link) {
         if (!nodesInGraph.containsID(link.targetId)) {
@@ -581,15 +585,19 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function(d) { return "expandButton-" + d.id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
-            Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-              nodesInGraph.add(link.targetId);
-              handlers.addHandler(link.targetId);
+          d.fixed = true;
+          setTimeout(function() {
+            d.fixed = false;
+          }, 4000);
+          Link.find({sourceId: d._id}).fetch().forEach(function(link) {
+            nodesInGraph.add(link.targetId);
+            handlers.addHandler(link.targetId);
 
-            });
-            Link.find({targetId: d._id}).fetch().forEach(function(link) {
-              nodesInGraph.add(link.sourceId);
-              handlers.addHandler(link.sourceId);
-            });
+          });
+          Link.find({targetId: d._id}).fetch().forEach(function(link) {
+            nodesInGraph.add(link.sourceId);
+            handlers.addHandler(link.sourceId);
+          });
         })
         .on('contextmenu', menuFunction)
         .on('mouseover', function (d) {
