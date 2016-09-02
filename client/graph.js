@@ -26,8 +26,8 @@ Template.forumPost.events({
 
         Router.go('/forum');
         event.preventDefault();
-        handlers.addHandler(postId);
         nodesInGraph.add(postId);
+        handlers.addHandler(postId);
     }
 });
 
@@ -452,7 +452,17 @@ function ForumTree(forumIndex, nodes, links) {
         })
         .attr("font-family", "sans-serif")
         .attr("font-size", "11px")
-        .on('contextmenu', menuFunction);
+        .on('contextmenu', menuFunction)
+        .on('mouseover', function (d) {
+          d3.select('#title-' + d.id).text(d.title);
+        })
+        .on('mouseout', function (d) {
+          d3.select('#title-' + d.id).text(function (d) {
+            var titleText = d.title;
+            if (titleText.length > 15) titleText = titleText.substr(0, 15);
+            return titleText;
+          });
+        });
 
     //console.log("Added titles.");
 
