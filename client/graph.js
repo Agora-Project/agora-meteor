@@ -438,7 +438,13 @@ function ForumTree(forumIndex, nodes, links) {
         .attr('stroke', '#dbdbdb')
         .attr("stroke-width", 1)
         .attr('fill', '#fafafa')
-        .on('contextmenu', menuFunction);
+        .on('contextmenu', menuFunction)
+        .on('mouseover', function (d) {
+          d.fixed = true;
+        })
+        .on('mouseout', function (d) {
+          d.fixed = false;
+        });
 
     //console.log("Added rect objects.");
 
@@ -454,9 +460,11 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("font-size", "11px")
         .on('contextmenu', menuFunction)
         .on('mouseover', function (d) {
+          d.fixed = true;
           d3.select('#title-' + d.id).text(d.title);
         })
         .on('mouseout', function (d) {
+          d.fixed = false;
           d3.select('#title-' + d.id).text(function (d) {
             var titleText = d.title;
             if (titleText.length > 15) titleText = titleText.substr(0, 15);
@@ -492,7 +500,13 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function (d) {
             return "text-" + d.id;
         })
-        .on('contextmenu', menuFunction);
+        .on('contextmenu', menuFunction)
+        .on('mouseover', function (d) {
+          d.fixed = true;
+        })
+        .on('mouseout', function (d) {
+          d.fixed = false;
+        });
 
     //console.log("Added bodies.");
 
@@ -507,7 +521,13 @@ function ForumTree(forumIndex, nodes, links) {
             tree.removeNode(d)
             resetTargetsSelection();
         })
-        .on('contextmenu', menuFunction);
+        .on('contextmenu', menuFunction)
+        .on('mouseover', function (d) {
+          d.fixed = true;
+        })
+        .on('mouseout', function (d) {
+          d.fixed = false;
+        });
 
     //console.log("Added remove buttons.");
 
@@ -538,7 +558,13 @@ function ForumTree(forumIndex, nodes, links) {
             }
             //console.log(st);
         })
-        .on('contextmenu', menuFunction);
+        .on('contextmenu', menuFunction)
+        .on('mouseover', function (d) {
+          d.fixed = true;
+        })
+        .on('mouseout', function (d) {
+          d.fixed = false;
+        });
 
     //console.log("Added reply buttons.");
 
@@ -565,7 +591,13 @@ function ForumTree(forumIndex, nodes, links) {
               handlers.addHandler(link.sourceId);
             });
         })
-        .on('contextmenu', menuFunction);
+        .on('contextmenu', menuFunction)
+        .on('mouseover', function (d) {
+          d.fixed = true;
+        })
+        .on('mouseout', function (d) {
+          d.fixed = false;
+        });
 
     force.start();
   };
