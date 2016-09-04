@@ -8,7 +8,7 @@ nodesInGraph.containsID = function(_id) {
 nodesInGraph.add = function(_id) {
   this.ids[_id] = true;
   var post = Post.findOne({_id: _id});
-  if (post) tree.addNode(post);
+  if (post && tree) tree.addNode(post);
   Link.find({sourceId: _id}).fetch().forEach(function(link) {
     //nodesInGraph.add(link.targetId);
     handlers.addHandler(link.targetId);

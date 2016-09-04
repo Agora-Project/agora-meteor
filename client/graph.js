@@ -26,7 +26,7 @@ Template.forumPost.events({
 
         Router.go('/forum');
         event.preventDefault();
-        nodesInGraph.add(postId);
+        setTimeout(function() {nodesInGraph.add(postId)}, 1000);
         handlers.addHandler(postId);
     }
 });
@@ -380,7 +380,7 @@ function ForumTree(forumIndex, nodes, links) {
     nodeElements.exit().remove();
     //console.log("Removed dead nodes");
 
-    var nodeSelection = nodeElements.enter().append("g").call(drag); /*.attr("class", function (d) {
+    var postSelection = nodeElements.enter().append("g").call(drag).attr("class", "post node"); /*.attr("class", function (d) {
         if(d.isRoot) { return "root-post"; } else { return ""; }
     });
 
@@ -433,7 +433,7 @@ function ForumTree(forumIndex, nodes, links) {
       });
     //console.log("added line objects.");
 
-    nodeSelection.append('rect')
+    postSelection.append('rect')
         .attr("id", function (d) {
             return "rect-" + d.id;
         })
@@ -452,7 +452,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     //console.log("Added rect objects.");
 
-    var titles = nodeSelection.append("text")
+    var titles = postSelection.append("text")
         .attr("id", function (d) {
           return "title-" + d.id;
         }).text(function (d) {
@@ -478,7 +478,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     //console.log("Added titles.");
 
-    var bodys = nodeSelection.append("text")
+    var bodys = postSelection.append("text")
         .text(function (d) {
             return d.body;
         })
@@ -514,7 +514,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     //console.log("Added bodies.");
 
-    var removeButtons = nodeSelection.append("circle").attr("cx", function (d) {
+    var removeButtons = postSelection.append("circle").attr("cx", function (d) {
             return document.getElementById("rect-"+ d.id).getBBox().width;
         })
         .attr("r", 10)
@@ -535,7 +535,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     //console.log("Added remove buttons.");
 
-    var replyButtons = nodeSelection.append("rect")
+    var replyButtons = postSelection.append("rect")
         .attr("y", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().height -10;
         })
@@ -572,7 +572,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     //console.log("Added reply buttons.");
 
-    var expandButtons = nodeSelection.append("rect")
+    var expandButtons = postSelection.append("rect")
         .attr("y", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().height -10;
         })
