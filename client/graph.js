@@ -380,7 +380,7 @@ function ForumTree(forumIndex, nodes, links) {
     nodeElements.exit().remove();
     //console.log("Removed dead nodes");
 
-    var postSelection = nodeElements.enter().append("g").call(drag).attr("class", "post node"); /*.attr("class", function (d) {
+    var nodeSelection = nodeElements.enter().append("g").call(drag).attr("class", "post node"); /*.attr("class", function (d) {
         if(d.isRoot) { return "root-post"; } else { return ""; }
     });
 
@@ -394,6 +394,8 @@ function ForumTree(forumIndex, nodes, links) {
           .attr("height", 24);
           */
     //console.log("Added graphics containers to nodes and called drag function.");
+
+    var postSelection = nodeSelection.filter(".post");
 
     var menuFunction = function(d) {
       d.fixed = true;
