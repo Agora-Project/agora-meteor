@@ -363,6 +363,7 @@ function ForumTree(forumIndex, nodes, links) {
   // dynamically update the graph
   this.render = function() {
     // add links
+    svg.selectAll(".tooltip").remove();
 
     contextMenuShowing = false;
 
