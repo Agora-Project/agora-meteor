@@ -557,9 +557,15 @@ function ForumTree(forumIndex, nodes, links) {
           d3.select(".tooltip").transition()
              .duration(200)
              .style("opacity", .9);
-          d3.select(".tooltip").html("select post")
-             .style("left", (d3.event.pageX) + "px")
-             .style("top", (d3.event.pageY - 28) + "px");
+          var st = Session.get('selectedTargets');
+          if (st[d._id])
+            d3.select(".tooltip").html("unselect post")
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 28) + "px");
+          else
+            d3.select(".tooltip").html("select post")
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
           d.fixed = false;
@@ -658,6 +664,7 @@ function ForumTree(forumIndex, nodes, links) {
       nodesInGraph.remove(doc._id);
       tree.render();
       return true;
+    }
     return false;
   };
 
@@ -671,6 +678,8 @@ function ForumTree(forumIndex, nodes, links) {
     if (iToRemove != -1) {
       this.links.splice(iToRemove, 1);
       return true;
+    }
     return false;
   };
+
 }
