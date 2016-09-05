@@ -310,6 +310,10 @@ function ForumTree(forumIndex, nodes, links) {
   var linkElements = linksGroup.selectAll("line");
   var nodeElements = nodesGroup.selectAll("g");
 
+  d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
   resize();
   d3.select(window).on("resize", resize);
 
@@ -362,8 +366,11 @@ function ForumTree(forumIndex, nodes, links) {
 
   // dynamically update the graph
   this.render = function() {
+
+    d3.select(".tooltip").transition()
+       .duration(500)
+       .style("opacity", 0);
     // add links
-    svg.selectAll(".tooltip").remove();
 
     contextMenuShowing = false;
 
@@ -397,10 +404,6 @@ function ForumTree(forumIndex, nodes, links) {
     //console.log("Added graphics containers to nodes and called drag function.");
 
     var postSelection = nodeSelection.filter(".post");
-
-    var div = d3.select("body").append("div")
-    .attr("class", "tooltip")
-    .style("opacity", 0);
 
     var menuFunction = function(d) {
       d.fixed = true;
@@ -535,16 +538,16 @@ function ForumTree(forumIndex, nodes, links) {
         .on('contextmenu', menuFunction)
         .on('mouseover', function (d) {
           d.fixed = true;
-          div.transition()
+          d3.select(".tooltip").transition()
              .duration(200)
              .style("opacity", .9);
-          div.html("remove post")
+          d3.select(".tooltip").html("remove post")
              .style("left", (d3.event.pageX) + "px")
              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
           d.fixed = false;
-          div.transition()
+          d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
         });
@@ -581,16 +584,16 @@ function ForumTree(forumIndex, nodes, links) {
         .on('contextmenu', menuFunction)
         .on('mouseover', function (d) {
           d.fixed = true;
-          div.transition()
+          d3.select(".tooltip").transition()
              .duration(200)
              .style("opacity", .9);
-          div.html("select post")
+          d3.select(".tooltip").html("select post")
              .style("left", (d3.event.pageX) + "px")
              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
           d.fixed = false;
-          div.transition()
+          d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
         });
@@ -627,16 +630,16 @@ function ForumTree(forumIndex, nodes, links) {
         .on('contextmenu', menuFunction)
         .on('mouseover', function (d) {
           d.fixed = true;
-          div.transition()
+          d3.select(".tooltip").transition()
              .duration(200)
              .style("opacity", .9);
-          div.html("expand post")
+          d3.select(".tooltip").html("expand post")
              .style("left", (d3.event.pageX) + "px")
              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
           d.fixed = false;
-          div.transition()
+          d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
         });
