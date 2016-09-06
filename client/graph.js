@@ -438,7 +438,7 @@ function ForumTree(forumIndex, nodes, links) {
           d.fixed = true;
         })
         .on('mouseout', function (d) {
-          d.fixed = false;
+          if (!d.locked) d.fixed = false;
         });
 
     var titles = postSelection.append("text")
@@ -457,7 +457,7 @@ function ForumTree(forumIndex, nodes, links) {
           d3.select('#title-' + d.id).text(d.title);
         })
         .on('mouseout', function (d) {
-          d.fixed = false;
+          if (!d.locked) d.fixed = false;
           d3.select('#title-' + d.id).text(function (d) {
             var titleText = d.title;
             if (titleText.length > 15) titleText = titleText.substr(0, 15);
@@ -468,7 +468,8 @@ function ForumTree(forumIndex, nodes, links) {
 
     var bodys = postSelection.append("text")
         .text(function (d) {
-            return d.body;
+          var bodyText = d.body;
+          if (bodyText.length > 200) bodyText = bodyText.substr(0, 15);
         })
         .attr("font-size", "11px")
         .attr("font-family", "sans-serif")
@@ -494,7 +495,7 @@ function ForumTree(forumIndex, nodes, links) {
           d.fixed = true;
         })
         .on('mouseout', function (d) {
-          d.fixed = false;
+          if (!d.locked) d.fixed = false;
         });
 
     var removeButtons = postSelection.append("circle").attr("cx", function (d) {
@@ -519,7 +520,7 @@ function ForumTree(forumIndex, nodes, links) {
              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
-          d.fixed = false;
+          if (!d.locked) d.fixed = false;
           d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
@@ -568,7 +569,7 @@ function ForumTree(forumIndex, nodes, links) {
               .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
-          d.fixed = false;
+          if (!d.locked) d.fixed = false;
           d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
@@ -588,9 +589,11 @@ function ForumTree(forumIndex, nodes, links) {
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
           d.fixed = true;
+          d.locked = true;
           setTimeout(function() {
             d.fixed = false;
-          }, 4000);
+            d.locked = false;
+          }, 1000);
           Link.find({sourceId: d._id}).fetch().forEach(function(link) {
             nodesInGraph.add(link.targetId);
             handlers.addHandler(link.targetId);
@@ -612,7 +615,7 @@ function ForumTree(forumIndex, nodes, links) {
              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
-          d.fixed = false;
+          if (!d.locked) d.fixed = false;
           d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
