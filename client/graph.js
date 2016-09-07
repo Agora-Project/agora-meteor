@@ -165,9 +165,7 @@ function contextMenu() {
             .attr('y', function(d, i){ return y + (i * height); })
             .attr('dy', height - margin / 2)
             .attr('dx', margin)
-            .on('click', function(d) {
-              nodesInGraph.add(d._id);
-            })
+            .on('click', function(d) { d.clicked(); })
             .style(style.text);
 
         // Other interactions
@@ -399,15 +397,25 @@ function ForumTree(forumIndex, nodes, links) {
       Link.find({sourceId: d._id}).fetch().forEach(function(link) {
         if (!nodesInGraph.containsID(link.targetId)) {
           var post = Post.findOne({_id: link.targetId});
-          if (post)
-            menuNodes.push(post);
+          if (post) {
+            var menuOption = {post: post, title: post.title};
+            menuOption.clicked = function() {
+              nodesInGraph.add(this.post._id);
+            }
+            menuNodes.push(menuOption);
+          }
         }
       });
       Link.find({targetId: d._id}).fetch().forEach(function(link) {
         if (!nodesInGraph.containsID(link.sourceId)) {
           var post = Post.findOne({_id: link.sourceId});
-          if (post)
-            menuNodes.push(post);
+          if (post) {
+            var menuOption = {post: post, title: post.title};
+            menuOption.clicked = function() {
+              nodesInGraph.add(this.post._id);
+            }
+            menuNodes.push(menuOption);
+          }
         }
       });
 
@@ -560,7 +568,6 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("class", 'control')
         .style("fill", "red")
         .on("click", function (d) {
-            //handlers.stop(d);
             tree.removeNode(d)
             resetTargetsSelection();
         })
