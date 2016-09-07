@@ -289,6 +289,7 @@ function ForumTree(forumIndex, nodes, links) {
           })
           .on("drag", function(d) {
             d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+            d.fixed = false;
           })
           .on("dragend", function(d) {
             d3.select(this).classed("dragging", false);
@@ -400,18 +401,17 @@ function ForumTree(forumIndex, nodes, links) {
       }, 4000);
       var menuNodes = [];
 
-      var menuOption = {post: d, pinned: false, title: "Pin Post"};
+      var menuOption = {post: d, title: "Pin Post"};
+      if (d.pinned) menuOption.title = "Unpin Post";
       menuOption.clicked = function() {
-        if (this.pinned) {
+        if (this.post.pinned) {
           this.post.fixed = false;
           this.post.locked = false;
-          this.title = "Pin Post";
-          this.pinned = false;
+          this.post.pinned = false;
         } else {
           this.post.fixed = true;
           this.post.locked = true;
-          this.title = "Unpin Post";
-          this.pinned = true;
+          this.post.pinned = true;
         }
       };
       menuNodes.push(menuOption);
