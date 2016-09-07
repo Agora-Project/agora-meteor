@@ -267,7 +267,8 @@ function ForumTree(forumIndex, nodes, links) {
       container.attr("transform",
         "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     });
-  svg.call(zoom);
+
+  svg.call(zoom).on("dblclick.zoom", null);
 
   // init force layout
   var force = d3.layout.force()
@@ -415,6 +416,54 @@ function ForumTree(forumIndex, nodes, links) {
       menu(d3.mouse(d3.select("svg")[0][0])[0], d3.mouse(d3.select("svg")[0][0])[1]);
     };
 
+    var expandFunction = function(d) {
+      d3.event.preventDefault();
+      if (!d.body) { return; }
+      if (!d.expanded) {
+        d3.select('#text-' + d.id).text(d.body);
+        d3plus.textwrap()
+            .container(d3.select(this))
+            .width(postWidth)
+            .height(postHeight)
+            .draw();
+        d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
+        d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 10, 20));
+        d3.select("#selectButton-" + d.id).attr("y", function(d) {
+          return document.getElementById("rect-"+ d.id).getBBox().height -10;
+        });
+        d3.select("#loadButton-" + d.id).attr("y", function(d) {
+            return document.getElementById("rect-"+ d.id).getBBox().height -10;
+        })
+        .attr("x", function(d) {
+            return document.getElementById("rect-"+ d.id).getBBox().width -30;
+        });
+        d.expanded = true;
+      } else {
+        d3.select('#text-' + d.id).text(function() {
+          var bodyText = d.body;
+          if (bodyText.length > 100) bodyText = bodyText.substr(0, 100);
+          return bodyText;
+        });
+        d3plus.textwrap()
+            .container(d3.select(this))
+            .width(postWidth)
+            .height(postHeight)
+            .draw();
+        d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
+        d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 10, 20));
+        d3.select("#selectButton-" + d.id).attr("y", function(d) {
+          return document.getElementById("rect-"+ d.id).getBBox().height -10;
+        });
+        d3.select("#loadButton-" + d.id).attr("y", function(d) {
+            return document.getElementById("rect-"+ d.id).getBBox().height -10;
+        })
+        .attr("x", function(d) {
+            return document.getElementById("rect-"+ d.id).getBBox().width -30;
+        });
+        d.expanded = false;
+      }
+    };
+
     var edgeSelection = linkElements.enter().append("line")
       .attr('stroke', function (d) {
         if (d.type == "Attack") {
@@ -428,8 +477,12 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function (d) {
             return "rect-" + d.id;
         })
-        .attr("width", postWidth)
-        .attr("height", postHeight)
+        .attr("width", function(d) {
+          return Math.sqrt(d.body.length);
+        })
+        .attr("height", function(d) {
+          return Math.sqrt(d.body.length);
+        })
         .attr('stroke', '#dbdbdb')
         .attr("stroke-width", 1)
         .attr('fill', '#fafafa')
@@ -469,7 +522,8 @@ function ForumTree(forumIndex, nodes, links) {
     var bodys = postSelection.append("text")
         .text(function (d) {
           var bodyText = d.body;
-          if (bodyText.length > 200) bodyText = bodyText.substr(0, 15);
+          if (bodyText.length > 100) bodyText = bodyText.substr(0, 100);
+          return bodyText;
         })
         .attr("font-size", "11px")
         .attr("font-family", "sans-serif")
@@ -496,7 +550,8 @@ function ForumTree(forumIndex, nodes, links) {
         })
         .on('mouseout', function (d) {
           if (!d.locked) d.fixed = false;
-        });
+        })
+        .on('dblclick', expandFunction);
 
     var removeButtons = postSelection.append("circle").attr("cx", function (d) {
             return document.getElementById("rect-"+ d.id).getBBox().width;
@@ -526,14 +581,14 @@ function ForumTree(forumIndex, nodes, links) {
              .style("opacity", 0);
         });
 
-    var replyButtons = postSelection.append("rect")
+    var selectButtons = postSelection.append("rect")
         .attr("y", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().height -10;
         })
         .attr("width", 30)
         .attr("height", 10)
-        .attr("class", 'control reply-button')
-        .attr("id", function(d) { return "replyButton-" + d.id;})
+        .attr("class", 'control select-button')
+        .attr("id", function(d) { return "selectButton-" + d.id;})
         .style("fill", function(d) {
             if (Session.get('selectedTargets')[d._id]) {
                 return "white";
@@ -545,11 +600,11 @@ function ForumTree(forumIndex, nodes, links) {
             if (st[d._id]) {
                 delete st[d._id];
                 Session.set('selectedTargets', st);
-                d3.select("#replyButton-" + d.id).style("fill", "green");
+                d3.select("#selectButton-" + d.id).style("fill", "green");
             } else {
                 st[d._id] = true;
                 Session.set('selectedTargets', st);
-                d3.select("#replyButton-" + d.id).style("fill", "white");
+                d3.select("#selectButton-" + d.id).style("fill", "white");
             }
         })
         .on('contextmenu', menuFunction)
@@ -575,7 +630,7 @@ function ForumTree(forumIndex, nodes, links) {
              .style("opacity", 0);
         });
 
-    var expandButtons = postSelection.append("rect")
+    var loadButtons = postSelection.append("rect")
         .attr("y", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().height -10;
         })
@@ -584,8 +639,8 @@ function ForumTree(forumIndex, nodes, links) {
         })
         .attr("width", 30)
         .attr("height", 10)
-        .attr("class", 'control expand-button')
-        .attr("id", function(d) { return "expandButton-" + d.id;})
+        .attr("class", 'control load-button')
+        .attr("id", function(d) { return "loadButton-" + d.id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
           d.fixed = true;
@@ -610,7 +665,7 @@ function ForumTree(forumIndex, nodes, links) {
           d3.select(".tooltip").transition()
              .duration(200)
              .style("opacity", .9);
-          d3.select(".tooltip").html("expand post")
+          d3.select(".tooltip").html("load connecting posts")
              .style("left", (d3.event.pageX) + "px")
              .style("top", (d3.event.pageY - 28) + "px");
         })
