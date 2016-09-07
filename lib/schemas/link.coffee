@@ -14,8 +14,8 @@
     regEx: SimpleSchema.RegEx.Id
     optional: true
 
-  isAttack:
-    type: Boolean
+  type:
+    type: String
     optional: true
 
   createdAt:

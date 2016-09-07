@@ -50,8 +50,10 @@
 if Meteor.isClient
   @Post.after.insert (userId, post)->
     return true if post.isRoot
+    if post.isAttack then type = "Attack";
+    else type = "Normal"
     if !post.links || post.links.length == 0
-      Meteor.call('insertLink', {isAttack: post.isAttack, sourceId: @_id, targetId: Post.findOne(isRoot: true)._id, ownerId: post.ownerId})
+      Meteor.call('insertLink', {type: type, sourceId: @_id, targetId: Post.findOne(isRoot: true)._id, ownerId: post.ownerId})
     else
       for link in post.links
-        Meteor.call('insertLink', {isAttack: post.isAttack, sourceId: @_id, targetId: link, ownerId: post.ownerId})
+        Meteor.call('insertLink', {type: type, sourceId: @_id, targetId: link, ownerId: post.ownerId})
