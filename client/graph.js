@@ -284,7 +284,6 @@ function ForumTree(forumIndex, nodes, links) {
             force.resume();
             d3.event.sourceEvent.stopPropagation();
             d3.select(this).classed("dragging", true);
-            d._fixed = d.fixed;
             d.fixed = false;
           })
           .on("drag", function(d) {
@@ -293,7 +292,7 @@ function ForumTree(forumIndex, nodes, links) {
           })
           .on("dragend", function(d) {
             d3.select(this).classed("dragging", false);
-            d.fixed = d._fixed;
+            if (d.locked || d.tempLocked) d.fixed = true;
           });
 
   // setup z-index to prevent overlapping lines over nodes
@@ -402,16 +401,14 @@ function ForumTree(forumIndex, nodes, links) {
       var menuNodes = [];
 
       var menuOption = {post: d, title: "Pin Post"};
-      if (d.pinned) menuOption.title = "Unpin Post";
+      if (d.locked) menuOption.title = "Unpin Post";
       menuOption.clicked = function() {
-        if (this.post.pinned) {
+        if (this.post.locked) {
           this.post.fixed = false;
           this.post.locked = false;
-          this.post.pinned = false;
         } else {
           this.post.fixed = true;
           this.post.locked = true;
-          this.post.pinned = true;
         }
       };
       menuNodes.push(menuOption);
