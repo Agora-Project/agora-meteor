@@ -284,12 +284,15 @@ function ForumTree(forumIndex, nodes, links) {
             force.resume();
             d3.event.sourceEvent.stopPropagation();
             d3.select(this).classed("dragging", true);
+            d._fixed = d.fixed;
+            d.fixed = false;
           })
           .on("drag", function(d) {
             d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
           })
           .on("dragend", function(d) {
             d3.select(this).classed("dragging", false);
+            d.fixed = d._fixed;
           });
 
   // setup z-index to prevent overlapping lines over nodes
@@ -390,10 +393,29 @@ function ForumTree(forumIndex, nodes, links) {
 
     var menuFunction = function(d) {
       d.fixed = true;
+      d.tempLocked = true;
       setTimeout(function() {
-        d.fixed = false;
+        if(!d.locked) d.fixed = false;
+        d.tempLocked = false;
       }, 4000);
       var menuNodes = [];
+
+      var menuOption = {post: d, pinned: false, title: "Pin Post"};
+      menuOption.clicked = function() {
+        if (this.pinned) {
+          this.post.fixed = false;
+          this.post.locked = false;
+          this.title = "Pin Post";
+          this.pinned = false;
+        } else {
+          this.post.fixed = true;
+          this.post.locked = true;
+          this.title = "Unpin Post";
+          this.pinned = true;
+        }
+      };
+      menuNodes.push(menuOption);
+
       Link.find({sourceId: d._id}).fetch().forEach(function(link) {
         if (!nodesInGraph.containsID(link.targetId)) {
           var post = Post.findOne({_id: link.targetId});
@@ -499,7 +521,7 @@ function ForumTree(forumIndex, nodes, links) {
           d.fixed = true;
         })
         .on('mouseout', function (d) {
-          if (!d.locked) d.fixed = false;
+          if (!(d.locked || d.tempLocked)) d.fixed = false;
         });
 
     var titles = postSelection.append("text")
@@ -518,7 +540,7 @@ function ForumTree(forumIndex, nodes, links) {
           d3.select('#title-' + d.id).text(d.title);
         })
         .on('mouseout', function (d) {
-          if (!d.locked) d.fixed = false;
+          if (!(d.locked || d.tempLocked)) d.fixed = false;
           d3.select('#title-' + d.id).text(function (d) {
             var titleText = d.title;
             if (titleText.length > 15) titleText = titleText.substr(0, 15);
@@ -557,7 +579,7 @@ function ForumTree(forumIndex, nodes, links) {
           d.fixed = true;
         })
         .on('mouseout', function (d) {
-          if (!d.locked) d.fixed = false;
+          if (!(d.locked || d.tempLocked)) d.fixed = false;
         })
         .on('dblclick', expandFunction);
 
@@ -582,7 +604,7 @@ function ForumTree(forumIndex, nodes, links) {
              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
-          if (!d.locked) d.fixed = false;
+          if (!(d.locked || d.tempLocked)) d.fixed = false;
           d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
@@ -631,7 +653,7 @@ function ForumTree(forumIndex, nodes, links) {
               .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
-          if (!d.locked) d.fixed = false;
+          if (!(d.locked || d.tempLocked)) d.fixed = false;
           d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
@@ -651,10 +673,10 @@ function ForumTree(forumIndex, nodes, links) {
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
           d.fixed = true;
-          d.locked = true;
+          d.tempLocked = true;
           setTimeout(function() {
-            d.fixed = false;
-            d.locked = false;
+            if (!d.locked) d.fixed = false;
+            d.tempLocked = false;
           }, 1000);
           Link.find({sourceId: d._id}).fetch().forEach(function(link) {
             nodesInGraph.add(link.targetId);
@@ -677,7 +699,7 @@ function ForumTree(forumIndex, nodes, links) {
              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
-          if (!d.locked) d.fixed = false;
+          if (!(d.locked || d.tempLocked)) d.fixed = false;
           d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
