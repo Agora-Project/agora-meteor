@@ -310,7 +310,7 @@ function ForumTree(forumIndex, nodes, links) {
   d3.select(window).on("resize", resize);
 
   // tick
-  function tick() {
+  function tick(e) {
     //This isf statement keeps the app from choking when reloading the page.
     if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
           linkElements.attr("x1", function (d) {
@@ -329,7 +329,7 @@ function ForumTree(forumIndex, nodes, links) {
       var links = force.links();
       var nodes = force.nodes();
 
-      for (i = 0; i < links.length; i++) {
+      /*for (i = 0; i < links.length; i++) {
         if (nodes[links[i].target.index] && nodes[links[i].source.index]) {
           var targy = nodes[links[i].target.index].y;
           var sorcy = nodes[links[i].source.index].y;
@@ -338,7 +338,12 @@ function ForumTree(forumIndex, nodes, links) {
               nodes[links[i].source.index].y += 1;
           }
         }
-      }
+      }*/
+      var k = 6 * e.alpha;
+      links.forEach(function(d, i) {
+        d.source.y += k;
+        d.target.y -= k;
+      });
 
       nodeElements.attr("transform", function (d) {
         if (document.getElementById("rect-"+ d.id))
