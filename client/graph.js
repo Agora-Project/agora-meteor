@@ -364,6 +364,40 @@ function ForumTree(forumIndex, nodes, links) {
   // dynamically update the graph
   this.render = function() {
 
+    // filters go in defs element
+    var defs = svg.append("defs");
+
+    // create filter with id #drop-shadow
+    // height=130% so that the shadow is not clipped
+    var filter = defs.append("filter")
+        .attr("id", "drop-shadow")
+        .attr("height", "130%");
+
+    // SourceAlpha refers to opacity of graphic that this filter will be applied to
+    // convolve that with a Gaussian with standard deviation 3 and store result
+    // in blur
+    filter.append("feGaussianBlur")
+        .attr("in", "SourceAlpha")
+        .attr("stdDeviation", 5)
+        .attr("result", "blur");
+
+    // translate output of Gaussian blur to the right and downwards with 2px
+    // store result in offsetBlur
+    filter.append("feOffset")
+        .attr("in", "blur")
+        .attr("dx", 5)
+        .attr("dy", 5)
+        .attr("result", "offsetBlur");
+
+    // overlay original SourceGraphic over translated blurred opacity by using
+    // feMerge filter. Order of specifying inputs is important!
+    var feMerge = filter.append("feMerge");
+
+    feMerge.append("feMergeNode")
+        .attr("in", "offsetBlur")
+    feMerge.append("feMergeNode")
+        .attr("in", "SourceGraphic");
+
     d3.select(".tooltip").transition()
        .duration(500)
        .style("opacity", 0);
@@ -460,9 +494,6 @@ function ForumTree(forumIndex, nodes, links) {
             .draw();
         d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
         d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 10, 20));
-        d3.select("#selectButton-" + d.id).attr("y", function(d) {
-          return document.getElementById("rect-"+ d.id).getBBox().height -10;
-        });
         d3.select("#loadButton-" + d.id).attr("y", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().height -10;
         })
@@ -483,9 +514,6 @@ function ForumTree(forumIndex, nodes, links) {
             .draw();
         d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
         d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 10, 20));
-        d3.select("#selectButton-" + d.id).attr("y", function(d) {
-          return document.getElementById("rect-"+ d.id).getBBox().height -10;
-        });
         d3.select("#loadButton-" + d.id).attr("y", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().height -10;
         })
@@ -524,6 +552,18 @@ function ForumTree(forumIndex, nodes, links) {
         })
         .on('mouseout', function (d) {
           if (!(d.locked || d.tempLocked)) d.fixed = false;
+        })
+        .on('click', function(d) {
+          var st = Session.get('selectedTargets');
+          if (st[d._id]) {
+              delete st[d._id];
+              Session.set('selectedTargets', st);
+              d3.select("#rect-" + d.id).style("filter", "");
+          } else {
+              st[d._id] = true;
+              Session.set('selectedTargets', st);
+              d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
+          }
         });
 
     var titles = postSelection.append("text")
@@ -548,6 +588,18 @@ function ForumTree(forumIndex, nodes, links) {
             if (titleText.length > 15) titleText = titleText.substr(0, 15);
             return titleText;
           });
+        })
+        .on('click', function(d) {
+          var st = Session.get('selectedTargets');
+          if (st[d._id]) {
+              delete st[d._id];
+              Session.set('selectedTargets', st);
+              d3.select("#rect-" + d.id).style("filter", "");
+          } else {
+              st[d._id] = true;
+              Session.set('selectedTargets', st);
+              d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
+          }
         });
 
 
@@ -583,7 +635,19 @@ function ForumTree(forumIndex, nodes, links) {
         .on('mouseout', function (d) {
           if (!(d.locked || d.tempLocked)) d.fixed = false;
         })
-        .on('dblclick', expandFunction);
+        .on('dblclick', expandFunction)
+        .on('click', function(d) {
+          var st = Session.get('selectedTargets');
+          if (st[d._id]) {
+              delete st[d._id];
+              Session.set('selectedTargets', st);
+              d3.select("#rect-" + d.id).style("filter", "");
+          } else {
+              st[d._id] = true;
+              Session.set('selectedTargets', st);
+              d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
+          }
+        });
 
     var removeButtons = postSelection.append("circle").attr("cx", function (d) {
             return document.getElementById("rect-"+ d.id).getBBox().width;
@@ -604,55 +668,6 @@ function ForumTree(forumIndex, nodes, links) {
           d3.select(".tooltip").html("remove post")
              .style("left", (d3.event.pageX) + "px")
              .style("top", (d3.event.pageY - 28) + "px");
-        })
-        .on('mouseout', function (d) {
-          if (!(d.locked || d.tempLocked)) d.fixed = false;
-          d3.select(".tooltip").transition()
-             .duration(500)
-             .style("opacity", 0);
-        });
-
-    var selectButtons = postSelection.append("rect")
-        .attr("y", function(d) {
-            return document.getElementById("rect-"+ d.id).getBBox().height -10;
-        })
-        .attr("width", 30)
-        .attr("height", 10)
-        .attr("class", 'control select-button')
-        .attr("id", function(d) { return "selectButton-" + d.id;})
-        .style("fill", function(d) {
-            if (Session.get('selectedTargets')[d._id]) {
-                return "white";
-            }
-            return "green";
-        })
-        .on("click", function (d) {
-            var st = Session.get('selectedTargets');
-            if (st[d._id]) {
-                delete st[d._id];
-                Session.set('selectedTargets', st);
-                d3.select("#selectButton-" + d.id).style("fill", "green");
-            } else {
-                st[d._id] = true;
-                Session.set('selectedTargets', st);
-                d3.select("#selectButton-" + d.id).style("fill", "white");
-            }
-        })
-        .on('contextmenu', menuFunction)
-        .on('mouseover', function (d) {
-          d.fixed = true;
-          d3.select(".tooltip").transition()
-             .duration(200)
-             .style("opacity", .9);
-          var st = Session.get('selectedTargets');
-          if (st[d._id])
-            d3.select(".tooltip").html("unselect post")
-              .style("left", (d3.event.pageX) + "px")
-              .style("top", (d3.event.pageY - 28) + "px");
-          else
-            d3.select(".tooltip").html("select post")
-              .style("left", (d3.event.pageX) + "px")
-              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
           if (!(d.locked || d.tempLocked)) d.fixed = false;
