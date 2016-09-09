@@ -274,7 +274,7 @@ function ForumTree(forumIndex, nodes, links) {
       .links(links)
       .gravity(0.10)
       .charge(-2000)
-      .friction(0.7)
+      .friction(0.9)
       .linkDistance(150)
       .on("tick", tick);
 
