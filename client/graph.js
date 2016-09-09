@@ -281,7 +281,6 @@ function ForumTree(forumIndex, nodes, links) {
       var drag = d3.behavior.drag()
           .origin(function(d) { return d; })
           .on("dragstart", function(d) {
-            force.resume();
             d3.event.sourceEvent.stopPropagation();
             d3.select(this).classed("dragging", true);
             d.fixed = false;
@@ -291,6 +290,7 @@ function ForumTree(forumIndex, nodes, links) {
             d.fixed = false;
           })
           .on("dragend", function(d) {
+            force.resume();
             d3.select(this).classed("dragging", false);
             if (d.locked || d.tempLocked) d.fixed = true;
           });
