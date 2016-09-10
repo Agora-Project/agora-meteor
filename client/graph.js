@@ -287,11 +287,17 @@ function ForumTree(forumIndex, nodes, links) {
             d3.select(this).classed("dragging", true);
             //drag.dragX = d3.event.x;
             //drag.dragY = d3.event.y;
-
           })
           .on("drag", function(d) {
             d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+            force.resume();
 
+            d3.select("#g-" + d.id).attr("transform", function (d) {
+              if (document.getElementById("rect-"+ d.id))
+                return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
+                       + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
+              else return "translate(" + d.x + ","+ d.y + ")";
+            });
             //tree.render();
           })
           .on("dragend", function(d) {
@@ -300,7 +306,8 @@ function ForumTree(forumIndex, nodes, links) {
               //force.resume();
             d3.select(this).classed("dragging", false);
 
-            tree.render();
+            force.stop();
+            //tree.render();
           });
 
   // setup z-index to prevent overlapping lines over nodes
@@ -320,7 +327,7 @@ function ForumTree(forumIndex, nodes, links) {
   // tick
   function tick() {
     //This isf statement keeps the app from choking when reloading the page.
-    /*if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
+    if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
           linkElements.attr("x1", function (d) {
               return d.source.x;
           })
@@ -332,7 +339,7 @@ function ForumTree(forumIndex, nodes, links) {
           })
           .attr("y2", function (d) {
               return d.target.y;
-          });*/
+          });
 
       var links = force.links();
       var nodes = force.nodes();
@@ -348,12 +355,12 @@ function ForumTree(forumIndex, nodes, links) {
         }
       }
 
-      /*nodeElements.attr("transform", function (d) {
+      nodeElements.attr("transform", function (d) {
         if (document.getElementById("rect-"+ d.id))
           return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
                  + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
         else return "translate(" + d.x + ","+ d.y + ")";
-      });*/
+      });
   }
 
   // resize svg and force layout when screen size change
@@ -704,33 +711,6 @@ function ForumTree(forumIndex, nodes, links) {
         force.start();
         for (var i = 10000; i > 0; --i) force.tick();
         force.stop();
-
-        //var linkElements = d3.selectAll("line");
-        //var nodeElements = d3.selectAll("g");
-
-        edgeSelection = d3.selectAll(".link");
-        nodeSelection = d3.selectAll(".node");
-
-        if(!this.force.nodes()[0] || !this.force.nodes()[0].y) { return; }
-              edgeSelection.attr("x1", function (d) {
-                  return d.source.x;
-              })
-              .attr("y1", function (d) {
-                  return d.source.y;
-              })
-              .attr("x2", function (d) {
-                  return d.target.x;
-              })
-              .attr("y2", function (d) {
-                  return d.target.y;
-              });
-
-        nodeSelection.attr("transform", function (d) {
-          if (document.getElementById("rect-"+ d.id))
-            return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
-                   + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
-          else return "translate(" + d.x + ","+ d.y + ")";
-        });
   };
 
   this.addNode = function(doc) {
