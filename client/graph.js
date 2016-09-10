@@ -278,14 +278,16 @@ function ForumTree(forumIndex, nodes, links) {
       .linkDistance(150)
       .on("tick", tick);
 
+      this.force = force;
+
       var drag = d3.behavior.drag()
           .origin(function(d) { return d; })
           .on("dragstart", function(d) {
             d3.event.sourceEvent.stopPropagation();
             d3.select(this).classed("dragging", true);
             d.fixed = false;
-            drag.dragX = d3.event.x;
-            drag.dragY = d3.event.y;
+            //drag.dragX = d3.event.x;
+            //drag.dragY = d3.event.y;
 
           })
           .on("drag", function(d) {
@@ -294,8 +296,8 @@ function ForumTree(forumIndex, nodes, links) {
           })
           .on("dragend", function(d) {
             //d3.event.sourceEvent.stopPropagation();
-            if (drag.dragX - d3.event.x > 5 || drag.dragY - d3.event.y > 5)
-              force.resume();
+            //if (drag.dragX - d3.event.x > 5 || drag.dragY - d3.event.y > 5)
+              //force.resume();
             d3.select(this).classed("dragging", false);
             if (d.locked || d.tempLocked) d.fixed = true;
           });
@@ -317,7 +319,7 @@ function ForumTree(forumIndex, nodes, links) {
   // tick
   function tick() {
     //This isf statement keeps the app from choking when reloading the page.
-    if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
+    /*if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
           linkElements.attr("x1", function (d) {
               return d.source.x;
           })
@@ -329,7 +331,7 @@ function ForumTree(forumIndex, nodes, links) {
           })
           .attr("y2", function (d) {
               return d.target.y;
-          });
+          });*/
 
       var links = force.links();
       var nodes = force.nodes();
@@ -345,12 +347,12 @@ function ForumTree(forumIndex, nodes, links) {
         }
       }
 
-      nodeElements.attr("transform", function (d) {
+      /*nodeElements.attr("transform", function (d) {
         if (document.getElementById("rect-"+ d.id))
           return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
                  + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
         else return "translate(" + d.x + ","+ d.y + ")";
-      });
+      });*/
   }
 
   // resize svg and force layout when screen size change
@@ -414,7 +416,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     nodeElements.exit().remove();
 
-    var nodeSelection = nodeElements.enter().append("g").call(drag).attr("class", "post node"); /*.attr("class", function (d) {
+    var nodeSelection = nodeElements.enter().append("g").call(drag).classed("post node", true); /*.attr("class", function (d) {
         if(d.isRoot) { return "root-post"; } else { return ""; }
     });
 
@@ -427,8 +429,6 @@ function ForumTree(forumIndex, nodes, links) {
           .attr("width", 24)
           .attr("height", 24);
           */
-
-    var postSelection = nodeSelection.filter(".post");
 
     var menuFunction = function(d) {
       d.fixed = true;
@@ -546,6 +546,7 @@ function ForumTree(forumIndex, nodes, links) {
     };
 
     var edgeSelection = linkElements.enter().append("line")
+      .classed('link', true)
       .attr('stroke', function (d) {
         if (d.type == "Attack") {
           return 'red';
@@ -553,6 +554,8 @@ function ForumTree(forumIndex, nodes, links) {
           return 'black';
         }
       });
+
+    var postSelection = nodeSelection.filter(".post");
 
     postSelection.append('rect')
         .attr("id", function (d) {
@@ -743,7 +746,36 @@ function ForumTree(forumIndex, nodes, links) {
              .style("opacity", 0);
         });
 
-    force.start();
+        force.start();
+        for (var i = 10000; i > 0; --i) force.tick();
+        force.stop();
+
+        //var linkElements = d3.selectAll("line");
+        //var nodeElements = d3.selectAll("g");
+
+        edgeSelection = d3.selectAll(".link");
+        nodeSelection = d3.selectAll(".node");
+
+        if(!this.force.nodes()[0] || !this.force.nodes()[0].y) { return; }
+              edgeSelection.attr("x1", function (d) {
+                  return d.source.x;
+              })
+              .attr("y1", function (d) {
+                  return d.source.y;
+              })
+              .attr("x2", function (d) {
+                  return d.target.x;
+              })
+              .attr("y2", function (d) {
+                  return d.target.y;
+              });
+
+        nodeSelection.attr("transform", function (d) {
+          if (document.getElementById("rect-"+ d.id))
+            return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
+                   + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
+          else return "translate(" + d.x + ","+ d.y + ")";
+        });
   };
 
   this.addNode = function(doc) {
