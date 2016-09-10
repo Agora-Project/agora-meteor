@@ -592,7 +592,7 @@ function ForumTree(forumIndex, nodes, links) {
           return "title-" + d.id;
         }).text(function (d) {
           var titleText = d.title;
-          if (titleText.length > 15) titleText = titleText.substr(0, 15);
+          if (titleText.length > 20) titleText = titleText.substr(0, 20);
           return titleText;
         })
         .attr("font-family", "sans-serif")
@@ -606,7 +606,7 @@ function ForumTree(forumIndex, nodes, links) {
           if (!(d.locked || d.tempLocked)) d.fixed = false;
           d3.select('#title-' + d.id).text(function (d) {
             var titleText = d.title;
-            if (titleText.length > 15) titleText = titleText.substr(0, 15);
+            if (titleText.length > 20) titleText = titleText.substr(0, 20);
             return titleText;
           });
         })
