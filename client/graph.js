@@ -285,21 +285,22 @@ function ForumTree(forumIndex, nodes, links) {
           .on("dragstart", function(d) {
             d3.event.sourceEvent.stopPropagation();
             d3.select(this).classed("dragging", true);
-            d.fixed = false;
             //drag.dragX = d3.event.x;
             //drag.dragY = d3.event.y;
 
           })
           .on("drag", function(d) {
             d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
-            d.fixed = false;
+
+            //tree.render();
           })
           .on("dragend", function(d) {
             //d3.event.sourceEvent.stopPropagation();
             //if (drag.dragX - d3.event.x > 5 || drag.dragY - d3.event.y > 5)
               //force.resume();
             d3.select(this).classed("dragging", false);
-            if (d.locked || d.tempLocked) d.fixed = true;
+
+            tree.render();
           });
 
   // setup z-index to prevent overlapping lines over nodes
@@ -416,7 +417,10 @@ function ForumTree(forumIndex, nodes, links) {
 
     nodeElements.exit().remove();
 
-    var nodeSelection = nodeElements.enter().append("g").call(drag).classed("post node", true); /*.attr("class", function (d) {
+    var nodeSelection = nodeElements.enter().append("g").call(drag).classed("post node", true)
+        .attr("id", function(d) {
+          return "g-" + d.id;
+        }); /*.attr("class", function (d) {
         if(d.isRoot) { return "root-post"; } else { return ""; }
     });
 
@@ -431,35 +435,10 @@ function ForumTree(forumIndex, nodes, links) {
           */
 
     var menuFunction = function(d) {
-      d.fixed = true;
-      d.tempLocked = true;
-      setTimeout(function() {
-        if(!d.locked) d.fixed = false;
-        d.tempLocked = false;
-      }, 4000);
       var menuNodes = [];
-
-      var menuOption = {post: d, title: "Pin Post"};
-      if (d.locked) menuOption.title = "Unpin Post";
-      menuOption.clicked = function() {
-        if (this.post.locked) {
-          this.post.fixed = false;
-          this.post.locked = false;
-        } else {
-          this.post.fixed = true;
-          this.post.locked = true;
-        }
-      };
-      menuNodes.push(menuOption);
 
       menuOption = {post: d, title: "Load All Connecting Posts"};
       menuOption.clicked = function() {
-        this.post.fixed = true;
-        this.post.tempLocked = true;
-        setTimeout(function() {
-          if (!this.post.locked) this.post.fixed = false;
-          this.post.tempLocked = false;
-        }, 1000);
         Link.find({sourceId: this.post._id}).fetch().forEach(function(link) {
           nodesInGraph.add(link.targetId);
           handlers.addHandler(link.targetId);
@@ -571,12 +550,6 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("stroke-width", 1)
         .attr('fill', '#fafafa')
         .on('contextmenu', menuFunction)
-        .on('mouseover', function (d) {
-          d.fixed = true;
-        })
-        .on('mouseout', function (d) {
-          if (!(d.locked || d.tempLocked)) d.fixed = false;
-        })
         .on('click', function(d) {
           var st = Session.get('selectedTargets');
           if (st[d._id]) {
@@ -602,11 +575,9 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("font-size", "11px")
         .on('contextmenu', menuFunction)
         .on('mouseover', function (d) {
-          d.fixed = true;
           d3.select('#title-' + d.id).text(d.title);
         })
         .on('mouseout', function (d) {
-          if (!(d.locked || d.tempLocked)) d.fixed = false;
           d3.select('#title-' + d.id).text(function (d) {
             var titleText = d.title;
             if (titleText.length > 20) titleText = titleText.substr(0, 20);
@@ -653,12 +624,6 @@ function ForumTree(forumIndex, nodes, links) {
             return "text-" + d.id;
         })
         .on('contextmenu', menuFunction)
-        .on('mouseover', function (d) {
-          d.fixed = true;
-        })
-        .on('mouseout', function (d) {
-          if (!(d.locked || d.tempLocked)) d.fixed = false;
-        })
         .on('dblclick', expandFunction)
         .on('click', function(d) {
           var st = Session.get('selectedTargets');
@@ -685,7 +650,6 @@ function ForumTree(forumIndex, nodes, links) {
         })
         .on('contextmenu', menuFunction)
         .on('mouseover', function (d) {
-          d.fixed = true;
           d3.select(".tooltip").transition()
              .duration(200)
              .style("opacity", .9);
@@ -694,7 +658,6 @@ function ForumTree(forumIndex, nodes, links) {
              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
-          if (!(d.locked || d.tempLocked)) d.fixed = false;
           d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
@@ -713,12 +676,6 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("id", function(d) { return "loadButton-" + d.id;})
         .style("fill", "rebeccapurple")
         .on("click", function (d) {
-          d.fixed = true;
-          d.tempLocked = true;
-          setTimeout(function() {
-            if (!d.locked) d.fixed = false;
-            d.tempLocked = false;
-          }, 1000);
           Link.find({sourceId: d._id}).fetch().forEach(function(link) {
             nodesInGraph.add(link.targetId);
             handlers.addHandler(link.targetId);
@@ -731,7 +688,6 @@ function ForumTree(forumIndex, nodes, links) {
         })
         .on('contextmenu', menuFunction)
         .on('mouseover', function (d) {
-          d.fixed = true;
           d3.select(".tooltip").transition()
              .duration(200)
              .style("opacity", .9);
@@ -740,7 +696,6 @@ function ForumTree(forumIndex, nodes, links) {
              .style("top", (d3.event.pageY - 28) + "px");
         })
         .on('mouseout', function (d) {
-          if (!(d.locked || d.tempLocked)) d.fixed = false;
           d3.select(".tooltip").transition()
              .duration(500)
              .style("opacity", 0);
