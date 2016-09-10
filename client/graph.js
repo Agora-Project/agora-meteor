@@ -284,13 +284,18 @@ function ForumTree(forumIndex, nodes, links) {
             d3.event.sourceEvent.stopPropagation();
             d3.select(this).classed("dragging", true);
             d.fixed = false;
+            drag.dragX = d3.event.x;
+            drag.dragY = d3.event.y;
+
           })
           .on("drag", function(d) {
             d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
             d.fixed = false;
           })
           .on("dragend", function(d) {
-            force.resume();
+            //d3.event.sourceEvent.stopPropagation();
+            if (drag.dragX - d3.event.x > 5 || drag.dragY - d3.event.y > 5)
+              force.resume();
             d3.select(this).classed("dragging", false);
             if (d.locked || d.tempLocked) d.fixed = true;
           });
@@ -444,6 +449,27 @@ function ForumTree(forumIndex, nodes, links) {
           this.post.fixed = true;
           this.post.locked = true;
         }
+      };
+      menuNodes.push(menuOption);
+
+      menuOption = {post: d, title: "Load All Connecting Posts"};
+      menuOption.clicked = function() {
+        this.post.fixed = true;
+        this.post.tempLocked = true;
+        setTimeout(function() {
+          if (!this.post.locked) this.post.fixed = false;
+          this.post.tempLocked = false;
+        }, 1000);
+        Link.find({sourceId: this.post._id}).fetch().forEach(function(link) {
+          nodesInGraph.add(link.targetId);
+          handlers.addHandler(link.targetId);
+
+        });
+        Link.find({targetId: this.post._id}).fetch().forEach(function(link) {
+          nodesInGraph.add(link.sourceId);
+          handlers.addHandler(link.sourceId);
+        });
+
       };
       menuNodes.push(menuOption);
 
