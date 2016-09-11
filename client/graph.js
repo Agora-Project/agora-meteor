@@ -553,9 +553,7 @@ function ForumTree(forumIndex, nodes, links) {
         .attr("height", function(d) {
           return Math.sqrt(d.body.length);
         })
-        .attr('stroke', '#dbdbdb')
-        .attr("stroke-width", 1)
-        .attr('fill', '#fafafa')
+        .classed("text-box", true)
         .on('contextmenu', menuFunction)
         .on('click', function(d) {
           var st = Session.get('selectedTargets');
@@ -578,8 +576,7 @@ function ForumTree(forumIndex, nodes, links) {
           if (titleText.length > 20) titleText = titleText.substr(0, 20);
           return titleText;
         })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "11px")
+        .classed("text-title", true)
         .on('contextmenu', menuFunction)
         .on('mouseover', function (d) {
           d3.select('#title-' + d.id).text(d.title);
@@ -611,9 +608,7 @@ function ForumTree(forumIndex, nodes, links) {
           if (bodyText.length > 100) bodyText = bodyText.substr(0, 100);
           return bodyText;
         })
-        .attr("font-size", "11px")
-        .attr("font-family", "sans-serif")
-        .attr("fill", "#33333f")
+        .classed("text-body", true)
         .call(function (wrapSelection) {
             wrapSelection.each (function(d){
                 if (!d.body) { return; }
@@ -649,8 +644,7 @@ function ForumTree(forumIndex, nodes, links) {
             return document.getElementById("rect-"+ d.id).getBBox().width;
         })
         .attr("r", 10)
-        .attr("class", 'control')
-        .style("fill", "red")
+        .classed('control remove-button', true)
         .on("click", function (d) {
             tree.removeNode(d)
             resetTargetsSelection();
@@ -679,9 +673,8 @@ function ForumTree(forumIndex, nodes, links) {
         })
         .attr("width", 30)
         .attr("height", 10)
-        .attr("class", 'control load-button')
+        .classed('control load-button', true)
         .attr("id", function(d) { return "loadButton-" + d.id;})
-        .style("fill", "rebeccapurple")
         .on("click", function (d) {
           Link.find({sourceId: d._id}).fetch().forEach(function(link) {
             nodesInGraph.add(link.targetId);
