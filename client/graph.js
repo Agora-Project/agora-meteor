@@ -32,6 +32,13 @@ Template.forumPost.events({
 });
 
 Template.forumIndex.events({
+
+  'click .button-post': function() {
+    if (!tempNodes) tempNodes = 0;
+    var blankNode = {replyNode: true, _id: tempNodes++};
+    tree.addNode(blankNode);
+  },
+
   'click .button-delete': function() {
     for (var post in Session.get('selectedTargets')) {
       if (tree.removeNode(post))
@@ -58,7 +65,8 @@ Template.forumIndex.rendered = function() {
   var nodes = [];
 
   nodesCursor.fetch().forEach(function(n) {
-    n.id = nodeIDMap.add(n._id);
+    n.selectable = true;
+    nodeIDMap.add(n);
     if (nodesInGraph.contains(n)) nodes.push(n);
   });
 
@@ -69,6 +77,7 @@ Template.forumIndex.rendered = function() {
   nodesCursor.observe({
     added: function(doc) {
       if (init) { return; }
+      doc.selectable = true;
       if (nodesInGraph.contains(doc)) {
         tree.addNode(doc);
         Link.find({sourceId: d._id}).fetch().forEach(function(link) {
@@ -247,7 +256,7 @@ function ForumTree(forumIndex, nodes, links) {
   this.links = links;
 
   var postWidth = 140,
-      postHeight = 200;
+      postHeight = 100;
 
   var key = function (d) {
     return d._id;
@@ -429,7 +438,9 @@ function ForumTree(forumIndex, nodes, links) {
 
     nodeElements.exit().remove();
 
-    var nodeSelection = nodeElements.enter().append("g").call(drag).classed("post node", true)
+    var nodeSelection = nodeElements.enter().append("g").call(drag).classed("node", true)
+        .classed("post", function(d) {return (!d.replyNode)})
+        .classed("reply", function(d) {return (d.replyNode)})
         .attr("id", function(d) {
           return "g-" + d.id;
         }); /*.attr("class", function (d) {
@@ -505,9 +516,9 @@ function ForumTree(forumIndex, nodes, links) {
             .height(postHeight)
             .draw();
         d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
-        d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 10, 20));
+        d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 20, 20));
         d3.select("#loadButton-" + d.id).attr("y", function(d) {
-            return document.getElementById("rect-"+ d.id).getBBox().height -10;
+            return document.getElementById("rect-"+ d.id).getBBox().height -20;
         })
         .attr("x", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().width -30;
@@ -525,9 +536,9 @@ function ForumTree(forumIndex, nodes, links) {
             .height(postHeight)
             .draw();
         d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
-        d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 10, 20));
+        d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 20, 20));
         d3.select("#loadButton-" + d.id).attr("y", function(d) {
-            return document.getElementById("rect-"+ d.id).getBBox().height -10;
+            return document.getElementById("rect-"+ d.id).getBBox().height -20;
         })
         .attr("x", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().width -30;
@@ -548,19 +559,26 @@ function ForumTree(forumIndex, nodes, links) {
 
     var postSelection = nodeSelection.filter(".post");
 
-    postSelection.append('rect')
+    var replySelection = nodeSelection.filter(".reply");
+
+    nodeSelection.append('rect')
         .attr("id", function (d) {
             return "rect-" + d.id;
         })
         .attr("width", function(d) {
-          return Math.sqrt(d.body.length);
+          if (d.body)
+            return Math.sqrt(d.body.length);
+          else return postWidth;
         })
         .attr("height", function(d) {
+        if (d.body)
           return Math.sqrt(d.body.length);
+        else return postHeight;
         })
         .classed("text-box", true)
         .on('contextmenu', menuFunction)
         .on('click', function(d) {
+          if (!d.selectable) return;
           var st = Session.get('selectedTargets');
           if (st[d._id]) {
               delete st[d._id];
@@ -606,9 +624,20 @@ function ForumTree(forumIndex, nodes, links) {
           }
         });
 
+    var replyTitles = replySelection.append("foreignObject")
+        .attr("width", postWidth)
+        .attr("height","25")
+        .attr("y","-25")
+        .append("xhtml:div")
+        .append("xhtml:input")
+        .attr("id", function(d) { return "replyTitle-" + d.id;})
+        .attr("size",15)
+        .attr("z-index", 1)
+        .attr("type", "text");
 
     var bodys = postSelection.append("text")
         .text(function (d) {
+          if (!d.body) return;
           var bodyText = d.body;
           if (bodyText.length > 100) bodyText = bodyText.substr(0, 100);
           return bodyText;
@@ -645,7 +674,19 @@ function ForumTree(forumIndex, nodes, links) {
           }
         });
 
-    var removeButtons = postSelection.append("circle").attr("cx", function (d) {
+    var replybodies = replySelection.append("foreignObject")
+        .attr("width", postWidth)
+        .attr("height",postHeight - 20)
+        .append("xhtml:div")
+        .append("xhtml:textarea")
+        .attr("id", function(d) { return "replyBody-" + d.id;})
+        .classed("reply-body", true)
+        .attr("rows", 4)
+        .attr("cols", 15)
+        .attr("z-index", 1)
+        .attr("resize", "none");
+
+    var removeButtons = nodeSelection.append("circle").attr("cx", function (d) {
             return document.getElementById("rect-"+ d.id).getBBox().width;
         })
         .attr("r", 10)
@@ -671,13 +712,13 @@ function ForumTree(forumIndex, nodes, links) {
 
     var loadButtons = postSelection.append("rect")
         .attr("y", function(d) {
-            return document.getElementById("rect-"+ d.id).getBBox().height -10;
+            return document.getElementById("rect-"+ d.id).getBBox().height -20;
         })
         .attr("x", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().width -30;
         })
         .attr("width", 30)
-        .attr("height", 10)
+        .attr("height", 20)
         .classed('control load-button', true)
         .attr("id", function(d) { return "loadButton-" + d.id;})
         .on("click", function (d) {
@@ -706,6 +747,46 @@ function ForumTree(forumIndex, nodes, links) {
              .style("opacity", 0);
         });
 
+    var replyButtons = replySelection.append("rect")
+        .attr("y", function(d) {
+            return document.getElementById("rect-"+ d.id).getBBox().height -20;
+        })
+        .attr("x", function(d) {
+            return document.getElementById("rect-"+ d.id).getBBox().width -30;
+        })
+        .attr("width", 30)
+        .attr("height", 20)
+        .classed('control reply-button', true)
+        .attr("id", function(d) { return "replyButton-" + d.id;})
+        .on("click", function(d) {
+          var title = $('#replyTitle-' + d.id).val();
+          var body = $('#replyBody-' + d.id).val();
+          var links = [];
+
+          for (var key in Session.get('selectedTargets')) {
+              links.push(key);
+          }
+
+          if (links.length === 0) {
+            d3.event.preventDefault();
+            return;
+          }
+
+          var postId = Post.insert({
+              ownerId: Meteor.userId(),
+              title: title,
+              body: body,
+              isAttack: false,
+              links: links
+          });
+
+          d3.event.preventDefault();
+          setTimeout(function() {nodesInGraph.add(postId)}, 1000);
+          handlers.addHandler(postId);
+          tree.removeNode(d);
+            console.log("reply finished.")
+        });
+
         force.start();
         for (var i = 10000; i > 0; --i) force.tick();
         force.stop();
@@ -713,7 +794,7 @@ function ForumTree(forumIndex, nodes, links) {
 
   this.addNode = function(doc) {
     if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
-      doc.id = nodeIDMap.add(doc._id);
+      nodeIDMap.add(doc);
       this.nodes.push(doc);
       Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
         tree.addLink(link);

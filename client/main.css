@@ -68,6 +68,13 @@ text {
   fill: #fafafa;
 }
 
+.reply-body {
+  cols: 15;
+  rows: 5;
+  z-index: 1;
+  resize: none;
+}
+
 /*.fit-graph, #posts-graph {
     position: absolute;
     top:0px;

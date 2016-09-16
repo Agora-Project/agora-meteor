@@ -6,15 +6,6 @@ Accounts.onLogin = function() {
   }
 };
 
-Template.forumIndex.events({
-  'click .button-post': function() {
-    if (Object.keys(Session.get('selectedTargets')).length > 0) {
-      delete tree;
-      Router.go('/forum/post');
-    }
-  }
-});
-
 Template.forumIndex.helpers({
   checkIfModerator: function() {
     return Roles.userIsInRole(Meteor.userId(), ['moderator']);
