@@ -225,7 +225,6 @@ function contextMenu() {
 
 function resetTargetsSelection() {
     Session.set('selectedTargets', {});
-    d3.selectAll('.reply-button').style("fill", 'green');
 };
 
 function linksToD3Array(linksCol, nodesCol) {
@@ -784,7 +783,6 @@ function ForumTree(forumIndex, nodes, links) {
           setTimeout(function() {nodesInGraph.add(postId)}, 1000);
           handlers.addHandler(postId);
           tree.removeNode(d);
-            console.log("reply finished.")
         });
 
         force.start();
