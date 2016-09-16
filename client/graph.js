@@ -784,7 +784,6 @@ function ForumTree(forumIndex, nodes, links) {
           setTimeout(function() {nodesInGraph.add(postId)}, 1000);
           handlers.addHandler(postId);
           tree.removeNode(d);
-            console.log("reply finished.")
         });
 
         force.start();
