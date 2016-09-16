@@ -26,19 +26,26 @@ nodesInGraph.remove = function(_id) {
 };
 
 nodeIDMap = {map: {}, reverseMap: {}, count:0};
-nodeIDMap.add = function(_id) {
-  if (!this.map[_id]) {
-    this.map[_id] = this.count;
-    this.reverseMap[this.count] = _id;
-    this.count++;
+nodeIDMap.add = function(node) {
+  if (node._id) {
+    if (!this.map[node._id]) {
+      this.map[node._id] = this.count;
+      this.reverseMap[this.count] = node._id;
+      node.id = this.count;
+      this.count++;
+    }
+    node.id = this.map[node._id];
+    return this.map[node._id];
+  } else {
+    console.log("Whooops!");
   }
-  return this.map[_id];
 }
-nodeIDMap.get = function(_id) {
-  return this.map[_id];
+nodeIDMap.get = function(n) {
+  if (n._id) return this.map[n._id];
+  else return this.map[n];
 }
-nodeIDMap.getReverse = function(id) {
-  return this.reverseMap[id];
+nodeIDMap.getReverse = function(node) {
+  return this.reverseMap[node.id];
 }
 
 handlers = {};
