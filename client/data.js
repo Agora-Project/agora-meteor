@@ -34,9 +34,10 @@ nodeIDMap.add = function(node) {
       node.id = this.count;
       this.count++;
     }
+    node.id = this.map[node._id];
     return this.map[node._id];
   } else {
-    
+    console.log("Whooops!");
   }
 }
 nodeIDMap.get = function(n) {

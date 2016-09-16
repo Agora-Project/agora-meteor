@@ -651,7 +651,7 @@ function ForumTree(forumIndex, nodes, links) {
                     .height(postHeight)
                     .draw();
                 d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
-                d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 10, 20));
+                d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 20, 20));
             });
 
         })
