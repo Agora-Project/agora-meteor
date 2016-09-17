@@ -11,6 +11,17 @@
   top: 160px;
 }
 
+.link-button-box {
+  position: fixed;
+  right: 25px;
+  top: 240px;
+}
+
+.unlink-button-box {
+  position: fixed;
+  right: 25px;
+  top: 320px;
+}
 
 .page-content {
   padding: 20px;

@@ -25,6 +25,22 @@
       </button>
     </div>
     {{/if }}
+
+    {{#if currentUser }}
+    <div class="link-button-box">
+      <button class="button-link mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
+        <i class="material-icons">gesture</i>
+      </button>
+    </div>
+    {{/if }}
+
+    {{#if currentUser }}
+    <div class="unlink-button-box">
+      <button class="button-unlink mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
+        <i class="material-icons">content_cut</i>
+      </button>
+    </div>
+    {{/if }}
 </template>
 
 <template name="forumPost">
