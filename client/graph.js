@@ -1,35 +1,4 @@
-Template.forumPost.events({
-    "click #new-thread": function (event) {
-        var title = $('#thread-title').val();
-        var body = $('#thread-body').val();
-        var isAttack = $('#thread-is-attack').is(':checked');
-        var links = [];
-
-        for (var key in Session.get('selectedTargets')) {
-            links.push(key);
-        }
-
-        if (links.length === 0) {
-          event.preventDefault();
-          return;
-        }
-
-        var postId = Post.insert({
-            ownerId: Meteor.userId(),
-            title: title,
-            body: body,
-            isAttack: isAttack,
-            links: links
-        });
-
-        resetTargetsSelection();
-
-        Router.go('/forum');
-        event.preventDefault();
-        setTimeout(function() {nodesInGraph.add(postId)}, 1000);
-        handlers.addHandler(postId);
-    }
-});
+mouseLinking = true;
 
 Template.forumIndex.events({
 
@@ -48,6 +17,11 @@ Template.forumIndex.events({
       Post.removeWithLinks(post);
     }
 
+  },
+
+  'click .button-link': function() {
+    d3.selectAll(".node").on('mousedown.drag', null);
+    mouseLinking = !mouseLinking;
   }
 });
 
@@ -276,6 +250,12 @@ function ForumTree(forumIndex, nodes, links) {
 
   svg.call(zoom).on("dblclick.zoom", null);
 
+  var linksGroup = container.append("g"),
+    nodesGroup = container.append("g");
+
+  var linkElements = linksGroup.selectAll("line");
+  var nodeElements = nodesGroup.selectAll("g");
+
   // init force layout
   var force = d3.layout.force()
       .nodes(nodes)
@@ -288,17 +268,17 @@ function ForumTree(forumIndex, nodes, links) {
 
       this.force = force;
 
-      var drag = d3.behavior.drag()
+      this.drag = d3.behavior.drag()
           .origin(function(d) { return d; })
           .on("dragstart", function(d) {
             d3.event.sourceEvent.stopPropagation();
             d3.select(this).classed("dragging", true);
             //drag.dragX = d3.event.x;
             //drag.dragY = d3.event.y;
+            //force.resume();
           })
           .on("drag", function(d) {
             d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
-            force.resume();
 
             d3.select("#g-" + d.id).attr("transform", function (d) {
               if (document.getElementById("rect-"+ d.id))
@@ -306,6 +286,20 @@ function ForumTree(forumIndex, nodes, links) {
                        + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
               else return "translate(" + d.x + ","+ d.y + ")";
             });
+
+            if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
+                  linkElements.attr("x1", function (d) {
+                      return d.source.x;
+                  })
+                  .attr("y1", function (d) {
+                      return d.source.y;
+                  })
+                  .attr("x2", function (d) {
+                      return d.target.x;
+                  })
+                  .attr("y2", function (d) {
+                      return d.target.y;
+                  });
             //tree.render();
           })
           .on("dragend", function(d) {
@@ -313,17 +307,11 @@ function ForumTree(forumIndex, nodes, links) {
             //if (drag.dragX - d3.event.x > 5 || drag.dragY - d3.event.y > 5)
               //force.resume();
             d3.select(this).classed("dragging", false);
-
-            force.stop();
+            //force.stop();
             //tree.render();
           });
 
   // setup z-index to prevent overlapping lines over nodes
-  var linksGroup = container.append("g"),
-    nodesGroup = container.append("g");
-
-  var linkElements = linksGroup.selectAll("line");
-  var nodeElements = nodesGroup.selectAll("g");
 
   d3.select("body").append("div")
     .attr("class", "tooltip")
@@ -334,7 +322,7 @@ function ForumTree(forumIndex, nodes, links) {
 
   // tick
   function tick(e) {
-    //This isf statement keeps the app from choking when reloading the page.
+    //This if statement keeps the app from choking when reloading the page.
     if(!force.nodes()[0] || !force.nodes()[0].y) { return; }
           linkElements.attr("x1", function (d) {
               return d.source.x;
@@ -437,7 +425,7 @@ function ForumTree(forumIndex, nodes, links) {
 
     nodeElements.exit().remove();
 
-    var nodeSelection = nodeElements.enter().append("g").call(drag).classed("node", true)
+    var nodeSelection = nodeElements.enter().append("g").call(this.drag).classed("node", true)
         .classed("post", function(d) {return (!d.replyNode)})
         .classed("reply", function(d) {return (d.replyNode)})
         .attr("id", function(d) {
