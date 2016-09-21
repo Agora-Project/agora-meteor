@@ -20,7 +20,14 @@ Template.forumIndex.events({
   },
 
   'click .button-link': function() {
-    d3.selectAll(".node").on('mousedown.drag', null);
+    if (!nodeDragCallBack) nodeDragCallBack = d3.select(".node").property('__onmousedown.drag')['_'];
+
+    if(!createLinkCallBack) createLinkCallBack = function(d) {
+      d3.event.stopPropagation();
+      console.log(d);
+    }
+
+    d3.selectAll(".node").on('mousedown.drag', mouseLinking ? createLinkCallBack : nodeDragCallBack);
     mouseLinking = !mouseLinking;
   }
 });
@@ -430,19 +437,7 @@ function ForumTree(forumIndex, nodes, links) {
         .classed("reply", function(d) {return (d.replyNode)})
         .attr("id", function(d) {
           return "g-" + d.id;
-        }); /*.attr("class", function (d) {
-        if(d.isRoot) { return "root-post"; } else { return ""; }
-    });
-
-    var rootSelection = svg.selectAll("g.root-post");
-
-    rootSelection.append("image")
-          .attr("xlink:href", "/packages/agoraforum_core/public/agoraforum.png")
-          .attr("x", 63)
-          .attr("y", 18)
-          .attr("width", 24)
-          .attr("height", 24);
-          */
+        });
 
     var menuFunction = function(d) {
       var menuNodes = [];
