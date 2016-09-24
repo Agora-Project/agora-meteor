@@ -1,4 +1,6 @@
 mouseLinking = true;
+linkNode = undefined;
+newLink = {node: null};
 
 Template.forumIndex.events({
 
@@ -25,10 +27,13 @@ Template.forumIndex.events({
     if(!createLinkCallBack) createLinkCallBack = function(d) {
       d3.event.stopPropagation();
       console.log(d);
+      newLink.node = d;
+      d3.select("svg").append("line").classed("newLinkLine", true).attr('stroke', 'black');
     }
 
     d3.selectAll(".node").on('mousedown.drag', mouseLinking ? createLinkCallBack : nodeDragCallBack);
     mouseLinking = !mouseLinking;
+    if (!mouseLinking) newLink.node = null;
   }
 });
 
@@ -242,7 +247,27 @@ function ForumTree(forumIndex, nodes, links) {
     return d._id;
   };
 
-  var svg = d3.select("#posts-graph").append("svg");
+  var svg = d3.select("#posts-graph").append("svg").on('mouseup', function() {
+    newLink.node = null;
+    d3.select(".newLinkLine").remove();
+  })
+  .on('mousemove', function() {
+    d3.event.stopPropagation();
+    if (newLink.node) {
+      d3.select(".newLinkLine").attr("x1", function (d) {
+          return newLink.node.x;
+      })
+      .attr("y1", function (d) {
+          return newLink.node.y;
+      })
+      .attr("x2", function (d) {
+          return d3.mouse(d3.select("svg")[0][0])[0];
+      })
+      .attr("y2", function (d) {
+          return d3.mouse(d3.select("svg")[0][0])[1];
+      });
+    }
+  });
 
   svg.selectAll("*").remove();
 
@@ -654,7 +679,14 @@ function ForumTree(forumIndex, nodes, links) {
               Session.set('selectedTargets', st);
               d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
           }
-        });
+        })
+        .on("mouseup", function(d){
+          if (newLink.node) {
+            console.log("It works!");
+            var link = {};
+            //tree.addLink
+          }
+        } );
 
     var replybodies = replySelection.append("foreignObject")
         .attr("width", postWidth)
