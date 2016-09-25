@@ -252,7 +252,6 @@ function ForumTree(forumIndex, nodes, links) {
     d3.select(".newLinkLine").remove();
   })
   .on('mousemove', function() {
-    d3.event.stopPropagation();
     if (newLink.node) {
       d3.select(".newLinkLine").attr("x1", function (d) {
           return newLink.node.x;
@@ -585,7 +584,6 @@ function ForumTree(forumIndex, nodes, links) {
         .classed("text-box", true)
         .on('contextmenu', menuFunction)
         .on('click', function(d) {
-          if (!d.selectable) return;
           var st = Session.get('selectedTargets');
           if (st[d._id]) {
               delete st[d._id];
@@ -595,6 +593,15 @@ function ForumTree(forumIndex, nodes, links) {
               st[d._id] = true;
               Session.set('selectedTargets', st);
               d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
+          }
+        })
+        .on("mouseup", function(d){
+          console.log("???");
+          if (newLink.node) {
+            if (!newLink.node.replyNode && !d.replyNode) {
+              console.log("!!!");
+            }
+            //tree.addLink
           }
         });
 
@@ -679,14 +686,7 @@ function ForumTree(forumIndex, nodes, links) {
               Session.set('selectedTargets', st);
               d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
           }
-        })
-        .on("mouseup", function(d){
-          if (newLink.node) {
-            console.log("It works!");
-            var link = {};
-            //tree.addLink
-          }
-        } );
+        });
 
     var replybodies = replySelection.append("foreignObject")
         .attr("width", postWidth)
