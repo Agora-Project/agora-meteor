@@ -1,4 +1,4 @@
-mouseLinking = true;
+mouseLinking = false;
 linkNode = undefined;
 newLink = {node: null};
 
@@ -22,18 +22,21 @@ Template.forumIndex.events({
   },
 
   'click .button-link': function() {
-    if (!nodeDragCallBack) nodeDragCallBack = d3.select(".node").property('__onmousedown.drag')['_'];
+    /*if (!nodeDragCallBack) nodeDragCallBack = d3.select(".node").property('__onmousedown.drag')['_'];
 
     if(!createLinkCallBack) createLinkCallBack = function(d) {
       d3.event.stopPropagation();
-      console.log(d);
+      d3.event.preventDefault();
       newLink.node = d;
       d3.select("svg").append("line").classed("newLinkLine", true).attr('stroke', 'black');
     }
 
     d3.selectAll(".node").on('mousedown.drag', mouseLinking ? createLinkCallBack : nodeDragCallBack);
     mouseLinking = !mouseLinking;
-    if (!mouseLinking) newLink.node = null;
+    if (!mouseLinking) newLink.node = null;*/
+
+    mouseLinking = !mouseLinking;
+    d3.selectAll('.node').on('mousedown.drag', null).call(mouseLinking ? tree.createLink : tree.drag);
   }
 });
 
@@ -247,10 +250,7 @@ function ForumTree(forumIndex, nodes, links) {
     return d._id;
   };
 
-  var svg = d3.select("#posts-graph").append("svg").on('mouseup', function() {
-    newLink.node = null;
-    d3.select(".newLinkLine").remove();
-  })
+  var svg = d3.select("#posts-graph").append("svg")
   .on('mousemove', function() {
     if (newLink.node) {
       d3.select(".newLinkLine").attr("x1", function (d) {
@@ -302,6 +302,7 @@ function ForumTree(forumIndex, nodes, links) {
       this.drag = d3.behavior.drag()
           .origin(function(d) { return d; })
           .on("dragstart", function(d) {
+            if (mouseLinking) return;
             d3.event.sourceEvent.stopPropagation();
             d3.select(this).classed("dragging", true);
             //drag.dragX = d3.event.x;
@@ -309,6 +310,8 @@ function ForumTree(forumIndex, nodes, links) {
             //force.resume();
           })
           .on("drag", function(d) {
+            if (mouseLinking) return;
+            d3.event.sourceEvent.preventDefault();
             d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
 
             d3.select("#g-" + d.id).attr("transform", function (d) {
@@ -334,6 +337,8 @@ function ForumTree(forumIndex, nodes, links) {
             //tree.render();
           })
           .on("dragend", function(d) {
+            if (mouseLinking) return;
+            d3.event.sourceEvent.preventDefault();
             //d3.event.sourceEvent.stopPropagation();
             //if (drag.dragX - d3.event.x > 5 || drag.dragY - d3.event.y > 5)
               //force.resume();
@@ -341,6 +346,29 @@ function ForumTree(forumIndex, nodes, links) {
             //force.stop();
             //tree.render();
           });
+
+  this.createLink = d3.behavior.drag()
+      .origin(function(d) { return d; })
+      .on("dragstart", function(d) {
+        d3.event.sourceEvent.stopPropagation();
+        newLink.node = d;
+        d3.select("svg").append("line").classed("newLinkLine", true).attr('stroke', 'black');
+      })
+      .on("drag", function(d) {
+      })
+      .on("dragend", function(d) {
+        console.log("???");
+        console.log (newLink.node);
+        console.log (d);
+        if (newLink.node) {
+          if (!newLink.node.replyNode && !d.replyNode && newLink.node != d) {
+            console.log("!!!");
+          }
+          //tree.addLink
+        }
+        newLink.node = null;
+        d3.select(".newLinkLine").remove();
+      });
 
   // setup z-index to prevent overlapping lines over nodes
 
@@ -594,15 +622,10 @@ function ForumTree(forumIndex, nodes, links) {
               Session.set('selectedTargets', st);
               d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
           }
+        }).on('mousedown', function() {
+          d3.event.preventDefault();
         })
         .on("mouseup", function(d){
-          console.log("???");
-          if (newLink.node) {
-            if (!newLink.node.replyNode && !d.replyNode) {
-              console.log("!!!");
-            }
-            //tree.addLink
-          }
         });
 
     var titles = postSelection.append("text")
