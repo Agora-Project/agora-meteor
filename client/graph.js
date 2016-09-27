@@ -22,19 +22,6 @@ Template.forumIndex.events({
   },
 
   'click .button-link': function() {
-    /*if (!nodeDragCallBack) nodeDragCallBack = d3.select(".node").property('__onmousedown.drag')['_'];
-
-    if(!createLinkCallBack) createLinkCallBack = function(d) {
-      d3.event.stopPropagation();
-      d3.event.preventDefault();
-      newLink.node = d;
-      d3.select("svg").append("line").classed("newLinkLine", true).attr('stroke', 'black');
-    }
-
-    d3.selectAll(".node").on('mousedown.drag', mouseLinking ? createLinkCallBack : nodeDragCallBack);
-    mouseLinking = !mouseLinking;
-    if (!mouseLinking) newLink.node = null;*/
-
     mouseLinking = !mouseLinking;
     d3.selectAll('.node').on('mousedown.drag', null).call(mouseLinking ? tree.createLink : tree.drag);
   }
