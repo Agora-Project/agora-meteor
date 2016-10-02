@@ -292,9 +292,6 @@ function ForumTree(forumIndex, nodes, links) {
             if (mouseLinking) return;
             d3.event.sourceEvent.stopPropagation();
             d3.select(this).classed("dragging", true);
-            //drag.dragX = d3.event.x;
-            //drag.dragY = d3.event.y;
-            //force.resume();
           })
           .on("drag", function(d) {
             if (mouseLinking) return;
@@ -321,17 +318,11 @@ function ForumTree(forumIndex, nodes, links) {
                   .attr("y2", function (d) {
                       return d.target.y;
                   });
-            //tree.render();
           })
           .on("dragend", function(d) {
             if (mouseLinking) return;
             d3.event.sourceEvent.preventDefault();
-            //d3.event.sourceEvent.stopPropagation();
-            //if (drag.dragX - d3.event.x > 5 || drag.dragY - d3.event.y > 5)
-              //force.resume();
             d3.select(this).classed("dragging", false);
-            //force.stop();
-            //tree.render();
           });
 
   this.createLink = d3.behavior.drag()
