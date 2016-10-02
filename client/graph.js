@@ -237,7 +237,7 @@ function ForumTree(forumIndex, nodes, links) {
     return d._id;
   };
 
-  var svg = d3.select("#posts-graph").append("svg")
+  var svg = d3.select("#posts-graph")
   .on('mousemove', function() {
     if (newLink.node) {
       d3.select(".newLinkLine").attr("x1", function (d) {
@@ -462,7 +462,9 @@ function ForumTree(forumIndex, nodes, links) {
 
     nodeElements.exit().remove();
 
-    var nodeSelection = nodeElements.enter().append("g").call(this.drag).classed("node", true)
+    var nodeSelection = nodeElements.enter().append("g")
+        .call(this.drag)
+        .classed("node", true)
         .classed("post", function(d) {return (!d.replyNode)})
         .classed("reply", function(d) {return (d.replyNode)})
         .attr("id", function(d) {
@@ -569,10 +571,6 @@ function ForumTree(forumIndex, nodes, links) {
         }
       });
 
-    var postSelection = nodeSelection.filter(".post");
-
-    var replySelection = nodeSelection.filter(".reply");
-
     nodeSelection.append('rect')
         .attr("id", function (d) {
             return "rect-" + d.id;
@@ -606,7 +604,13 @@ function ForumTree(forumIndex, nodes, links) {
         .on("mouseup", function(d){
         });
 
-    var titles = postSelection.append("text")
+    /**
+     * POSTS
+    **/
+
+    var postSelection = nodeSelection.filter(".post");
+
+    postSelection.append("text") //Post titles
         .attr("id", function (d) {
           return "title-" + d.id;
         }).text(function (d) {
@@ -639,18 +643,7 @@ function ForumTree(forumIndex, nodes, links) {
           }
         });
 
-    var replyTitles = replySelection.append("foreignObject")
-        .attr("width", postWidth)
-        .attr("height","25")
-        .attr("y","-25")
-        .append("xhtml:div")
-        .append("xhtml:input")
-        .attr("id", function(d) { return "replyTitle-" + d.id;})
-        .attr("size",15)
-        .attr("z-index", 1)
-        .attr("type", "text");
-
-    var bodys = postSelection.append("text")
+    postSelection.append("text") //Post bodies
         .text(function (d) {
           if (!d.body) return;
           var bodyText = d.body;
@@ -689,43 +682,7 @@ function ForumTree(forumIndex, nodes, links) {
           }
         });
 
-    var replybodies = replySelection.append("foreignObject")
-        .attr("width", postWidth)
-        .attr("height",postHeight - 20)
-        .append("xhtml:div")
-        .append("xhtml:textarea")
-        .attr("id", function(d) { return "replyBody-" + d.id;})
-        .classed("reply-body", true)
-        .attr("rows", 4)
-        .attr("cols", 15)
-        .attr("z-index", 1)
-        .attr("resize", "none");
-
-    var removeButtons = nodeSelection.append("circle").attr("cx", function (d) {
-            return document.getElementById("rect-"+ d.id).getBBox().width;
-        })
-        .attr("r", 10)
-        .classed('control remove-button', true)
-        .on("click", function (d) {
-            tree.removeNode(d)
-            resetTargetsSelection();
-        })
-        .on('contextmenu', menuFunction)
-        .on('mouseover', function (d) {
-          d3.select(".tooltip").transition()
-             .duration(200)
-             .style("opacity", .9);
-          d3.select(".tooltip").html("remove post")
-             .style("left", (d3.event.pageX) + "px")
-             .style("top", (d3.event.pageY - 28) + "px");
-        })
-        .on('mouseout', function (d) {
-          d3.select(".tooltip").transition()
-             .duration(500)
-             .style("opacity", 0);
-        });
-
-    var loadButtons = postSelection.append("rect")
+    postSelection.append("rect") //Load buttons
         .attr("y", function(d) {
             return document.getElementById("rect-"+ d.id).getBBox().height -20;
         })
@@ -753,6 +710,59 @@ function ForumTree(forumIndex, nodes, links) {
              .duration(200)
              .style("opacity", .9);
           d3.select(".tooltip").html("load connecting posts")
+             .style("left", (d3.event.pageX) + "px")
+             .style("top", (d3.event.pageY - 28) + "px");
+        })
+        .on('mouseout', function (d) {
+          d3.select(".tooltip").transition()
+             .duration(500)
+             .style("opacity", 0);
+        });
+
+    /**
+     * REPLIES
+    **/
+
+    var replySelection = nodeSelection.filter(".reply");
+
+    var replyTitles = replySelection.append("foreignObject")
+        .attr("width", postWidth)
+        .attr("height","25")
+        .attr("y","-25")
+        .append("xhtml:div")
+        .append("xhtml:input")
+        .attr("id", function(d) { return "replyTitle-" + d.id;})
+        .attr("size",15)
+        .attr("z-index", 1)
+        .attr("type", "text");
+
+    var replybodies = replySelection.append("foreignObject")
+        .attr("width", postWidth)
+        .attr("height",postHeight - 20)
+        .append("xhtml:div")
+        .append("xhtml:textarea")
+        .attr("id", function(d) { return "replyBody-" + d.id;})
+        .classed("reply-body", true)
+        .attr("rows", 4)
+        .attr("cols", 15)
+        .attr("z-index", 1)
+        .attr("resize", "none");
+
+    var removeButtons = nodeSelection.append("circle").attr("cx", function (d) {
+            return document.getElementById("rect-"+ d.id).getBBox().width;
+        })
+        .attr("r", 10)
+        .classed('control remove-button', true)
+        .on("click", function (d) {
+            tree.removeNode(d)
+            resetTargetsSelection();
+        })
+        .on('contextmenu', menuFunction)
+        .on('mouseover', function (d) {
+          d3.select(".tooltip").transition()
+             .duration(200)
+             .style("opacity", .9);
+          d3.select(".tooltip").html("remove post")
              .style("left", (d3.event.pageX) + "px")
              .style("top", (d3.event.pageY - 28) + "px");
         })

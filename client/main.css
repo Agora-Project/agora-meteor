@@ -22,10 +22,6 @@
   top: 320px;
 }
 
-.page-content {
-  padding: 20px;
-}
-
 .at-error {
   height: auto !important;
   width: 100%;
@@ -85,7 +81,7 @@ text {
   resize: none;
 }
 
-/*.fit-graph, #posts-graph {
+/*., #posts-graph {
     position: absolute;
     top:0px;
     right: 0px;
