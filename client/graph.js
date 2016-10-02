@@ -233,10 +233,9 @@ function ForumTree(forumIndex, nodes, links) {
   var postWidth = 140,
       postHeight = 100;
 
-  var key = function (d) {
-    return d._id;
-  };
-
+  //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
+  //Then, beloy that add code so that when we're adding new links to the graph,
+  //it will draw them to the mouse cursor as it's moved around.
   var svg = d3.select("#posts-graph")
   .on('mousemove', function() {
     if (newLink.node) {
@@ -342,7 +341,6 @@ function ForumTree(forumIndex, nodes, links) {
           if (!newLink.node.replyNode && !d.replyNode && newLink.node != d) {
             console.log("!!!");
           }
-          //tree.addLink
         }
         newLink.node = null;
         d3.select(".newLinkLine").remove();
