@@ -238,12 +238,14 @@ function ForumTree(forumIndex, nodes, links) {
   //it will draw them to the mouse cursor as it's moved around.
   var svg = d3.select("#posts-graph")
   .on('mousemove', function() {
+    var translateVector = tree.zoom.translate();
+
     if (newLink.node) {
       d3.select(".newLinkLine").attr("x1", function (d) {
-          return newLink.node.x;
+          return translateVector[0] + newLink.node.x;
       })
       .attr("y1", function (d) {
-          return newLink.node.y;
+          return translateVector[1] + newLink.node.y;
       })
       .attr("x2", function (d) {
           return d3.mouse(d3.select("svg")[0][0])[0];
@@ -258,14 +260,17 @@ function ForumTree(forumIndex, nodes, links) {
 
   var container = svg.append('g');
 
-  var zoom = d3.behavior.zoom()
-    .scaleExtent([0.4, 4])
+  //Adding the zoom behavior. this also handles panning.
+  //We're specifying it as an object variable so we can look it up later and see how much we've zoomed by.
+  this.zoom = d3.behavior.zoom();
+
+  this.zoom.scaleExtent([0.4, 4])
     .on("zoom", function() {
       container.attr("transform",
         "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
     });
 
-  svg.call(zoom).on("dblclick.zoom", null);
+  svg.call(this.zoom).on("dblclick.zoom", null);
 
   var linksGroup = container.append("g"),
     nodesGroup = container.append("g");
