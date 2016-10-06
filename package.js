@@ -12,7 +12,7 @@ Package.onUse(function(api) {
     api.versionsFrom('1.1.0.3');
 
     api.addFiles([
-        'client/subscribe.coffee',
+        'client/subscribe.js',
         'client/users.html',
         'client/users.js',
         'client/data.js',
@@ -27,17 +27,17 @@ Package.onUse(function(api) {
     ], 'client');
 
     api.addFiles([
-        'lib/schemas/post.coffee',
-        'lib/schemas/link.coffee',
-        'lib/schemas/vote.coffee',
-        'routes.coffee'
+        'lib/schemas/post.js',
+        'lib/schemas/link.js',
+        'lib/schemas/vote.js',
+        'routes.js'
     ], both);
 
     api.addFiles([
-        'server/initial-data.coffee',
-        'server/methods.coffee',
-        'server/permits.coffee',
-        'server/publish.coffee',
+        'server/initial-data.js',
+        'server/methods.js',
+        'server/permits.js',
+        'server/publish.js',
         'server/users.js'
     ], 'server');
 
