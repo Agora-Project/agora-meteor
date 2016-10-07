@@ -1,37 +1,37 @@
 .post-button-box {
-  position: fixed;
-  right: 25px;
-  top: 80px;
+    position: fixed;
+    right: 25px;
+    top: 80px;
 }
 
 .delete-button-box {
-  position: fixed;
-  right: 25px;
-  top: 160px;
+    position: fixed;
+    right: 25px;
+    top: 160px;
 }
 
 .link-button-box {
-  position: fixed;
-  right: 25px;
-  top: 240px;
+    position: fixed;
+    right: 25px;
+    top: 240px;
 }
 
 .unlink-button-box {
-  position: fixed;
-  right: 25px;
-  top: 320px;
+    position: fixed;
+    right: 25px;
+    top: 320px;
 }
 
 .at-error {
-  height: auto !important;
-  width: 100%;
-  padding:5px;
-  margin: 10px;
+    height: auto !important;
+    width: 100%;
+    padding:5px;
+    margin: 10px;
 }
 
 .create-post, .at-form {
-  width: 33%;
-  margin: 0 auto 0 auto;
+    width: 33%;
+    margin: 0 auto 0 auto;
 }
 
 div.tooltip {
@@ -49,36 +49,36 @@ div.tooltip {
 }
 
 .load-button {
-  fill: rebeccapurple;
+    fill: rebeccapurple;
 }
 
 .remove-button {
-  fill: red;
+    fill: red;
 }
 
 text {
-  font-size: 11px;
-  font-family: sans-serif;
+    font-size: 11px;
+    font-family: sans-serif;
 }
 
 .text-body {
-  fill: #33333f;
+    fill: #33333f;
 }
 
 .text-title {
 }
 
 .text-box {
-  stroke: #dbdbdb;
-  stroke-width: 1;
-  fill: #fafafa;
+    stroke: #dbdbdb;
+    stroke-width: 1;
+    fill: #fafafa;
 }
 
 .reply-body {
-  cols: 15;
-  rows: 5;
-  z-index: 1;
-  resize: none;
+    cols: 15;
+    rows: 5;
+    z-index: 1;
+    resize: none;
 }
 
 /*., #posts-graph {

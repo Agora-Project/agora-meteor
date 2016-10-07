@@ -1,39 +1,39 @@
 <template name="forumUsers">
-  <div>
-    <h1>Users</h1>
-    <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
-      <thead>
-        <tr>
-          <th class="mdl-data-table__cell--non-numeric">Email</th>
-          <th class="mdl-data-table__cell--non-numeric">Name</th>
-          <th>Created at</th>
-          <th class="mdl-data-table__cell--non-numeric">Moderator</th>
-          <th class="mdl-data-table__cell--non-numeric">Banned</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#each userList}}
-          {{> userItem}}
-        {{/each}}
-      </tbody>
-    </table>
-  </div>
+    <div>
+        <h1>Users</h1>
+        <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
+            <thead>
+                <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Email</th>
+                    <th class="mdl-data-table__cell--non-numeric">Name</th>
+                    <th>Created at</th>
+                    <th class="mdl-data-table__cell--non-numeric">Moderator</th>
+                    <th class="mdl-data-table__cell--non-numeric">Banned</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each userList}}
+                    {{> userItem}}
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
 </template>
 
 <template name="userItem">
-  <tr>
-    <td class="mdl-data-table__cell--non-numeric">{{defaultEmail}}</td>
-    <td class="mdl-data-table__cell--non-numeric">{{profile.name}}</td>
-    <td>{{createdAtFormatted createdAt}}</td>
-    <td class="mdl-data-table__cell--non-numeric">
-      <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect {{checkedIfModerator 'is-'}}" for="user-is-moderator-{{_id}}">
-        <input type="checkbox" {{checkedIfModerator ''}} {{disabledIfMe}} name="is-moderator" id="user-is-moderator-{{_id}}" class="change-moderator mdl-switch__input" />
-      </label>
-    </td>
-    <td class="mdl-data-table__cell--non-numeric">
-      <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect {{checkedIfBanned 'is-'}}" for="user-is-banned-{{_id}}">
-        <input type="checkbox" {{checkedIfBanned ''}} {{disabledIfMe}} name="is-banned" id="user-is-banned-{{_id}}" class="change-banned mdl-switch__input" />
-      </label>
-    </td>
-  </tr>
+    <tr>
+        <td class="mdl-data-table__cell--non-numeric">{{defaultEmail}}</td>
+        <td class="mdl-data-table__cell--non-numeric">{{profile.name}}</td>
+        <td>{{createdAtFormatted createdAt}}</td>
+        <td class="mdl-data-table__cell--non-numeric">
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect {{checkedIfModerator 'is-'}}" for="user-is-moderator-{{_id}}">
+                <input type="checkbox" {{checkedIfModerator ''}} {{disabledIfMe}} name="is-moderator" id="user-is-moderator-{{_id}}" class="change-moderator mdl-switch__input" />
+            </label>
+        </td>
+        <td class="mdl-data-table__cell--non-numeric">
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect {{checkedIfBanned 'is-'}}" for="user-is-banned-{{_id}}">
+                <input type="checkbox" {{checkedIfBanned ''}} {{disabledIfMe}} name="is-banned" id="user-is-banned-{{_id}}" class="change-banned mdl-switch__input" />
+            </label>
+        </td>
+    </tr>
 </template>
