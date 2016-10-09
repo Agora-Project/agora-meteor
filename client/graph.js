@@ -23,6 +23,10 @@ Template.forumIndex.events({
     }
 });
 
+Template.forumIndex.helpers({
+    posts() { return Post.find(); }
+});
+
 Template.forumIndex.rendered = function() {
     Session.setDefault('selectedTargets', {});
 

@@ -81,6 +81,11 @@ text {
     resize: none;
 }
 
+.post-box {
+    display: inline-block;
+    background: lightsteelblue;
+}
+
 /*., #posts-graph {
     position: absolute;
     top:0px;
