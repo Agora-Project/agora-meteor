@@ -82,7 +82,9 @@ text {
 }
 
 .post-box {
+    position: absolute;
     z-index: 1;
+    width: 400;
     display: inline-block;
     background: lightsteelblue;
 }

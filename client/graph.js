@@ -24,7 +24,24 @@ Template.forumIndex.events({
 });
 
 Template.forumIndex.helpers({
-    posts() { return Post.find(); }
+    posts() {
+        return nodesInGraph.find();
+    }
+});
+
+Template.forumPost.events({
+    'click .post-load-button': function (d) {
+        console.log("It's happening!");
+        Link.find({sourceId: d._id}).fetch().forEach(function(link) {
+            nodesInGraph.insert(Post.find({_id: link.targetId}));
+            handlers.addHandler(link.targetId);
+        });
+        Link.find({targetId: d._id}).fetch().forEach(function(link) {
+            nodesInGraph.insert(Post.find({_id: link.sourceId}));
+            handlers.addHandler(link.sourceId);
+        });
+    }
+
 });
 
 Template.forumIndex.rendered = function() {
@@ -42,7 +59,7 @@ Template.forumIndex.rendered = function() {
     nodesCursor.fetch().forEach(function(n) {
         n.selectable = true;
         nodeIDMap.add(n);
-        if (nodesInGraph.contains(n)) nodes.push(n);
+        if (nodesInGraph.findOne({_id: n._id})) nodes.push(n);
     });
 
     var links = linksToD3Array(linksCursor.fetch(), nodes);
@@ -52,8 +69,7 @@ Template.forumIndex.rendered = function() {
     nodesCursor.observe({
         added: function(doc) {
             if (init) return;
-            doc.selectable = true;
-            if (nodesInGraph.contains(doc)) {
+            if (doc.isRoot || nodesInGraph.findOne({_id: doc._id})) {
                 tree.addNode(doc);
                 Link.find({sourceId: d._id}).fetch().forEach(function(link) {
                     handlers.addHandler(link.targetId);
@@ -72,9 +88,9 @@ Template.forumIndex.rendered = function() {
     linksCursor.observe({
         added: function(doc) {
             if (init) return;
-            if (nodesInGraph.containsID(doc.sourceId)) {
+            if (nodesInGraph.findOne({_id: doc.sourceId})) {
                 handlers.addHandler(doc.targetId);
-            } else if (nodesInGraph.containsID(doc.targetId)) {
+            } else if (nodesInGraph.findOne({_id: doc.targetId})) {
                 handlers.addHandler(doc.sourceId);
             }
             if (tree.addLink(doc)) tree.render();
@@ -138,7 +154,7 @@ function contextMenu() {
             .attr('width', width)
             .attr('height', height)
             .on('click', function(d) {
-                nodesInGraph.add(d._id);
+                nodesInGraph.insert(d);
             })
             .style(style.rect.mouseout);
 
@@ -268,7 +284,7 @@ function ForumTree(forumIndex, nodes, links) {
     var linksGroup = svg.append("g");
     //var nodesGroup = svg.append("g");
     var linkElements = linksGroup.selectAll("line");
-    var nodeElements = d3.selectAll(".post-container");
+    //var nodeElements = d3.selectAll(".post-container");
 
     // init force layout
     var force = d3.layout.force()
@@ -345,10 +361,6 @@ function ForumTree(forumIndex, nodes, links) {
 
     // setup z-index to prevent overlapping lines over nodes
 
-    d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-
     resize();
     d3.select(window).on("resize", resize);
 
@@ -356,7 +368,8 @@ function ForumTree(forumIndex, nodes, links) {
     function tick(e) {
         //This if statement keeps the app from choking when reloading the page.
         if (!force.nodes()[0] || !force.nodes()[0].y) { return; }
-        linkElements.attr("x1", function (d) {
+        linkElements
+            .attr("x1", function (d) {
                 return d.source.x;
             })
             .attr("y1", function (d) {
@@ -372,28 +385,14 @@ function ForumTree(forumIndex, nodes, links) {
         var links = force.links();
         var nodes = force.nodes();
 
-        /*for (i = 0; i < links.length; i++) {
-        if (nodes[links[i].target.index] && nodes[links[i].source.index]) {
-        var targy = nodes[links[i].target.index].y;
-        var sorcy = nodes[links[i].source.index].y;
-        if (sorcy - targy < 40) {
-        nodes[links[i].target.index].y -= 1;
-        nodes[links[i].source.index].y += 1;
-        }
-        }
-        }*/
         var k = 6 * e.alpha;
         links.forEach(function(d, i) {
             d.source.y += k;
             d.target.y -= k;
         });
 
-        nodeElements.attr("transform", function (d) {
-            if (document.getElementById("rect-"+ d.id)) {
-                return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
-                        + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
-            }
-            else return "translate(" + d.x + ","+ d.y + ")";
+        nodes.forEach(function(d) {
+            $("#post-"+d._id).css("left", d.x).css("top", d.y);
         });
     }
 
@@ -437,32 +436,26 @@ function ForumTree(forumIndex, nodes, links) {
         feMerge.append("feMergeNode").attr("in", "offsetBlur");
         feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
-        d3.select(".tooltip").transition()
-            .duration(500)
-            .style("opacity", 0);
-
         // add links
         contextMenuShowing = false;
 
         linkElements = linkElements.data(force.links(), function(d, i) { return d._id; });
         linkElements.exit().remove();
 
-        nodeElements = nodeElements.data(force.nodes(), function(d, i) { return d.id;});
-        nodeElements.exit().remove();
-
         force.start();
-        for (var i = 10000; i > 0; --i) force.tick();
+        for (var i = 1000; i > 0; --i) force.tick();
         force.stop();
     };
 
     this.addNode = function(doc) {
+        console.log("Hello?");
         if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
             nodeIDMap.add(doc);
+            nodesInGraph.insert(doc);
             this.nodes.push(doc);
             Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
                 tree.addLink(link);
             });
-
             tree.render();
             return true;
         }
@@ -496,7 +489,7 @@ function ForumTree(forumIndex, nodes, links) {
                 else i++;
             }
             this.nodes.splice(iToRemove, 1);
-            nodesInGraph.remove(doc._id);
+            nodesInGraph.remove({_id: doc._id});
             tree.render();
             return true;
         }

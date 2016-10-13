@@ -8,12 +8,11 @@
 </template>
 
 <template name="forumIndex">
-    <svg id="posts-graph">
-    </svg>
-
     {{#each posts}}
     	{{> forumPost}}
     {{/each}}
+    <svg id="posts-graph">
+    </svg>
 
     {{#if currentUser }}
     <div class="post-button-box">
@@ -49,14 +48,14 @@
 </template>
 
 <template name="forumPost">
-    <div class='post-box post-container'>
+    <div class='post-box post-container' id="post-{{_id}}">
         <div class="post-box post-title">
             {{title}}
         </div>
-        <div class="post-box post-body">
+        <button class="post-control-button post-remove-button">X</button>
+        <p></p><div class="post-box post-body">
             <p>{{body}}</p>
         </div>
-        <button class="post-control-button post-remove-button">X</button>
-        <p></p><button class="post-control-button post-load-button">Load</button>
+        <button class="post-control-button post-load-button">Load</button>
     </div>
 </template>
