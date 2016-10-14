@@ -13,7 +13,6 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'imports/dotdotdot.min.js',
-        'client/client.css',
         'client/subscribe.js',
         'client/users.html',
         'client/users.js',
