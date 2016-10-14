@@ -12,6 +12,8 @@ Package.onUse(function(api) {
     api.versionsFrom('1.1.0.3');
 
     api.addFiles([
+        'imports/dotdotdot.min.js',
+        'client/client.css',
         'client/subscribe.js',
         'client/users.html',
         'client/users.js',
