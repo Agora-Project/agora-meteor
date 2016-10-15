@@ -29,16 +29,33 @@ Template.post.helpers({
 });
 
 Template.post.events({
-    'click .showRepliesButton': function (d) {
-        console.log("It's happening!");
-        Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-            nodesInGraph.insert(Post.find({_id: link.targetId}));
-            handlers.addHandler(link.targetId);
+    'click .showRepliesButton': function (evt) {
+        Link.find({sourceId: this._id}).fetch().forEach(function(link) {
+            var postToAdd = Post.findOne({_id: link.targetId});
+            if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+                nodesInGraph.insert(postToAdd);
+                tree.addNode(postToAdd);
+                handlers.addHandler(link.targetId);
+            }
         });
-        Link.find({targetId: d._id}).fetch().forEach(function(link) {
-            nodesInGraph.insert(Post.find({_id: link.sourceId}));
-            handlers.addHandler(link.sourceId);
+        Link.find({targetId: this._id}).fetch().forEach(function(link) {
+            var postToAdd = Post.findOne({_id: link.sourceId});
+            if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+                nodesInGraph.insert(postToAdd);
+                tree.addNode(postToAdd);
+                handlers.addHandler(link.targetId);
+            }
         });
+    },
+    'click .replyButton': function(evt) {
+
+        var newReplyPost = {
+            ownerId: Meteor.userId(),
+            title: 'Reply',
+            content: "This post is a reply."
+        }
+
+        Post.insert(newReplyPost);
     }
 
 });
@@ -71,6 +88,7 @@ Template.forumIndex.helpers({
 });
 
 Template.forumIndex.rendered = function() {
+
     Session.setDefault('selectedTargets', {});
 
     var init = true;
