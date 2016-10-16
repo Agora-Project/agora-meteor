@@ -49,6 +49,7 @@ body {
 }
 
 .post {
+    position: absolute;
     display: flex;
     flex-direction: column;
     width: 320px;

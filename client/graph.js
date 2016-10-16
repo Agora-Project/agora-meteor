@@ -33,7 +33,6 @@ Template.post.events({
         Link.find({sourceId: this._id}).fetch().forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.targetId});
             if (!nodesInGraph.findOne({_id: postToAdd._id})) {
-                nodesInGraph.insert(postToAdd);
                 tree.addNode(postToAdd);
                 handlers.addHandler(link.targetId);
             }
@@ -41,7 +40,6 @@ Template.post.events({
         Link.find({targetId: this._id}).fetch().forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.sourceId});
             if (!nodesInGraph.findOne({_id: postToAdd._id})) {
-                nodesInGraph.insert(postToAdd);
                 tree.addNode(postToAdd);
                 handlers.addHandler(link.targetId);
             }
@@ -335,9 +333,10 @@ function ForumTree(forumIndex, nodes, links) {
         .nodes(nodes)
         .links(links)
         .gravity(0.10)
-        .charge(-2000)
+        .charge(-20000)
+        .chargeDistance(1400)
         .friction(0.9)
-        .linkDistance(150)
+        .linkDistance(350)
         .on("tick", tick);
 
     this.force = force;
