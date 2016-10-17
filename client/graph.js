@@ -54,6 +54,9 @@ Template.post.events({
         }
 
         Post.insert(newReplyPost);
+    },
+    'click .closeButton': function(evt) {
+        tree.removeNode(this);
     }
 
 });
