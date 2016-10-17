@@ -24,7 +24,7 @@ Template.post.helpers({
         return 'SmashMaster';
     },
     replyCount: function() {
-        return 752;
+        return Link.find({ $or: [ { sourceId: this._id}, { targetId: this._id} ] }).fetch().length;
     }
 });
 
