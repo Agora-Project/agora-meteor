@@ -329,7 +329,7 @@ function ForumTree(forumIndex, nodes, links) {
         });
 
         nodes.forEach(function(d) {
-            $("#post-"+d._id).css("left", d.x).css("top", d.y);
+            $("#post-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
         });
     }
 
@@ -378,6 +378,16 @@ function ForumTree(forumIndex, nodes, links) {
 
         linkElements = linkElements.data(force.links(), function(d, i) { return d._id; });
         linkElements.exit().remove();
+
+        var edgeSelection = linkElements.enter().append("line")
+            .classed('link', true)
+            .attr('stroke', function (d) {
+                if (d.type == "Attack") {
+                    return 'red';
+                } else {
+                    return 'black';
+                }
+            });
 
         force.start();
         for (var i = 1000; i > 0; --i) force.tick();
