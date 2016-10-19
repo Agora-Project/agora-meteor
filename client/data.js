@@ -1,29 +1,4 @@
-nodesInGraph = {ids: {}};
-nodesInGraph.contains = function(node) {
-    return (node.isRoot || this.ids[node._id]);
-};
-nodesInGraph.containsID = function(_id) {
-    return (this.ids[_id] || (Post.findOne({_id: _id}) && Post.findOne({_id: _id}).isRoot));
-};
-nodesInGraph.add = function(_id) {
-    this.ids[_id] = true;
-    var post = Post.findOne({_id: _id});
-    if (post && tree) tree.addNode(post);
-    Link.find({sourceId: _id}).fetch().forEach(function(link) {
-        //nodesInGraph.add(link.targetId);
-        handlers.addHandler(link.targetId);
-
-    });
-    Link.find({targetId: _id}).fetch().forEach(function(link) {
-        //nodesInGraph.add(link.sourceId);
-        handlers.addHandler(link.sourceId);
-    });
-};
-nodesInGraph.remove = function(_id) {
-    if (!this.ids[_id]) return false;
-    this.ids[_id] = false;
-    return true;
-};
+nodesInGraph = new Mongo.Collection(null);
 
 nodeIDMap = {map: {}, reverseMap: {}, count:0};
 nodeIDMap.add = function(node) {

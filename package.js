@@ -12,6 +12,7 @@ Package.onUse(function(api) {
     api.versionsFrom('1.1.0.3');
 
     api.addFiles([
+        'imports/dotdotdot.min.js',
         'client/subscribe.js',
         'client/users.html',
         'client/users.js',
@@ -46,7 +47,6 @@ Package.onUse(function(api) {
         'templating',
         'ui',
         'd3js:d3@3.5.5',
-        'simoes:d3plus@1.7.3',
         'zodiase:mdl@1.0.2'
     ], 'client');
 

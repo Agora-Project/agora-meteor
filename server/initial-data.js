@@ -1,12 +1,10 @@
 Meteor.startup(function() {
     var moderatorEmail, moderatorId;
-    if (!Post.findOne({
-        isRoot: true
-    })) {
+    if (!Post.findOne({isRoot: true})) {
         console.log("Adding root post");
         Post.insert({
             title: 'Forum',
-            body: "This post is the root of the forum.",
+            content: "This post is the root of the forum.",
             isRoot: true
         });
     }

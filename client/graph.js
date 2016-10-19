@@ -2,6 +2,65 @@ mouseLinking = false;
 linkNode = undefined;
 newLink = {node: null};
 
+Template.post.onRendered(function() {
+    var instance = Template.instance();
+
+    var postLink = Template.instance().$('.titleBar a');
+    postLink.attr('title', postLink.text());
+
+    var usernameLink = Template.instance().$('.username');
+    usernameLink.attr('title', usernameLink.text());
+
+    instance.$('.postContent').dotdotdot({
+        after: "a.readMoreLink"
+    });
+});
+
+Template.post.helpers({
+    avatarURL: function() {
+        return 'https://avatars3.githubusercontent.com/u/6981448';
+    },
+    username: function() {
+        return 'SmashMaster';
+    },
+    replyCount: function() {
+        return Link.find({ $or: [ { sourceId: this._id}, { targetId: this._id} ] }).fetch().length;
+    }
+});
+
+Template.post.events({
+    'click .showRepliesButton': function (evt) {
+        Link.find({sourceId: this._id}).fetch().forEach(function(link) {
+            var postToAdd = Post.findOne({_id: link.targetId});
+            if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+                tree.addNode(postToAdd);
+                handlers.addHandler(link.targetId);
+            }
+        });
+        Link.find({targetId: this._id}).fetch().forEach(function(link) {
+            var postToAdd = Post.findOne({_id: link.sourceId});
+            if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+                tree.addNode(postToAdd);
+                handlers.addHandler(link.targetId);
+            }
+        });
+    },
+    'click .replyButton': function(evt) {
+
+        var newReplyPost = {
+            ownerId: Meteor.userId(),
+            title: 'Reply',
+            content: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+        }
+
+        Post.insert(newReplyPost);
+    },
+    'click .closeButton': function(evt) {
+        tree.removeNode(this);
+    }
+
+});
+
 Template.forumIndex.events({
     'click .button-post': function() {
         if (!tempNodes) tempNodes = 0;
@@ -23,7 +82,14 @@ Template.forumIndex.events({
     }
 });
 
+Template.forumIndex.helpers({
+    posts() {
+        return nodesInGraph.find();
+    }
+});
+
 Template.forumIndex.rendered = function() {
+
     Session.setDefault('selectedTargets', {});
 
     var init = true;
@@ -38,7 +104,7 @@ Template.forumIndex.rendered = function() {
     nodesCursor.fetch().forEach(function(n) {
         n.selectable = true;
         nodeIDMap.add(n);
-        if (nodesInGraph.contains(n)) nodes.push(n);
+        if (nodesInGraph.findOne({_id: n._id})) nodes.push(n);
     });
 
     var links = linksToD3Array(linksCursor.fetch(), nodes);
@@ -48,8 +114,7 @@ Template.forumIndex.rendered = function() {
     nodesCursor.observe({
         added: function(doc) {
             if (init) return;
-            doc.selectable = true;
-            if (nodesInGraph.contains(doc)) {
+            if (doc.isRoot || nodesInGraph.findOne({_id: doc._id})) {
                 tree.addNode(doc);
                 Link.find({sourceId: d._id}).fetch().forEach(function(link) {
                     handlers.addHandler(link.targetId);
@@ -68,9 +133,9 @@ Template.forumIndex.rendered = function() {
     linksCursor.observe({
         added: function(doc) {
             if (init) return;
-            if (nodesInGraph.containsID(doc.sourceId)) {
+            if (nodesInGraph.findOne({_id: doc.sourceId})) {
                 handlers.addHandler(doc.targetId);
-            } else if (nodesInGraph.containsID(doc.targetId)) {
+            } else if (nodesInGraph.findOne({_id: doc.targetId})) {
                 handlers.addHandler(doc.sourceId);
             }
             if (tree.addLink(doc)) tree.render();
@@ -84,115 +149,6 @@ Template.forumIndex.rendered = function() {
     tree.render();
     init = false;
 };
-
-function contextMenu() {
-    var height,
-        width,
-        margin = 0.1, // fraction of width
-        items = [],
-        rescale = false,
-        style = {
-            'rect': {
-                'mouseout': {
-                    'fill': 'rgb(244,244,244)',
-                    'stroke': 'white',
-                    'stroke-width': '1px'
-                },
-                'mouseover': {
-                    'fill': 'rgb(200,200,200)'
-                }
-            },
-            'text': {
-                'fill': 'steelblue',
-                'font-size': '13'
-            }
-        };
-
-    function menu(x, y) {
-        d3.select('.context-menu').remove();
-        scaleItems();
-
-        // Draw the menu
-        d3.select('svg').append('g')
-            .attr('class', 'context-menu')
-            .selectAll('tmp')
-            .data(items)
-            .enter()
-            .append('g')
-                .attr('class', 'menu-entry')
-                .style({'cursor': 'pointer'})
-                .on('mouseover', function() {
-                    d3.select(this).select('rect').style(style.rect.mouseover)
-                })
-                .on('mouseout', function() {
-                    d3.select(this).select('rect').style(style.rect.mouseout)
-                });
-
-        d3.selectAll('.menu-entry').append('rect')
-            .attr('x', x)
-            .attr('y', function(d, i) { return y + (i * height); })
-            .attr('width', width)
-            .attr('height', height)
-            .on('click', function(d) {
-                nodesInGraph.add(d._id);
-            })
-            .style(style.rect.mouseout);
-
-        d3.selectAll('.menu-entry')
-            .append('text')
-            .text(function(d) { return d.title; })
-            .attr('x', x)
-            .attr('y', function(d, i) { return y + (i * height); })
-            .attr('dy', height - margin / 2)
-            .attr('dx', margin)
-            .on('click', function(d) { d.clicked(); })
-            .style(style.text);
-
-        // Other interactions
-        d3.select('body')
-            .on('click', function() {
-                d3.select('.context-menu').remove();
-            });
-    }
-
-    menu.items = function(e) {
-        if (!arguments[0].length) {
-            items.push({title: "Emptiness..."});
-            rescale = true;
-            return menu;
-        }
-        for (i in arguments[0]) items.push(arguments[0][i]);
-        rescale = true;
-        return menu;
-    }
-
-    // Automatically set width, height, and margin;
-    function scaleItems() {
-        if (rescale) {
-            d3.select('svg').selectAll('tmp')
-                .data(items).enter()
-                .append('text')
-                    .text(function(d) { return d.title; })
-                    .style(style.text)
-                    .attr('x', -1000)
-                    .attr('y', -1000)
-                    .attr('class', 'tmp');
-
-            var z = d3.selectAll('.tmp')[0].map(function(x) { return x.getBBox(); });
-
-            width = d3.max(z.map(function(x) { return x.width; }));
-            margin = margin * width;
-            width =  width + 2 * margin;
-            height = d3.max(z.map(function(x) { return x.height + margin / 2; }));
-
-            // cleanup
-            d3.selectAll('.tmp').remove();
-            rescale = false;
-        }
-    }
-
-    return menu;
-}
 
 function resetTargetsSelection() {
     Session.set('selectedTargets', {});
@@ -262,18 +218,19 @@ function ForumTree(forumIndex, nodes, links) {
     svg.call(this.zoom).on("dblclick.zoom", null);
 
     var linksGroup = svg.append("g");
-    var nodesGroup = svg.append("g");
+    //var nodesGroup = svg.append("g");
     var linkElements = linksGroup.selectAll("line");
-    var nodeElements = nodesGroup.selectAll("g");
+    //var nodeElements = d3.selectAll(".post-container");
 
     // init force layout
     var force = d3.layout.force()
         .nodes(nodes)
         .links(links)
         .gravity(0.10)
-        .charge(-2000)
+        .charge(-20000)
+        .chargeDistance(400)
         .friction(0.9)
-        .linkDistance(150)
+        .linkDistance(350)
         .on("tick", tick);
 
     this.force = force;
@@ -341,10 +298,6 @@ function ForumTree(forumIndex, nodes, links) {
 
     // setup z-index to prevent overlapping lines over nodes
 
-    d3.select("body").append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-
     resize();
     d3.select(window).on("resize", resize);
 
@@ -352,7 +305,8 @@ function ForumTree(forumIndex, nodes, links) {
     function tick(e) {
         //This if statement keeps the app from choking when reloading the page.
         if (!force.nodes()[0] || !force.nodes()[0].y) { return; }
-        linkElements.attr("x1", function (d) {
+        linkElements
+            .attr("x1", function (d) {
                 return d.source.x;
             })
             .attr("y1", function (d) {
@@ -368,28 +322,14 @@ function ForumTree(forumIndex, nodes, links) {
         var links = force.links();
         var nodes = force.nodes();
 
-        /*for (i = 0; i < links.length; i++) {
-        if (nodes[links[i].target.index] && nodes[links[i].source.index]) {
-        var targy = nodes[links[i].target.index].y;
-        var sorcy = nodes[links[i].source.index].y;
-        if (sorcy - targy < 40) {
-        nodes[links[i].target.index].y -= 1;
-        nodes[links[i].source.index].y += 1;
-        }
-        }
-        }*/
         var k = 6 * e.alpha;
         links.forEach(function(d, i) {
             d.source.y += k;
             d.target.y -= k;
         });
 
-        nodeElements.attr("transform", function (d) {
-            if (document.getElementById("rect-"+ d.id)) {
-                return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
-                        + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
-            }
-            else return "translate(" + d.x + ","+ d.y + ")";
+        nodes.forEach(function(d) {
+            $("#post-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
         });
     }
 
@@ -433,114 +373,11 @@ function ForumTree(forumIndex, nodes, links) {
         feMerge.append("feMergeNode").attr("in", "offsetBlur");
         feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
-        d3.select(".tooltip").transition()
-            .duration(500)
-            .style("opacity", 0);
-
         // add links
         contextMenuShowing = false;
 
         linkElements = linkElements.data(force.links(), function(d, i) { return d._id; });
         linkElements.exit().remove();
-
-        nodeElements = nodeElements.data(force.nodes(), function(d, i) { return d.id;});
-        nodeElements.exit().remove();
-
-        var nodeSelection = nodeElements.enter().append("g")
-            .call(this.drag)
-            .classed("node", true)
-            .classed("post", function(d) { return !d.replyNode; })
-            .classed("reply", function(d) { return d.replyNode; })
-            .attr("id", function(d) { return "g-" + d.id; });
-
-        var menuFunction = function(d) {
-            var menuNodes = [];
-
-            menuOption = {post: d, title: "Load All Connecting Posts"};
-            menuOption.clicked = function() {
-                Link.find({sourceId: this.post._id}).fetch().forEach(function(link) {
-                    nodesInGraph.add(link.targetId);
-                    handlers.addHandler(link.targetId);
-                });
-                Link.find({targetId: this.post._id}).fetch().forEach(function(link) {
-                    nodesInGraph.add(link.sourceId);
-                    handlers.addHandler(link.sourceId);
-                });
-            };
-            menuNodes.push(menuOption);
-
-            Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-                if (!nodesInGraph.containsID(link.targetId)) {
-                    var post = Post.findOne({_id: link.targetId});
-                    if (post) {
-                        var menuOption = {post: post, title: post.title};
-                        menuOption.clicked = function() {
-                            nodesInGraph.add(this.post._id);
-                        }
-                        menuNodes.push(menuOption);
-                    }
-                }
-            });
-            Link.find({targetId: d._id}).fetch().forEach(function(link) {
-                if (!nodesInGraph.containsID(link.sourceId)) {
-                    var post = Post.findOne({_id: link.sourceId});
-                    if (post) {
-                        var menuOption = {post: post, title: post.title};
-                        menuOption.clicked = function() {
-                            nodesInGraph.add(this.post._id);
-                        }
-                        menuNodes.push(menuOption);
-                    }
-                }
-            });
-
-            d3.event.preventDefault();
-            var menu = contextMenu().items(menuNodes);
-            menu(d3.mouse(d3.select("svg")[0][0])[0], d3.mouse(d3.select("svg")[0][0])[1]);
-        };
-
-        var expandFunction = function(d) {
-            d3.event.preventDefault();
-            if (!d.body) return;
-            else if (!d.expanded) {
-                d3.select('#text-' + d.id).text(d.body);
-                d3plus.textwrap()
-                .container(d3.select(this))
-                .width(postWidth)
-                .height(postHeight)
-                .draw();
-                d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
-                d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 20, 20));
-                d3.select("#loadButton-" + d.id).attr("y", function(d) {
-                return document.getElementById("rect-"+ d.id).getBBox().height -20;
-                })
-                .attr("x", function(d) {
-                return document.getElementById("rect-"+ d.id).getBBox().width -30;
-                });
-                d.expanded = true;
-            } else {
-                d3.select('#text-' + d.id).text(function() {
-                    var bodyText = d.body;
-                    if (bodyText.length > 100) bodyText = bodyText.substr(0, 100);
-                    return bodyText;
-                });
-                d3plus.textwrap()
-                    .container(d3.select(this))
-                    .width(postWidth)
-                    .height(postHeight)
-                    .draw();
-
-                d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
-                d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 20, 20));
-                d3.select("#loadButton-" + d.id).attr("y", function(d) {
-                    return document.getElementById("rect-"+ d.id).getBBox().height -20;
-                })
-                .attr("x", function(d) {
-                    return document.getElementById("rect-"+ d.id).getBBox().width -30;
-                });
-                d.expanded = false;
-            }
-        };
 
         var edgeSelection = linkElements.enter().append("line")
             .classed('link', true)
@@ -552,256 +389,19 @@ function ForumTree(forumIndex, nodes, links) {
                 }
             });
 
-        nodeSelection.append('rect') //Node rectangles
-            .attr("id", function (d) {
-                return "rect-" + d.id;
-            })
-            .attr("width", function(d) {
-                if (d.body) return Math.sqrt(d.body.length);
-                else return postWidth;
-            })
-            .attr("height", function(d) {
-                if (d.body) return Math.sqrt(d.body.length);
-                else return postHeight;
-            })
-            .classed("text-box", true)
-            .on('contextmenu', menuFunction)
-            .on('click', function(d) {
-                var st = Session.get('selectedTargets');
-                if (st[d._id]) {
-                    delete st[d._id];
-                    Session.set('selectedTargets', st);
-                    d3.select("#rect-" + d.id).style("filter", "");
-                } else {
-                    st[d._id] = true;
-                    Session.set('selectedTargets', st);
-                    d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
-                }
-            })
-            .on('mousedown', function() {
-                d3.event.preventDefault();
-            });
-
-        /**
-        * POSTS
-        **/
-
-        var postSelection = nodeSelection.filter(".post");
-
-        postSelection.append("text") //Post titles
-            .attr("id", function (d) {
-                return "title-" + d.id;
-            })
-            .text(function (d) {
-                var titleText = d.title;
-                if (titleText.length > 20) titleText = titleText.substr(0, 20);
-                return titleText;
-            })
-            .classed("text-title", true)
-            .on('contextmenu', menuFunction)
-            .on('mouseover', function (d) {
-                d3.select('#title-' + d.id).text(d.title);
-            })
-            .on('mouseout', function (d) {
-                d3.select('#title-' + d.id).text(function (d) {
-                    var titleText = d.title;
-                    if (titleText.length > 20) titleText = titleText.substr(0, 20);
-                    return titleText;
-                });
-            })
-            .on('click', function(d) {
-                var st = Session.get('selectedTargets');
-                if (st[d._id]) {
-                    delete st[d._id];
-                    Session.set('selectedTargets', st);
-                    d3.select("#rect-" + d.id).style("filter", "");
-                } else {
-                    st[d._id] = true;
-                    Session.set('selectedTargets', st);
-                    d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
-                }
-            });
-
-        postSelection.append("text") //Post bodies
-            .text(function (d) {
-                if (!d.body) return;
-                var bodyText = d.body;
-                if (bodyText.length > 100) bodyText = bodyText.substr(0, 100);
-                return bodyText;
-            })
-            .classed("text-body", true)
-            .call(function (wrapSelection) {
-                wrapSelection.each (function(d) {
-                    if (!d.body) return;
-
-                    d3plus.textwrap()
-                        .container(d3.select(this))
-                        .width(postWidth)
-                        .height(postHeight)
-                        .draw();
-                    d3.select("#rect-"+ d.id).attr('width', Math.min(Math.max(this.getBBox().width + 10, 60, document.getElementById("title-"+ d.id).getBBox().width), 140));
-                    d3.select("#rect-"+ d.id).attr('height', Math.max(this.getBBox().height + 20, 20));
-                });
-            })
-            .attr("id", function (d) {
-                return "text-" + d.id;
-            })
-            .on('contextmenu', menuFunction)
-            .on('dblclick', expandFunction)
-            .on('click', function(d) {
-                var st = Session.get('selectedTargets');
-                if (st[d._id]) {
-                    delete st[d._id];
-                    Session.set('selectedTargets', st);
-                    d3.select("#rect-" + d.id).style("filter", "");
-                } else {
-                    st[d._id] = true;
-                    Session.set('selectedTargets', st);
-                    d3.select("#rect-" + d.id).style("filter", "url(#drop-shadow)");
-                }
-            });
-
-        postSelection.append("rect") //Load buttons
-        .attr("y", function(d) {
-            return document.getElementById("rect-"+ d.id).getBBox().height -20;
-        })
-        .attr("x", function(d) {
-            return document.getElementById("rect-"+ d.id).getBBox().width -30;
-        })
-        .attr("width", 30)
-        .attr("height", 20)
-        .classed('control load-button', true)
-        .attr("id", function(d) { return "loadButton-" + d.id; })
-        .on("click", function (d) {
-            Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-                nodesInGraph.add(link.targetId);
-                handlers.addHandler(link.targetId);
-            });
-            Link.find({targetId: d._id}).fetch().forEach(function(link) {
-                nodesInGraph.add(link.sourceId);
-                handlers.addHandler(link.sourceId);
-            });
-        })
-        .on('contextmenu', menuFunction)
-        .on('mouseover', function (d) {
-            d3.select(".tooltip").transition()
-                .duration(200)
-                .style("opacity", .9);
-            d3.select(".tooltip").html("load connecting posts")
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-        })
-        .on('mouseout', function (d) {
-            d3.select(".tooltip").transition()
-                .duration(500)
-                .style("opacity", 0);
-        });
-
-        /**
-        * REPLIES
-        **/
-
-        var replySelection = nodeSelection.filter(".reply");
-
-        var replyTitles = replySelection.append("foreignObject")
-            .attr("width", postWidth)
-            .attr("height","25")
-            .attr("y","-25")
-            .append("xhtml:div")
-            .append("xhtml:input")
-            .attr("id", function(d) { return "replyTitle-" + d.id; })
-            .attr("size",15)
-            .attr("z-index", 1)
-            .attr("type", "text");
-
-        var replybodies = replySelection.append("foreignObject")
-            .attr("width", postWidth)
-            .attr("height",postHeight - 20)
-            .append("xhtml:div")
-            .append("xhtml:textarea")
-            .attr("id", function(d) { return "replyBody-" + d.id; })
-            .classed("reply-body", true)
-            .attr("rows", 4)
-            .attr("cols", 15)
-            .attr("z-index", 1)
-            .attr("resize", "none");
-
-        var removeButtons = nodeSelection.append("circle").attr("cx", function (d) {
-            return document.getElementById("rect-"+ d.id).getBBox().width;
-        })
-        .attr("r", 10)
-        .classed('control remove-button', true)
-        .on("click", function (d) {
-            tree.removeNode(d);
-            resetTargetsSelection();
-        })
-        .on('contextmenu', menuFunction)
-        .on('mouseover', function (d) {
-            d3.select(".tooltip").transition()
-                .duration(200)
-                .style("opacity", .9);
-            d3.select(".tooltip").html("remove post")
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-        })
-        .on('mouseout', function (d) {
-            d3.select(".tooltip").transition()
-                .duration(500)
-                .style("opacity", 0);
-        });
-
-        var replyButtons = replySelection.append("rect")
-            .attr("y", function(d) {
-                return document.getElementById("rect-"+ d.id).getBBox().height -20;
-            })
-            .attr("x", function(d) {
-                return document.getElementById("rect-"+ d.id).getBBox().width -30;
-            })
-            .attr("width", 30)
-            .attr("height", 20)
-            .classed('control reply-button', true)
-            .attr("id", function(d) { return "replyButton-" + d.id; })
-            .on("click", function(d) {
-                var title = $('#replyTitle-' + d.id).val();
-                var body = $('#replyBody-' + d.id).val();
-                var links = [];
-
-                for (var key in Session.get('selectedTargets')) {
-                    links.push(key);
-                }
-
-                if (links.length === 0) {
-                    d3.event.preventDefault();
-                    return;
-                }
-
-                var postId = Post.insert({
-                    ownerId: Meteor.userId(),
-                    title: title,
-                    body: body,
-                    isAttack: false,
-                    links: links
-                });
-
-                d3.event.preventDefault();
-                setTimeout(function() { nodesInGraph.add(postId) }, 1000);
-                handlers.addHandler(postId);
-                tree.removeNode(d);
-            });
-
         force.start();
-        for (var i = 10000; i > 0; --i) force.tick();
+        for (var i = 1000; i > 0; --i) force.tick();
         force.stop();
     };
 
     this.addNode = function(doc) {
         if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
             nodeIDMap.add(doc);
+            nodesInGraph.insert(doc);
             this.nodes.push(doc);
             Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
                 tree.addLink(link);
             });
-
             tree.render();
             return true;
         }
@@ -835,7 +435,7 @@ function ForumTree(forumIndex, nodes, links) {
                 else i++;
             }
             this.nodes.splice(iToRemove, 1);
-            nodesInGraph.remove(doc._id);
+            nodesInGraph.remove({_id: doc._id});
             tree.render();
             return true;
         }

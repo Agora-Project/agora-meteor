@@ -8,6 +8,9 @@
 </template>
 
 <template name="forumIndex">
+    {{#each posts}}
+    	{{> post}}
+    {{/each}}
     <svg id="posts-graph">
     </svg>
 
@@ -44,13 +47,25 @@
     {{/if }}
 </template>
 
-<template name="forumPost">
-    <div class="post-box post-title-box">
-        <text class="post-title-text">{{title}}</text>
+<template name="post">
+    <div class="post" id="post-{{_id}}">
+        <div class="postHeader">
+            <div class="titleBar"><a href="#">{{title}}</a></div>
+            <button class="closeButton"><i class="fa fa-close"></i></button>
+        </div>
+        <div class="postInfo">
+            <a href="#"><img class="avatar" src="{{avatarURL}}" alt=""></a>
+            <a class="username" href="#">{{username}}</a>
+            <span>&nbsp;- 4 hours ago</span>
+        </div>
+        <div class="postContent">
+            {{content}}
+            <a class="readMoreLink" hidden href="#">Read Entire Post <i class="fa fa-angle-double-right"></i></a>
+        </div>
+        <div class="postFooter">
+            <button class="showRepliesButton">Show Connecting Posts ({{replyCount}})</button>
+            <button class="replyButton">Reply</button>
+            <button class="moreDropdown">More <i class="fa fa-caret-down"></i></button>
+        </div>
     </div>
-    <div class="post-box post-body-box">
-        <text class="post-body-text">{{body}}</text>
-    </div>
-    <button class="post-control-button post-remove-button">X</button>
-    <button class="post-control-button post-load-button"></button>
 </template>
