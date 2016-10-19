@@ -2,7 +2,7 @@ mouseLinking = false;
 linkNode = undefined;
 newLink = {node: null};
 
-Template.post.onRendered(function() {
+Template.post.onRendered(function () {
     var instance = Template.instance();
 
     var postLink = Template.instance().$('.titleBar a');
@@ -12,7 +12,7 @@ Template.post.onRendered(function() {
     usernameLink.attr('title', usernameLink.text());
 
     instance.$('.postContent').dotdotdot({
-        after: "a.readMoreLink"
+        after: 'a.readMoreLink'
     });
 });
 
@@ -205,17 +205,6 @@ function ForumTree(forumIndex, nodes, links) {
         });
 
     svg.selectAll("*").remove();
-
-    //Adding the zoom behavior. this also handles panning.
-    //We're specifying it as an object variable so we can look it up later and see how much we've zoomed by.
-    this.zoom = d3.behavior.zoom();
-
-    this.zoom.scaleExtent([0.4, 4])
-        .on("zoom", function() {
-            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        });
-
-    svg.call(this.zoom).on("dblclick.zoom", null);
 
     var linksGroup = svg.append("g");
     //var nodesGroup = svg.append("g");
