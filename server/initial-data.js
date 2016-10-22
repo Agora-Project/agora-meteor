@@ -16,9 +16,7 @@ Meteor.startup(function() {
         moderatorId = Accounts.createUser({
             email: moderatorEmail,
             password: "mod1pass",
-            profile: {
-                name: "Moderator"
-            }
+            username: "Moderator"
         });
         return Roles.addUsersToRoles(moderatorId, ['moderator']);
     }
