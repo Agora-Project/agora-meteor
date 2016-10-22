@@ -138,6 +138,8 @@ body {
 .postInfo span {
     flex-shrink: 0;
     display: block;
+    float: right;
+    margin: 0 0 10px 10px;
 }
 
 .username {
