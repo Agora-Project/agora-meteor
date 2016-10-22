@@ -20,11 +20,11 @@ Template.post.helpers({
     avatarURL: function() {
         return 'https://avatars3.githubusercontent.com/u/6981448';
     },
-    username: function() {
-        return 'SmashMaster';
-    },
     replyCount: function() {
         return Link.find({ $or: [ { sourceId: this._id}, { targetId: this._id} ] }).fetch().length;
+    },
+    user: function() {
+        return Meteor.users.findOne(this.ownerId);
     }
 });
 
@@ -56,6 +56,13 @@ Template.post.events({
         Post.insert(newReplyPost);
     },
     'click .closeButton': function(evt) {
+        var user = Meteor.users.findOne(this.ownerId);
+        if (user) {
+            console.log(user);
+        } else {
+            console.log('No user with id', user);
+        }
+
         tree.removeNode(this);
     }
 
@@ -184,25 +191,7 @@ function ForumTree(forumIndex, nodes, links) {
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
     //it will draw them to the mouse cursor as it's moved around.
-    var svg = d3.select("#posts-graph")
-        .on('mousemove', function() {
-            var translateVector = tree.zoom.translate();
-
-            if (newLink.node) {
-                d3.select(".newLinkLine").attr("x1", function (d) {
-                    return translateVector[0] + newLink.node.x;
-                })
-                .attr("y1", function (d) {
-                    return translateVector[1] + newLink.node.y;
-                })
-                .attr("x2", function (d) {
-                    return d3.mouse(svg[0][0])[0];
-                })
-                .attr("y2", function (d) {
-                    return d3.mouse(svg[0][0])[1];
-                });
-            }
-        });
+    var svg = d3.select("#posts-graph");
 
     svg.selectAll("*").remove();
 

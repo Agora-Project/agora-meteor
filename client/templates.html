@@ -54,9 +54,11 @@
             <button class="closeButton"><i class="fa fa-close"></i></button>
         </div>
         <div class="postInfo">
-            <a href="#"><img class="avatar" src="{{avatarURL}}" alt=""></a>
-            <a class="username" href="#">{{username}}</a>
-            <span>&nbsp;- 4 hours ago</span>
+            {{#if user}}
+                <a href="#"><img class="avatar" src="{{avatarURL}}" alt=""></a>
+                <a class="username" href="#">{{user.profile.name}} </a>
+            {{/if}}
+            <span>4 hours ago</span>
         </div>
         <div class="postContent">
             {{content}}
