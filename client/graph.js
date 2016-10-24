@@ -1,7 +1,3 @@
-mouseLinking = false;
-linkNode = undefined;
-newLink = {node: null};
-
 Template.post.onRendered(function () {
     var instance = Template.instance();
 
@@ -89,8 +85,6 @@ Template.forumIndex.events({
     },
 
     'click .button-link': function() {
-        mouseLinking = !mouseLinking;
-        d3.selectAll('.node').on('mousedown.drag', null).call(mouseLinking ? tree.createLink : tree.drag);
     }
 });
 
@@ -216,26 +210,6 @@ function ForumTree(forumIndex, nodes, links) {
         .on("tick", tick);
 
     this.force = force;
-
-    this.createLink = d3.behavior.drag()
-        .origin(function(d) { return d; })
-        .on("dragstart", function(d) {
-            d3.event.sourceEvent.stopPropagation();
-            newLink.node = d;
-            svg.append("line").classed("newLinkLine", true).attr('stroke', 'black');
-        })
-        .on("dragend", function(d) {
-            console.log("???");
-            console.log (newLink.node);
-            console.log (d);
-            if (newLink.node) {
-                if (!newLink.node.replyNode && !d.replyNode && newLink.node != d) {
-                    console.log("!!!");
-                }
-            }
-            newLink.node = null;
-            d3.select(".newLinkLine").remove();
-        });
 
     // setup z-index to prevent overlapping lines over nodes
 
