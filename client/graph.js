@@ -33,6 +33,7 @@ Template.post.events({
         Link.find({sourceId: this._id}).fetch().forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.targetId});
             if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+                postToAdd.type = "post";
                 tree.addNode(postToAdd);
                 handlers.addHandler(link.targetId);
             }
@@ -40,6 +41,7 @@ Template.post.events({
         Link.find({targetId: this._id}).fetch().forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.sourceId});
             if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+                postToAdd.type = "post";
                 tree.addNode(postToAdd);
                 handlers.addHandler(link.targetId);
             }
@@ -48,7 +50,6 @@ Template.post.events({
     'click .replyButton': function(evt) {
 
         var newReplyPost = {
-            ownerId: Meteor.userId(),
             title: 'Reply',
             content: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
         }
@@ -56,13 +57,6 @@ Template.post.events({
         Post.insert(newReplyPost);
     },
     'click .closeButton': function(evt) {
-        var user = Meteor.users.findOne(this.ownerId);
-        if (user) {
-            console.log(user);
-        } else {
-            console.log('No user with id', user);
-        }
-
         tree.removeNode(this);
     }
 
@@ -70,8 +64,7 @@ Template.post.events({
 
 Template.forumIndex.events({
     'click .button-post': function() {
-        if (!tempNodes) tempNodes = 0;
-        var blankNode = {replyNode: true, _id: tempNodes++};
+        var blankNode = {type: "reply"};
         tree.addNode(blankNode);
     },
 
@@ -91,7 +84,10 @@ Template.forumIndex.events({
 
 Template.forumIndex.helpers({
     posts() {
-        return nodesInGraph.find();
+        return nodesInGraph.find({type: "post"});
+    },
+    replies() {
+        return nodesInGraph.find({type: "reply"});
     }
 });
 
@@ -101,16 +97,11 @@ Template.forumIndex.rendered = function() {
 
     var init = true;
 
-    //the nodeIDMap exists so that we don't need to have a 1:1 correspondence
-    //between nodes loaded into out local collection and nodes loaded into the
-    //graph. We can have posts that aren't shown on the graph, and things in the graph that aren't posts.
-
     var nodesCursor = Post.find({}), linksCursor = Link.find({});
     var nodes = [];
 
     nodesCursor.fetch().forEach(function(n) {
         n.selectable = true;
-        nodeIDMap.add(n);
         if (nodesInGraph.findOne({_id: n._id})) nodes.push(n);
     });
 
@@ -122,6 +113,7 @@ Template.forumIndex.rendered = function() {
         added: function(doc) {
             if (init) return;
             if (doc.isRoot || nodesInGraph.findOne({_id: doc._id})) {
+                doc.type = "post";
                 tree.addNode(doc);
                 Link.find({sourceId: d._id}).fetch().forEach(function(link) {
                     handlers.addHandler(link.targetId);
@@ -164,13 +156,13 @@ function resetTargetsSelection() {
 function linksToD3Array(linksCol, nodesCol) {
     var nodes = {};
     nodesCol.forEach(function(node) {
-        nodes[node.id] = node;
+        nodes[node._id] = node;
     });
     var result = [];
     linksCol.forEach(function(link) {
         var tmp = {
-            source: nodes[nodeIDMap.get(link.sourceId)],
-            target: nodes[nodeIDMap.get(link.targetId)],
+            source: nodes[link.sourceId],
+            target: nodes[link.targetId],
             type: link.type,
             _id: link._id
         };
@@ -212,47 +204,6 @@ function ForumTree(forumIndex, nodes, links) {
         .on("tick", tick);
 
     this.force = force;
-
-    this.drag = d3.behavior.drag()
-        .origin(function(d) { return d; })
-        .on("dragstart", function(d) {
-            if (mouseLinking) return;
-            d3.event.sourceEvent.stopPropagation();
-            d3.select(this).classed("dragging", true);
-        })
-        .on("drag", function(d) {
-            if (mouseLinking) return;
-            d3.event.sourceEvent.preventDefault();
-            d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
-
-            d3.select("#g-" + d.id).attr("transform", function (d) {
-                if (document.getElementById("rect-"+ d.id)) {
-                    return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
-                            + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
-                }
-                else return "translate(" + d.x + ","+ d.y + ")";
-            });
-
-            if (!force.nodes()[0] || !force.nodes()[0].y) return;
-
-            linkElements.attr("x1", function (d) {
-                    return d.source.x;
-                })
-                .attr("y1", function (d) {
-                    return d.source.y;
-                })
-                .attr("x2", function (d) {
-                    return d.target.x;
-                })
-                .attr("y2", function (d) {
-                    return d.target.y;
-                });
-        })
-        .on("dragend", function(d) {
-            if (mouseLinking) return;
-            d3.event.sourceEvent.preventDefault();
-            d3.select(this).classed("dragging", false);
-        });
 
     this.createLink = d3.behavior.drag()
         .origin(function(d) { return d; })
@@ -307,7 +258,11 @@ function ForumTree(forumIndex, nodes, links) {
         });
 
         nodes.forEach(function(d) {
-            $("#post-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
+            if (d.type == "post")
+                $("#post-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
+            else if (d.type == "reply") {
+                $("#reply-"+d._id).css("left", d.x + 160).css("top", d.y + 112);
+            }
         });
     }
 
@@ -374,7 +329,6 @@ function ForumTree(forumIndex, nodes, links) {
 
     this.addNode = function(doc) {
         if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
-            nodeIDMap.add(doc);
             nodesInGraph.insert(doc);
             this.nodes.push(doc);
             Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
