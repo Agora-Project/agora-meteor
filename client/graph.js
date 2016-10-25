@@ -77,11 +77,9 @@ Template.forumIndex.events({
     },
 
     'click .button-delete': function() {
-        for (var post in Session.get('selectedTargets')) {
-            if (tree.removeNode(post)) tree.render();
-            if (handlers[post._id]) handlers[post._id].stop();
-            Post.removeWithLinks(post);
-        }
+        /*if (tree.removeNode(post)) tree.render();
+        if (handlers[post._id]) handlers[post._id].stop();
+        Post.removeWithLinks(post);*/
     },
 
     'click .button-link': function() {
@@ -98,8 +96,6 @@ Template.forumIndex.helpers({
 });
 
 Template.forumIndex.rendered = function() {
-
-    Session.setDefault('selectedTargets', {});
 
     var init = true;
 
@@ -153,10 +149,6 @@ Template.forumIndex.rendered = function() {
 
     tree.render();
     init = false;
-};
-
-function resetTargetsSelection() {
-    Session.set('selectedTargets', {});
 };
 
 function linksToD3Array(linksCol, nodesCol) {
