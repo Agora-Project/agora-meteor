@@ -3,7 +3,7 @@ Post.allow({
         return post.ownerId === userId;
     },
     remove: function(userId, post) {
-        return Roles.userIsInRole(userId, ['moderator']);
+        return post.ownerId == userId || Roles.userIsInRole(userId, ['moderator']);
     }
 });
 
@@ -12,6 +12,6 @@ Link.allow({
         return link.ownerId === userId;
     },
     remove: function(userId, link) {
-        return Roles.userIsInRole(userId, ['moderator']);
+        return link.ownerId == userId || Roles.userIsInRole(userId, ['moderator']);
     }
 });

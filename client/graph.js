@@ -1,3 +1,5 @@
+currentAction = "none";
+
 Template.post.onRendered(function () {
     var instance = Template.instance();
 
@@ -25,6 +27,17 @@ Template.post.helpers({
 });
 
 Template.post.events({
+    'click': function(evt) {
+        console.log("Something!");
+        if (currentAction == "deleting" && (this.ownerId === Meteor.userId() ||
+            Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
+            confirm("Are you sure you want to permanently delete this post?")) {
+                tree.removeNode(this)
+                if (handlers[this._id]) handlers[this._id].stop();
+                Meteor.call('removeWithLinks', this._id);
+            }
+
+    },
     'click .showRepliesButton': function (evt) {
         Link.find({sourceId: this._id}).fetch().forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.targetId});
@@ -72,12 +85,18 @@ Template.forumIndex.events({
     },
 
     'click .button-delete': function() {
-        /*if (tree.removeNode(post)) tree.render();
-        if (handlers[post._id]) handlers[post._id].stop();
-        Post.removeWithLinks(post);*/
+        if (currentAction != "deleting") currentAction = "deleting";
+        else currentAction = "none";
     },
 
     'click .button-link': function() {
+        if (currentAction != "linking") currentAction = "linking";
+        else currentAction = "none";
+    },
+
+    'click .button-unlink': function() {
+        if (currentAction != "unlinking") currentAction = "unlinking";
+        else currentAction = "none";
     }
 });
 
