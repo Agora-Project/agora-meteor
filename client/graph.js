@@ -29,13 +29,23 @@ Template.post.helpers({
 Template.post.events({
     'click': function(evt) {
         console.log("Something!");
-        if (currentAction == "deleting" && (this.ownerId === Meteor.userId() ||
-            Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
-            confirm("Are you sure you want to permanently delete this post?")) {
-                tree.removeNode(this)
-                if (handlers[this._id]) handlers[this._id].stop();
-                Meteor.call('removeWithLinks', this._id);
-            }
+        switch (currentAction) {
+            case "none":
+                break;
+            case "deleting":
+                if ((this.ownerId === Meteor.userId() ||
+                    Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
+                    confirm("Are you sure you want to permanently delete this post?")) {
+
+                    tree.removeNode(this)
+                    if (handlers[this._id]) handlers[this._id].stop();
+                    Meteor.call('removeWithLinks', this._id);
+                }
+                break;
+            case "linking":
+                break;
+
+        }
 
     },
     'click .showRepliesButton': function (evt) {

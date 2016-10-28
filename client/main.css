@@ -216,6 +216,21 @@ body {
     text-decoration: underline;
 }
 
+.titleInput {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%;
+    border: 1px solid @border-color;
+    border-right: none;
+    border-radius: 8px 0px 0px 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    background-color: #eaeaea;
+    font-weight: bold;
+}
+
 .replyHeader, .replyFooter {
     flex-shrink: 0;
     display: flex;
@@ -224,6 +239,31 @@ body {
     line-height: 32px;
 }
 
+.contentInput {
+    display: block;
+    overflow: hidden;
+    height: 100%;
+    margin: 0px;
+    border: 1px solid @border-color;
+    border-top: none;
+    border-bottom: none;
+    padding: 6px;
+    word-wrap: break-word;
+    background-color: #fff;
+}
+
+.replyFooter button {
+    flex-grow: 1;
+    background-color: #fff;
+    background-image: linear-gradient(#fcfcfc, #ddd);
+    cursor: pointer;
+}
+
+.replyFooter button:active {
+    background-color: #ddd;
+    background-image: none;
+    box-shadow: inset 0 0 8px #888;
+}
 /*., #posts-graph {
     position: absolute;
     top:0px;

@@ -4,7 +4,7 @@ Meteor.methods({
     },
     removeWithLinks: function(postId) {
         if (this.userID != Post.findOne({_id: postId}).ownerId &&
-            !Roles.userIsInRole(this.userId, ['moderator'])) return 0;
+            !Roles.userIsInRole(this.userId, ['moderator'])) return;
         var i, j, len, len1, link, ref, ref1, results;
         ref = Link.find({
             sourceId: postId
@@ -25,7 +25,6 @@ Meteor.methods({
         return results;
     },
     insertPost: function(post) {
-        console.log(post);
         return Post.insert(post);
     }
 });
