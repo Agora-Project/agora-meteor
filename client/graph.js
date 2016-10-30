@@ -1,4 +1,5 @@
 currentAction = "none";
+newLink = null;
 
 Template.post.onRendered(function () {
     var instance = Template.instance();
@@ -28,7 +29,6 @@ Template.post.helpers({
 
 Template.post.events({
     'click': function(evt) {
-        console.log("Something!");
         switch (currentAction) {
             case "none":
                 break;
@@ -47,6 +47,15 @@ Template.post.events({
 
         }
 
+    },
+    'mousedown': function() {
+        if (currentAction == 'linking') {
+            newLink = {node: this};
+            d3.select("svg").append("line")
+                .classed('link', true)
+                .attr("id", "newLink")
+                .attr('stroke', 'black');
+        }
     },
     'click .showRepliesButton': function (evt) {
         Link.find({sourceId: this._id}).fetch().forEach(function(link) {
@@ -70,6 +79,21 @@ Template.post.events({
     },
     'click .closeButton': function(evt) {
         tree.removeNode(this);
+    },
+    'mouseup': function(evt) {
+        switch (currentAction) {
+            case "none":
+                break;
+            case "deleting":
+                break;
+            case "linking":
+                if (newLink) {
+                    console.log("dropping link!");
+                    newLink = null;
+                    d3.select("#newLink").remove();
+                }
+                break;
+        }
     }
 
 });
@@ -107,6 +131,24 @@ Template.forumIndex.events({
     'click .button-unlink': function() {
         if (currentAction != "unlinking") currentAction = "unlinking";
         else currentAction = "none";
+    },
+
+    'mousemove': function() {
+        if (currentAction == "linking" && newLink && newLink.node) {
+            console.log("drawing link!");
+            d3.select("#newLink").attr("x1", function (d) {
+                return newLink.node.x;
+            })
+            .attr("y1", function (d) {
+                return newLink.node.y;
+            })
+            .attr("x2", function (d) {
+                return 0; //d3.mouse(d3.select("svg")[0][0])[0];
+            })
+            .attr("y2", function (d) {
+                return 0; //d3.mouse(d3.select("svg")[0][0])[1];
+            });
+        }
     }
 });
 
