@@ -48,13 +48,20 @@ Template.post.events({
         }
 
     },
-    'mousedown': function() {
+    'mousedown': function(evt) {
         if (currentAction == 'linking') {
+            console.log("Adding line!");
             newLink = {node: this};
+            var xoff = $("svg").offset().left;
+            var yoff = $("svg").offset().top;
+            var xpos = evt.pageX - xoff;
+            var ypos = evt.pageY - yoff;
             d3.select("svg").append("line")
                 .classed('link', true)
                 .attr("id", "newLink")
-                .attr('stroke', 'black');
+                .attr('stroke', 'black')
+                .attr("x1", xpos)
+                .attr("y1", ypos);
         }
     },
     'click .showRepliesButton': function (evt) {
@@ -88,7 +95,8 @@ Template.post.events({
                 break;
             case "linking":
                 if (newLink) {
-                    console.log("dropping link!");
+                    console.log("dropping line!");
+                    console.log (this);
                     newLink = null;
                     d3.select("#newLink").remove();
                 }
@@ -107,6 +115,23 @@ Template.reply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(evt) {
+        console.log("Something!");
+    },
+    'mouseup': function(evt) {
+        switch (currentAction) {
+            case "none":
+                break;
+            case "deleting":
+                break;
+            case "linking":
+                if (newLink) {
+                    console.log("dropping line!");
+                    console.log (this);
+                    newLink = null;
+                    d3.select("#newLink").remove();
+                }
+                break;
+        }
     }
 
 });
@@ -133,21 +158,17 @@ Template.forumIndex.events({
         else currentAction = "none";
     },
 
-    'mousemove': function() {
+    'mousemove': function(evt) {
         if (currentAction == "linking" && newLink && newLink.node) {
-            console.log("drawing link!");
-            d3.select("#newLink").attr("x1", function (d) {
-                return newLink.node.x;
-            })
-            .attr("y1", function (d) {
-                return newLink.node.y;
-            })
-            .attr("x2", function (d) {
-                return 0; //d3.mouse(d3.select("svg")[0][0])[0];
-            })
-            .attr("y2", function (d) {
-                return 0; //d3.mouse(d3.select("svg")[0][0])[1];
-            });
+            console.log("drawing line!");
+
+            var xoff = $("svg").offset().left;
+            var yoff = $("svg").offset().top;
+            var xpos = evt.pageX - xoff;
+            var ypos = evt.pageY;
+            d3.select("#newLink")
+            .attr("x2", xpos - xoff)
+            .attr("y2", ypos - yoff);
         }
     }
 });
