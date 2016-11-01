@@ -1,5 +1,4 @@
 currentAction = "none";
-newLink = null;
 
 Template.post.onRendered(function () {
     var instance = Template.instance();
@@ -30,8 +29,6 @@ Template.post.helpers({
 Template.post.events({
     'click': function(evt) {
         switch (currentAction) {
-            case "none":
-                break;
             case "deleting":
                 if ((this.ownerId === Meteor.userId() ||
                     Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
@@ -42,27 +39,11 @@ Template.post.events({
                     Meteor.call('removeWithLinks', this._id);
                 }
                 break;
-            case "linking":
-                break;
 
         }
 
     },
     'mousedown': function(evt) {
-        if (currentAction == 'linking') {
-            console.log("Adding line!");
-            newLink = {node: this};
-            var xoff = $("svg").offset().left;
-            var yoff = $("svg").offset().top;
-            var xpos = evt.pageX - xoff;
-            var ypos = evt.pageY - yoff;
-            d3.select("svg").append("line")
-                .classed('link', true)
-                .attr("id", "newLink")
-                .attr('stroke', 'black')
-                .attr("x1", xpos)
-                .attr("y1", ypos);
-        }
     },
     'click .showRepliesButton': function (evt) {
         Link.find({sourceId: this._id}).fetch().forEach(function(link) {
@@ -83,25 +64,12 @@ Template.post.events({
         });
     },
     'click .replyButton': function(evt) {
+        if (!nodesInGraph.findOne({type: "reply"})) {
+            tree.addNode({type: "reply"});
+        }
     },
     'click .closeButton': function(evt) {
         tree.removeNode(this);
-    },
-    'mouseup': function(evt) {
-        switch (currentAction) {
-            case "none":
-                break;
-            case "deleting":
-                break;
-            case "linking":
-                if (newLink) {
-                    console.log("dropping line!");
-                    console.log (this);
-                    newLink = null;
-                    d3.select("#newLink").remove();
-                }
-                break;
-        }
     }
 
 });
@@ -115,62 +83,15 @@ Template.reply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(evt) {
-        console.log("Something!");
-    },
-    'mouseup': function(evt) {
-        switch (currentAction) {
-            case "none":
-                break;
-            case "deleting":
-                break;
-            case "linking":
-                if (newLink) {
-                    console.log("dropping line!");
-                    console.log (this);
-                    newLink = null;
-                    d3.select("#newLink").remove();
-                }
-                break;
-        }
     }
-
 });
 
 
 Template.forumIndex.events({
-    'click .button-post': function() {
-        var blankNode = {type: "reply"};
-        tree.addNode(blankNode);
-    },
-
     'click .button-delete': function() {
         if (currentAction != "deleting") currentAction = "deleting";
         else currentAction = "none";
     },
-
-    'click .button-link': function() {
-        if (currentAction != "linking") currentAction = "linking";
-        else currentAction = "none";
-    },
-
-    'click .button-unlink': function() {
-        if (currentAction != "unlinking") currentAction = "unlinking";
-        else currentAction = "none";
-    },
-
-    'mousemove': function(evt) {
-        if (currentAction == "linking" && newLink && newLink.node) {
-            console.log("drawing line!");
-
-            var xoff = $("svg").offset().left;
-            var yoff = $("svg").offset().top;
-            var xpos = evt.pageX - xoff;
-            var ypos = evt.pageY;
-            d3.select("#newLink")
-            .attr("x2", xpos - xoff)
-            .attr("y2", ypos - yoff);
-        }
-    }
 });
 
 Template.forumIndex.helpers({

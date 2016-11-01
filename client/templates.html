@@ -14,37 +14,13 @@
     <svg id="posts-graph">
     </svg>
 
-    {{#if currentUser }}
-    <div class="post-button-box">
-        <button class="button-post mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
-            <i class="material-icons">add</i>
-        </button>
-    </div>
-    {{/if }}
-
-    {{#if checkIfModerator }}
+    {{#if checkIfModerator}}
     <div class="delete-button-box">
         <button class="button-delete mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
             <i class="material-icons">remove</i>
         </button>
     </div>
-    {{/if }}
-
-    {{#if currentUser }}
-    <div class="link-button-box">
-        <button class="button-link mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
-            <i class="material-icons">gesture</i>
-        </button>
-    </div>
-    {{/if }}
-
-    {{#if currentUser }}
-    <div class="unlink-button-box">
-        <button class="button-unlink mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
-            <i class="material-icons">content_cut</i>
-        </button>
-    </div>
-    {{/if }}
+    {{/if}}
 
     {{#each replies}}
     	{{> reply}}
