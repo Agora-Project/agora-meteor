@@ -35,7 +35,8 @@ Template.post.events({
                     confirm("Are you sure you want to permanently delete this post?")) {
 
                     tree.removeNode(this)
-                    if (handlers[this._id]) handlers[this._id].stop();
+                    if (handlers[this._id])
+                        handlers[this._id].stop();
                     Meteor.call('removeWithLinks', this._id);
                 }
                 break;
@@ -65,8 +66,9 @@ Template.post.events({
     },
     'click .replyButton': function(evt) {
         if (!nodesInGraph.findOne({type: "reply"})) {
-            tree.addNode({type: "reply"});
-        }
+            let _id = tree.addNode({type: "reply"});
+            tree.addLink({sourceId: _id, targetId: this._id});
+        } 
     },
     'click .closeButton': function(evt) {
         tree.removeNode(this);
@@ -323,7 +325,7 @@ function ForumTree(forumIndex, nodes, links) {
                 tree.addLink(link);
             });
             tree.render();
-            return true;
+            return _id;
         }
         return false;
     };
@@ -332,8 +334,10 @@ function ForumTree(forumIndex, nodes, links) {
         link = linksToD3Array([doc], this.nodes)[0];
         if (link && !this.links.find(function(l) {return (link._id == l._id)})) {
             this.links.push(link);
+            tree.render();
             return true;
         }
+        console.log(doc);
         return false;
     };
 
