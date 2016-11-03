@@ -66,9 +66,16 @@ Template.post.events({
     },
     'click .replyButton': function(evt) {
         if (!nodesInGraph.findOne({type: "reply"})) {
-            let _id = tree.addNode({type: "reply"});
+            let _id = tree.addNode({type: "reply", links: [this._id]});
             tree.addLink({sourceId: _id, targetId: this._id});
-        } 
+        } else {
+            let _id = nodesInGraph.findOne({type: "reply"})._id;
+            if (!tree.containsLink(_id, this._id)) {
+                console.log("Adding Link!");
+                nodesInGraph.update({_id: _id}, {$push: { links: this._id}});
+                tree.addLink({sourceId: _id, targetId: this._id});
+            }
+        }
     },
     'click .closeButton': function(evt) {
         tree.removeNode(this);
@@ -85,6 +92,7 @@ Template.reply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(evt) {
+
     }
 });
 
@@ -331,7 +339,7 @@ function ForumTree(forumIndex, nodes, links) {
     };
 
     this.addLink = function(doc) {
-        link = linksToD3Array([doc], this.nodes)[0];
+        let link = linksToD3Array([doc], this.nodes)[0];
         if (link && !this.links.find(function(l) {return (link._id == l._id)})) {
             this.links.push(link);
             tree.render();
@@ -340,6 +348,14 @@ function ForumTree(forumIndex, nodes, links) {
         console.log(doc);
         return false;
     };
+
+    this.containsLink = function(doc) {
+        if (this.links.find(function(l) {return (doc._id == l._id)}))
+            return true;
+        let link = linksToD3Array([doc], this.nodes)[0];
+        if (this.links.find(function(l) {return (link.source == l.source && link.target == l.target)}))
+            return true;
+    }
 
     this.removeNode = function(doc) {
         var iToRemove = -1;
