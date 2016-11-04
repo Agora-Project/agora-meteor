@@ -55,9 +55,10 @@ Template.post.events({
                 handlers.addHandler(link.targetId);
             }
         });
-        Link.find({targetId: this._id}).fetch().forEach(function(link) {
+        Link.find({targetId: this._id}).fetch()
+        .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.sourceId});
-            if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+            if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
                 postToAdd.type = "post";
                 tree.addNode(postToAdd);
                 handlers.addHandler(link.targetId);
@@ -72,7 +73,7 @@ Template.post.events({
             let _id = nodesInGraph.findOne({type: "reply"})._id;
             if (!tree.containsLink(_id, this._id)) {
                 console.log("Adding Link!");
-                nodesInGraph.update({_id: _id}, {$push: { links: this._id}});
+                nodesInGraph.update({_id: _id}, { $push: { links: this._id}});
                 tree.addLink({sourceId: _id, targetId: this._id});
             }
         }
@@ -92,7 +93,19 @@ Template.reply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(evt) {
+        let title = $('#titleInput-' + this._id).val();
+        let content = $('#contentInput-' + this._id).val();
+        let newReplyPost = {
+            ownerId: Meteor.userId(),
+            links: this.links,
+            title: title,
+            content: content
+        }
 
+        let postId = Post.insert(newReplyPost);
+        setTimeout(function() { nodesInGraph.add(Post.findOne({_id: postId})); }, 1000);
+        handlers.addHandler(postId);
+        tree.removeNode(this);
     }
 });
 
@@ -327,7 +340,6 @@ function ForumTree(forumIndex, nodes, links) {
         if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
             let _id = nodesInGraph.insert(doc);
             doc = nodesInGraph.findOne({_id: _id});
-            console.log(doc);
             this.nodes.push(doc);
             Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
                 tree.addLink(link);
@@ -345,7 +357,6 @@ function ForumTree(forumIndex, nodes, links) {
             tree.render();
             return true;
         }
-        console.log(doc);
         return false;
     };
 
