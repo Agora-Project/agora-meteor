@@ -47,22 +47,26 @@ Template.post.events({
     'mousedown': function(evt) {
     },
     'click .showRepliesButton': function (evt) {
-        Link.find({sourceId: this._id}).fetch().forEach(function(link) {
+        Link.find({sourceId: this._id}).fetch()
+        .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.targetId});
-            if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+            if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
+                console.log("Adding Post!");
                 postToAdd.type = "post";
                 tree.addNode(postToAdd);
-                handlers.addHandler(link.targetId);
+                handlers.addHandler(postToAdd._id);
             }
         });
         Link.find({targetId: this._id}).fetch()
         .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.sourceId});
             if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
+                console.log("Adding Post!");
                 postToAdd.type = "post";
                 tree.addNode(postToAdd);
-                handlers.addHandler(link.targetId);
-            }
+                handlers.addHandler(postToAdd._id);
+            } else
+                console.log(link);
         });
     },
     'click .replyButton': function(evt) {
@@ -96,15 +100,14 @@ Template.reply.events({
         let title = $('#titleInput-' + this._id).val();
         let content = $('#contentInput-' + this._id).val();
         let newReplyPost = {
-            ownerId: Meteor.userId(),
             links: this.links,
             title: title,
             content: content
         }
 
         let postId = Post.insert(newReplyPost);
-        setTimeout(function() { nodesInGraph.add(Post.findOne({_id: postId})); }, 1000);
         handlers.addHandler(postId);
+        setTimeout(function() { tree.addNode(Post.findOne({_id: postId})); }, 1000);
         tree.removeNode(this);
     }
 });
@@ -363,9 +366,12 @@ function ForumTree(forumIndex, nodes, links) {
     this.containsLink = function(doc) {
         if (this.links.find(function(l) {return (doc._id == l._id)}))
             return true;
+
         let link = linksToD3Array([doc], this.nodes)[0];
         if (this.links.find(function(l) {return (link.source == l.source && link.target == l.target)}))
             return true;
+
+        return false;
     }
 
     this.removeNode = function(doc) {

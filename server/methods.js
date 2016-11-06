@@ -5,7 +5,7 @@ Meteor.methods({
     removeWithLinks: function(postId) {
         if (this.userID != Post.findOne({_id: postId}).ownerId &&
             !Roles.userIsInRole(this.userId, ['moderator'])) return;
-        var i, j, len, len1, link, ref, ref1, results;
+        var i, len, link, ref, results;
         ref = Link.find({
             sourceId: postId
         }).fetch();
@@ -13,18 +13,15 @@ Meteor.methods({
             link = ref[i];
             Link.remove(link._id);
         }
-        ref1 = Link.find({
+        ref = Link.find({
             targetId: postId
         }).fetch();
         results = [];
-        for (j = 0, len1 = ref1.length; j < len1; j++) {
-            link = ref1[j];
+        for (i = 0, len = ref.length; i < len; i++) {
+            link = ref[i];
             results.push(Link.remove(link._id));
         }
         results.push(Post.remove(postId));
         return results;
-    },
-    insertPost: function(post) {
-        return Post.insert(post);
     }
 });
