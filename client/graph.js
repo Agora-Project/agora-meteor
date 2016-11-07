@@ -53,8 +53,8 @@ Template.post.events({
             if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
                 console.log("Adding Post!");
                 postToAdd.type = "post";
-                tree.addNode(postToAdd);
                 handlers.addHandler(postToAdd._id);
+                tree.addNode(postToAdd);
             }
         });
         Link.find({targetId: this._id}).fetch()
@@ -151,10 +151,10 @@ Template.forumIndex.rendered = function() {
             if (doc.isRoot || nodesInGraph.findOne({_id: doc._id})) {
                 doc.type = "post";
                 tree.addNode(doc);
-                Link.find({sourceId: d._id}).fetch().forEach(function(link) {
+                Link.find({sourceId: doc._id}).fetch().forEach(function(link) {
                     handlers.addHandler(link.targetId);
                 });
-                Link.find({targetId: d._id}).fetch().forEach(function(link) {
+                Link.find({targetId: doc._id}).fetch().forEach(function(link) {
                     handlers.addHandler(link.sourceId);
                 });
             }
@@ -341,14 +341,25 @@ function ForumTree(forumIndex, nodes, links) {
 
     this.addNode = function(doc) {
         if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
-            let _id = nodesInGraph.insert(doc);
-            doc = nodesInGraph.findOne({_id: _id});
+            if (!nodesInGraph.findOne({_id: doc._id})) {
+                let _id = nodesInGraph.insert(doc);
+                doc = nodesInGraph.findOne({_id: _id});
+            }
             this.nodes.push(doc);
             Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
                 tree.addLink(link);
             });
+
+            Link.find({sourceId: doc._id}).fetch().forEach(function(link) {
+                console.log("Something!");
+                handlers.addHandler(link.targetId);
+            });
+            Link.find({targetId: doc._id}).fetch().forEach(function(link) {
+                console.log("Something!");
+                handlers.addHandler(link.sourceId);
+            });
             tree.render();
-            return _id;
+            return doc._id;
         }
         return false;
     };
