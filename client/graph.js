@@ -12,6 +12,18 @@ Template.post.onRendered(function () {
     instance.$('.postContent').dotdotdot({
         after: 'a.readMoreLink'
     });
+
+    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).fetch().forEach(function(link) {
+        tree.addLink(link);
+    });
+
+    Link.find({sourceId: this.data._id}).fetch().forEach(function(link) {
+        handlers.addHandler(link.targetId);
+    });
+    Link.find({targetId: this.data._id}).fetch().forEach(function(link) {
+        handlers.addHandler(link.sourceId);
+    });
+    tree.render();
 });
 
 Template.post.helpers({
@@ -51,7 +63,6 @@ Template.post.events({
         .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.targetId});
             if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
-                console.log("Adding Post!");
                 postToAdd.type = "post";
                 handlers.addHandler(postToAdd._id);
                 tree.addNode(postToAdd);
@@ -61,7 +72,6 @@ Template.post.events({
         .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.sourceId});
             if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
-                console.log("Adding Post!");
                 postToAdd.type = "post";
                 tree.addNode(postToAdd);
                 handlers.addHandler(postToAdd._id);
@@ -76,7 +86,6 @@ Template.post.events({
         } else {
             let _id = nodesInGraph.findOne({type: "reply"})._id;
             if (!tree.containsLink(_id, this._id)) {
-                console.log("Adding Link!");
                 nodesInGraph.update({_id: _id}, { $push: { links: this._id}});
                 tree.addLink({sourceId: _id, targetId: this._id});
             }
@@ -90,6 +99,12 @@ Template.post.events({
 
 Template.reply.onRendered(function () {
     var instance = Template.instance();
+
+    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).fetch().forEach(function(link) {
+        tree.addLink(link);
+    });
+
+    tree.render();
 });
 
 Template.reply.events({
@@ -287,36 +302,6 @@ function ForumTree(forumIndex, nodes, links) {
 
     // dynamically update the graph
     this.render = function() {
-        // filters go in defs element
-        var defs = svg.append("defs");
-
-        // create filter with id #drop-shadow
-        // height=130% so that the shadow is not clipped
-        var filter = defs.append("filter")
-            .attr("id", "drop-shadow")
-            .attr("height", "130%");
-
-        // SourceAlpha refers to opacity of graphic that this filter will be applied to
-        // convolve that with a Gaussian with standard deviation 3 and store result
-        // in blur
-        filter.append("feGaussianBlur")
-            .attr("in", "SourceAlpha")
-            .attr("stdDeviation", 5)
-            .attr("result", "blur");
-
-        // translate output of Gaussian blur to the right and downwards with 2px
-        // store result in offsetBlur
-        filter.append("feOffset")
-            .attr("in", "blur")
-            .attr("dx", 5)
-            .attr("dy", 5)
-            .attr("result", "offsetBlur");
-
-        // overlay original SourceGraphic over translated blurred opacity by using
-        // feMerge filter. Order of specifying inputs is important!
-        var feMerge = filter.append("feMerge");
-        feMerge.append("feMergeNode").attr("in", "offsetBlur");
-        feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
         // add links
         contextMenuShowing = false;
@@ -346,19 +331,7 @@ function ForumTree(forumIndex, nodes, links) {
                 doc = nodesInGraph.findOne({_id: _id});
             }
             this.nodes.push(doc);
-            Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
-                tree.addLink(link);
-            });
 
-            Link.find({sourceId: doc._id}).fetch().forEach(function(link) {
-                console.log("Something!");
-                handlers.addHandler(link.targetId);
-            });
-            Link.find({targetId: doc._id}).fetch().forEach(function(link) {
-                console.log("Something!");
-                handlers.addHandler(link.sourceId);
-            });
-            tree.render();
             return doc._id;
         }
         return false;
