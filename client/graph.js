@@ -122,7 +122,11 @@ Template.reply.events({
 
         let postId = Post.insert(newReplyPost);
         handlers.addHandler(postId);
-        setTimeout(function() { tree.addNode(Post.findOne({_id: postId})); }, 1000);
+        setTimeout(function() {
+            let doc = Post.findOne({_id: postId});
+            doc.type = "post";
+            tree.addNode(doc);
+        }, 1000);
         tree.removeNode(this);
     }
 });
@@ -163,15 +167,9 @@ Template.forumIndex.rendered = function() {
     nodesCursor.observe({
         added: function(doc) {
             if (init) return;
-            if (doc.isRoot || nodesInGraph.findOne({_id: doc._id})) {
+            if (doc.isRoot) {
                 doc.type = "post";
                 tree.addNode(doc);
-                Link.find({sourceId: doc._id}).fetch().forEach(function(link) {
-                    handlers.addHandler(link.targetId);
-                });
-                Link.find({targetId: doc._id}).fetch().forEach(function(link) {
-                    handlers.addHandler(link.sourceId);
-                });
             }
         },
         removed: function(doc) {
