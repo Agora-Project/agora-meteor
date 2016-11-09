@@ -1,3 +1,21 @@
+html {
+    box-sizing: border-box;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    background-color: #fff;
+}
+
+.page-content {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
+
 .post-button-box {
     position: fixed;
     right: 25px;
@@ -32,18 +50,6 @@
 .create-post, .at-form {
     width: 33%;
     margin: 0 auto 0 auto;
-}
-
-html {
-    box-sizing: border-box;
-}
-
-*, *:before, *:after {
-    box-sizing: inherit;
-}
-
-body {
-    background-color: #fff;
 }
 
 .post {
