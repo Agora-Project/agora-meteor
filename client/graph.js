@@ -46,9 +46,8 @@ Template.post.events({
                     Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
                     confirm("Are you sure you want to permanently delete this post?")) {
 
-                    tree.removeNode(this)
-                    if (handlers[this._id])
-                        handlers[this._id].stop();
+                    tree.removeNode(this);
+                    handlers.stop(this._id);
                     Meteor.call('removeWithLinks', this._id);
                 }
                 break;
@@ -85,10 +84,16 @@ Template.post.events({
             let _id = tree.addNode({type: "reply", links: [this._id]});
             tree.addLink({sourceId: _id, targetId: this._id});
         } else {
-            let _id = nodesInGraph.findOne({type: "reply"})._id;
-            if (!tree.containsLink(_id, this._id)) {
-                nodesInGraph.update({_id: _id}, { $push: { links: this._id}});
-                tree.addLink({sourceId: _id, targetId: this._id});
+            let reply = nodesInGraph.findOne({type: "reply"});
+            let self = this;
+            if (!reply.links.find(function(link) {
+                return (link == self._id);
+            })) {
+                nodesInGraph.update({_id: reply._id}, { $push: { links: this._id}});
+                tree.addLink({sourceId: reply._id, targetId: this._id});
+            } else {
+                nodesInGraph.update({_id: reply._id}, { $pull: { links: this._id}});
+                tree.removeLink({sourceId: reply._id, targetId: this._id});
             }
         }
     },
@@ -120,8 +125,8 @@ Template.reply.events({
             links: this.links,
             title: title,
             content: content
-        }
 
+        };
         let postId = Post.insert(newReplyPost);
         handlers.addHandler(postId);
         setTimeout(function() {
@@ -315,7 +320,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
             });
 
         force.start();
-        for (var i = 1000; i > 0; --i) force.tick();
+        for (var i = 0; i < 1000; i++) force.tick();
         force.stop();
     };
 
@@ -333,17 +338,21 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
     };
 
     this.addLink = function(doc) {
+        if (!doc._id) {
+            var _id = nodesInGraph.insert(doc);
+            doc = nodesInGraph.findOne({_id: _id});
+        }
         let link = linksToD3Array([doc], this.nodes)[0];
-        if (link && !this.links.find(function(l) {return (link._id == l._id)})) {
+        if (link && !this.containsLink(doc)) {
             this.links.push(link);
-            tree.render();
+            this.render();
             return true;
         }
         return false;
     };
 
     this.containsLink = function(doc) {
-        if (this.links.find(function(l) {return (doc._id == l._id)}))
+        if (doc._id && this.links.find(function(l) {return (doc._id == l._id)}))
             return true;
 
         let link = linksToD3Array([doc], this.nodes)[0];
@@ -371,7 +380,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
             }
             this.nodes.splice(iToRemove, 1);
             nodesInGraph.remove({_id: doc._id});
-            tree.render();
+            this.render();
             return true;
         }
         return false;
@@ -382,10 +391,13 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         this.links.forEach(function(link, i) {
             if (link._id === doc._id) {
                 iToRemove = i;
+            } else if (link.source._id == doc.sourceId && link.target._id == doc.targetId) {
+                iToRemove = i;
             }
         });
         if (iToRemove != -1) {
             this.links.splice(iToRemove, 1);
+            this.render();
             return true;
         }
         return false;
