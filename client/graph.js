@@ -149,20 +149,11 @@ Template.forumIndex.helpers({
 });
 
 Template.forumIndex.rendered = function() {
-
     var init = true;
-
+    
     var nodesCursor = Post.find({}), linksCursor = Link.find({});
-    var nodes = [];
-
-    nodesCursor.fetch().forEach(function(n) {
-        n.selectable = true;
-        if (nodesInGraph.findOne({_id: n._id})) nodes.push(n);
-    });
-
-    var links = linksToD3Array(linksCursor.fetch(), nodes);
-
-    tree = new ForumTree(this, nodes, links);
+    
+    tree = new ForumTree(this, nodesCursor, linksCursor);
 
     nodesCursor.observe({
         added: function(doc) {
@@ -218,12 +209,18 @@ function linksToD3Array(linksCol, nodesCol) {
     return result;
 };
 
-function ForumTree(forumIndex, nodes, links) {
+function ForumTree(forumIndex, nodesCursor, linksCursor) {
     this.forumIndex = forumIndex;
-    this.nodes = nodes;
-    this.links = links;
 
     var postWidth = 140, postHeight = 100;
+    
+    //put nodes and links into D3-friendly arrays
+    this.nodes = [];
+    nodesCursor.fetch().forEach(function(n) {
+        n.selectable = true;
+        if (nodesInGraph.findOne({_id: n._id})) this.nodes.push(n);
+    });
+    this.links = linksToD3Array(linksCursor.fetch(), this.nodes);
 
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
@@ -233,14 +230,12 @@ function ForumTree(forumIndex, nodes, links) {
     svg.selectAll("*").remove();
 
     var linksGroup = svg.append("g");
-    //var nodesGroup = svg.append("g");
     var linkElements = linksGroup.selectAll("line");
-    //var nodeElements = d3.selectAll(".post-container");
 
     // init force layout
     var force = d3.layout.force()
-        .nodes(nodes)
-        .links(links)
+        .nodes(this.nodes)
+        .links(this.links)
         .gravity(0.10)
         .charge(-20000)
         .chargeDistance(400)
