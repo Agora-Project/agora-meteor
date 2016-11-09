@@ -264,19 +264,6 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
     function tick(e) {
         //This if statement keeps the app from choking when reloading the page.
         if (!force.nodes()[0] || !force.nodes()[0].y) { return; }
-        linkElements
-            .attr("x1", function (d) {
-                return d.source.x;
-            })
-            .attr("y1", function (d) {
-                return d.source.y;
-            })
-            .attr("x2", function (d) {
-                return d.target.x;
-            })
-            .attr("y2", function (d) {
-                return d.target.y;
-            });
 
         var links = force.links();
         var nodes = force.nodes();
@@ -285,14 +272,6 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         links.forEach(function(d, i) {
             d.source.y += k;
             d.target.y -= k;
-        });
-
-        nodes.forEach(function(d) {
-            if (d.type == "post")
-                $("#post-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
-            else if (d.type == "reply") {
-                $("#reply-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
-            }
         });
     }
 
@@ -325,6 +304,31 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         force.start();
         for (var i = 0; i < 1000; i++) force.tick();
         force.stop();
+
+        linkElements
+            .attr("x1", function (d) {
+                return d.source.x;
+            })
+            .attr("y1", function (d) {
+                return d.source.y;
+            })
+            .attr("x2", function (d) {
+                return d.target.x;
+            })
+            .attr("y2", function (d) {
+                return d.target.y;
+            });
+
+        this.nodes.forEach(function(d) {
+            if (d.type == "post") {
+                let post = $("#post-" + d._id);
+                let xAdjust = (post.outerWidth() / 2);
+                let yAdjust = (post.outerHeight() / 2);
+                post.css("left", d.x - xAdjust).css("top", d.y - yAdjust);
+            } else if (d.type == "reply") {
+                $("#reply-" + d._id).css("left", d.x - 160).css("top", d.y - 112);
+            }
+        });
     };
 
     this.addNode = function(doc) {
