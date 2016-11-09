@@ -35,6 +35,9 @@ Template.post.helpers({
     },
     user: function() {
         return Meteor.users.findOne(this.ownerId);
+    },
+    hasContent: function() {
+        return (this.content && this.content.length > 0);
     }
 });
 

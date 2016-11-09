@@ -61,8 +61,8 @@ body {
     position: absolute;
     display: flex;
     flex-direction: column;
-    width: 320px;
-    height: 224px;
+    max-width: 320px;
+    max-height: 224px;
     margin: auto;
     padding: 0px;
 }

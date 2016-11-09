@@ -41,10 +41,12 @@
             {{/if}}
             <span>4 hours ago</span>
         </div>
-        <div class="postContent">
-            {{content}}
-            <a class="readMoreLink" hidden href="#">Read Entire Post <i class="fa fa-angle-double-right"></i></a>
-        </div>
+        {{#if hasContent}}
+            <div class="postContent">
+                {{content}}
+                <a class="readMoreLink" hidden href="#">Read Entire Post <i class="fa fa-angle-double-right"></i></a>
+            </div>
+        {{/if}}
         <div class="postFooter">
             <button class="showRepliesButton">Show Connecting Posts ({{replyCount}})</button>
             <button class="replyButton">Reply</button>
