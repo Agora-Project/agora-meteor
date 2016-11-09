@@ -1,8 +1,6 @@
-mouseLinking = false;
-linkNode = undefined;
-newLink = {node: null};
+currentAction = "none";
 
-Template.post.onRendered(function() {
+Template.post.onRendered(function () {
     var instance = Template.instance();
 
     var postLink = Template.instance().$('.titleBar a');
@@ -12,48 +10,87 @@ Template.post.onRendered(function() {
     usernameLink.attr('title', usernameLink.text());
 
     instance.$('.postContent').dotdotdot({
-        after: "a.readMoreLink"
+        after: 'a.readMoreLink'
     });
+
+    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).fetch().forEach(function(link) {
+        tree.addLink(link);
+    });
+
+    Link.find({sourceId: this.data._id}).fetch().forEach(function(link) {
+        handlers.addHandler(link.targetId);
+    });
+    Link.find({targetId: this.data._id}).fetch().forEach(function(link) {
+        handlers.addHandler(link.sourceId);
+    });
+    tree.render();
 });
 
 Template.post.helpers({
     avatarURL: function() {
         return 'https://avatars3.githubusercontent.com/u/6981448';
     },
-    username: function() {
-        return 'SmashMaster';
-    },
     replyCount: function() {
         return Link.find({ $or: [ { sourceId: this._id}, { targetId: this._id} ] }).fetch().length;
+    },
+    user: function() {
+        return Meteor.users.findOne(this.ownerId);
     }
 });
 
 Template.post.events({
+    'click': function(evt) {
+        switch (currentAction) {
+            case "deleting":
+                if ((this.ownerId === Meteor.userId() ||
+                    Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
+                    confirm("Are you sure you want to permanently delete this post?")) {
+
+                    tree.removeNode(this)
+                    if (handlers[this._id])
+                        handlers[this._id].stop();
+                    Meteor.call('removeWithLinks', this._id);
+                }
+                break;
+
+        }
+
+    },
+    'mousedown': function(evt) {
+    },
     'click .showRepliesButton': function (evt) {
-        Link.find({sourceId: this._id}).fetch().forEach(function(link) {
+        Link.find({sourceId: this._id}).fetch()
+        .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.targetId});
-            if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+            if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
+                postToAdd.type = "post";
+                handlers.addHandler(postToAdd._id);
                 tree.addNode(postToAdd);
-                handlers.addHandler(link.targetId);
             }
         });
-        Link.find({targetId: this._id}).fetch().forEach(function(link) {
+        Link.find({targetId: this._id}).fetch()
+        .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.sourceId});
-            if (!nodesInGraph.findOne({_id: postToAdd._id})) {
+            if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
+                postToAdd.type = "post";
                 tree.addNode(postToAdd);
-                handlers.addHandler(link.targetId);
-            }
+                handlers.addHandler(postToAdd._id);
+            } else
+                console.log(link);
         });
     },
     'click .replyButton': function(evt) {
-
-        var newReplyPost = {
-            ownerId: Meteor.userId(),
-            title: 'Reply',
-            content: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+        if (!Meteor.userId()) return;
+        if (!nodesInGraph.findOne({type: "reply"})) {
+            let _id = tree.addNode({type: "reply", links: [this._id]});
+            tree.addLink({sourceId: _id, targetId: this._id});
+        } else {
+            let _id = nodesInGraph.findOne({type: "reply"})._id;
+            if (!tree.containsLink(_id, this._id)) {
+                nodesInGraph.update({_id: _id}, { $push: { links: this._id}});
+                tree.addLink({sourceId: _id, targetId: this._id});
+            }
         }
-
-        Post.insert(newReplyPost);
     },
     'click .closeButton': function(evt) {
         tree.removeNode(this);
@@ -61,67 +98,71 @@ Template.post.events({
 
 });
 
-Template.forumIndex.events({
-    'click .button-post': function() {
-        if (!tempNodes) tempNodes = 0;
-        var blankNode = {replyNode: true, _id: tempNodes++};
-        tree.addNode(blankNode);
-    },
+Template.reply.onRendered(function () {
+    var instance = Template.instance();
 
-    'click .button-delete': function() {
-        for (var post in Session.get('selectedTargets')) {
-            if (tree.removeNode(post)) tree.render();
-            if (handlers[post._id]) handlers[post._id].stop();
-            Post.removeWithLinks(post);
+    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).fetch().forEach(function(link) {
+        tree.addLink(link);
+    });
+
+    tree.render();
+});
+
+Template.reply.events({
+    'click .closeButton': function(evt) {
+        tree.removeNode(this);
+    },
+    'click .submitButton': function(evt) {
+        if (!Meteor.userId()) return;
+        let title = $('#titleInput-' + this._id).val();
+        let content = $('#contentInput-' + this._id).val();
+        let newReplyPost = {
+            links: this.links,
+            title: title,
+            content: content
         }
-    },
 
-    'click .button-link': function() {
-        mouseLinking = !mouseLinking;
-        d3.selectAll('.node').on('mousedown.drag', null).call(mouseLinking ? tree.createLink : tree.drag);
+        let postId = Post.insert(newReplyPost);
+        handlers.addHandler(postId);
+        setTimeout(function() {
+            let doc = Post.findOne({_id: postId});
+            doc.type = "post";
+            tree.addNode(doc);
+        }, 1000);
+        tree.removeNode(this);
     }
+});
+
+
+Template.forumIndex.events({
+    'click .button-delete': function() {
+        if (currentAction != "deleting") currentAction = "deleting";
+        else currentAction = "none";
+    },
 });
 
 Template.forumIndex.helpers({
     posts() {
-        return nodesInGraph.find();
+        return nodesInGraph.find({type: "post"});
+    },
+    replies() {
+        return nodesInGraph.find({type: "reply"});
     }
 });
 
 Template.forumIndex.rendered = function() {
-
-    Session.setDefault('selectedTargets', {});
-
     var init = true;
 
-    //the nodeIDMap exists so that we don't need to have a 1:1 correspondence
-    //between nodes loaded into out local collection and nodes loaded into the
-    //graph. We can have posts that aren't shown on the graph, and things in the graph that aren't posts.
-
     var nodesCursor = Post.find({}), linksCursor = Link.find({});
-    var nodes = [];
 
-    nodesCursor.fetch().forEach(function(n) {
-        n.selectable = true;
-        nodeIDMap.add(n);
-        if (nodesInGraph.findOne({_id: n._id})) nodes.push(n);
-    });
-
-    var links = linksToD3Array(linksCursor.fetch(), nodes);
-
-    tree = new ForumTree(this, nodes, links);
+    tree = new ForumTree(this, nodesCursor, linksCursor);
 
     nodesCursor.observe({
         added: function(doc) {
             if (init) return;
-            if (doc.isRoot || nodesInGraph.findOne({_id: doc._id})) {
+            if (doc.isRoot) {
+                doc.type = "post";
                 tree.addNode(doc);
-                Link.find({sourceId: d._id}).fetch().forEach(function(link) {
-                    handlers.addHandler(link.targetId);
-                });
-                Link.find({targetId: d._id}).fetch().forEach(function(link) {
-                    handlers.addHandler(link.sourceId);
-                });
             }
         },
         removed: function(doc) {
@@ -150,20 +191,16 @@ Template.forumIndex.rendered = function() {
     init = false;
 };
 
-function resetTargetsSelection() {
-    Session.set('selectedTargets', {});
-};
-
 function linksToD3Array(linksCol, nodesCol) {
     var nodes = {};
     nodesCol.forEach(function(node) {
-        nodes[node.id] = node;
+        nodes[node._id] = node;
     });
     var result = [];
     linksCol.forEach(function(link) {
         var tmp = {
-            source: nodes[nodeIDMap.get(link.sourceId)],
-            target: nodes[nodeIDMap.get(link.targetId)],
+            source: nodes[link.sourceId],
+            target: nodes[link.targetId],
             type: link.type,
             _id: link._id
         };
@@ -174,58 +211,33 @@ function linksToD3Array(linksCol, nodesCol) {
     return result;
 };
 
-function ForumTree(forumIndex, nodes, links) {
+function ForumTree(forumIndex, nodesCursor, linksCursor) {
     this.forumIndex = forumIndex;
-    this.nodes = nodes;
-    this.links = links;
 
     var postWidth = 140, postHeight = 100;
+
+    //put nodes and links into D3-friendly arrays
+    this.nodes = [];
+    nodesCursor.fetch().forEach(function(n) {
+        n.selectable = true;
+        if (nodesInGraph.findOne({_id: n._id})) this.nodes.push(n);
+    });
+    this.links = linksToD3Array(linksCursor.fetch(), this.nodes);
 
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
     //it will draw them to the mouse cursor as it's moved around.
-    var svg = d3.select("#posts-graph")
-        .on('mousemove', function() {
-            var translateVector = tree.zoom.translate();
-
-            if (newLink.node) {
-                d3.select(".newLinkLine").attr("x1", function (d) {
-                    return translateVector[0] + newLink.node.x;
-                })
-                .attr("y1", function (d) {
-                    return translateVector[1] + newLink.node.y;
-                })
-                .attr("x2", function (d) {
-                    return d3.mouse(svg[0][0])[0];
-                })
-                .attr("y2", function (d) {
-                    return d3.mouse(svg[0][0])[1];
-                });
-            }
-        });
+    var svg = d3.select("#posts-graph");
 
     svg.selectAll("*").remove();
 
-    //Adding the zoom behavior. this also handles panning.
-    //We're specifying it as an object variable so we can look it up later and see how much we've zoomed by.
-    this.zoom = d3.behavior.zoom();
-
-    this.zoom.scaleExtent([0.4, 4])
-        .on("zoom", function() {
-            svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-        });
-
-    svg.call(this.zoom).on("dblclick.zoom", null);
-
     var linksGroup = svg.append("g");
-    //var nodesGroup = svg.append("g");
     var linkElements = linksGroup.selectAll("line");
-    //var nodeElements = d3.selectAll(".post-container");
 
     // init force layout
     var force = d3.layout.force()
-        .nodes(nodes)
-        .links(links)
+        .nodes(this.nodes)
+        .links(this.links)
         .gravity(0.10)
         .charge(-20000)
         .chargeDistance(400)
@@ -234,67 +246,6 @@ function ForumTree(forumIndex, nodes, links) {
         .on("tick", tick);
 
     this.force = force;
-
-    this.drag = d3.behavior.drag()
-        .origin(function(d) { return d; })
-        .on("dragstart", function(d) {
-            if (mouseLinking) return;
-            d3.event.sourceEvent.stopPropagation();
-            d3.select(this).classed("dragging", true);
-        })
-        .on("drag", function(d) {
-            if (mouseLinking) return;
-            d3.event.sourceEvent.preventDefault();
-            d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
-
-            d3.select("#g-" + d.id).attr("transform", function (d) {
-                if (document.getElementById("rect-"+ d.id)) {
-                    return "translate(" + (d.x - document.getElementById("rect-"+ d.id).getBBox().width/2) + ","
-                            + (d.y - document.getElementById("rect-"+ d.id).getBBox().height/2) + ")";
-                }
-                else return "translate(" + d.x + ","+ d.y + ")";
-            });
-
-            if (!force.nodes()[0] || !force.nodes()[0].y) return;
-
-            linkElements.attr("x1", function (d) {
-                    return d.source.x;
-                })
-                .attr("y1", function (d) {
-                    return d.source.y;
-                })
-                .attr("x2", function (d) {
-                    return d.target.x;
-                })
-                .attr("y2", function (d) {
-                    return d.target.y;
-                });
-        })
-        .on("dragend", function(d) {
-            if (mouseLinking) return;
-            d3.event.sourceEvent.preventDefault();
-            d3.select(this).classed("dragging", false);
-        });
-
-    this.createLink = d3.behavior.drag()
-        .origin(function(d) { return d; })
-        .on("dragstart", function(d) {
-            d3.event.sourceEvent.stopPropagation();
-            newLink.node = d;
-            svg.append("line").classed("newLinkLine", true).attr('stroke', 'black');
-        })
-        .on("dragend", function(d) {
-            console.log("???");
-            console.log (newLink.node);
-            console.log (d);
-            if (newLink.node) {
-                if (!newLink.node.replyNode && !d.replyNode && newLink.node != d) {
-                    console.log("!!!");
-                }
-            }
-            newLink.node = null;
-            d3.select(".newLinkLine").remove();
-        });
 
     // setup z-index to prevent overlapping lines over nodes
 
@@ -329,7 +280,11 @@ function ForumTree(forumIndex, nodes, links) {
         });
 
         nodes.forEach(function(d) {
-            $("#post-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
+            if (d.type == "post")
+                $("#post-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
+            else if (d.type == "reply") {
+                $("#reply-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
+            }
         });
     }
 
@@ -342,36 +297,6 @@ function ForumTree(forumIndex, nodes, links) {
 
     // dynamically update the graph
     this.render = function() {
-        // filters go in defs element
-        var defs = svg.append("defs");
-
-        // create filter with id #drop-shadow
-        // height=130% so that the shadow is not clipped
-        var filter = defs.append("filter")
-            .attr("id", "drop-shadow")
-            .attr("height", "130%");
-
-        // SourceAlpha refers to opacity of graphic that this filter will be applied to
-        // convolve that with a Gaussian with standard deviation 3 and store result
-        // in blur
-        filter.append("feGaussianBlur")
-            .attr("in", "SourceAlpha")
-            .attr("stdDeviation", 5)
-            .attr("result", "blur");
-
-        // translate output of Gaussian blur to the right and downwards with 2px
-        // store result in offsetBlur
-        filter.append("feOffset")
-            .attr("in", "blur")
-            .attr("dx", 5)
-            .attr("dy", 5)
-            .attr("result", "offsetBlur");
-
-        // overlay original SourceGraphic over translated blurred opacity by using
-        // feMerge filter. Order of specifying inputs is important!
-        var feMerge = filter.append("feMerge");
-        feMerge.append("feMergeNode").attr("in", "offsetBlur");
-        feMerge.append("feMergeNode").attr("in", "SourceGraphic");
 
         // add links
         contextMenuShowing = false;
@@ -396,30 +321,40 @@ function ForumTree(forumIndex, nodes, links) {
 
     this.addNode = function(doc) {
         if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
-            nodeIDMap.add(doc);
-            nodesInGraph.insert(doc);
+            if (!nodesInGraph.findOne({_id: doc._id})) {
+                let _id = nodesInGraph.insert(doc);
+                doc = nodesInGraph.findOne({_id: _id});
+            }
             this.nodes.push(doc);
-            Link.find({ $or: [ { sourceId: doc._id}, { targetId: doc._id} ] }).fetch().forEach(function(link) {
-                tree.addLink(link);
-            });
+
+            return doc._id;
+        }
+        return false;
+    };
+
+    this.addLink = function(doc) {
+        let link = linksToD3Array([doc], this.nodes)[0];
+        if (link && !this.links.find(function(l) {return (link._id == l._id)})) {
+            this.links.push(link);
             tree.render();
             return true;
         }
         return false;
     };
 
-    this.addLink = function(doc) {
-        link = linksToD3Array([doc], this.nodes)[0];
-        if (link && !this.links.find(function(l) {return (link._id == l._id)})) {
-            this.links.push(link);
+    this.containsLink = function(doc) {
+        if (this.links.find(function(l) {return (doc._id == l._id)}))
             return true;
-        }
+
+        let link = linksToD3Array([doc], this.nodes)[0];
+        if (this.links.find(function(l) {return (link.source == l.source && link.target == l.target)}))
+            return true;
+
         return false;
-    };
+    }
 
     this.removeNode = function(doc) {
         var iToRemove = -1;
-        var forumTree = this;
         if (this.nodes.length !== 0) {
             this.nodes.forEach(function(node, i) {
                 if (node._id === doc._id) {

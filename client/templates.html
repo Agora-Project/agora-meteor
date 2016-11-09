@@ -14,37 +14,18 @@
     <svg id="posts-graph">
     </svg>
 
-    {{#if currentUser }}
-    <div class="post-button-box">
-        <button class="button-post mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
-            <i class="material-icons">add</i>
-        </button>
-    </div>
-    {{/if }}
-
-    {{#if checkIfModerator }}
+    {{#if checkIfModerator}}
     <div class="delete-button-box">
         <button class="button-delete mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
             <i class="material-icons">remove</i>
         </button>
     </div>
-    {{/if }}
+    {{/if}}
 
-    {{#if currentUser }}
-    <div class="link-button-box">
-        <button class="button-link mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
-            <i class="material-icons">gesture</i>
-        </button>
-    </div>
-    {{/if }}
+    {{#each replies}}
+    	{{> reply}}
+    {{/each}}
 
-    {{#if currentUser }}
-    <div class="unlink-button-box">
-        <button class="button-unlink mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
-            <i class="material-icons">content_cut</i>
-        </button>
-    </div>
-    {{/if }}
 </template>
 
 <template name="post">
@@ -54,9 +35,11 @@
             <button class="closeButton"><i class="fa fa-close"></i></button>
         </div>
         <div class="postInfo">
-            <a href="#"><img class="avatar" src="{{avatarURL}}" alt=""></a>
-            <a class="username" href="#">{{username}}</a>
-            <span>&nbsp;- 4 hours ago</span>
+            {{#if user}}
+                <a href="#"><img class="avatar" src="{{avatarURL}}" alt=""></a>
+                <a class="username" href="#">{{user.username}} </a>
+            {{/if}}
+            <span>4 hours ago</span>
         </div>
         <div class="postContent">
             {{content}}
@@ -66,6 +49,19 @@
             <button class="showRepliesButton">Show Connecting Posts ({{replyCount}})</button>
             <button class="replyButton">Reply</button>
             <button class="moreDropdown">More <i class="fa fa-caret-down"></i></button>
+        </div>
+    </div>
+</template>
+
+<template name="reply">
+    <div class="reply" id="reply-{{_id}}">
+        <div class="replyHeader">
+            <input type="text" class="titleInput" id="titleInput-{{_id}}" placeholder="Title">
+            <button class="closeButton"><i class="fa fa-close"></i></button>
+        </div>
+        <textarea class="contentInput" id="contentInput-{{_id}}" placeholder="Reply Content"></textarea>
+        <div class="replyFooter">
+            <button class="submitButton">Submit</button>
         </div>
     </div>
 </template>
