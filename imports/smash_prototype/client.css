@@ -1,39 +1,3 @@
-.post-button-box {
-    position: fixed;
-    right: 25px;
-    top: 80px;
-}
-
-.delete-button-box {
-    position: fixed;
-    right: 25px;
-    top: 160px;
-}
-
-.link-button-box {
-    position: fixed;
-    right: 25px;
-    top: 240px;
-}
-
-.unlink-button-box {
-    position: fixed;
-    right: 25px;
-    top: 320px;
-}
-
-.at-error {
-    height: auto !important;
-    width: 100%;
-    padding:5px;
-    margin: 10px;
-}
-
-.create-post, .at-form {
-    width: 33%;
-    margin: 0 auto 0 auto;
-}
-
 @border-color: #999;
 
 html {
@@ -49,7 +13,6 @@ body {
 }
 
 .post {
-    position: absolute;
     display: flex;
     flex-direction: column;
     width: 320px;
@@ -90,7 +53,7 @@ body {
     border-radius: 8px 0px 0px 0px;
     padding-left: 10px;
     padding-right: 10px;
-
+    
     background-color: #eaeaea;
     font-weight: bold;
 }
@@ -103,7 +66,7 @@ body {
     border: 1px solid @border-color;
     border-radius: 0px 8px 0px 0px;
     cursor: pointer;
-
+    
     background-color: #f99;
     background-image: linear-gradient(#ff6d6d, #cc6060);
     font-size: 16px;
@@ -123,7 +86,7 @@ body {
     border: 1px solid @border-color;
     border-top: none;
     padding-right: 6px;
-
+    
     background-color: #f6f6f6;
 }
 
@@ -138,8 +101,6 @@ body {
 .postInfo span {
     flex-shrink: 0;
     display: block;
-    float: right;
-    margin: 0 0 10px 10px;
 }
 
 .username {
@@ -158,7 +119,7 @@ body {
     border-top: none;
     border-bottom: none;
     padding: 6px;
-
+    
     background-color: #fff;
 }
 
@@ -190,84 +151,3 @@ body {
     background-image: none;
     box-shadow: inset 0 0 8px #888;
 }
-
-.reply {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    width: 320px;
-    height: 224px;
-    margin: auto;
-    padding: 0px;
-}
-
-
-.reply a {
-    color: #4078c0;
-}
-
-.reply a:link,
-.reply a:visited {
-    text-decoration: none;
-}
-
-.reply a:hover,
-.reply a:active {
-    text-decoration: underline;
-}
-
-.titleInput {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    width: 100%;
-    border: 1px solid @border-color;
-    border-right: none;
-    border-radius: 8px 0px 0px 0px;
-    padding-left: 10px;
-    padding-right: 10px;
-
-    background-color: #eaeaea;
-    font-weight: bold;
-}
-
-.replyHeader, .replyFooter {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: row;
-    height: 32px;
-    line-height: 32px;
-}
-
-.contentInput {
-    display: block;
-    overflow: hidden;
-    height: 100%;
-    margin: 0px;
-    border: 1px solid @border-color;
-    border-top: none;
-    border-bottom: none;
-    padding: 6px;
-    word-wrap: break-word;
-    background-color: #fff;
-}
-
-.replyFooter button {
-    flex-grow: 1;
-    background-color: #fff;
-    background-image: linear-gradient(#fcfcfc, #ddd);
-    cursor: pointer;
-}
-
-.replyFooter button:active {
-    background-color: #ddd;
-    background-image: none;
-    box-shadow: inset 0 0 8px #888;
-}
-/*., #posts-graph {
-    position: absolute;
-    top:0px;
-    right: 0px;
-    bottom: 0px;
-    left: 0px;
-}*/
