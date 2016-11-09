@@ -80,6 +80,7 @@ Template.post.events({
         });
     },
     'click .replyButton': function(evt) {
+        if (!Meteor.userId()) return;
         if (!nodesInGraph.findOne({type: "reply"})) {
             let _id = tree.addNode({type: "reply", links: [this._id]});
             tree.addLink({sourceId: _id, targetId: this._id});
@@ -112,6 +113,7 @@ Template.reply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(evt) {
+        if (!Meteor.userId()) return;
         let title = $('#titleInput-' + this._id).val();
         let content = $('#contentInput-' + this._id).val();
         let newReplyPost = {
@@ -150,9 +152,9 @@ Template.forumIndex.helpers({
 
 Template.forumIndex.rendered = function() {
     var init = true;
-    
+
     var nodesCursor = Post.find({}), linksCursor = Link.find({});
-    
+
     tree = new ForumTree(this, nodesCursor, linksCursor);
 
     nodesCursor.observe({
@@ -213,7 +215,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
     this.forumIndex = forumIndex;
 
     var postWidth = 140, postHeight = 100;
-    
+
     //put nodes and links into D3-friendly arrays
     this.nodes = [];
     nodesCursor.fetch().forEach(function(n) {
