@@ -23,6 +23,7 @@ Template.post.onRendered(function () {
     Link.find({targetId: this.data._id}).fetch().forEach(function(link) {
         handlers.addHandler(link.sourceId);
     });
+    tree.runGraph();
     tree.render();
 });
 
@@ -58,7 +59,11 @@ Template.post.events({
         }
 
     },
-    'mousedown': function(evt) {
+    'mousedown': function(event) {
+        event.stopImmediatePropagation();
+    },
+    'mouseup': function(event) {
+        event.stopImmediatePropagation();
     },
     'click .showRepliesButton': function (evt) {
         Link.find({sourceId: this._id}).fetch()
@@ -114,14 +119,17 @@ Template.post.events({
 Template.reply.onRendered(function () {
     var instance = Template.instance();
 
-    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).fetch().forEach(function(link) {
-        tree.addLink(link);
-    });
-
+    tree.runGraph();
     tree.render();
 });
 
 Template.reply.events({
+    'mousedown': function(event) {
+        event.stopImmediatePropagation();
+    },
+    'mouseup': function(event) {
+        event.stopImmediatePropagation();
+    },
     'click .closeButton': function(evt) {
         tree.removeNode(this);
     },
@@ -146,9 +154,37 @@ Template.reply.events({
     }
 });
 
+Template.forumIndex.onRendered(function () {
+    var instance = Template.instance();
+
+    console.log(instance);
+});
 
 Template.forumIndex.events({
-    'click .button-delete': function() {
+    'mousedown': function(evt, template) {
+        template.dragging = true;
+        template.counter = 0;
+        template.mousePos = {x: evt.screenX, y: evt.screenY};
+    },
+    'mouseup': function(evt, template) {
+        template.dragging = false;
+        tree.render();
+    },
+    'mousemove': function(event, template) {
+        if (template.dragging) {
+            for (let i = 0; i < tree.nodes.length; i++) {
+                tree.nodes[i].x += (event.screenX - template.mousePos.x);
+                tree.nodes[i].y += (event.screenY - template.mousePos.y);
+            }
+            template.mousePos = {x: event.screenX, y: event.screenY};
+        }
+        if (template.counter <= 0) {
+            tree.render();
+            template.counter = 2;
+        } else template.counter--;
+    },
+    'click .button-delete': function(evt) {
+        evt.preventDefault();
         if (currentAction != "deleting") currentAction = "deleting";
         else currentAction = "none";
     },
@@ -192,14 +228,15 @@ Template.forumIndex.rendered = function() {
             } else if (nodesInGraph.findOne({_id: doc.targetId})) {
                 handlers.addHandler(doc.sourceId);
             }
-            if (tree.addLink(doc)) tree.render();
+            tree.addLink(doc);
         },
         removed: function(doc) {
             if (init) return;
-            if (tree.removeLink(doc)) tree.render();
+            tree.removeLink(doc);
         }
     });
 
+    tree.runGraph();
     tree.render();
     init = false;
 };
@@ -297,6 +334,12 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         force.size([width, height]).resume();
     }
 
+    this.runGraph = function() {
+        force.start();
+        for (var i = 0; i < 1000; i++) force.tick();
+        force.stop();
+    }
+
     // dynamically update the graph
     this.render = function() {
 
@@ -315,10 +358,6 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
                     return 'black';
                 }
             });
-
-        force.start();
-        for (var i = 0; i < 1000; i++) force.tick();
-        force.stop();
 
         linkElements
             .attr("x1", function (d) {
@@ -367,6 +406,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         let link = linksToD3Array([doc], this.nodes)[0];
         if (link && !this.containsLink(doc)) {
             this.links.push(link);
+            this.runGraph();
             this.render();
             return true;
         }
@@ -402,6 +442,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
             }
             this.nodes.splice(iToRemove, 1);
             nodesInGraph.remove({_id: doc._id});
+            this.runGraph();
             this.render();
             return true;
         }
@@ -419,6 +460,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         });
         if (iToRemove != -1) {
             this.links.splice(iToRemove, 1);
+            this.runGraph();
             this.render();
             return true;
         }
