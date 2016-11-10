@@ -3,8 +3,7 @@ Meteor.startup(function() {
     if (!Post.findOne({isRoot: true})) {
         console.log("Adding root post");
         Post.insert({
-            title: 'Forum',
-            content: "This post is the root of the forum.",
+            title: 'Forum Root',
             isRoot: true
         });
     }
