@@ -13,14 +13,14 @@ Template.post.onRendered(function () {
         after: 'a.readMoreLink'
     });
 
-    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).fetch().forEach(function(link) {
+    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).forEach(function(link) {
         tree.addLink(link);
     });
 
-    Link.find({sourceId: this.data._id}).fetch().forEach(function(link) {
+    Link.find({sourceId: this.data._id}).forEach(function(link) {
         handlers.addHandler(link.targetId);
     });
-    Link.find({targetId: this.data._id}).fetch().forEach(function(link) {
+    Link.find({targetId: this.data._id}).forEach(function(link) {
         handlers.addHandler(link.sourceId);
     });
     tree.runGraph();
@@ -32,7 +32,7 @@ Template.post.helpers({
         return 'https://avatars3.githubusercontent.com/u/6981448';
     },
     replyCount: function() {
-        return Link.find({ $or: [ { sourceId: this._id}, { targetId: this._id} ] }).fetch().length;
+        return Link.find({ $or: [ { sourceId: this._id}, { targetId: this._id} ] }).count();
     },
     user: function() {
         return Meteor.users.findOne(this.ownerId);
@@ -43,7 +43,7 @@ Template.post.helpers({
 });
 
 Template.post.events({
-    'click': function(evt) {
+    'click': function(event) {
         switch (currentAction) {
             case "deleting":
                 if ((this.ownerId === Meteor.userId() ||
@@ -65,8 +65,8 @@ Template.post.events({
     'mouseup': function(event) {
         event.stopImmediatePropagation();
     },
-    'click .showRepliesButton': function (evt) {
-        Link.find({sourceId: this._id}).fetch()
+    'click .showRepliesButton': function (event) {
+        Link.find({sourceId: this._id})
         .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.targetId});
             if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
@@ -75,7 +75,7 @@ Template.post.events({
                 tree.addNode(postToAdd);
             }
         });
-        Link.find({targetId: this._id}).fetch()
+        Link.find({targetId: this._id})
         .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.sourceId});
             if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
@@ -85,7 +85,7 @@ Template.post.events({
             }
         });
     },
-    'click .replyButton': function(evt) {
+    'click .replyButton': function(event) {
         if (!Meteor.userId()) return;
         if (!nodesInGraph.findOne({type: "reply"})) {
             let _id = tree.addNode({type: "reply", links: [this._id]});
@@ -104,7 +104,7 @@ Template.post.events({
             }
         }
     },
-    'click .closeButton': function(evt) {
+    'click .closeButton': function(event) {
         let reply = nodesInGraph.findOne({type: "reply"});
         let self = this;
         if (reply) {
@@ -130,10 +130,10 @@ Template.reply.events({
     'mouseup': function(event) {
         event.stopImmediatePropagation();
     },
-    'click .closeButton': function(evt) {
+    'click .closeButton': function(event) {
         tree.removeNode(this);
     },
-    'click .submitButton': function(evt) {
+    'click .submitButton': function(event) {
         if (!Meteor.userId()) return;
         let title = $('#titleInput-' + this._id).val();
         let content = $('#contentInput-' + this._id).val();
@@ -156,17 +156,15 @@ Template.reply.events({
 
 Template.forumIndex.onRendered(function () {
     var instance = Template.instance();
-
-    console.log(instance);
 });
 
 Template.forumIndex.events({
-    'mousedown': function(evt, template) {
+    'mousedown': function(event, template) {
         template.dragging = true;
         template.counter = 0;
-        template.mousePos = {x: evt.screenX, y: evt.screenY};
+        template.mousePos = {x: event.screenX, y: event.screenY};
     },
-    'mouseup': function(evt, template) {
+    'mouseup': function(event, template) {
         template.dragging = false;
         tree.render();
     },
@@ -183,8 +181,8 @@ Template.forumIndex.events({
             template.counter = 2;
         } else template.counter--;
     },
-    'click .button-delete': function(evt) {
-        evt.preventDefault();
+    'click .button-delete': function(event) {
+        event.preventDefault();
         if (currentAction != "deleting") currentAction = "deleting";
         else currentAction = "none";
     },
@@ -268,11 +266,11 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
 
     //put nodes and links into D3-friendly arrays
     this.nodes = [];
-    nodesCursor.fetch().forEach(function(n) {
+    nodesCursor.forEach(function(n) {
         n.selectable = true;
         if (nodesInGraph.findOne({_id: n._id})) this.nodes.push(n);
     });
-    this.links = linksToD3Array(linksCursor.fetch(), this.nodes);
+    this.links = linksToD3Array(linksCursor, this.nodes);
 
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
@@ -298,7 +296,6 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
             linkDistance += $("#post-" + link.source._id).outerHeight() / 2;
             linkDistance += $("#post-" + link.target._id).outerHeight() / 2;
             linkDistance *= 3;
-            //console.log("" + $("#post-" + link.target._id).outerHeight() + ", " + linkDistance)
             return linkDistance;
         })
         .on("tick", tick);
@@ -393,7 +390,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
             }
             this.nodes.push(doc);
 
-            return doc._id;
+            return this.nodes[this.nodes.length - 1];
         }
         return false;
     };
