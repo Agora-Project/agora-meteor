@@ -41,10 +41,12 @@
             {{/if}}
             <span>4 hours ago</span>
         </div>
-        <div class="postContent">
-            {{content}}
-            <a class="readMoreLink" hidden href="#">Read Entire Post <i class="fa fa-angle-double-right"></i></a>
-        </div>
+        {{#if hasContent}}
+            <div class="postContent">
+                {{content}}
+                <a class="readMoreLink" hidden href="#">Read Entire Post <i class="fa fa-angle-double-right"></i></a>
+            </div>
+        {{/if}}
         <div class="postFooter">
             <button class="showRepliesButton">Show Connecting Posts ({{replyCount}})</button>
             <button class="replyButton">Reply</button>
@@ -56,10 +58,10 @@
 <template name="reply">
     <div class="reply" id="reply-{{_id}}">
         <div class="replyHeader">
-            <input type="text" class="titleInput" id="titleInput-{{_id}}">
+            <input type="text" class="titleInput" id="titleInput-{{_id}}" placeholder="Title">
             <button class="closeButton"><i class="fa fa-close"></i></button>
         </div>
-        <textarea class="contentInput" id="contentInput-{{_id}}"></textarea>
+        <textarea class="contentInput" id="contentInput-{{_id}}" placeholder="Reply Content"></textarea>
         <div class="replyFooter">
             <button class="submitButton">Submit</button>
         </div>

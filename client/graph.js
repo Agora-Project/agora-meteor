@@ -35,6 +35,9 @@ Template.post.helpers({
     },
     user: function() {
         return Meteor.users.findOne(this.ownerId);
+    },
+    hasContent: function() {
+        return (this.content && this.content.length > 0);
     }
 });
 
@@ -46,9 +49,8 @@ Template.post.events({
                     Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
                     confirm("Are you sure you want to permanently delete this post?")) {
 
-                    tree.removeNode(this)
-                    if (handlers[this._id])
-                        handlers[this._id].stop();
+                    tree.removeNode(this);
+                    handlers.stop(this._id);
                     Meteor.call('removeWithLinks', this._id);
                 }
                 break;
@@ -75,23 +77,35 @@ Template.post.events({
                 postToAdd.type = "post";
                 tree.addNode(postToAdd);
                 handlers.addHandler(postToAdd._id);
-            } else
-                console.log(link);
+            }
         });
     },
     'click .replyButton': function(evt) {
+        if (!Meteor.userId()) return;
         if (!nodesInGraph.findOne({type: "reply"})) {
             let _id = tree.addNode({type: "reply", links: [this._id]});
             tree.addLink({sourceId: _id, targetId: this._id});
         } else {
-            let _id = nodesInGraph.findOne({type: "reply"})._id;
-            if (!tree.containsLink(_id, this._id)) {
-                nodesInGraph.update({_id: _id}, { $push: { links: this._id}});
-                tree.addLink({sourceId: _id, targetId: this._id});
+            let reply = nodesInGraph.findOne({type: "reply"});
+            let self = this;
+            if (!reply.links.find(function(link) {
+                return (link == self._id);
+            })) {
+                nodesInGraph.update({_id: reply._id}, { $push: { links: this._id}});
+                tree.addLink({sourceId: reply._id, targetId: this._id});
+            } else {
+                nodesInGraph.update({_id: reply._id}, { $pull: { links: this._id}});
+                tree.removeLink({sourceId: reply._id, targetId: this._id});
             }
         }
     },
     'click .closeButton': function(evt) {
+        let reply = nodesInGraph.findOne({type: "reply"});
+        let self = this;
+        if (reply) {
+            nodesInGraph.update({_id: reply._id}, { $pull: { links: this._id}});
+            tree.removeLink({sourceId: reply._id, targetId: this._id});
+        }
         tree.removeNode(this);
     }
 
@@ -112,14 +126,15 @@ Template.reply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(evt) {
+        if (!Meteor.userId()) return;
         let title = $('#titleInput-' + this._id).val();
         let content = $('#contentInput-' + this._id).val();
         let newReplyPost = {
             links: this.links,
             title: title,
             content: content
-        }
 
+        };
         let postId = Post.insert(newReplyPost);
         handlers.addHandler(postId);
         setTimeout(function() {
@@ -149,20 +164,11 @@ Template.forumIndex.helpers({
 });
 
 Template.forumIndex.rendered = function() {
-
     var init = true;
 
     var nodesCursor = Post.find({}), linksCursor = Link.find({});
-    var nodes = [];
 
-    nodesCursor.fetch().forEach(function(n) {
-        n.selectable = true;
-        if (nodesInGraph.findOne({_id: n._id})) nodes.push(n);
-    });
-
-    var links = linksToD3Array(linksCursor.fetch(), nodes);
-
-    tree = new ForumTree(this, nodes, links);
+    tree = new ForumTree(this, nodesCursor, linksCursor);
 
     nodesCursor.observe({
         added: function(doc) {
@@ -218,12 +224,18 @@ function linksToD3Array(linksCol, nodesCol) {
     return result;
 };
 
-function ForumTree(forumIndex, nodes, links) {
+function ForumTree(forumIndex, nodesCursor, linksCursor) {
     this.forumIndex = forumIndex;
-    this.nodes = nodes;
-    this.links = links;
 
     var postWidth = 140, postHeight = 100;
+
+    //put nodes and links into D3-friendly arrays
+    this.nodes = [];
+    nodesCursor.fetch().forEach(function(n) {
+        n.selectable = true;
+        if (nodesInGraph.findOne({_id: n._id})) this.nodes.push(n);
+    });
+    this.links = linksToD3Array(linksCursor.fetch(), this.nodes);
 
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
@@ -233,19 +245,25 @@ function ForumTree(forumIndex, nodes, links) {
     svg.selectAll("*").remove();
 
     var linksGroup = svg.append("g");
-    //var nodesGroup = svg.append("g");
     var linkElements = linksGroup.selectAll("line");
-    //var nodeElements = d3.selectAll(".post-container");
 
     // init force layout
     var force = d3.layout.force()
-        .nodes(nodes)
-        .links(links)
+        .nodes(this.nodes)
+        .links(this.links)
         .gravity(0.10)
         .charge(-20000)
         .chargeDistance(400)
         .friction(0.9)
-        .linkDistance(350)
+        .linkStrength(0.85)
+        .linkDistance(function(link) {
+            let linkDistance = 0;
+            linkDistance += $("#post-" + link.source._id).outerHeight() / 2;
+            linkDistance += $("#post-" + link.target._id).outerHeight() / 2;
+            linkDistance *= 3;
+            //console.log("" + $("#post-" + link.target._id).outerHeight() + ", " + linkDistance)
+            return linkDistance;
+        })
         .on("tick", tick);
 
     this.force = force;
@@ -259,34 +277,15 @@ function ForumTree(forumIndex, nodes, links) {
     function tick(e) {
         //This if statement keeps the app from choking when reloading the page.
         if (!force.nodes()[0] || !force.nodes()[0].y) { return; }
-        linkElements
-            .attr("x1", function (d) {
-                return d.source.x;
-            })
-            .attr("y1", function (d) {
-                return d.source.y;
-            })
-            .attr("x2", function (d) {
-                return d.target.x;
-            })
-            .attr("y2", function (d) {
-                return d.target.y;
-            });
 
         var links = force.links();
         var nodes = force.nodes();
 
         var k = 6 * e.alpha;
         links.forEach(function(d, i) {
-            d.source.y += k;
-            d.target.y -= k;
-        });
-
-        nodes.forEach(function(d) {
-            if (d.type == "post")
-                $("#post-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
-            else if (d.type == "reply") {
-                $("#reply-"+d._id).css("left", d.x - 160).css("top", d.y - 112);
+            if (d.source.y < d.target.y + 160) {
+                d.source.y += k;
+                d.target.y -= k;
             }
         });
     }
@@ -318,8 +317,33 @@ function ForumTree(forumIndex, nodes, links) {
             });
 
         force.start();
-        for (var i = 1000; i > 0; --i) force.tick();
+        for (var i = 0; i < 1000; i++) force.tick();
         force.stop();
+
+        linkElements
+            .attr("x1", function (d) {
+                return d.source.x;
+            })
+            .attr("y1", function (d) {
+                return d.source.y;
+            })
+            .attr("x2", function (d) {
+                return d.target.x;
+            })
+            .attr("y2", function (d) {
+                return d.target.y;
+            });
+
+        this.nodes.forEach(function(d) {
+            if (d.type == "post") {
+                let post = $("#post-" + d._id);
+                let xAdjust = (post.outerWidth() / 2);
+                let yAdjust = (post.outerHeight() / 2);
+                post.css("left", d.x - xAdjust).css("top", d.y - yAdjust);
+            } else if (d.type == "reply") {
+                $("#reply-" + d._id).css("left", d.x - 160).css("top", d.y - 112);
+            }
+        });
     };
 
     this.addNode = function(doc) {
@@ -336,17 +360,21 @@ function ForumTree(forumIndex, nodes, links) {
     };
 
     this.addLink = function(doc) {
+        if (!doc._id) {
+            var _id = nodesInGraph.insert(doc);
+            doc = nodesInGraph.findOne({_id: _id});
+        }
         let link = linksToD3Array([doc], this.nodes)[0];
-        if (link && !this.links.find(function(l) {return (link._id == l._id)})) {
+        if (link && !this.containsLink(doc)) {
             this.links.push(link);
-            tree.render();
+            this.render();
             return true;
         }
         return false;
     };
 
     this.containsLink = function(doc) {
-        if (this.links.find(function(l) {return (doc._id == l._id)}))
+        if (doc._id && this.links.find(function(l) {return (doc._id == l._id)}))
             return true;
 
         let link = linksToD3Array([doc], this.nodes)[0];
@@ -374,7 +402,7 @@ function ForumTree(forumIndex, nodes, links) {
             }
             this.nodes.splice(iToRemove, 1);
             nodesInGraph.remove({_id: doc._id});
-            tree.render();
+            this.render();
             return true;
         }
         return false;
@@ -385,10 +413,13 @@ function ForumTree(forumIndex, nodes, links) {
         this.links.forEach(function(link, i) {
             if (link._id === doc._id) {
                 iToRemove = i;
+            } else if (link.source._id == doc.sourceId && link.target._id == doc.targetId) {
+                iToRemove = i;
             }
         });
         if (iToRemove != -1) {
             this.links.splice(iToRemove, 1);
+            this.render();
             return true;
         }
         return false;
