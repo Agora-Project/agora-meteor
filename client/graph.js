@@ -1,5 +1,13 @@
 currentAction = "none";
 
+var unFocus = function () {
+  if (document.selection) {
+    document.selection.empty()
+  } else {
+    window.getSelection().removeAllRanges()
+  }
+}
+
 Template.post.onRendered(function () {
     var instance = Template.instance();
 
@@ -46,6 +54,7 @@ Template.post.events({
     'click': function(event) {
         switch (currentAction) {
             case "deleting":
+                event.stopImmediatePropagation();
                 if ((this.ownerId === Meteor.userId() ||
                     Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
                     confirm("Are you sure you want to permanently delete this post?")) {
@@ -59,11 +68,32 @@ Template.post.events({
         }
 
     },
-    'mousedown': function(event) {
+    'mousedown .unDraggable': function(event) {
         event.stopImmediatePropagation();
     },
-    'mouseup': function(event) {
+    'mousedown .draggable': function(event) {
         event.stopImmediatePropagation();
+        this.dragging = true;
+        this.counter = 0;
+        this.mousePos = {x: event.screenX, y: event.screenY};
+    },
+    'mouseup': function(event) {
+        unFocus();
+        this.dragging = false;
+        tree.render();
+    },
+    'mousemove': function(event) {
+        if (this.dragging) {
+            unFocus();
+            let node = tree.findNode(this);
+            node.x += (event.screenX - this.mousePos.x);
+            node.y += (event.screenY - this.mousePos.y);
+            this.mousePos = {x: event.screenX, y: event.screenY};
+        }
+        if (this.counter <= 0) {
+            tree.render();
+            this.counter = 2;
+        } else this.counter--;
     },
     'click .showRepliesButton': function (event) {
         Link.find({sourceId: this._id})
@@ -88,7 +118,7 @@ Template.post.events({
     'click .replyButton': function(event) {
         if (!Meteor.userId()) return;
         if (!nodesInGraph.findOne({type: "reply"})) {
-            let _id = tree.addNode({type: "reply", links: [this._id]});
+            let _id = tree.addNode({type: "reply", links: [this._id]})._id;
             tree.addLink({sourceId: _id, targetId: this._id});
         } else {
             let reply = nodesInGraph.findOne({type: "reply"});
@@ -124,11 +154,32 @@ Template.reply.onRendered(function () {
 });
 
 Template.reply.events({
-    'mousedown': function(event) {
+    'mousedown .unDraggable': function(event) {
         event.stopImmediatePropagation();
     },
-    'mouseup': function(event) {
+    'mousedown .draggable': function(event) {
         event.stopImmediatePropagation();
+        this.dragging = true;
+        this.counter = 0;
+        this.mousePos = {x: event.screenX, y: event.screenY};
+    },
+    'mouseup': function(event) {
+        unFocus();
+        this.dragging = false;
+        tree.render();
+    },
+    'mousemove': function(event) {
+        if (this.dragging) {
+            unFocus();
+            let node = tree.findNode(this);
+            node.x += (event.screenX - this.mousePos.x);
+            node.y += (event.screenY - this.mousePos.y);
+            this.mousePos = {x: event.screenX, y: event.screenY};
+        }
+        if (this.counter <= 0) {
+            tree.render();
+            this.counter = 2;
+        } else this.counter--;
     },
     'click .closeButton': function(event) {
         tree.removeNode(this);
@@ -246,14 +297,20 @@ function linksToD3Array(linksCol, nodesCol) {
     });
     var result = [];
     linksCol.forEach(function(link) {
-        var tmp = {
-            source: nodes[link.sourceId],
-            target: nodes[link.targetId],
-            type: link.type,
-            _id: link._id
-        };
-        if (tmp.source && tmp.target) {
-            result.push(tmp);
+        if (link.source && link.target) {
+            result.push(link);
+        } else {
+
+            var tmp = {
+                source: nodes[link.sourceId],
+                target: nodes[link.targetId],
+                type: link.type,
+                _id: link._id
+            };
+
+            if (tmp.source && tmp.target) {
+                result.push(tmp);
+            }
         }
     });
     return result;
@@ -382,12 +439,38 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         });
     };
 
+    this.findNode = function(doc) {
+        if (doc._id)
+            return this.nodes.find(function(n) {return (doc._id == n._id)});
+        else return this.nodes.find(function(n) {return (doc == n._id)});
+    };
+
+    this.findLink = function(doc) {
+        if (doc._id)
+            return this.links.find(function(l) {return (doc._id == l._id)});
+
+        if (!doc.source || !doc.target) var link = linksToD3Array([doc], this.nodes)[0];
+        else var link = doc;
+        return this.links.find(function(l) {return (link.source == l.source && link.target == l.target)});
+    };
+
+    this.containsNode = function(doc) {
+        if (this.findNode(doc)) return true;
+        else return false;
+    };
+
+    this.containsLink = function(doc) {
+        if (this.findLink(doc))
+            return false;
+    };
+
     this.addNode = function(doc) {
         if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
-            if (!nodesInGraph.findOne({_id: doc._id})) {
-                let _id = nodesInGraph.insert(doc);
-                doc = nodesInGraph.findOne({_id: _id});
-            }
+            let _id = doc._id;
+            if (!nodesInGraph.findOne({_id: doc._id}))
+                _id = nodesInGraph.insert(doc);
+
+            doc = nodesInGraph.findOne({_id: _id});
             this.nodes.push(doc);
 
             return this.nodes[this.nodes.length - 1];
@@ -396,12 +479,18 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
     };
 
     this.addLink = function(doc) {
+        //DANGER!
         if (!doc._id) {
             var _id = nodesInGraph.insert(doc);
             doc = nodesInGraph.findOne({_id: _id});
         }
+        //THIS IS AN AWFUL HACK!
+        //We are inserting links that don't have _id's into the local
+        //nodesInGraph database purely for the purpose of getting them ids.
+
         let link = linksToD3Array([doc], this.nodes)[0];
         if (link && !this.containsLink(doc)) {
+            console.log("Adding link!")
             this.links.push(link);
             this.runGraph();
             this.render();
@@ -409,17 +498,6 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         }
         return false;
     };
-
-    this.containsLink = function(doc) {
-        if (doc._id && this.links.find(function(l) {return (doc._id == l._id)}))
-            return true;
-
-        let link = linksToD3Array([doc], this.nodes)[0];
-        if (this.links.find(function(l) {return (link.source == l.source && link.target == l.target)}))
-            return true;
-
-        return false;
-    }
 
     this.removeNode = function(doc) {
         var iToRemove = -1;
