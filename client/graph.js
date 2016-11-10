@@ -77,8 +77,7 @@ Template.post.events({
                 postToAdd.type = "post";
                 tree.addNode(postToAdd);
                 handlers.addHandler(postToAdd._id);
-            } else
-                console.log(link);
+            }
         });
     },
     'click .replyButton': function(evt) {
@@ -250,7 +249,15 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         .charge(-20000)
         .chargeDistance(400)
         .friction(0.9)
-        .linkDistance(350)
+        .linkStrength(0.85)
+        .linkDistance(function(link) {
+            let linkDistance = 0;
+            linkDistance += $("#post-" + link.source._id).outerHeight() / 2;
+            linkDistance += $("#post-" + link.target._id).outerHeight() / 2;
+            linkDistance *= 3;
+            //console.log("" + $("#post-" + link.target._id).outerHeight() + ", " + linkDistance)
+            return linkDistance;
+        })
         .on("tick", tick);
 
     this.force = force;
@@ -270,8 +277,10 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
 
         var k = 6 * e.alpha;
         links.forEach(function(d, i) {
-            d.source.y += k;
-            d.target.y -= k;
+            if (d.source.y < d.target.y + 160) {
+                d.source.y += k;
+                d.target.y -= k;
+            }
         });
     }
 
