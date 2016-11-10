@@ -221,16 +221,18 @@ Template.forumIndex.events({
     },
     'mousemove': function(event, template) {
         if (template.dragging) {
+            unFocus();
             for (let i = 0; i < tree.nodes.length; i++) {
                 tree.nodes[i].x += (event.screenX - template.mousePos.x);
                 tree.nodes[i].y += (event.screenY - template.mousePos.y);
             }
             template.mousePos = {x: event.screenX, y: event.screenY};
+
+            if (template.counter <= 0) {
+                tree.render();
+                template.counter = 2;
+            } else template.counter--;
         }
-        if (template.counter <= 0) {
-            tree.render();
-            template.counter = 2;
-        } else template.counter--;
     },
     'click .button-delete': function(event) {
         event.preventDefault();
