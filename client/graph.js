@@ -68,6 +68,25 @@ Template.post.events({
         }
 
     },
+    'mouseenter': function(event) {
+        Link.find({sourceId: this._id})
+        .forEach(function(link) {
+            var post = Post.findOne({_id: link.targetId});
+            if (post) {
+                $("#post-" + post._id).css("zIndex", -1);
+            }
+        });
+        Link.find({targetId: this._id})
+        .forEach(function(link) {
+            var post = Post.findOne({_id: link.sourceId});
+            if (post) {
+                $("#post-" + post._id).css("zIndex", -1);
+            }
+        });
+    },
+    'mouseleave': function(event) {
+        $(".post").css("zIndex", 0);
+    },
     'mousedown .unDraggable': function(event) {
         event.stopImmediatePropagation();
     },
@@ -83,6 +102,7 @@ Template.post.events({
         tree.render();
     },
     'mousemove': function(event) {
+        event.stopImmediatePropagation();
         if (this.dragging) {
             unFocus();
             let node = tree.findNode(this);
@@ -169,6 +189,7 @@ Template.reply.events({
         tree.render();
     },
     'mousemove': function(event) {
+        event.stopImmediatePropagation();
         if (this.dragging) {
             unFocus();
             let node = tree.findNode(this);
@@ -358,8 +379,6 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         .on("tick", tick);
 
     this.force = force;
-
-    // setup z-index to prevent overlapping lines over nodes
 
     resize();
     d3.select(window).on("resize", resize);
