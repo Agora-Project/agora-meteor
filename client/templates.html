@@ -44,12 +44,14 @@
         {{#if hasContent}}
             <div class="postContent unDraggable">
                 {{content}}
-                <a class="readMoreLink unDraggable" hidden href="#">Read Entire Post <i class="fa fa-angle-double-right"></i></a>
+                <a class="readMoreLink unDraggable" hidden href="#">Read Entire Post
+                    <i class="fa fa-angle-double-right unDraggable"></i>
+                </a>
             </div>
         {{/if}}
         <div class="postFooter unDraggable">
             <button class="showRepliesButton unDraggable">Show Connecting Posts ({{replyCount}})</button>
-            {{#if currentUser }}
+            {{#if currentUser}}
                 <button class="replyButton unDraggable">Reply</button>
             {{/if}}
             <button class="moreDropdown unDraggable">More <i class="fa fa-caret-down"></i></button>

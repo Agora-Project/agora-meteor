@@ -17,9 +17,9 @@ Template.post.onRendered(function () {
     var usernameLink = Template.instance().$('.username');
     usernameLink.attr('title', usernameLink.text());
 
-    instance.$('.postContent').dotdotdot({
+    /*instance.$('.postContent').dotdotdot({
         after: 'a.readMoreLink'
-    });
+    });*/
 
     Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).forEach(function(link) {
         tree.addLink(link);
@@ -292,8 +292,8 @@ Template.forumIndex.rendered = function() {
 
 function linksToD3Array(linksCol, nodesCol) {
     var nodes = {};
-    nodesCol.forEach(function(node) {
-        nodes[node._id] = node;
+    nodesCol.forEach(function(n) {
+        nodes[n._id] = n;
     });
     var result = [];
     linksCol.forEach(function(link) {
