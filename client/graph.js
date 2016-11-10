@@ -100,6 +100,12 @@ Template.post.events({
         }
     },
     'click .closeButton': function(evt) {
+        let reply = nodesInGraph.findOne({type: "reply"});
+        let self = this;
+        if (reply) {
+            nodesInGraph.update({_id: reply._id}, { $pull: { links: this._id}});
+            tree.removeLink({sourceId: reply._id, targetId: this._id});
+        }
         tree.removeNode(this);
     }
 
