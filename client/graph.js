@@ -1,5 +1,13 @@
 currentAction = "none";
 
+var unFocus = function () {
+  if (document.selection) {
+    document.selection.empty()
+  } else {
+    window.getSelection().removeAllRanges()
+  }
+}
+
 Template.post.onRendered(function () {
     var instance = Template.instance();
 
@@ -13,16 +21,17 @@ Template.post.onRendered(function () {
         after: 'a.readMoreLink'
     });
 
-    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).fetch().forEach(function(link) {
+    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).forEach(function(link) {
         tree.addLink(link);
     });
 
-    Link.find({sourceId: this.data._id}).fetch().forEach(function(link) {
+    Link.find({sourceId: this.data._id}).forEach(function(link) {
         handlers.addHandler(link.targetId);
     });
-    Link.find({targetId: this.data._id}).fetch().forEach(function(link) {
+    Link.find({targetId: this.data._id}).forEach(function(link) {
         handlers.addHandler(link.sourceId);
     });
+    tree.runGraph();
     tree.render();
 });
 
@@ -31,7 +40,7 @@ Template.post.helpers({
         return 'https://avatars3.githubusercontent.com/u/6981448';
     },
     replyCount: function() {
-        return Link.find({ $or: [ { sourceId: this._id}, { targetId: this._id} ] }).fetch().length;
+        return Link.find({ $or: [ { sourceId: this._id}, { targetId: this._id} ] }).count();
     },
     user: function() {
         return Meteor.users.findOne(this.ownerId);
@@ -42,9 +51,10 @@ Template.post.helpers({
 });
 
 Template.post.events({
-    'click': function(evt) {
+    'click': function(event) {
         switch (currentAction) {
             case "deleting":
+                event.stopImmediatePropagation();
                 if ((this.ownerId === Meteor.userId() ||
                     Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
                     confirm("Are you sure you want to permanently delete this post?")) {
@@ -58,10 +68,35 @@ Template.post.events({
         }
 
     },
-    'mousedown': function(evt) {
+    'mousedown .unDraggable': function(event) {
+        event.stopImmediatePropagation();
     },
-    'click .showRepliesButton': function (evt) {
-        Link.find({sourceId: this._id}).fetch()
+    'mousedown .draggable': function(event) {
+        event.stopImmediatePropagation();
+        this.dragging = true;
+        this.counter = 0;
+        this.mousePos = {x: event.screenX, y: event.screenY};
+    },
+    'mouseup': function(event) {
+        unFocus();
+        this.dragging = false;
+        tree.render();
+    },
+    'mousemove': function(event) {
+        if (this.dragging) {
+            unFocus();
+            let node = tree.findNode(this);
+            node.x += (event.screenX - this.mousePos.x);
+            node.y += (event.screenY - this.mousePos.y);
+            this.mousePos = {x: event.screenX, y: event.screenY};
+        }
+        if (this.counter <= 0) {
+            tree.render();
+            this.counter = 2;
+        } else this.counter--;
+    },
+    'click .showRepliesButton': function (event) {
+        Link.find({sourceId: this._id})
         .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.targetId});
             if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
@@ -70,7 +105,7 @@ Template.post.events({
                 tree.addNode(postToAdd);
             }
         });
-        Link.find({targetId: this._id}).fetch()
+        Link.find({targetId: this._id})
         .forEach(function(link) {
             var postToAdd = Post.findOne({_id: link.sourceId});
             if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
@@ -80,10 +115,10 @@ Template.post.events({
             }
         });
     },
-    'click .replyButton': function(evt) {
+    'click .replyButton': function(event) {
         if (!Meteor.userId()) return;
         if (!nodesInGraph.findOne({type: "reply"})) {
-            let _id = tree.addNode({type: "reply", links: [this._id]});
+            let _id = tree.addNode({type: "reply", links: [this._id]})._id;
             tree.addLink({sourceId: _id, targetId: this._id});
         } else {
             let reply = nodesInGraph.findOne({type: "reply"});
@@ -99,7 +134,7 @@ Template.post.events({
             }
         }
     },
-    'click .closeButton': function(evt) {
+    'click .closeButton': function(event) {
         let reply = nodesInGraph.findOne({type: "reply"});
         let self = this;
         if (reply) {
@@ -114,18 +149,42 @@ Template.post.events({
 Template.reply.onRendered(function () {
     var instance = Template.instance();
 
-    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).fetch().forEach(function(link) {
-        tree.addLink(link);
-    });
-
+    tree.runGraph();
     tree.render();
 });
 
 Template.reply.events({
-    'click .closeButton': function(evt) {
+    'mousedown .unDraggable': function(event) {
+        event.stopImmediatePropagation();
+    },
+    'mousedown .draggable': function(event) {
+        event.stopImmediatePropagation();
+        this.dragging = true;
+        this.counter = 0;
+        this.mousePos = {x: event.screenX, y: event.screenY};
+    },
+    'mouseup': function(event) {
+        unFocus();
+        this.dragging = false;
+        tree.render();
+    },
+    'mousemove': function(event) {
+        if (this.dragging) {
+            unFocus();
+            let node = tree.findNode(this);
+            node.x += (event.screenX - this.mousePos.x);
+            node.y += (event.screenY - this.mousePos.y);
+            this.mousePos = {x: event.screenX, y: event.screenY};
+        }
+        if (this.counter <= 0) {
+            tree.render();
+            this.counter = 2;
+        } else this.counter--;
+    },
+    'click .closeButton': function(event) {
         tree.removeNode(this);
     },
-    'click .submitButton': function(evt) {
+    'click .submitButton': function(event) {
         if (!Meteor.userId()) return;
         let title = $('#titleInput-' + this._id).val();
         let content = $('#contentInput-' + this._id).val();
@@ -146,9 +205,35 @@ Template.reply.events({
     }
 });
 
+Template.forumIndex.onRendered(function () {
+    var instance = Template.instance();
+});
 
 Template.forumIndex.events({
-    'click .button-delete': function() {
+    'mousedown': function(event, template) {
+        template.dragging = true;
+        template.counter = 0;
+        template.mousePos = {x: event.screenX, y: event.screenY};
+    },
+    'mouseup': function(event, template) {
+        template.dragging = false;
+        tree.render();
+    },
+    'mousemove': function(event, template) {
+        if (template.dragging) {
+            for (let i = 0; i < tree.nodes.length; i++) {
+                tree.nodes[i].x += (event.screenX - template.mousePos.x);
+                tree.nodes[i].y += (event.screenY - template.mousePos.y);
+            }
+            template.mousePos = {x: event.screenX, y: event.screenY};
+        }
+        if (template.counter <= 0) {
+            tree.render();
+            template.counter = 2;
+        } else template.counter--;
+    },
+    'click .button-delete': function(event) {
+        event.preventDefault();
         if (currentAction != "deleting") currentAction = "deleting";
         else currentAction = "none";
     },
@@ -192,14 +277,15 @@ Template.forumIndex.rendered = function() {
             } else if (nodesInGraph.findOne({_id: doc.targetId})) {
                 handlers.addHandler(doc.sourceId);
             }
-            if (tree.addLink(doc)) tree.render();
+            tree.addLink(doc);
         },
         removed: function(doc) {
             if (init) return;
-            if (tree.removeLink(doc)) tree.render();
+            tree.removeLink(doc);
         }
     });
 
+    tree.runGraph();
     tree.render();
     init = false;
 };
@@ -211,14 +297,20 @@ function linksToD3Array(linksCol, nodesCol) {
     });
     var result = [];
     linksCol.forEach(function(link) {
-        var tmp = {
-            source: nodes[link.sourceId],
-            target: nodes[link.targetId],
-            type: link.type,
-            _id: link._id
-        };
-        if (tmp.source && tmp.target) {
-            result.push(tmp);
+        if (link.source && link.target) {
+            result.push(link);
+        } else {
+
+            var tmp = {
+                source: nodes[link.sourceId],
+                target: nodes[link.targetId],
+                type: link.type,
+                _id: link._id
+            };
+
+            if (tmp.source && tmp.target) {
+                result.push(tmp);
+            }
         }
     });
     return result;
@@ -231,11 +323,11 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
 
     //put nodes and links into D3-friendly arrays
     this.nodes = [];
-    nodesCursor.fetch().forEach(function(n) {
+    nodesCursor.forEach(function(n) {
         n.selectable = true;
         if (nodesInGraph.findOne({_id: n._id})) this.nodes.push(n);
     });
-    this.links = linksToD3Array(linksCursor.fetch(), this.nodes);
+    this.links = linksToD3Array(linksCursor, this.nodes);
 
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
@@ -255,13 +347,12 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         .charge(-20000)
         .chargeDistance(400)
         .friction(0.9)
-        .linkStrength(0.85)
+        .linkStrength(0.3)
         .linkDistance(function(link) {
             let linkDistance = 0;
             linkDistance += $("#post-" + link.source._id).outerHeight() / 2;
             linkDistance += $("#post-" + link.target._id).outerHeight() / 2;
             linkDistance *= 3;
-            //console.log("" + $("#post-" + link.target._id).outerHeight() + ", " + linkDistance)
             return linkDistance;
         })
         .on("tick", tick);
@@ -284,8 +375,8 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         var k = 6 * e.alpha;
         links.forEach(function(d, i) {
             if (d.source.y < d.target.y + 160) {
-                d.source.y += k;
-                d.target.y -= k;
+                d.source.y += 1;
+                d.target.y -= 1;
             }
         });
     }
@@ -295,6 +386,12 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         var width = window.innerWidth, height = window.innerHeight;
         svg.attr("width", width).attr("height", height);
         force.size([width, height]).resume();
+    }
+
+    this.runGraph = function() {
+        force.start();
+        for (var i = 0; i < 1000; i++) force.tick();
+        force.stop();
     }
 
     // dynamically update the graph
@@ -315,10 +412,6 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
                     return 'black';
                 }
             });
-
-        force.start();
-        for (var i = 0; i < 1000; i++) force.tick();
-        force.stop();
 
         linkElements
             .attr("x1", function (d) {
@@ -346,43 +439,65 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         });
     };
 
+    this.findNode = function(doc) {
+        if (doc._id)
+            return this.nodes.find(function(n) {return (doc._id == n._id)});
+        else return this.nodes.find(function(n) {return (doc == n._id)});
+    };
+
+    this.findLink = function(doc) {
+        if (doc._id)
+            return this.links.find(function(l) {return (doc._id == l._id)});
+
+        if (!doc.source || !doc.target) var link = linksToD3Array([doc], this.nodes)[0];
+        else var link = doc;
+        return this.links.find(function(l) {return (link.source == l.source && link.target == l.target)});
+    };
+
+    this.containsNode = function(doc) {
+        if (this.findNode(doc)) return true;
+        else return false;
+    };
+
+    this.containsLink = function(doc) {
+        if (this.findLink(doc))
+            return false;
+    };
+
     this.addNode = function(doc) {
         if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
-            if (!nodesInGraph.findOne({_id: doc._id})) {
-                let _id = nodesInGraph.insert(doc);
-                doc = nodesInGraph.findOne({_id: _id});
-            }
+            let _id = doc._id;
+            if (!nodesInGraph.findOne({_id: doc._id}))
+                _id = nodesInGraph.insert(doc);
+
+            doc = nodesInGraph.findOne({_id: _id});
             this.nodes.push(doc);
 
-            return doc._id;
+            return this.nodes[this.nodes.length - 1];
         }
         return false;
     };
 
     this.addLink = function(doc) {
+        //DANGER!
         if (!doc._id) {
             var _id = nodesInGraph.insert(doc);
             doc = nodesInGraph.findOne({_id: _id});
         }
+        //THIS IS AN AWFUL HACK!
+        //We are inserting links that don't have _id's into the local
+        //nodesInGraph database purely for the purpose of getting them ids.
+
         let link = linksToD3Array([doc], this.nodes)[0];
         if (link && !this.containsLink(doc)) {
+            console.log("Adding link!")
             this.links.push(link);
+            this.runGraph();
             this.render();
             return true;
         }
         return false;
     };
-
-    this.containsLink = function(doc) {
-        if (doc._id && this.links.find(function(l) {return (doc._id == l._id)}))
-            return true;
-
-        let link = linksToD3Array([doc], this.nodes)[0];
-        if (this.links.find(function(l) {return (link.source == l.source && link.target == l.target)}))
-            return true;
-
-        return false;
-    }
 
     this.removeNode = function(doc) {
         var iToRemove = -1;
@@ -402,6 +517,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
             }
             this.nodes.splice(iToRemove, 1);
             nodesInGraph.remove({_id: doc._id});
+            this.runGraph();
             this.render();
             return true;
         }
@@ -419,6 +535,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         });
         if (iToRemove != -1) {
             this.links.splice(iToRemove, 1);
+            this.runGraph();
             this.render();
             return true;
         }
