@@ -290,7 +290,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         .charge(-20000)
         .chargeDistance(400)
         .friction(0.9)
-        .linkStrength(0.85)
+        .linkStrength(0.3)
         .linkDistance(function(link) {
             let linkDistance = 0;
             linkDistance += $("#post-" + link.source._id).outerHeight() / 2;
@@ -318,8 +318,8 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
         var k = 6 * e.alpha;
         links.forEach(function(d, i) {
             if (d.source.y < d.target.y + 160) {
-                d.source.y += k;
-                d.target.y -= k;
+                d.source.y += 1;
+                d.target.y -= 1;
             }
         });
     }
