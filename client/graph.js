@@ -68,21 +68,21 @@ Template.post.events({
         }
 
     },
-    'mousedown .unDraggable': function(event) {
+    'mousedown .unDraggable, touchstart .unDraggable': function(event) {
         event.stopImmediatePropagation();
     },
-    'mousedown .draggable': function(event) {
+    'mousedown .draggable, touchstart .draggable': function(event) {
         event.stopImmediatePropagation();
         this.dragging = true;
         this.counter = 0;
         this.mousePos = {x: event.screenX, y: event.screenY};
     },
-    'mouseup': function(event) {
+    'mouseup, touchend': function(event) {
         unFocus();
         this.dragging = false;
         tree.render();
     },
-    'mousemove': function(event) {
+    'mousemove, touchmove': function(event) {
         if (this.dragging) {
             unFocus();
             let node = tree.findNode(this);
@@ -154,21 +154,21 @@ Template.reply.onRendered(function () {
 });
 
 Template.reply.events({
-    'mousedown .unDraggable': function(event) {
+    'mousedown .unDraggable, touchstart .unDraggable': function(event) {
         event.stopImmediatePropagation();
     },
-    'mousedown .draggable': function(event) {
+    'mousedown draggable, touchstart .draggable': function(event) {
         event.stopImmediatePropagation();
         this.dragging = true;
         this.counter = 0;
         this.mousePos = {x: event.screenX, y: event.screenY};
     },
-    'mouseup': function(event) {
+    'mouseup, touchend': function(event) {
         unFocus();
         this.dragging = false;
         tree.render();
     },
-    'mousemove': function(event) {
+    'mousemove, touchmove': function(event) {
         if (this.dragging) {
             unFocus();
             let node = tree.findNode(this);
@@ -210,16 +210,16 @@ Template.forumIndex.onRendered(function () {
 });
 
 Template.forumIndex.events({
-    'mousedown': function(event, template) {
+    'mousedown, touchstart': function(event, template) {
         template.dragging = true;
         template.counter = 0;
         template.mousePos = {x: event.screenX, y: event.screenY};
     },
-    'mouseup': function(event, template) {
+    'mouseup, touchend': function(event, template) {
         template.dragging = false;
         tree.render();
     },
-    'mousemove': function(event, template) {
+    'mousemove, touchmove': function(event, template) {
         if (template.dragging) {
             unFocus();
             for (let i = 0; i < tree.nodes.length; i++) {
