@@ -21,7 +21,8 @@ Template.post.onRendered(function () {
         after: 'a.readMoreLink'
     });*/
 
-    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] }).forEach(function(link) {
+    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] })
+    .forEach(function(link) {
         tree.addLink(link);
     });
 
@@ -387,7 +388,7 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
     function resize() {
         var width = window.innerWidth, height = window.innerHeight;
         svg.attr("width", width).attr("height", height);
-        force.size([width, height]).resume();
+        force.size([width, height]);
     }
 
     this.runGraph = function() {
@@ -492,7 +493,6 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
 
         let link = linksToD3Array([doc], this.nodes)[0];
         if (link && !this.containsLink(doc)) {
-            console.log("Adding link!")
             this.links.push(link);
             this.runGraph();
             this.render();
