@@ -1,5 +1,3 @@
-currentAction = "none";
-
 function linksToD3Array(linksCol, nodesCol) {
     var nodes = {};
     nodesCol.forEach(function(n) {

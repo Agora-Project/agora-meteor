@@ -1,3 +1,5 @@
+currentAction = "none";
+
 var unFocus = function () {
   if (document.selection) {
     document.selection.empty()
