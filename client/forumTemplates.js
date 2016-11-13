@@ -216,7 +216,7 @@ Template.forumIndex.events({
         template.counter = 0;
         template.mousePos = {x: event.screenX, y: event.screenY};
     },
-    'mouseup, touchend': function(event, template) {
+    'mouseup, touchend, mouseleave': function(event, template) {
         template.dragging = false;
         tree.render();
     },
