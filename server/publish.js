@@ -18,7 +18,17 @@ Meteor.publish("myself", function() {
 });
 
 Meteor.publish("users", function() {
-    return Meteor.users.find({});
+    if (Roles.userIsInRole(this.userId, ['moderator'])) {
+        return Meteor.users.find({});
+    } else {
+        return Meteor.users.find({}, {
+            fields: {
+                "emails" : 0,
+                "services" : 0,
+                "defaultEmail" : 0 //Exclude defaultEmail from the sent data
+            }
+        });
+    }
 });
 
 Meteor.publish("forum", function(id) {
