@@ -435,7 +435,8 @@ function ForumTree(forumIndex, nodesCursor, linksCursor) {
     var tree = this;
     nodesCursor.forEach(function(n) {
         n.type = "post";
-        tree.addNode(n);
+        if (n.isRoot || nodesInGraph.findOne({_id: n._id}))
+            tree.addNode(n);
     });
     this.links = linksToD3Array(linksCursor, this.nodes);
 
