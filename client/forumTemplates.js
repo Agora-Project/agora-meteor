@@ -1,5 +1,5 @@
 currentAction = "none";
-
+templates = {};
 var unFocus = function () {
   if (document.selection) {
     document.selection.empty()
@@ -7,6 +7,33 @@ var unFocus = function () {
     window.getSelection().removeAllRanges()
   }
 }
+
+Template.post.onCreated(function () {
+    templates[this.data._id] = this;
+    this.linkCount = new ReactiveVar(0);
+
+    let linksCursor = Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] });
+
+    let self = this;
+
+    linksCursor.observe({
+        added: function(doc) {
+            let _id;
+            if (self.data._id == doc.sourceId)
+                _id = doc.targetId;
+            if (self.data._id == doc.targetId)
+                _id = doc.sourceId;
+
+
+            if (!templates[_id])
+                self.linkCount.set(self.linkCount.get() + 1);
+        },
+        removed: function(doc) {
+            if (!templates[doc._id])
+                self.linkCount.set(self.linkCount.get() - 1);
+        }
+    });
+});
 
 Template.post.onRendered(function () {
     var instance = Template.instance();
@@ -28,12 +55,30 @@ Template.post.onRendered(function () {
 
     Link.find({sourceId: this.data._id}).forEach(function(link) {
         handlers.addHandler(link.targetId);
+        var temp = templates[link.targetId];
+        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
     });
     Link.find({targetId: this.data._id}).forEach(function(link) {
         handlers.addHandler(link.sourceId);
+        var temp = templates[link.sourceId];
+        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
     });
     tree.runGraph();
     tree.render();
+});
+
+Template.post.onDestroyed(function () {
+    var self = this;
+    Link.find({sourceId: this.data._id}).forEach(function(link) {
+        var temp = templates[link.targetId];
+        if (temp) temp.linkCount.set(temp.linkCount.get() + 1);
+    });
+    Link.find({targetId: this.data._id}).forEach(function(link) {
+        var temp = templates[link.sourceId];
+        if (temp) temp.linkCount.set(temp.linkCount.get() + 1);
+    });
+
+    delete templates[this.data._id];
 });
 
 Template.post.helpers({
@@ -41,7 +86,8 @@ Template.post.helpers({
         return 'https://avatars3.githubusercontent.com/u/6981448';
     },
     replyCount: function() {
-        return Link.find({ $or: [ { sourceId: this._id}, { targetId: this._id} ] }).count();
+        console.log(Template.instance().linkCount);
+        return Template.instance().linkCount.get();
     },
     user: function() {
         return Meteor.users.findOne(this.ownerId);
