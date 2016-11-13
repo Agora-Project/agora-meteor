@@ -23,9 +23,9 @@ Meteor.publish("users", function() {
     } else {
         return Meteor.users.find({}, {
             fields: {
-                "emails" : 0,
-                "services" : 0,
-                "defaultEmail" : 0 //Exclude defaultEmail from the sent data
+                "emails" : false,
+                "services" : false,
+                "defaultEmail" : false //Exclude defaultEmail from the sent data
             }
         });
     }

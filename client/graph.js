@@ -186,7 +186,7 @@ Template.reply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(event) {
-        if (!Meteor.userId()) return;
+        if (!Meteor.userId() || this.links.length < 1) return;
         let title = $('#titleInput-' + this._id).val();
         let content = $('#contentInput-' + this._id).val();
         let newReplyPost = {
