@@ -19,6 +19,7 @@ Package.onUse(function(api) {
         'client/data.js',
         'client/templates.html',
         'client/graph.js',
+        'client/forumTemplates.js',
         'client/navigation.js',
         'client/main.css'
       ], 'client');
