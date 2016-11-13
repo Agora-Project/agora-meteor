@@ -1,47 +1,5 @@
 currentAction = "none";
 
-Template.forumIndex.rendered = function() {
-    var init = true;
-
-    var nodesCursor = Post.find({}), linksCursor = Link.find({});
-
-    tree = new ForumTree(this, nodesCursor, linksCursor);
-
-    nodesCursor.observe({
-        added: function(doc) {
-            if (init) return;
-            if (doc.isRoot) {
-                doc.type = "post";
-                tree.addNode(doc);
-            }
-        },
-        removed: function(doc) {
-            if (init) return;
-            tree.removeNode(doc);
-        }
-    });
-
-    linksCursor.observe({
-        added: function(doc) {
-            if (init) return;
-            if (nodesInGraph.findOne({_id: doc.sourceId})) {
-                handlers.addHandler(doc.targetId);
-            } else if (nodesInGraph.findOne({_id: doc.targetId})) {
-                handlers.addHandler(doc.sourceId);
-            }
-            tree.addLink(doc);
-        },
-        removed: function(doc) {
-            if (init) return;
-            tree.removeLink(doc);
-        }
-    });
-
-    tree.runGraph();
-    tree.render();
-    init = false;
-};
-
 function linksToD3Array(linksCol, nodesCol) {
     var nodes = {};
     nodesCol.forEach(function(n) {
@@ -68,7 +26,7 @@ function linksToD3Array(linksCol, nodesCol) {
     return result;
 };
 
-function ForumTree(forumIndex, nodesCursor, linksCursor) {
+ForumTree = function(forumIndex, nodesCursor, linksCursor) {
     this.forumIndex = forumIndex;
 
     var postWidth = 140, postHeight = 100;

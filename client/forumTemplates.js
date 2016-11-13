@@ -248,3 +248,46 @@ Template.forumIndex.helpers({
         return nodesInGraph.find({type: "reply"});
     }
 });
+
+
+Template.forumIndex.rendered = function() {
+    var init = true;
+
+    var nodesCursor = Post.find({}), linksCursor = Link.find({});
+
+    tree = new ForumTree(this, nodesCursor, linksCursor);
+
+    nodesCursor.observe({
+        added: function(doc) {
+            if (init) return;
+            if (doc.isRoot) {
+                doc.type = "post";
+                tree.addNode(doc);
+            }
+        },
+        removed: function(doc) {
+            if (init) return;
+            tree.removeNode(doc);
+        }
+    });
+
+    linksCursor.observe({
+        added: function(doc) {
+            if (init) return;
+            if (nodesInGraph.findOne({_id: doc.sourceId})) {
+                handlers.addHandler(doc.targetId);
+            } else if (nodesInGraph.findOne({_id: doc.targetId})) {
+                handlers.addHandler(doc.sourceId);
+            }
+            tree.addLink(doc);
+        },
+        removed: function(doc) {
+            if (init) return;
+            tree.removeLink(doc);
+        }
+    });
+
+    tree.runGraph();
+    tree.render();
+    init = false;
+};
