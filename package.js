@@ -46,6 +46,7 @@ Package.onUse(function(api) {
     api.use([
         'session',
         'templating',
+        'reactive-var',
         'ui',
         'd3js:d3@3.5.5',
         'zodiase:mdl@1.0.2'
@@ -53,15 +54,11 @@ Package.onUse(function(api) {
 
     api.use([
         'ecmascript@0.6.0',
-        'coffeescript',
-        'reactive-var',
         'iron:router@1.0.0',
         'aldeed:collection2@2.3.3',
         'matb33:collection-hooks@0.7.13',
         'accounts-base',
-        'mrt:moment@2.8.1',
-        'alanning:roles@1.2.13',
-        'meteorhacks:subs-manager@1.2.0'
+        'alanning:roles@1.2.13'
     ], both);
 });
 

@@ -1,10 +1,3 @@
-var subs;
-
-subs = new SubsManager({
-    cacheLimit: 10,
-    expireIn: 5
-});
-
 Router.onBeforeAction(function() {
     if (Meteor.user() && Meteor.user().isBanned) {
         return this.render('forbidden');
