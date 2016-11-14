@@ -283,7 +283,7 @@ Template.forumIndex.events({
         }
     },
     'wheel': function(event) {
-        if (event.originalEvent.deltaY > 0) {
+        if (event.originalEvent.deltaY < 0) {
             Template.instance().scale *= 4;
             Template.instance().scale /= 3;
         } else {
