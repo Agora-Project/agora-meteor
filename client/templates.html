@@ -8,11 +8,18 @@
 </template>
 
 <template name="forumIndex">
-    {{#each posts}}
-    	{{> post}}
-    {{/each}}
-    <svg id="posts-graph">
-    </svg>
+    <div class="graphContainer">
+
+        <svg id="posts-graph">
+        </svg>
+        {{#each posts}}
+        	{{> post}}
+        {{/each}}
+
+        {{#each replies}}
+        	{{> reply}}
+        {{/each}}
+    </div>
 
     {{#if checkIfModerator}}
     <div class="delete-button-box">
@@ -21,10 +28,6 @@
         </button>
     </div>
     {{/if}}
-
-    {{#each replies}}
-    	{{> reply}}
-    {{/each}}
 
 </template>
 

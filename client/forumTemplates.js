@@ -86,7 +86,6 @@ Template.post.helpers({
         return 'https://avatars3.githubusercontent.com/u/6981448';
     },
     replyCount: function() {
-        console.log(Template.instance().linkCount);
         return Template.instance().linkCount.get();
     },
     user: function() {
@@ -254,6 +253,8 @@ Template.reply.events({
 
 Template.forumIndex.onRendered(function () {
     var instance = Template.instance();
+
+    Template.instance().scale = 1;
 });
 
 Template.forumIndex.events({
@@ -280,6 +281,17 @@ Template.forumIndex.events({
                 template.counter = 2;
             } else template.counter--;
         }
+    },
+    'wheel': function(event) {
+        if (event.originalEvent.deltaY > 0) {
+            Template.instance().scale *= 4;
+            Template.instance().scale /= 3;
+        } else {
+            Template.instance().scale *= 3;
+            Template.instance().scale /= 4;
+        }
+        $(".graphContainer").css("transform", "scale(" +
+        Template.instance().scale + ")");
     },
     'click .button-delete': function(event) {
         event.preventDefault();
