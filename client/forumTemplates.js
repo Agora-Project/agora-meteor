@@ -33,6 +33,17 @@ Template.post.onCreated(function () {
                 self.linkCount.set(self.linkCount.get() - 1);
         }
     });
+
+    Link.find({sourceId: this.data._id}).forEach(function(link) {
+        handlers.addHandler(link.targetId);
+        var temp = templates[link.targetId];
+        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
+    });
+    Link.find({targetId: this.data._id}).forEach(function(link) {
+        handlers.addHandler(link.sourceId);
+        var temp = templates[link.sourceId];
+        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
+    });
 });
 
 Template.post.onRendered(function () {
@@ -53,16 +64,6 @@ Template.post.onRendered(function () {
         tree.addLink(link);
     });
 
-    Link.find({sourceId: this.data._id}).forEach(function(link) {
-        handlers.addHandler(link.targetId);
-        var temp = templates[link.targetId];
-        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-    });
-    Link.find({targetId: this.data._id}).forEach(function(link) {
-        handlers.addHandler(link.sourceId);
-        var temp = templates[link.sourceId];
-        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-    });
     tree.runGraph();
     tree.render();
 });
