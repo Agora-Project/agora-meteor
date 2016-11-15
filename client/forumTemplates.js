@@ -49,10 +49,10 @@ Template.post.onCreated(function () {
 Template.post.onRendered(function () {
     var instance = Template.instance();
 
-    var postLink = Template.instance().$('.titleBar a');
+    var postLink = instance.$('.titleBar a');
     postLink.attr('title', postLink.text());
 
-    var usernameLink = Template.instance().$('.username');
+    var usernameLink = instance.$('.username');
     usernameLink.attr('title', usernameLink.text());
 
     /*instance.$('.postContent').dotdotdot({
@@ -198,6 +198,8 @@ Template.reply.onRendered(function () {
 
     tree.runGraph();
     tree.render();
+
+    instance.$(".titleInput").focus();
 });
 
 Template.reply.events({
