@@ -137,6 +137,10 @@ ForumTree = function(forumIndex, nodesCursor, linksCursor) {
         return false;
     };
 
+    this.placeNode = function(node, parents, children) {
+        
+    }
+
     var tree = this;
     nodesCursor.forEach(function(n) {
         n.type = "post";
