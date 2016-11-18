@@ -9,9 +9,8 @@
 
 <template name="forumIndex">
     <div class="graphContainer">
-
-        <svg id="posts-graph">
-        </svg>
+        <svg id="posts-graph"></svg>
+        
         {{#each posts}}
         	{{> post}}
         {{/each}}
@@ -47,9 +46,6 @@
         {{#if hasContent}}
             <div class="postContent unDraggable">
                 {{content}}
-                <a class="readMoreLink unDraggable" hidden href="/forum/post/{{_id}}">Read Entire Post
-                    <i class="fa fa-angle-double-right unDraggable"></i>
-                </a>
             </div>
         {{/if}}
         <div class="postFooter unDraggable">
