@@ -165,7 +165,6 @@ body {
     margin: 0px;
     border: 1px solid #999;
     border-top: none;
-    border-bottom: none;
     padding: 6px;
 
     background-color: #fff;
@@ -192,6 +191,7 @@ body {
     background-color: #fff;
     background-image: linear-gradient(#fcfcfc, #ddd);
     cursor: pointer;
+    border-top: none;
 }
 
 .postFooter button:active {
