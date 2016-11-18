@@ -188,16 +188,15 @@ Template.post.events({
         }
         tree.removeNode(this);
     },
-    'click .moreDropdown': function(event) {
+    'click .moreButton': function(event) {
         if (!this.showDropdown) {
-            Template.instance().$(".dropdownContent").show();
+            Template.instance().$(".dropdownContent").fadeIn(250);
             this.showDropdown = true;
         } else {
-            Template.instance().$(".dropdownContent").hide();
+            Template.instance().$(".dropdownContent").fadeOut(50);
             this.showDropdown = false;
         }
     }
-
 });
 
 Template.reply.onRendered(function () {

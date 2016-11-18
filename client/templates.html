@@ -27,7 +27,6 @@
         </button>
     </div>
     {{/if}}
-
 </template>
 
 <template name="post">
@@ -53,12 +52,12 @@
             {{#if currentUser}}
                 <button class="replyButton unDraggable">Reply</button>
             {{/if}}
-            <button class="moreDropdown unDraggable">More
-                <i class="fa fa-caret-down"></i>
-                <div id="myDropdown" class="dropdownContent">
-                    <a>Edit Post</a>
-                </div>
-            </button>
+            <button class="moreButton unDraggable">More<i class="fa fa-caret-down"></i></button>
+        </div>
+        <div class="dropdownContent unDraggable">
+            <a href="#">Edit Post</a>
+            <hr>
+            <a href="#">Report</a>
         </div>
     </div>
 </template>
