@@ -72,6 +72,12 @@
 </template>
 
 <template name="expandedPost">
-    <h3>{{title}}</h3>
-    <p>{{content}}</p>
+    <div class="expandedPost">
+        <h4 class="expandedPostTitle">{{title}}</h4>
+        <p class="expandedPostContent">{{content}}</p>
+    </div>
+</template>
+
+<template name="postNotFound">
+    <h4 class="postNotFound">We're sorry! That post ({{_id}}) couldn't be found.</h4>
 </template>

@@ -11,16 +11,17 @@ Router.route('/forum', {
     template: 'forumIndex'
 });
 
-Router.route('/forum/post/:_id', function () {
+Router.route('/forum/post/:_id', function() {
     var routerThis = this;
     var id = this.params._id;
-    handlers.addHandler(id, {
-        onReady: function() {
-            routerThis.render('expandedPost', {
-                data: Post.findOne({_id: id})
-            });
-        }
-    });
+    
+    this.wait(Meteor.subscribe('forum', id));
+    
+    if (this.ready()) {
+        var post = Post.findOne({_id: id});
+        if (post) routerThis.render('expandedPost', {data: post});
+        else routerThis.render('postNotFound', {data: {_id: id}});
+    }
 });
 
 Router.route('/forum/users', {
