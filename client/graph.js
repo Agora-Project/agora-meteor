@@ -33,8 +33,6 @@ ForumTree = function(forumIndex, nodesCursor, linksCursor) {
     this.nodes = [];
     this.links = [];
 
-
-
     this.findNode = function(doc) {
         if (doc._id)
             return this.nodes.find(function(n) {return (doc._id == n._id)});

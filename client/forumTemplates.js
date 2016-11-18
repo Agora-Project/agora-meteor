@@ -116,9 +116,11 @@ Template.post.events({
 
     },
     'mousedown .unDraggable, touchstart .unDraggable': function(event) {
+        if (event.button != 0) return;
         event.stopImmediatePropagation();
     },
     'mousedown .draggable, touchstart .draggable': function(event) {
+        if (event.button != 0) return;
         event.stopImmediatePropagation();
         this.dragging = true;
         this.counter = 0;
@@ -204,9 +206,11 @@ Template.reply.onRendered(function () {
 
 Template.reply.events({
     'mousedown .unDraggable, touchstart .unDraggable': function(event) {
+        if (event.button != 0) return;
         event.stopImmediatePropagation();
     },
     'mousedown draggable, touchstart .draggable': function(event) {
+        if (event.button != 0) return;
         event.stopImmediatePropagation();
         this.dragging = true;
         this.counter = 0;
@@ -265,6 +269,7 @@ Template.forumIndex.onRendered(function () {
 
 Template.forumIndex.events({
     'mousedown, touchstart': function(event, template) {
+        if (event.button != 0) return;
         template.dragging = true;
         template.counter = 0;
         template.mousePos = {x: event.screenX, y: event.screenY};
