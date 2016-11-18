@@ -243,13 +243,16 @@ Template.reply.events({
             content: content
 
         };
-        let postId = Post.insert(newReplyPost);
-        handlers.addHandler(postId);
-        setTimeout(function() {
-            let doc = Post.findOne({_id: postId});
-            doc.type = "post";
-            tree.addNode(doc);
-        }, 1000);
+        Meteor.call("insertPost", newReplyPost, function(error, result) {
+            handlers.stop(result);
+            handlers.addHandler(result, {
+                onReady: function() {
+                    let doc = Post.findOne({_id: result});
+                    doc.type = "post";
+                    tree.addNode(doc);
+                }
+            });
+        });
         tree.removeNode(this);
     }
 });

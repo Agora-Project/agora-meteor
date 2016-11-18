@@ -23,5 +23,9 @@ Meteor.methods({
         }
         results.push(Post.remove(postId));
         return results;
+    },
+    insertPost: function(post) {
+        if (post.title.length >= 1)
+            return Post.insert(post);
     }
 });

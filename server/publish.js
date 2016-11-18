@@ -32,7 +32,7 @@ Meteor.publish("users", function() {
 });
 
 Meteor.publish("forum", function(id) {
-    if (!id) {
+    if (id == 'rootNode') {
         id = Post.findOne({
             isRoot: true
         })._id;

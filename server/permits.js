@@ -1,6 +1,6 @@
 Post.allow({
     insert: function(userId, post) {
-        return true;
+        return false;
     },
     remove: function(userId, post) {
         return post.ownerId == userId || Roles.userIsInRole(userId, ['moderator']);
