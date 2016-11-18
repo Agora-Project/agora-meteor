@@ -54,7 +54,7 @@ Template.post.onRendered(function () {
 
     var usernameLink = instance.$('.username');
     usernameLink.attr('title', usernameLink.text());
-    
+
     Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] })
     .forEach(function(link) {
         tree.addLink(link);
@@ -187,6 +187,15 @@ Template.post.events({
             tree.removeLink({sourceId: reply._id, targetId: this._id});
         }
         tree.removeNode(this);
+    },
+    'click .moreDropdown': function(event) {
+        if (!this.showDropdown) {
+            Template.instance().$(".dropdownContent").show();
+            this.showDropdown = true;
+        } else {
+            Template.instance().$(".dropdownContent").hide();
+            this.showDropdown = false;
+        }
     }
 
 });

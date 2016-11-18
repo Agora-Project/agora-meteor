@@ -10,7 +10,7 @@
 <template name="forumIndex">
     <div class="graphContainer">
         <svg id="posts-graph"></svg>
-        
+
         {{#each posts}}
         	{{> post}}
         {{/each}}
@@ -53,7 +53,12 @@
             {{#if currentUser}}
                 <button class="replyButton unDraggable">Reply</button>
             {{/if}}
-            <button class="moreDropdown unDraggable">More <i class="fa fa-caret-down"></i></button>
+            <button class="moreDropdown unDraggable">More
+                <i class="fa fa-caret-down"></i>
+                <div id="myDropdown" class="dropdownContent">
+                    <a>Edit Post</a>
+                </div>
+            </button>
         </div>
     </div>
 </template>
