@@ -9,7 +9,10 @@ handlers.addHandler = function(id, callbacks) {
         this[id] = handler;
         return true;
     }
-    return this[id];
+    else  {
+        if (callbacks.onReady) callbacks.onReady();
+        return this[id];
+    }
 }
 handlers.stop = function(node) {
     if (node.isRoot) {
