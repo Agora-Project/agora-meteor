@@ -258,7 +258,10 @@ Template.reply.events({
             });
         });
         tree.removeNode(this);
-    }
+    },
+    'wheel': function(event) {
+        event.stopImmediatePropagation();
+    },
 });
 
 Template.forumIndex.onRendered(function () {
