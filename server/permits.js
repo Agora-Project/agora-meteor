@@ -3,15 +3,21 @@ Post.allow({
         return false;
     },
     remove: function(userId, post) {
-        return post.ownerId == userId || Roles.userIsInRole(userId, ['moderator']);
+        return false;
+    },
+    update: function(userId, post) {
+        return false;
     }
 });
 
 Link.allow({
     insert: function(userId, link) {
-        return link.ownerId == userId;
+        return false;
     },
     remove: function(userId, link) {
-        return link.ownerId == userId || Roles.userIsInRole(userId, ['moderator']);
+        return false;
+    },
+    update: function(userId, link) {
+        return false;
     }
 });
