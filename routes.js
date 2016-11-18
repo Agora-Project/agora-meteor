@@ -22,6 +22,7 @@ Router.route('/forum/post/:_id', function() {
         if (post) routerThis.render('expandedPost', {data: post});
         else routerThis.render('postNotFound', {data: {_id: id}});
     }
+    else routerThis.render('loading');
 });
 
 Router.route('/forum/users', {

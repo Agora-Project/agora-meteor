@@ -297,3 +297,7 @@ body {
 .postNotFound {
     text-align: center;
 }
+
+.loading {
+    text-align: center;
+}
