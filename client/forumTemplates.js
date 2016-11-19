@@ -190,11 +190,20 @@ Template.post.events({
     },
     'click .moreButton': function(event) {
         if (!this.showDropdown) {
-            Template.instance().$(".dropdownContent").fadeIn(250);
+            Template.instance().$(".dropdownContent").fadeIn(150);
             this.showDropdown = true;
         } else {
-            Template.instance().$(".dropdownContent").fadeOut(50);
+            Template.instance().$(".dropdownContent").fadeOut(150);
             this.showDropdown = false;
+        }
+    },
+    'click .editPostButton': function(event) {
+        if (!nodesInGraph.findOne({type: "reply"})) {
+            tree.removeNode(this);
+            nodesInGraph.remove({_id: this._id});
+            this.type = "edit";
+            nodesInGraph.insert(this);
+            tree.addNode(this);
         }
     }
 });
@@ -206,6 +215,9 @@ Template.reply.onRendered(function () {
     tree.render();
 
     instance.$(".titleInput").focus();
+    if (!this.data) return;
+    if (this.data.title) instance.$(".titleInput").val(this.data.title);
+    if (this.data.content) instance.$(".contentInput").val(this.data.content);
 });
 
 Template.reply.events({
@@ -242,25 +254,41 @@ Template.reply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(event) {
-        let title = $('#titleInput-' + this._id).val();
-        let content = $('#contentInput-' + this._id).val();
-        if (!Meteor.userId() || this.links.length < 1 || title.length < 1) return;
-        let newReplyPost = {
-            links: this.links,
-            title: title,
-            content: content
+        if (this.type == "reply") {
+            let title = $('#titleInput-' + this._id).val();
+            let content = $('#contentInput-' + this._id).val();
+            if (!Meteor.userId() || this.links.length < 1 || title.length < 1) return;
+            let newReplyPost = {
+                links: this.links,
+                title: title,
+                content: content
 
-        };
-        Meteor.call("insertPost", newReplyPost, function(error, result) {
-            handlers.stop(result);
-            handlers.addHandler(result, {
-                onReady: function() {
-                    let doc = Post.findOne({_id: result});
-                    doc.type = "post";
-                    tree.addNode(doc);
-                }
+            };
+
+            Meteor.call("insertPost", newReplyPost, function(error, result) {
+                handlers.stop(result);
+                handlers.addHandler(result, {
+                    onReady: function() {
+                        let doc = Post.findOne({_id: result});
+                        doc.type = "post";
+                        tree.addNode(doc);
+                    }
+                });
             });
-        });
+        } else if (this.type == "edit") {
+            this.title = $('#titleInput-' + this._id).val();
+            this.content = $('#contentInput-' + this._id).val();
+            Meteor.call("editPost", this, function(error, result) {
+                handlers.stop(result);
+                handlers.addHandler(result, {
+                    onReady: function() {
+                        let doc = Post.findOne({_id: result});
+                        doc.type = "post";
+                        tree.addNode(doc);
+                    }
+                });
+            });
+        }
         tree.removeNode(this);
     },
     'wheel': function(event) {
@@ -323,7 +351,7 @@ Template.forumIndex.helpers({
         return nodesInGraph.find({type: "post"});
     },
     replies() {
-        return nodesInGraph.find({type: "reply"});
+        return nodesInGraph.find({ $or: [ {type: "reply"}, {type: "edit"} ] });
     }
 });
 

@@ -136,7 +136,7 @@ ForumTree = function(forumIndex, nodesCursor, linksCursor) {
     };
 
     this.placeNode = function(node, parents, children) {
-        
+
     }
 
     var tree = this;
@@ -251,7 +251,7 @@ ForumTree = function(forumIndex, nodesCursor, linksCursor) {
                 let xAdjust = (post.outerWidth() / 2);
                 let yAdjust = (post.outerHeight() / 2);
                 post.css("left", d.x - xAdjust).css("top", d.y - yAdjust);
-            } else if (d.type == "reply") {
+            } else if (d.type == "reply" || d.type == "edit") {
                 $("#reply-" + d._id).css("left", d.x - 160).css("top", d.y - 112);
             }
         });

@@ -27,5 +27,19 @@ Meteor.methods({
     insertPost: function(post) {
         if (post.title.length >= 1)
             return Post.insert(post);
+    },
+    editPost: function(post) {
+        if (post.title.length < 1 || (this.userID != Post.findOne({_id: post._id}).ownerId &&
+            !Roles.userIsInRole(this.userId, ['moderator']))) return;
+
+        var ret = Post.update({_id: post._id}, { $set: {
+            title: post.title, content: post.content, lastEditedAt: Date.now()
+        }});
+        if (ret == 1)
+            return post._id;
+        else {
+            console.log("Oh no! Edited " + ret + " Posts!");
+            return post._id;
+        }
     }
 });

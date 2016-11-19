@@ -18,17 +18,14 @@ handlers.stop = function(node) {
     if (node.isRoot) {
         this['rootNode'].stop();
         delete this['rootNode'];
-        console.log(node);
     }
     if (this[node._id]) {
         this[node._id].stop();
         delete this[node._id];
-        console.log(node);
     }
     if (this[node]) {
         this[node].stop();
         delete this[node];
-        console.log(node);
     }
 }
 handlers.addHandler();
