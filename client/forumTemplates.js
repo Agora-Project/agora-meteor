@@ -92,8 +92,6 @@ Template.post.helpers({
         return (this.content && this.content.length > 0);
     },
     editAccess: function() {
-        console.log(this.ownerId);
-        console.log(Meteor.userId());
         return ((this.ownerId && this.ownerId === Meteor.userId()) ||
         Roles.userIsInRole(Meteor.userId(), ['moderator']));
     }
@@ -168,11 +166,11 @@ Template.post.events({
     },
     'click .replyButton': function(event) {
         if (!Meteor.userId()) return;
-        if (!nodesInGraph.findOne({type: "reply"})) {
+        if (!nodesInGraph.findOne({ $or: [ {type: "reply"}, {type: "edit"} ] })) {
             let _id = tree.addNode({type: "reply", links: [this._id]})._id;
             tree.addLink({sourceId: _id, targetId: this._id});
         } else {
-            let reply = nodesInGraph.findOne({type: "reply"});
+            let reply = nodesInGraph.findOne({ $or: [ {type: "reply"}, {type: "edit"} ] });
             let self = this;
             if (!reply.links.find(function(link) {
                 return (link == self._id);
@@ -208,6 +206,12 @@ Template.post.events({
             tree.removeNode(this);
             nodesInGraph.remove({_id: this._id});
             this.type = "edit";
+            this.links = [];
+            var post = this;
+            Link.find({ sourceId: this._id})
+            .forEach(function(link) {
+                post.links.push(link.targetId);
+            });
             nodesInGraph.insert(this);
             tree.addNode(this);
         }
@@ -224,6 +228,13 @@ Template.reply.onRendered(function () {
     if (!this.data) return;
     if (this.data.title) instance.$(".titleInput").val(this.data.title);
     if (this.data.content) instance.$(".contentInput").val(this.data.content);
+
+    if (this.data.type == "edit") {
+        Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] })
+        .forEach(function(link) {
+            tree.addLink(link);
+        });
+    }
 });
 
 Template.reply.events({
