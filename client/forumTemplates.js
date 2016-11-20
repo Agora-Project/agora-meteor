@@ -90,6 +90,12 @@ Template.post.helpers({
     },
     hasContent: function() {
         return (this.content && this.content.length > 0);
+    },
+    editAccess: function() {
+        console.log(this.ownerId);
+        console.log(Meteor.userId());
+        return ((this.ownerId && this.ownerId === Meteor.userId()) ||
+        Roles.userIsInRole(Meteor.userId(), ['moderator']));
     }
 });
 

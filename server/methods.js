@@ -3,7 +3,7 @@ Meteor.methods({
         return Link.insert(attributes);
     },
     removeWithLinks: function(postId) {
-        if (this.userID != Post.findOne({_id: postId}).ownerId &&
+        if (this.userId != Post.findOne({_id: postId}).ownerId &&
             !Roles.userIsInRole(this.userId, ['moderator'])) return;
         var i, len, link, ref, results;
         ref = Link.find({
@@ -29,7 +29,7 @@ Meteor.methods({
             return Post.insert(post);
     },
     editPost: function(post) {
-        if (post.title.length < 1 || (this.userID != Post.findOne({_id: post._id}).ownerId &&
+        if (post.title.length < 1 || (this.userId != Post.findOne({_id: post._id}).ownerId &&
             !Roles.userIsInRole(this.userId, ['moderator']))) return;
 
         var ret = Post.update({_id: post._id}, { $set: {
