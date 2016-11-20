@@ -271,6 +271,7 @@ Template.reply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(event) {
+        if (this.links.length < 1) return;
         if (this.type == "reply") {
             let title = $('#titleInput-' + this._id).val();
             let content = $('#contentInput-' + this._id).val();
