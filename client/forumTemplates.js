@@ -145,24 +145,42 @@ Template.post.events({
         } else this.counter--;
     },
     'click .showRepliesButton': function (event) {
-        Link.find({sourceId: this._id})
-        .forEach(function(link) {
-            var postToAdd = Post.findOne({_id: link.targetId});
-            if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
-                postToAdd.type = "post";
-                handlers.addHandler(postToAdd._id);
-                tree.addNode(postToAdd);
-            }
-        });
-        Link.find({targetId: this._id})
-        .forEach(function(link) {
-            var postToAdd = Post.findOne({_id: link.sourceId});
-            if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
-                postToAdd.type = "post";
-                tree.addNode(postToAdd);
-                handlers.addHandler(postToAdd._id);
-            }
-        });
+        console.log(Template.instance().linkCount.get());
+        if (Template.instance().linkCount.get() > 0) {
+            Link.find({sourceId: this._id})
+            .forEach(function(link) {
+                var postToAdd = Post.findOne({_id: link.targetId});
+                if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
+                    postToAdd.type = "post";
+                    handlers.addHandler(postToAdd._id);
+                    tree.addNode(postToAdd);
+                }
+            });
+            Link.find({targetId: this._id})
+            .forEach(function(link) {
+                var postToAdd = Post.findOne({_id: link.sourceId});
+                if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
+                    postToAdd.type = "post";
+                    tree.addNode(postToAdd);
+                    handlers.addHandler(postToAdd._id);
+                }
+            });
+        } else {
+            Link.find({sourceId: this._id})
+            .forEach(function(link) {
+                var postToAdd = nodesInGraph.findOne({_id: link.targetId});
+                if (postToAdd) {
+                    tree.removeNode(postToAdd);
+                }
+            });
+            Link.find({targetId: this._id})
+            .forEach(function(link) {
+                var postToAdd = nodesInGraph.findOne({_id: link.sourceId});
+                if (postToAdd) {
+                    tree.removeNode(postToAdd);
+                }
+            });
+        }
     },
     'click .replyButton': function(event) {
         if (!Meteor.userId()) return;
@@ -184,12 +202,6 @@ Template.post.events({
         }
     },
     'click .closeButton': function(event) {
-        let reply = nodesInGraph.findOne({type: "reply"});
-        let self = this;
-        if (reply) {
-            nodesInGraph.update({_id: reply._id}, { $pull: { links: this._id}});
-            tree.removeLink({sourceId: reply._id, targetId: this._id});
-        }
         tree.removeNode(this);
     },
     'click .moreButton': function(event) {
