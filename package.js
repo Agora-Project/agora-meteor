@@ -12,13 +12,18 @@ Package.onUse(function(api) {
     api.versionsFrom('1.1.0.3');
 
     api.addFiles([
+        'client/detailedView/detailedView.html',
+        'client/detailedView/detailedView.js',
+        'client/detailedView/detailedView.css'
+      ], 'client');
+
+    api.addFiles([
         'client/subscribe.js',
         'client/users.html',
         'client/users.js',
         'client/data.js',
         'client/templates.html',
         'client/graph.js',
-        'client/forumTemplates.js',
         'client/navigation.js',
         'client/main.css'
       ], 'client');
