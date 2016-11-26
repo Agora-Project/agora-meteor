@@ -150,7 +150,7 @@ ForumTree = function(forumIndex, nodesCursor, linksCursor) {
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
     //it will draw them to the mouse cursor as it's moved around.
-    var svg = d3.select("#posts-graph");
+    var svg = d3.select(".links-graph");
 
     svg.selectAll("*").remove();
 

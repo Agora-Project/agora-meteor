@@ -8,7 +8,7 @@ var unFocus = function () {
   }
 }
 
-Template.post.onCreated(function () {
+Template.detailedViewPost.onCreated(function () {
     templates[this.data._id] = this;
     this.linkCount = new ReactiveVar(0);
 
@@ -46,7 +46,7 @@ Template.post.onCreated(function () {
     });
 });
 
-Template.post.onRendered(function () {
+Template.detailedViewPost.onRendered(function () {
     var instance = Template.instance();
 
     var postLink = instance.$('.titleBar a');
@@ -64,7 +64,7 @@ Template.post.onRendered(function () {
     tree.render();
 });
 
-Template.post.onDestroyed(function () {
+Template.detailedViewPost.onDestroyed(function () {
     var self = this;
     Link.find({sourceId: this.data._id}).forEach(function(link) {
         var temp = templates[link.targetId];
@@ -78,7 +78,7 @@ Template.post.onDestroyed(function () {
     delete templates[this.data._id];
 });
 
-Template.post.helpers({
+Template.detailedViewPost.helpers({
     avatarURL: function() {
         return 'https://avatars3.githubusercontent.com/u/6981448';
     },
@@ -97,7 +97,7 @@ Template.post.helpers({
     }
 });
 
-Template.post.events({
+Template.detailedViewPost.events({
     'click': function(event) {
         switch (currentAction) {
             case "deleting":
@@ -230,7 +230,7 @@ Template.post.events({
     }
 });
 
-Template.reply.onRendered(function () {
+Template.detailedViewReply.onRendered(function () {
     var instance = Template.instance();
 
     tree.runGraph();
@@ -249,7 +249,7 @@ Template.reply.onRendered(function () {
     }
 });
 
-Template.reply.events({
+Template.detailedViewReply.events({
     'mousedown .unDraggable, touchstart .unDraggable': function(event) {
         if (event.button != 0) return;
         event.stopImmediatePropagation();
@@ -326,13 +326,13 @@ Template.reply.events({
     },
 });
 
-Template.forumIndex.onRendered(function () {
+Template.detailedView.onRendered(function () {
     var instance = Template.instance();
 
     Template.instance().scale = 1;
 });
 
-Template.forumIndex.events({
+Template.detailedView.events({
     'mousedown, touchstart': function(event, template) {
         if (event.button != 0) return;
         template.dragging = true;
@@ -376,17 +376,19 @@ Template.forumIndex.events({
     },
 });
 
-Template.forumIndex.helpers({
-    posts() {
+Template.detailedView.helpers({
+    posts: function() {
         return nodesInGraph.find({type: "post"});
     },
-    replies() {
+    replies: function() {
         return nodesInGraph.find({ $or: [ {type: "reply"}, {type: "edit"} ] });
+    },
+    checkIfModerator: function() {
+        return Roles.userIsInRole(Meteor.userId(), ['moderator']);
     }
 });
 
-
-Template.forumIndex.rendered = function() {
+Template.detailedView.rendered = function() {
     var init = true;
 
     var nodesCursor = Post.find({}), linksCursor = Link.find({});

@@ -19,7 +19,7 @@ body {
 .expandedPost {
     text-align: left;
     min-width: 320px;
-    max-width: 768px;
+    max-width: 1024px;
     padding: 0px;
     margin: 0px auto;
 }

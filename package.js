@@ -10,13 +10,7 @@ Package.onUse(function(api) {
     both = ['client', 'server']
 
     api.versionsFrom('1.1.0.3');
-
-    api.addFiles([
-        'client/detailedView/detailedView.html',
-        'client/detailedView/detailedView.js',
-        'client/detailedView/detailedView.css'
-      ], 'client');
-
+    
     api.addFiles([
         'client/subscribe.js',
         'client/users.html',
@@ -26,7 +20,19 @@ Package.onUse(function(api) {
         'client/graph.js',
         'client/navigation.js',
         'client/main.css'
-      ], 'client');
+    ], 'client');
+    
+    api.addFiles([
+        'client/detailedView/detailedView.html',
+        'client/detailedView/detailedView.css',
+        'client/detailedView/detailedView.js'
+    ], 'client');
+    
+    api.addFiles([
+        'client/overview/overview.html',
+        'client/overview/overview.css',
+        'client/overview/overview.js'
+    ], 'client');
 
     api.addAssets([
         'public/agoraforum.png'

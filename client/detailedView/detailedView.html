@@ -1,14 +1,13 @@
-
-<template name="forumIndex">
-    <div class="graphContainer">
-        <svg id="posts-graph"></svg>
+<template name="detailedView">
+    <div class="detailed-view-viewport">
+        <svg class="links-graph"></svg>
 
         {{#each posts}}
-        	{{> post}}
+        	{{> detailedViewPost}}
         {{/each}}
 
         {{#each replies}}
-        	{{> reply}}
+        	{{> detailedViewReply}}
         {{/each}}
     </div>
 
@@ -21,7 +20,7 @@
     {{/if}}
 </template>
 
-<template name="post">
+<template name="detailedViewPost">
     <div class="post" id="post-{{_id}}">
         <div class="postHeader draggable">
             <div class="titleBar draggable"><a class="unDraggable" href="/forum/post/{{_id}}">{{title}}</a></div>
@@ -56,7 +55,7 @@
     </div>
 </template>
 
-<template name="reply">
+<template name="detailedViewReply">
     <div class="reply" id="reply-{{_id}}">
         <div class="replyHeader draggable">
             <input type="text" class="titleInput draggable" id="titleInput-{{_id}}" placeholder="Title">
