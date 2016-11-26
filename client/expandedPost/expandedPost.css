@@ -1,0 +1,27 @@
+.expanded-post {
+    text-align: left;
+    min-width: 320px;
+    max-width: 1024px;
+    padding: 0px;
+    margin: 0px auto;
+}
+
+.expanded-post-title {
+    margin: 0px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #ddd;
+}
+
+.expanded-post-content {
+    margin: 0px;
+    padding-top: 16px;
+}
+
+.expanded-post-not-found {
+    text-align: center;
+}
+
+.expanded-post-loading {
+    text-align: center;
+}

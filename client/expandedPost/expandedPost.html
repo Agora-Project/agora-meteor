@@ -1,0 +1,14 @@
+<template name="expandedPost">
+    <div class="expanded-post">
+        <h4 class="expanded-post-title">{{title}}</h4>
+        <p class="expanded-post-content">{{content}}</p>
+    </div>
+</template>
+
+<template name="expandedPostNotFound">
+    <h4 class="expanded-post-not-found">We're sorry! That post ({{_id}}) couldn't be found.</h4>
+</template>
+
+<template name="expandedPostLoading">
+    <h4 class="expanded-post-loading">Loading...</h4>
+</template>

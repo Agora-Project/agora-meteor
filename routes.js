@@ -20,12 +20,12 @@ Router.route('/forum/post/:_id', function() {
     if (this.ready()) {
         var post = Post.findOne({_id: id});
         if (post) routerThis.render('expandedPost', {data: post});
-        else routerThis.render('postNotFound', {data: {_id: id}});
+        else routerThis.render('expandedPostNotFound', {data: {_id: id}});
     }
-    else routerThis.render('loading');
+    else routerThis.render('expandedPostLoading');
 });
 
 Router.route('/forum/users', {
-    name: 'forumUsers',
-    template: 'forumUsers'
+    name: 'userList',
+    template: 'userList'
 });

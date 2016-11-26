@@ -1,4 +1,4 @@
-<template name="forumUsers">
+<template name="userList">
     <div>
         <h1>Users</h1>
         <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp">
@@ -12,15 +12,15 @@
                 </tr>
             </thead>
             <tbody>
-                {{#each userList}}
-                    {{> userItem}}
+                {{#each users}}
+                    {{> userListItem}}
                 {{/each}}
             </tbody>
         </table>
     </div>
 </template>
 
-<template name="userItem">
+<template name="userListItem">
     <tr>
         <td class="mdl-data-table__cell--non-numeric">{{defaultEmail}}</td>
         <td class="mdl-data-table__cell--non-numeric">{{username}}</td>

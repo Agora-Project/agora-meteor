@@ -13,13 +13,22 @@ Package.onUse(function(api) {
     
     api.addFiles([
         'client/subscribe.js',
-        'client/users.html',
-        'client/users.js',
         'client/data.js',
         'client/templates.html',
         'client/graph.js',
         'client/navigation.js',
         'client/main.css'
+    ], 'client');
+    
+    api.addFiles([
+        'client/userList/userList.html',
+        'client/userList/userList.js'
+    ], 'client');
+    
+    api.addFiles([
+        'client/expandedPost/expandedPost.html',
+        'client/expandedPost/expandedPost.css',
+        'client/expandedPost/expandedPost.js'
     ], 'client');
     
     api.addFiles([
