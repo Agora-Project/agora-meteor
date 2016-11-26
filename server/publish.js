@@ -31,7 +31,7 @@ Meteor.publish("users", function() {
     }
 });
 
-Meteor.publish("forum", function(id) {
+Meteor.publish("post", function(id) {
     if (id == 'rootNode') {
         id = Post.findOne({
             isRoot: true

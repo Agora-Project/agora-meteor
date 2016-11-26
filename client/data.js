@@ -5,7 +5,7 @@ handlers.addHandler = function(id, callbacks) {
     if (!id) id = "rootNode";
     if (!callbacks) callbacks = {};
     if (!this[id]) {
-        var handler = Meteor.subscribe("forum", id, callbacks);
+        var handler = Meteor.subscribe("post", id, callbacks);
         this[id] = handler;
         return true;
     }
