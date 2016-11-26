@@ -51,3 +51,9 @@ Meteor.publish("post", function(id) {
         })
     ];
 });
+
+Meteor.publish("postRange", function(startDate, endDate) {
+    return Post.find({
+        "createdAt" : { $gte : startDate, $lte : endDate }
+    }, {limit: 1000});
+});
