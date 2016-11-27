@@ -1,3 +1,6 @@
+nodesInGraph = new Mongo.Collection(null);
+linksInGraph = new Mongo.Collection(null);
+
 function linksToD3Array(linksCol, nodesCol) {
     var nodes = {};
     nodesCol.forEach(function(n) {
@@ -24,7 +27,7 @@ function linksToD3Array(linksCol, nodesCol) {
     return result;
 };
 
-ForumTree = function(forumIndex, nodesCursor, linksCursor) {
+ForumTree = function(forumIndex, nodesCursor) {
     this.forumIndex = forumIndex;
 
     var postWidth = 140, postHeight = 100;
@@ -67,20 +70,22 @@ ForumTree = function(forumIndex, nodesCursor, linksCursor) {
             doc = nodesInGraph.findOne({_id: _id});
             this.nodes.push(doc);
 
+            if (doc.links) {
+                for (var i in doc.links) {
+                    tree.addLink({sourceId: doc._id, targetId: doc.links[i].target});
+                }
+            }
+
             return this.nodes[this.nodes.length - 1];
         }
         return false;
     };
 
     this.addLink = function(doc) {
-        //DANGER!
         if (!doc._id) {
-            var _id = nodesInGraph.insert(doc);
-            doc = nodesInGraph.findOne({_id: _id});
+            var _id = linksInGraph.insert(doc);
+            doc = linksInGraph.findOne({_id: _id});
         }
-        //THIS IS AN AWFUL HACK!
-        //We are inserting links that don't have _id's into the local
-        //nodesInGraph database purely for the purpose of getting them ids.
 
         let link = linksToD3Array([doc], this.nodes)[0];
         if (link && !this.containsLink(doc)) {
@@ -145,7 +150,7 @@ ForumTree = function(forumIndex, nodesCursor, linksCursor) {
         if (n.isRoot || nodesInGraph.findOne({_id: n._id}))
             tree.addNode(n);
     });
-    this.links = linksToD3Array(linksCursor, this.nodes);
+    this.links = [];
 
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,

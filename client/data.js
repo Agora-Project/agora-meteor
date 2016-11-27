@@ -1,5 +1,3 @@
-nodesInGraph = new Mongo.Collection(null);
-
 handlers = {};
 handlers.addHandler = function(id, callbacks) {
     if (!id) id = "rootNode";

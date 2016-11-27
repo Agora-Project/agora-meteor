@@ -4,7 +4,7 @@ Meteor.startup(function() {
         console.log("Adding root post");
         Post.insert({
             title: 'Forum Root',
-            isRoot: true
+            links: []
         });
     }
     moderatorEmail = "moderator@example.com";

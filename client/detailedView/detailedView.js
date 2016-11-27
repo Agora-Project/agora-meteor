@@ -12,38 +12,7 @@ Template.detailedViewPost.onCreated(function () {
     templates[this.data._id] = this;
     this.linkCount = new ReactiveVar(0);
 
-    let linksCursor = Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] });
-
     let self = this;
-
-    linksCursor.observe({
-        added: function(doc) {
-            let _id;
-            if (self.data._id == doc.sourceId)
-                _id = doc.targetId;
-            if (self.data._id == doc.targetId)
-                _id = doc.sourceId;
-
-
-            if (!templates[_id])
-                self.linkCount.set(self.linkCount.get() + 1);
-        },
-        removed: function(doc) {
-            if (!templates[doc._id])
-                self.linkCount.set(self.linkCount.get() - 1);
-        }
-    });
-
-    Link.find({sourceId: this.data._id}).forEach(function(link) {
-        handlers.addHandler(link.targetId);
-        var temp = templates[link.targetId];
-        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-    });
-    Link.find({targetId: this.data._id}).forEach(function(link) {
-        handlers.addHandler(link.sourceId);
-        var temp = templates[link.sourceId];
-        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-    });
 });
 
 Template.detailedViewPost.onRendered(function () {
@@ -55,25 +24,12 @@ Template.detailedViewPost.onRendered(function () {
     var usernameLink = instance.$('.username');
     usernameLink.attr('title', usernameLink.text());
 
-    Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] })
-    .forEach(function(link) {
-        tree.addLink(link);
-    });
-
     tree.runGraph();
     tree.render();
 });
 
 Template.detailedViewPost.onDestroyed(function () {
     var self = this;
-    Link.find({sourceId: this.data._id}).forEach(function(link) {
-        var temp = templates[link.targetId];
-        if (temp) temp.linkCount.set(temp.linkCount.get() + 1);
-    });
-    Link.find({targetId: this.data._id}).forEach(function(link) {
-        var temp = templates[link.sourceId];
-        if (temp) temp.linkCount.set(temp.linkCount.get() + 1);
-    });
 
     delete templates[this.data._id];
 });
@@ -145,42 +101,6 @@ Template.detailedViewPost.events({
         } else this.counter--;
     },
     'click .showRepliesButton': function (event) {
-        console.log(Template.instance().linkCount.get());
-        if (Template.instance().linkCount.get() > 0) {
-            Link.find({sourceId: this._id})
-            .forEach(function(link) {
-                var postToAdd = Post.findOne({_id: link.targetId});
-                if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
-                    postToAdd.type = "post";
-                    handlers.addHandler(postToAdd._id);
-                    tree.addNode(postToAdd);
-                }
-            });
-            Link.find({targetId: this._id})
-            .forEach(function(link) {
-                var postToAdd = Post.findOne({_id: link.sourceId});
-                if (postToAdd && !nodesInGraph.findOne({_id: postToAdd._id})) {
-                    postToAdd.type = "post";
-                    tree.addNode(postToAdd);
-                    handlers.addHandler(postToAdd._id);
-                }
-            });
-        } else {
-            Link.find({sourceId: this._id})
-            .forEach(function(link) {
-                var postToAdd = nodesInGraph.findOne({_id: link.targetId});
-                if (postToAdd) {
-                    tree.removeNode(postToAdd);
-                }
-            });
-            Link.find({targetId: this._id})
-            .forEach(function(link) {
-                var postToAdd = nodesInGraph.findOne({_id: link.sourceId});
-                if (postToAdd) {
-                    tree.removeNode(postToAdd);
-                }
-            });
-        }
     },
     'click .replyButton': function(event) {
         if (!Meteor.userId()) return;
@@ -220,10 +140,6 @@ Template.detailedViewPost.events({
             this.type = "edit";
             this.links = [];
             var post = this;
-            Link.find({ sourceId: this._id})
-            .forEach(function(link) {
-                post.links.push(link.targetId);
-            });
             nodesInGraph.insert(this);
             tree.addNode(this);
         }
@@ -240,13 +156,6 @@ Template.detailedViewReply.onRendered(function () {
     if (!this.data) return;
     if (this.data.title) instance.$(".titleInput").val(this.data.title);
     if (this.data.content) instance.$(".contentInput").val(this.data.content);
-
-    if (this.data.type == "edit") {
-        Link.find({ $or: [ { sourceId: this.data._id}, { targetId: this.data._id} ] })
-        .forEach(function(link) {
-            tree.addLink(link);
-        });
-    }
 });
 
 Template.detailedViewReply.events({
@@ -391,14 +300,14 @@ Template.detailedView.helpers({
 Template.detailedView.rendered = function() {
     var init = true;
 
-    var nodesCursor = Post.find({}), linksCursor = Link.find({});
+    var nodesCursor = Post.find({});
 
-    tree = new ForumTree(this, nodesCursor, linksCursor);
+    tree = new ForumTree(this, nodesCursor);
 
     nodesCursor.observe({
         added: function(doc) {
             if (init) return;
-            if (doc.isRoot) {
+            if (doc.links.length < 1) {
                 doc.type = "post";
                 tree.addNode(doc);
             }
@@ -406,22 +315,6 @@ Template.detailedView.rendered = function() {
         removed: function(doc) {
             if (init) return;
             tree.removeNode(doc);
-        }
-    });
-
-    linksCursor.observe({
-        added: function(doc) {
-            if (init) return;
-            if (nodesInGraph.findOne({_id: doc.sourceId})) {
-                handlers.addHandler(doc.targetId);
-            } else if (nodesInGraph.findOne({_id: doc.targetId})) {
-                handlers.addHandler(doc.sourceId);
-            }
-            tree.addLink(doc);
-        },
-        removed: function(doc) {
-            if (init) return;
-            tree.removeLink(doc);
         }
     });
 

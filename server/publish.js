@@ -33,23 +33,13 @@ Meteor.publish("users", function() {
 
 Meteor.publish("post", function(id) {
     if (id == 'rootNode') {
-        id = Post.findOne({
-            isRoot: true
-        })._id;
+        return Post.find({
+            $where : 'this.links.length < 1'
+        });
     }
-    return [
-        Post.find({
-            _id: id
-        }), Link.find({
-            $or: [
-                {
-                    sourceId: id
-                }, {
-                    targetId: id
-                }
-            ]
-        })
-    ];
+    return Post.find({
+        _id: id
+    });
 });
 
 Meteor.publish("postRange", function(startDate, endDate) {

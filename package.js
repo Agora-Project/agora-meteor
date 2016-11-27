@@ -10,7 +10,7 @@ Package.onUse(function(api) {
     both = ['client', 'server']
 
     api.versionsFrom('1.1.0.3');
-    
+
     api.addFiles([
         'client/subscribe.js',
         'client/data.js',
@@ -19,24 +19,24 @@ Package.onUse(function(api) {
         'client/navigation.js',
         'client/main.css'
     ], 'client');
-    
+
     api.addFiles([
         'client/userList/userList.html',
         'client/userList/userList.js'
     ], 'client');
-    
+
     api.addFiles([
         'client/expandedPost/expandedPost.html',
         'client/expandedPost/expandedPost.css',
         'client/expandedPost/expandedPost.js'
     ], 'client');
-    
+
     api.addFiles([
         'client/detailedView/detailedView.html',
         'client/detailedView/detailedView.css',
         'client/detailedView/detailedView.js'
     ], 'client');
-    
+
     api.addFiles([
         'client/overview/overview.html',
         'client/overview/overview.css',
@@ -49,7 +49,6 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'lib/schemas/post.js',
-        'lib/schemas/link.js',
         'lib/schemas/vote.js',
         'routes.js'
     ], both);
@@ -57,7 +56,6 @@ Package.onUse(function(api) {
     api.addFiles([
         'server/initial-data.js',
         'server/methods.js',
-        'server/permits.js',
         'server/publish.js',
         'server/users.js'
     ], 'server');
