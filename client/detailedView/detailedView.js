@@ -105,7 +105,7 @@ Template.detailedViewPost.events({
     'click .replyButton': function(event) {
         if (!Meteor.userId()) return;
         if (!nodesInGraph.findOne({ $or: [ {type: "reply"}, {type: "edit"} ] })) {
-            let _id = tree.addNode({type: "reply", links: [this._id]})._id;
+            let _id = tree.addNode({type: "reply", links: [{target: this._id}]})._id;
             tree.addLink({sourceId: _id, targetId: this._id});
         } else {
             let reply = nodesInGraph.findOne({ $or: [ {type: "reply"}, {type: "edit"} ] });
@@ -113,10 +113,10 @@ Template.detailedViewPost.events({
             if (!reply.links.find(function(link) {
                 return (link == self._id);
             })) {
-                nodesInGraph.update({_id: reply._id}, { $push: { links: this._id}});
+                nodesInGraph.update({_id: reply._id}, { $push: { links: {target: this._id}}});
                 tree.addLink({sourceId: reply._id, targetId: this._id});
             } else {
-                nodesInGraph.update({_id: reply._id}, { $pull: { links: this._id}});
+                nodesInGraph.update({_id: reply._id}, { $pull: { links: {target: this._id}}});
                 tree.removeLink({sourceId: reply._id, targetId: this._id});
             }
         }
