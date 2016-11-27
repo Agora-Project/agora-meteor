@@ -10,7 +10,7 @@ var unFocus = function () {
 
 Template.detailedViewPost.onCreated(function () {
     templates[this.data._id] = this;
-    this.linkCount = new ReactiveVar(0);
+    this.linkCount = new ReactiveVar(this.data.links.length + this.data.replyIDs.length);
 
     let self = this;
 });

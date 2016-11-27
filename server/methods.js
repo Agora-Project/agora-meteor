@@ -6,9 +6,15 @@ Meteor.methods({
 
     },
     insertPost: function(post) {
-        console.log(post);
-        if (post.title.length >= 1 && post.links.length >= 1)
-            return Post.insert(post);
+        if (post.title.length >= 1 && post.links.length >= 1) {
+            let postId = Post.insert(post);
+            for (let i in post.links) {
+                Post.update({_id: post.links[i].target},
+                            { $push: { replyIDs: postId}});
+            }
+            return postId;
+        }
+
     },
     editPost: function(post) {
         if (post.title.length < 1 || post.links.length < 1 ||
