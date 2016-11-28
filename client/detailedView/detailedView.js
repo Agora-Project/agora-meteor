@@ -101,6 +101,28 @@ Template.detailedViewPost.events({
         } else this.counter--;
     },
     'click .showRepliesButton': function (event) {
+        for (var i in this.links) {
+            let replyID = this.links[i].target;
+            handlers.addHandler(replyID, {
+                onReady: function() {
+                    let doc = Post.findOne({_id: replyID});
+                    doc.type = "post";
+                    tree.addNode(doc);
+                }
+            });
+
+        }
+        for (var i in this.replyIDs) {
+            let replyID = this.replyIDs[i];
+            handlers.addHandler(replyID,  {
+                onReady: function() {
+                    let doc = Post.findOne({_id: replyID});
+                    doc.type = "post";
+                    tree.addNode(doc);
+                }
+            });
+
+        }
     },
     'click .replyButton': function(event) {
         if (!Meteor.userId()) return;

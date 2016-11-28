@@ -76,6 +76,12 @@ ForumTree = function(forumIndex, nodesCursor) {
                 }
             }
 
+            if (doc.replyIDs) {
+                for (var i in doc.replyIDs) {
+                    tree.addLink({sourceId: doc.replyIDs[i], targetId: doc._id});
+                }
+            }
+
             return this.nodes[this.nodes.length - 1];
         }
         return false;
