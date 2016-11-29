@@ -153,7 +153,7 @@ ForumTree = function(forumIndex, nodesCursor) {
     var tree = this;
     nodesCursor.forEach(function(n) {
         n.type = "post";
-        if (n.isRoot || nodesInGraph.findOne({_id: n._id}))
+        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id}))
             tree.addNode(n);
     });
     this.links = [];

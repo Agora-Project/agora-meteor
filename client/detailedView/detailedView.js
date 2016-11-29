@@ -102,10 +102,10 @@ Template.detailedViewPost.events({
     },
     'click .showRepliesButton': function (event) {
         for (var i in this.links) {
-            let replyID = this.links[i].target;
-            handlers.addHandler(replyID, {
+            let linkID = this.links[i].target;
+            handlers.addHandler(linkID, {
                 onReady: function() {
-                    let doc = Post.findOne({_id: replyID});
+                    let doc = Post.findOne({_id: linkID});
                     doc.type = "post";
                     tree.addNode(doc);
                 }
@@ -333,6 +333,21 @@ Template.detailedView.rendered = function() {
                 doc.type = "post";
                 tree.addNode(doc);
             }
+
+            if (nodesInGraph.findOne({_id: doc._id})) {
+                for (var i in doc.links) {
+                    let linkID = doc.links[i].target;
+                    handlers.addHandler(linkID);
+
+                }
+                for (var i in doc.replyIDs) {
+                    let replyID = doc.replyIDs[i];
+                    handlers.addHandler(replyID);
+
+                }
+            }
+
+
         },
         removed: function(doc) {
             if (init) return;
