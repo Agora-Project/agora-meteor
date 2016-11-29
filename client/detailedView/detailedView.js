@@ -88,6 +88,14 @@ Template.detailedViewPost.events({
 
                     tree.removeNode(this);
                     handlers.stop(this._id);
+                    this.links.forEach(function(link) {
+                        var temp = templates[link.target];
+                        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
+                    });
+                    this.replyIDs.forEach(function(link) {
+                        var temp = templates[link];
+                        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
+                    });
                     Meteor.call('removeWithLinks', this._id);
                 }
                 break;

@@ -3,7 +3,26 @@ Meteor.methods({
 
     },
     removeWithLinks: function(postId) {
+        var post = Post.findOne({_id: postId});
 
+        if (!Roles.userIsInRole(this.userId, ['moderator']))
+            return;
+
+        var results = [];
+
+
+        post.links.forEach(function(link) {
+            results.push(Post.update({_id: link.target},
+                        { $pull: { replyIDs: postId}}));
+        });
+
+        post.replyIDs.forEach(function(link) {
+            results.push(Post.update({_id: link},
+                        { $pull: { links: {target: postId}}}));
+        });
+
+        results.push(Post.remove(postId));
+        return results;
     },
     insertPost: function(post) {
         if (post.title.length >= 1 && post.links.length >= 1) {
