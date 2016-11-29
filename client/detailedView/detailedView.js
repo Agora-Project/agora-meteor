@@ -10,7 +10,22 @@ var unFocus = function () {
 
 Template.detailedViewPost.onCreated(function () {
     templates[this.data._id] = this;
-    this.linkCount = new ReactiveVar(this.data.links.length + this.data.replyIDs.length);
+    let count = 0;
+
+    this.data.links.forEach(function(link) {
+        handlers.addHandler(link.target);
+        var temp = templates[link.target];
+        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
+        else count++;
+    });
+    this.data.replyIDs.forEach(function(link) {
+        handlers.addHandler(link);
+        var temp = templates[link];
+        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
+        else count++;
+    });
+
+    this.linkCount = new ReactiveVar(count);
 
     let self = this;
 });
@@ -30,6 +45,15 @@ Template.detailedViewPost.onRendered(function () {
 
 Template.detailedViewPost.onDestroyed(function () {
     var self = this;
+
+    this.data.links.forEach(function(link) {
+        var temp = templates[link.target];
+        if (temp) temp.linkCount.set(temp.linkCount.get() + 1);
+    });
+    this.data.replyIDs.forEach(function(link) {
+        var temp = templates[link];
+        if (temp) temp.linkCount.set(temp.linkCount.get() + 1);
+    });
 
     delete templates[this.data._id];
 });
