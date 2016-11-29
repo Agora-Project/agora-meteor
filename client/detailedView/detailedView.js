@@ -165,7 +165,7 @@ Template.detailedViewPost.events({
             let reply = nodesInGraph.findOne({ $or: [ {type: "reply"}, {type: "edit"} ] });
             let self = this;
             if (!reply.links.find(function(link) {
-                return (link == self._id);
+                return (link.target == self._id);
             })) {
                 nodesInGraph.update({_id: reply._id}, { $push: { links: {target: this._id}}});
                 tree.addLink({sourceId: reply._id, targetId: this._id});
@@ -192,8 +192,6 @@ Template.detailedViewPost.events({
             tree.removeNode(this);
             nodesInGraph.remove({_id: this._id});
             this.type = "edit";
-            this.links = [];
-            var post = this;
             nodesInGraph.insert(this);
             tree.addNode(this);
         }
@@ -246,8 +244,8 @@ Template.detailedViewReply.events({
         tree.removeNode(this);
     },
     'click .submitButton': function(event) {
-        if (this.links.length < 1) return;
         if (this.type == "reply") {
+            if (this.links.length < 1) return;
             let title = $('#titleInput-' + this._id).val();
             let content = $('#contentInput-' + this._id).val();
             if (!Meteor.userId() || this.links.length < 1 || title.length < 1) return;
@@ -277,14 +275,9 @@ Template.detailedViewReply.events({
             this.title = $('#titleInput-' + this._id).val();
             this.content = $('#contentInput-' + this._id).val();
             Meteor.call("editPost", this, function(error, result) {
-                handlers.stop(result);
-                handlers.addHandler(result, {
-                    onReady: function() {
-                        let doc = Post.findOne({_id: result});
-                        doc.type = "post";
-                        tree.addNode(doc);
-                    }
-                });
+                let doc = Post.findOne({_id: result});
+                doc.type = "post";
+                tree.addNode(doc);
             });
         }
         tree.removeNode(this);
