@@ -1,7 +1,4 @@
 Meteor.methods({
-    insertLink: function(attributes) {
-
-    },
     removeWithLinks: function(postId) {
         var post = Post.findOne({_id: postId});
 
