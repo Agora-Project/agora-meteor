@@ -88,14 +88,6 @@ Template.detailedViewPost.events({
 
                     tree.removeNode(this);
                     handlers.stop(this._id);
-                    this.links.forEach(function(link) {
-                        var temp = templates[link.target];
-                        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-                    });
-                    this.replyIDs.forEach(function(link) {
-                        var temp = templates[link];
-                        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-                    });
                     Meteor.call('removeWithLinks', this._id);
                 }
                 break;
@@ -256,11 +248,6 @@ Template.detailedViewReply.events({
 
             };
 
-            this.links.forEach(function(link) {
-                var temp = templates[link.target];
-                if (temp) temp.linkCount.set(temp.linkCount.get() + 1);
-            });
-
             Meteor.call("insertPost", newReplyPost, function(error, result) {
                 handlers.stop(result);
                 handlers.addHandler(result, {
@@ -387,8 +374,12 @@ Template.detailedView.rendered = function() {
             console.log(doc);
             post = nodesInGraph.findOne({_id: doc._id});
             if (post) {
+                var countChange = (doc.links.length + doc.replyIDs.length)
+                                - (post.links.length + post.replyIDs.length);
                 doc.type = post.type;
                 nodesInGraph.update({_id: doc._id}, doc);
+                var temp = templates[doc._id];
+                temp.linkCount.set(temp.linkCount.get() + countChange);
             }
         }
     });
