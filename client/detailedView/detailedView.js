@@ -258,6 +258,11 @@ Template.detailedViewReply.events({
 
             };
 
+            this.links.forEach(function(link) {
+                var temp = templates[link.target];
+                if (temp) temp.linkCount.set(temp.linkCount.get() + 1);
+            });
+
             Meteor.call("insertPost", newReplyPost, function(error, result) {
                 handlers.stop(result);
                 handlers.addHandler(result, {
@@ -384,6 +389,14 @@ Template.detailedView.rendered = function() {
         removed: function(doc) {
             if (init) return;
             tree.removeNode(doc);
+        },
+        changed: function(doc) {
+            console.log(doc);
+            post = nodesInGraph.findOne({_id: doc._id});
+            if (post) {
+                doc.type = post.type;
+                nodesInGraph.update({_id: doc._id}, doc);
+            }
         }
     });
 
