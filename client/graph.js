@@ -212,7 +212,7 @@ ForumTree = function(forumIndex, nodesCursor) {
 
     // resize svg and force layout when screen size change
     function resize() {
-        var width = window.innerWidth, height = window.innerHeight;
+        var width = $(".detailed-view-viewport").innerWidth(), height = $(".detailed-view-viewport").innerHeight();
         svg.attr("width", width).attr("height", height);
         force.size([width, height]);
     }
