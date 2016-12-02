@@ -1,6 +1,6 @@
 Meteor.methods({
     removeWithLinks: function(postId) {
-        var post = Posts.findOne({_id: postId});
+        var post = Post.findOne({_id: postId});
 
         if (!Roles.userIsInRole(this.userId, ['moderator']))
             return;
@@ -9,12 +9,12 @@ Meteor.methods({
 
 
         post.links.forEach(function(link) {
-            results.push(Posts.update({_id: link.target},
+            results.push(Post.update({_id: link.target},
                         { $pull: { replyIDs: postId}}));
         });
 
         post.replyIDs.forEach(function(link) {
-            results.push(Posts.update({_id: link},
+            results.push(Post.update({_id: link},
                         { $pull: { links: {target: postId}}}));
         });
 
@@ -23,9 +23,9 @@ Meteor.methods({
     },
     insertPost: function(post) {
         if (post.title.length >= 1 && post.links.length >= 1) {
-            let postId = Posts.insert(post);
+            let postId = Post.insert(post);
             for (let i in post.links) {
-                Posts.update({_id: post.links[i].target},
+                Post.update({_id: post.links[i].target},
                             { $push: { replyIDs: postId}});
             }
             return postId;
@@ -34,10 +34,10 @@ Meteor.methods({
     },
     editPost: function(post) {
         if (post.title.length < 1 || post.links.length < 1 ||
-           (this.userId != Posts.findOne({_id: post._id}).ownerId &&
+           (this.userId != Post.findOne({_id: post._id}).ownerId &&
             !Roles.userIsInRole(this.userId, ['moderator']))) return;
 
-        var linksToRemove = [], existingLinks = Posts.findOne({_id: post._id}).links;
+        var linksToRemove = [], existingLinks = Post.findOne({_id: post._id}).links;
 
         //go through and add any new links...
         for (let i in post.links) {
@@ -52,18 +52,18 @@ Meteor.methods({
 
             }
             if (linkNotPresent)
-                Posts.update({_id: linkTarget},
+                Post.update({_id: linkTarget},
                             { $push: { replyIDs: post._id}});
         }
 
         //and then remove any obsolete ones.
         for (let j in existingLinks) {
             let existingLink = existingLinks[j];
-            Posts.update({_id: existingLink.target},
+            Post.update({_id: existingLink.target},
                         { $pull: { replyIDs: post._id}});
         }
 
-        var ret = Posts.update({_id: post._id}, { $set: {
+        var ret = Post.update({_id: post._id}, { $set: {
             title: post.title,
             content: post.content,
             links: post.links,

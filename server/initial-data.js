@@ -1,8 +1,8 @@
 Meteor.startup(function() {
     var moderatorEmail, moderatorId;
-    if (!Posts.findOne({$where : 'this.links.length < 1'})) {
+    if (!Post.findOne({$where : 'this.links.length < 1'})) {
         console.log("Adding root post");
-        Posts.insert({
+        Post.insert({
             title: 'Forum Root',
             links: []
         });

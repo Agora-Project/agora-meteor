@@ -32,42 +32,24 @@ Meteor.publish("users", function() {
 });
 
 Meteor.publish("post", function(id) {
-    var query = null;
-
     if (id == 'rootNode') {
-        query = {$where : 'this.links.length < 1'};
-    } else query = {_id: id};
-
-    var self = this;
-
-    var handle = Posts.find(query).observe({
-        added: function(post){
-            self.added("nodes-loaded", post._id, post);
-            self.flush();
-        },
-        changed: function(item){
-            self.changed("nodes-loaded", post._id, post);
-            self.flush();
-        },
-        removed: function(item){
-            self.removed("nodes-loaded", post._id, post);
-            self.flush();
-        }
-    });
-
-    this.onStop(function() {
-        handle.stop();
+        return Post.find({
+            $where : 'this.links.length < 1'
+        });
+    }
+    return Post.find({
+        _id: id
     });
 });
 
 Meteor.publish("postRange", function(beforeDate, endDate) {
-    return Posts.find({
+    return Post.find({
         "createdAt" : { $lte : beforeDate, $gte : endDate }
     }, {limit: 1000});
 });
 
 Meteor.publish("newestPosts", function(beforeDate) {
-    return Posts.find({
+    return Post.find({
         "createdAt" : {$lte : beforeDate}
     }, {sort: {createdAt: -1}, limit: 1000});
 });
