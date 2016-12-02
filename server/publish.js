@@ -42,14 +42,14 @@ Meteor.publish("post", function(id) {
     });
 });
 
-Meteor.publish("postRange", function(startDate, endDate) {
+Meteor.publish("postRange", function(beforeDate, endDate) {
     return Post.find({
-        "createdAt" : { $gte : startDate, $lte : endDate }
+        "createdAt" : { $lte : beforeDate, $gte : endDate }
     }, {limit: 1000});
 });
 
-Meteor.publish("newestPosts", function(startDate, endDate) {
+Meteor.publish("newestPosts", function(beforeDate) {
     return Post.find({
-        //"createdAt" : { $gte : startDate, $lte : endDate }
+        "createdAt" : {$lte : beforeDate}
     }, {sort: {createdAt: -1}, limit: 1000});
 });
