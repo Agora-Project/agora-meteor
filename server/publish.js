@@ -47,3 +47,9 @@ Meteor.publish("postRange", function(startDate, endDate) {
         "createdAt" : { $gte : startDate, $lte : endDate }
     }, {limit: 1000});
 });
+
+Meteor.publish("newestPosts", function(startDate, endDate) {
+    return Post.find({
+        //"createdAt" : { $gte : startDate, $lte : endDate }
+    }, {sort: {createdAt: -1}, limit: 1000});
+});
