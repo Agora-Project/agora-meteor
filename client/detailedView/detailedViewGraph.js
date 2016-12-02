@@ -1,6 +1,9 @@
+//The local collections for keeping track of what posts and kinks are shown.
+//though the links collection is only used to assign links _ids right now.
 nodesInGraph = new Mongo.Collection(null);
 linksInGraph = new Mongo.Collection(null);
 
+//The function for interpreting links into the right format to add to the graph.
 function linksToD3Array(linksCol, nodesCol) {
     var nodes = {};
     nodesCol.forEach(function(n) {
@@ -27,6 +30,8 @@ function linksToD3Array(linksCol, nodesCol) {
     return result;
 };
 
+//the object that stores the information on the graph.
+//It takes up the entire rest of the file.
 ForumTree = function(forumIndex, nodesCursor) {
     this.forumIndex = forumIndex;
 

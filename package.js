@@ -13,9 +13,7 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'client/subscribe.js',
-        'client/data.js',
         'client/templates.html',
-        'client/graph.js',
         'client/navigation.js',
         'client/main.css'
     ], 'client');
@@ -32,6 +30,8 @@ Package.onUse(function(api) {
     ], 'client');
 
     api.addFiles([
+        'client/detailedView/detailedViewData.js',
+        'client/detailedView/detailedViewGraph.js',
         'client/detailedView/detailedView.html',
         'client/detailedView/detailedView.css',
         'client/detailedView/detailedView.js'
