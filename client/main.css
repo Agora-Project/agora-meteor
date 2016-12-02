@@ -9,9 +9,3 @@ html {
 body {
     background-color: #fff;
 }
-
-.page-content {
-    position: relative;
-    height: 100%;
-    overflow: hidden;
-}

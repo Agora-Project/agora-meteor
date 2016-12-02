@@ -371,7 +371,6 @@ Template.detailedView.rendered = function() {
             tree.removeNode(doc);
         },
         changed: function(doc) {
-            console.log(doc);
             post = nodesInGraph.findOne({_id: doc._id});
             if (post) {
                 var countChange = (doc.links.length + doc.replyIDs.length)
