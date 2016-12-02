@@ -1,5 +1,8 @@
 currentAction = "none";
 templates = {};
+
+nodesLoaded = new Mongo.Collection('nodes-loaded');
+
 var unFocus = function () {
   if (document.selection) {
     document.selection.empty()
@@ -129,7 +132,7 @@ Template.detailedViewPost.events({
             let linkID = this.links[i].target;
             handlers.addHandler(linkID, {
                 onReady: function() {
-                    let doc = Post.findOne({_id: linkID});
+                    let doc =nodesLoaded.findOne({_id: linkID});
                     doc.type = "post";
                     tree.addNode(doc);
                 }
@@ -140,7 +143,7 @@ Template.detailedViewPost.events({
             let replyID = this.replyIDs[i];
             handlers.addHandler(replyID,  {
                 onReady: function() {
-                    let doc = Post.findOne({_id: replyID});
+                    let doc =nodesLoaded.findOne({_id: replyID});
                     doc.type = "post";
                     tree.addNode(doc);
                 }
@@ -252,7 +255,7 @@ Template.detailedViewReply.events({
                 handlers.stop(result);
                 handlers.addHandler(result, {
                     onReady: function() {
-                        let doc = Post.findOne({_id: result});
+                        let doc = nodesLoaded.findOne({_id: result});
                         doc.type = "post";
                         tree.addNode(doc);
                     }
@@ -262,7 +265,7 @@ Template.detailedViewReply.events({
             this.title = $('#titleInput-' + this._id).val();
             this.content = $('#contentInput-' + this._id).val();
             Meteor.call("editPost", this, function(error, result) {
-                let doc = Post.findOne({_id: result});
+                let doc = nodesLoaded.findOne({_id: result});
                 doc.type = "post";
                 tree.addNode(doc);
             });
@@ -339,7 +342,7 @@ Template.detailedView.helpers({
 Template.detailedView.rendered = function() {
     var init = true;
 
-    var nodesCursor = Post.find({});
+    var nodesCursor = nodesLoaded.find({});
 
     tree = new ForumTree(this, nodesCursor);
 

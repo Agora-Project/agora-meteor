@@ -48,12 +48,12 @@ Package.onUse(function(api) {
     ], 'client');
 
     api.addFiles([
-        'lib/schemas/post.js',
         'lib/schemas/vote.js',
         'routes.js'
     ], both);
 
     api.addFiles([
+        'server/posts.js',
         'server/initial-data.js',
         'server/methods.js',
         'server/publish.js',
