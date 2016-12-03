@@ -13,7 +13,6 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'client/subscribe.js',
-        'client/templates.html',
         'client/navigation.js',
         'client/main.css'
     ], 'client');
@@ -42,11 +41,15 @@ Package.onUse(function(api) {
         'client/overview/overview.css',
         'client/overview/overview.js'
     ], 'client');
+    
+    api.addFiles([
+        'client/templates.html'
+    ], 'client');
 
     api.addAssets([
         'public/agoraforum.png'
     ], 'client');
-
+    
     api.addFiles([
         'lib/schemas/post.js',
         'lib/schemas/vote.js',

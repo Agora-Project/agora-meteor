@@ -8,7 +8,7 @@ Router.onBeforeAction(function() {
 
 Router.route('/forum', {
     name: 'forumIndex',
-    template: 'detailedView'
+    template: 'doubleView'
 });
 
 Router.route('/forum/post/:_id', function() {

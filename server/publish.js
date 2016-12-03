@@ -49,7 +49,5 @@ Meteor.publish("postRange", function(beforeDate, endDate) {
 });
 
 Meteor.publish("newestPosts", function(beforeDate) {
-    return Post.find({
-        "createdAt" : {$lte : beforeDate}
-    }, {sort: {createdAt: -1}, limit: 1000});
+    return Post.find({}, {limit: 1000});
 });

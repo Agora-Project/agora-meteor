@@ -4,6 +4,6 @@ Template.overview.onCreated(function() {
 
 Template.overview.helpers({
     nodes: function() {
-        return Post.find({});
+        return Post.find({}, {limit: 1000});
     }
 });
