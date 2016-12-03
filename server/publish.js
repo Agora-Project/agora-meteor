@@ -43,15 +43,12 @@ Meteor.publish("post", function(id) {
     var handle = Posts.find(query).observe({
         added: function(post){
             self.added("nodes-loaded", post._id, post);
-            self.flush();
         },
         changed: function(item){
             self.changed("nodes-loaded", post._id, post);
-            self.flush();
         },
         removed: function(item){
             self.removed("nodes-loaded", post._id, post);
-            self.flush();
         }
     });
 
