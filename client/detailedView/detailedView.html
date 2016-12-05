@@ -29,7 +29,7 @@
         <div class="postInfo unDraggable">
             {{#if user}}
                 <a href="#"><img class="avatar unDraggable" src="{{avatarURL}}" alt=""></a>
-                <a class="username unDraggable" href="#">{{user.username}} </a>
+                <a class="username unDraggable" href="#">{{user.username}}</a>
             {{/if}}
             <span class="unDraggable">4 hours ago</span>
         </div>
@@ -65,5 +65,19 @@
         <div class="replyFooter unDraggable">
             <button class="submitButton unDraggable">Submit</button>
         </div>
+    </div>
+</template>
+
+<template name="detailedViewPostList">
+    {{#each posts}}
+        {{> detailedViewPostListing}}
+    {{/each}}
+</template>
+
+<template name="detailedViewPostListing">
+    <div class="postListingDiv">
+        <a class="unDraggable">{{title}}</a>
+        <a class="username unDraggable" href="#">{{user.username}}</a>
+        <span class="unDraggable">4 hours ago</span>
     </div>
 </template>
