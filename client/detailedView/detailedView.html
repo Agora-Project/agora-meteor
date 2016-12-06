@@ -72,6 +72,9 @@
 
 <template name="detailedViewPostList">
     <div class="postListDiv">
+        <a class="unDraggable">Title</a>
+        <a class="username unDraggable">Username</a>
+        <span class="unDraggable">Date Posted</span>
         {{#each posts}}
             {{> detailedViewPostListing}}
         {{/each}}
