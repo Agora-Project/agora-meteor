@@ -1,5 +1,7 @@
 <template name="detailedView">
     <div class="detailed-view-viewport">
+        {{> detailedViewPostList}}
+
         <svg class="links-graph"></svg>
 
         {{#each posts}}
@@ -69,9 +71,11 @@
 </template>
 
 <template name="detailedViewPostList">
-    {{#each posts}}
-        {{> detailedViewPostListing}}
-    {{/each}}
+    <div class="postListDiv">
+        {{#each posts}}
+            {{> detailedViewPostListing}}
+        {{/each}}
+    </div>
 </template>
 
 <template name="detailedViewPostListing">

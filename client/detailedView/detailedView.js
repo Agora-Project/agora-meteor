@@ -66,7 +66,7 @@ Template.detailedViewPost.helpers({
         return Template.instance().linkCount.get();
     },
     user: function() {
-        return Meteor.users.findOne(this.ownerId);
+        return Meteor.users.findOne(this.posterID);
     },
     hasContent: function() {
         return (this.content && this.content.length > 0);
@@ -387,3 +387,27 @@ Template.detailedView.rendered = function() {
     tree.render();
     init = false;
 };
+
+Template.detailedViewPostList.onCreated(function() {
+
+}
+
+);
+
+
+Template.detailedViewPostList.onDestroyed(function() {
+
+});
+
+Template.detailedViewPostList.helpers({
+    posts: function() {
+        console.log("999");
+        return nodesInGraph.find({type: "post"});
+    }
+});
+
+Template.detailedViewPostListing.helpers({
+    user: function() {
+        return Meteor.users.findOne(this.posterID);
+    }
+});
