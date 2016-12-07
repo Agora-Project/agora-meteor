@@ -389,11 +389,12 @@ Template.detailedView.rendered = function() {
 };
 
 Template.detailedViewPostList.onCreated(function() {
+    postList = this;
+});
 
-}
-
-);
-
+Template.detailedViewPostList.onRendered(function() {
+    this.$(".postListDiv").hide();
+});
 
 Template.detailedViewPostList.onDestroyed(function() {
 
@@ -401,8 +402,19 @@ Template.detailedViewPostList.onDestroyed(function() {
 
 Template.detailedViewPostList.helpers({
     posts: function() {
-        console.log("999");
-        return nodesInGraph.find({type: "post"});
+        return Post.find({});
+    }
+});
+
+Template.detailedViewPostList.events({
+    "click": function() {
+        event.preventDefault();
+    },
+    "mousedown": function() {
+        event.preventDefault();
+    },
+    "mousedown": function() {
+        event.preventDefault();
     }
 });
 

@@ -1,6 +1,5 @@
 <template name="detailedView">
     <div class="detailed-view-viewport">
-        {{> detailedViewPostList}}
 
         <svg class="links-graph"></svg>
 
@@ -20,6 +19,8 @@
         </button>
     </div>
     {{/if}}
+
+    {{> detailedViewPostList}}
 </template>
 
 <template name="detailedViewPost">
@@ -82,7 +83,7 @@
 </template>
 
 <template name="detailedViewPostListing">
-    <div class="postListingDiv">
+    <div class="postListingDiv unDraggable">
         <a class="unDraggable">{{title}}</a>
         <a class="username unDraggable" href="#">{{user.username}}</a>
         <span class="unDraggable">4 hours ago</span>
