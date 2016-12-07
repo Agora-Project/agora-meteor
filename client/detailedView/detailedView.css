@@ -12,9 +12,14 @@
     overflow: hidden;
 }
 
-#detailed-view-link-graph {
-    width: 100%;
-    height: 100%;
+.detailed-view-centerer {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.detailed-view-link-graph {
+    overflow: visible;
 }
 
 .post-button-box {

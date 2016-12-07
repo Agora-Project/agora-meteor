@@ -1,16 +1,17 @@
 <template name="detailedView">
     <div class="detailed-view-viewport">
         {{> detailedViewPostList}}
+        <div class="detailed-view-centerer">
+            <svg class="detailed-view-link-graph"></svg>
 
-        <svg class="links-graph"></svg>
+            {{#each posts}}
+                {{> detailedViewPost}}
+            {{/each}}
 
-        {{#each posts}}
-        	{{> detailedViewPost}}
-        {{/each}}
-
-        {{#each replies}}
-        	{{> detailedViewReply}}
-        {{/each}}
+            {{#each replies}}
+                {{> detailedViewReply}}
+            {{/each}}
+        </div>
     </div>
 
     {{#if checkIfModerator}}

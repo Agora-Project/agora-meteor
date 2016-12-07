@@ -166,7 +166,7 @@ ForumTree = function(forumIndex, nodesCursor) {
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
     //it will draw them to the mouse cursor as it's moved around.
-    var svg = d3.select(".links-graph");
+    var svg = d3.select(".detailed-view-link-graph");
 
     svg.selectAll("*").remove();
 
@@ -192,12 +192,7 @@ ForumTree = function(forumIndex, nodesCursor) {
         .on("tick", tick);
 
     this.force = force;
-
-    // setup z-index to prevent overlapping lines over nodes
-
-    resize();
-    d3.select(window).on("resize", resize);
-
+    
     // tick
     function tick(e) {
         //This if statement keeps the app from choking when reloading the page.
@@ -213,13 +208,6 @@ ForumTree = function(forumIndex, nodesCursor) {
                 d.target.y -= 1;
             }
         });
-    }
-
-    // resize svg and force layout when screen size change
-    function resize() {
-        var width = $(".detailed-view-viewport").innerWidth(), height = $(".detailed-view-viewport").innerHeight();
-        svg.attr("width", width).attr("height", height);
-        force.size([width, height]);
     }
 
     this.runGraph = function() {
