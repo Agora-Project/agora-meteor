@@ -1,6 +1,6 @@
 <template name="overview">
     <div class="overview-viewport">
-        <svg class="links-graph"></svg>
+        <svg class="overview-links-graph"></svg>
         {{#each nodes}}
         	{{> overviewNode}}
         {{/each}}
@@ -8,6 +8,6 @@
 </template>
 
 <template name="overviewNode">
-    <div class="overview-node">
+    <div class="overview-node" id="overview-node-{{_id}}">
     </div>
 </template>
