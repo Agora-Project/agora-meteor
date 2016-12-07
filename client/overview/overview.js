@@ -43,13 +43,10 @@ Template.overview.onCreated(function() {
             for (let i = 0; i < 256; i++) graph.tick();
             graph.stop();
             
-            let centerX = 256.0; //TODO: center graph responsively. preferably with CSS.
-            let centerY = 256.0
-            
             for (let post of postArray) {
                 let div = post.div;
-                div.css("left", post.x - div.outerWidth()/2.0 + centerX);
-                div.css("top", post.y - div.outerHeight()/2.0 + centerY);
+                div.css("left", post.x - div.outerWidth()/2.0);
+                div.css("top", post.y - div.outerHeight()/2.0);
             }
             
             $('.overview-link').remove(); //TODO: don't redo all links upon change to graph
@@ -59,10 +56,10 @@ Template.overview.onCreated(function() {
                 $(document.createElementNS('http://www.w3.org/2000/svg','line'))
                     .attr('class', 'overview-link')
                     .attr('stroke', 'black')
-                    .attr('x1', link.source.x + centerX)
-                    .attr('y1', link.source.y + centerY)
-                    .attr('x2', link.target.x + centerX)
-                    .attr('y2', link.target.y + centerY)
+                    .attr('x1', link.source.x)
+                    .attr('y1', link.source.y)
+                    .attr('x2', link.target.x)
+                    .attr('y2', link.target.y)
                     .appendTo(svg);
             }
         }

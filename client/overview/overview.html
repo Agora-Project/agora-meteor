@@ -1,9 +1,11 @@
 <template name="overview">
     <div class="overview-viewport">
-        <svg class="overview-links-graph"></svg>
-        {{#each nodes}}
-        	{{> overviewNode}}
-        {{/each}}
+        <div class="overview-centerer">
+            <svg class="overview-links-graph"></svg>
+            {{#each nodes}}
+                {{> overviewNode}}
+            {{/each}}
+        </div>
     </div>
 </template>
 
