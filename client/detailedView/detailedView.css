@@ -299,10 +299,11 @@
 }
 
 .postListDiv {
-    display: none;
     position: absolute;
-    max-width: 1024px;
-    max-height: 768px;
+    z-index: 2;
+    background-color: #CCC;
+    max-width: 812px;
+    max-height: 412px;
     width: 100vw;
     height: 75vw;
     padding: 0px;

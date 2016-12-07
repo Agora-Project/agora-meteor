@@ -1,9 +1,5 @@
 <template name="detailedView">
     <div class="detailed-view-viewport">
-        {{> detailedViewPostList}}
-        <div class="detailed-view-centerer">
-            <svg class="detailed-view-link-graph"></svg>
-
             {{#each posts}}
                 {{> detailedViewPost}}
             {{/each}}
@@ -21,6 +17,8 @@
         </button>
     </div>
     {{/if}}
+
+    {{> detailedViewPostList}}
 </template>
 
 <template name="detailedViewPost">
@@ -83,7 +81,7 @@
 </template>
 
 <template name="detailedViewPostListing">
-    <div class="postListingDiv">
+    <div class="postListingDiv unDraggable">
         <a class="unDraggable">{{title}}</a>
         <a class="username unDraggable" href="#">{{user.username}}</a>
         <span class="unDraggable">4 hours ago</span>
