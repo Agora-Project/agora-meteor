@@ -125,16 +125,16 @@ Template.detailedViewPost.events({
         } else this.counter--;
     },
     'click .showRepliesButton': function (event) {
-        postList.$(".postList").show();
-        return;
+
+        postList.posts.remove({});
 
         for (var i in this.links) {
             let linkID = this.links[i].target;
             handlers.addHandler(linkID, {
                 onReady: function() {
                     let doc = Post.findOne({_id: linkID});
-                    doc.type = "post";
-                    tree.addNode(doc);
+                    if (!nodesInGraph.findOne({_id: doc._id}))
+                        postList.posts.insert(doc);
                 }
             });
 
@@ -144,12 +144,15 @@ Template.detailedViewPost.events({
             handlers.addHandler(replyID,  {
                 onReady: function() {
                     let doc = Post.findOne({_id: replyID});
-                    doc.type = "post";
-                    tree.addNode(doc);
+                    if (!nodesInGraph.findOne({_id: doc._id}))
+                        postList.posts.insert(doc);
                 }
             });
 
         }
+
+        postList.$(".postList").show();
+        return;
     },
     'click .replyButton': function(event) {
         if (!Meteor.userId()) return;
@@ -393,6 +396,7 @@ Template.detailedView.rendered = function() {
 
 Template.detailedViewPostList.onCreated(function() {
     postList = this;
+    this.posts = new Mongo.Collection(null);
 });
 
 Template.detailedViewPostList.onRendered(function() {
@@ -404,7 +408,7 @@ Template.detailedViewPostList.onDestroyed(function() {
 
 Template.detailedViewPostList.helpers({
     posts: function() {
-        return Post.find({});
+        return Template.instance().posts.find({});
     }
 });
 
@@ -432,6 +436,7 @@ Template.detailedViewPostListing.events({
                 let doc = Post.findOne({_id: _id});
                 doc.type = "post";
                 tree.addNode(doc);
+                postList.posts.remove({_id: _id});
             }
         });
     },
