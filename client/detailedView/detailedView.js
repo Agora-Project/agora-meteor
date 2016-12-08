@@ -151,7 +151,7 @@ Template.detailedViewPost.events({
 
         }
 
-        postList.$(".postList").show();
+        postList.show();
         return;
     },
     'click .replyButton': function(event) {
@@ -293,7 +293,7 @@ Template.detailedView.events({
         template.counter = 0;
         template.mousePos = {x: event.screenX, y: event.screenY};
     },
-    'mouseup, touchend, mouseleave': function(event, template) {
+    'mouseup, touchend': function(event, template) {
         template.dragging = false;
         tree.render();
     },
@@ -397,6 +397,27 @@ Template.detailedView.rendered = function() {
 Template.detailedViewPostList.onCreated(function() {
     postList = this;
     this.posts = new Mongo.Collection(null);
+    this.isVisible = false;
+    this.hideBuffer = false;
+
+    this.hide = function() {
+        if (this.hideBuffer == false) {
+            this.isVisible = false;
+            this.$(".postList").hide();
+        } else {
+            this.hideBuffer = false;
+        }
+    };
+
+    this.show = function() {
+        this.isVisible = true;
+        this.$(".postList").show();
+        this.hideBuffer = true;
+    };
+
+    $(window).click(function() {
+        postList.hide();
+    })
 });
 
 Template.detailedViewPostList.onRendered(function() {
@@ -413,9 +434,9 @@ Template.detailedViewPostList.helpers({
 });
 
 Template.detailedViewPostList.events({
-    "click .closeButton": function(event) {
+    "click ": function(event) {
         event.stopImmediatePropagation();
-        postList.$(".postList").hide();
+        postList.hideBuffer = true;
     },
     "mousedown": function(event) {
         event.stopImmediatePropagation();
@@ -430,6 +451,7 @@ Template.detailedViewPostListing.helpers({
 
 Template.detailedViewPostListing.events({
     "click": function(event) {
+        postList.hideBuffer = true;
         let _id = this._id;
         handlers.addHandler(_id, {
             onReady: function() {
@@ -437,8 +459,12 @@ Template.detailedViewPostListing.events({
                 doc.type = "post";
                 tree.addNode(doc);
                 postList.posts.remove({_id: _id});
+                if (postList.posts.find({}).count() == 0)
+                    postList.hide();
             }
         });
+
+
     },
     "mousedown": function(event) {
         event.stopImmediatePropagation();
