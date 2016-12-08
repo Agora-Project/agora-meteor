@@ -299,6 +299,7 @@
 }
 
 .postList {
+    display: none;
     position: relative;
     top: 10%;
     width: 100vw;

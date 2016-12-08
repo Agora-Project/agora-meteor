@@ -1,6 +1,7 @@
 <template name="detailedView">
     <div class="detailed-view-viewport">
         <div class="detailed-view-centerer">
+            <svg class="detailed-view-link-graph"></svg>
             {{#each posts}}
                 {{> detailedViewPost}}
             {{/each}}
@@ -9,10 +10,10 @@
                 {{> detailedViewReply}}
             {{/each}}
         </div>
-        
+
         {{> detailedViewPostList}}
     </div>
-    
+
     {{#if checkIfModerator}}
     <div class="delete-button-box">
         <button class="button-delete mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
@@ -72,9 +73,11 @@
 
 <template name="detailedViewPostList">
     <div class="postList">
+
         <a class="unDraggable">Title</a>
         <a class="username unDraggable">Username</a>
         <span class="unDraggable">Date Posted</span>
+        <button class="closeButton unDraggable"><i class="fa fa-close"></i></button>
         {{#each posts}}
             {{> detailedViewPostListing}}
         {{/each}}

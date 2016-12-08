@@ -125,6 +125,9 @@ Template.detailedViewPost.events({
         } else this.counter--;
     },
     'click .showRepliesButton': function (event) {
+        postList.$(".postList").show();
+        return;
+
         for (var i in this.links) {
             let linkID = this.links[i].target;
             handlers.addHandler(linkID, {
@@ -393,7 +396,6 @@ Template.detailedViewPostList.onCreated(function() {
 });
 
 Template.detailedViewPostList.onRendered(function() {
-    this.$(".postListDiv").hide();
 });
 
 Template.detailedViewPostList.onDestroyed(function() {
@@ -407,19 +409,33 @@ Template.detailedViewPostList.helpers({
 });
 
 Template.detailedViewPostList.events({
-    "click": function() {
-        event.preventDefault();
+    "click .closeButton": function(event) {
+        event.stopImmediatePropagation();
+        postList.$(".postList").hide();
     },
-    "mousedown": function() {
-        event.preventDefault();
-    },
-    "mousedown": function() {
-        event.preventDefault();
+    "mousedown": function(event) {
+        event.stopImmediatePropagation();
     }
 });
 
 Template.detailedViewPostListing.helpers({
     user: function() {
         return Meteor.users.findOne(this.posterID);
+    }
+});
+
+Template.detailedViewPostListing.events({
+    "click": function(event) {
+        let _id = this._id;
+        handlers.addHandler(_id, {
+            onReady: function() {
+                let doc = Post.findOne({_id: _id});
+                doc.type = "post";
+                tree.addNode(doc);
+            }
+        });
+    },
+    "mousedown": function(event) {
+        event.stopImmediatePropagation();
     }
 });
