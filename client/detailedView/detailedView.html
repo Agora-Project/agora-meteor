@@ -9,8 +9,10 @@
                 {{> detailedViewReply}}
             {{/each}}
         </div>
+        
+        {{> detailedViewPostList}}
     </div>
-
+    
     {{#if checkIfModerator}}
     <div class="delete-button-box">
         <button class="button-delete mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
@@ -18,8 +20,6 @@
         </button>
     </div>
     {{/if}}
-
-    {{> detailedViewPostList}}
 </template>
 
 <template name="detailedViewPost">
@@ -71,7 +71,7 @@
 </template>
 
 <template name="detailedViewPostList">
-    <div class="postListDiv">
+    <div class="postList">
         <a class="unDraggable">Title</a>
         <a class="username unDraggable">Username</a>
         <span class="unDraggable">Date Posted</span>

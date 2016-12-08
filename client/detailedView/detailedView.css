@@ -298,18 +298,16 @@
     box-shadow: inset 0 0 8px #888;
 }
 
-.postListDiv {
-    position: absolute;
-    z-index: 2;
-    background-color: #CCC;
-    max-width: 812px;
-    max-height: 412px;
+.postList {
+    position: relative;
+    top: 10%;
     width: 100vw;
-    height: 75vw;
+    max-width: 384px;
+    height: 80%;
     padding: 0px;
-    margin: 0px auto;
     border: 1px solid #999;
     border-radius: 8px;
-    box-shadow: inset 0 0 10px #b2b;
-    overflow: hidden;
+    margin: auto;
+    overflow: auto;
+    background-color: #fff;
 }
