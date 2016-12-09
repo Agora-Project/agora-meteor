@@ -213,7 +213,7 @@
 .repliesDropdownContent {
     display: none;
     position: absolute;
-    right: 0px;
+    left: 0px;
     text-align: center;
     line-height: 16px;
     margin: 0px;
