@@ -210,6 +210,29 @@
     padding: 0px;
 }
 
+.repliesDropdownContent {
+    display: none;
+    position: absolute;
+    right: 0px;
+    text-align: center;
+    line-height: 16px;
+    margin: 0px;
+    background-color: #f9f9f9;
+    border: 1px solid #999;
+    border-radius: 8px;
+}
+
+.repliesDropdownContent a {
+    display: inline-block;
+    white-space: nowrap;
+    padding: 8px;
+}
+
+.repliesDropdownContent hr {
+    margin: 0px;
+    padding: 0px;
+}
+
 .postFooter button {
     flex-grow: 1;
     background-color: #fff;

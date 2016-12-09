@@ -27,7 +27,41 @@ Template.detailedViewPost.onCreated(function () {
 
     this.linkCount = new ReactiveVar(count);
 
-    let self = this;
+    this.replyDrowpdownVisible = false;
+    this.hideReplyBuffer = false;
+
+    this.hideReplyDropdown = function() {
+        if (this.hideReplyBuffer == false) {
+            this.replyDrowpdownVisible = false;
+            this.$(".repliesDropdownContent").fadeOut(150);
+        } else {
+            this.hideReplyBuffer = false;
+        }
+    };
+
+    this.showReplyDropdown = function() {
+        this.replyDrowpdownVisible = true;
+        this.$(".repliesDropdownContent").fadeIn(150);
+        this.hideReplyBuffer = true;
+    };
+
+    this.moreDrowpdownVisible = false;
+    this.hideMoreBuffer = false;
+
+    this.hideMoreDropdown = function() {
+        if (this.hideMoreBuffer == false) {
+            this.moreDrowpdownVisible = false;
+            this.$(".moreDropdownContent").fadeOut(150);
+        } else {
+            this.hideMoreBuffer = false;
+        }
+    };
+
+    this.showMoreDropdown = function() {
+        this.moreDrowpdownVisible = true;
+        this.$(".moreDropdownContent").fadeIn(150);
+        this.hideMoreBuffer = true;
+    };
 });
 
 Template.detailedViewPost.onRendered(function () {
@@ -125,6 +159,13 @@ Template.detailedViewPost.events({
         } else this.counter--;
     },
     'click .showRepliesButton': function (event) {
+        if (!this.showReplyDropdown) {
+            Template.instance().showReplyDropdown();
+        } else {
+            Template.instance().hideReplyDropdown();
+        }
+    },
+    'click .showListButton': function (event) {
 
         postList.posts.remove({});
 
@@ -178,11 +219,9 @@ Template.detailedViewPost.events({
     },
     'click .moreButton': function(event) {
         if (!this.showMoreDropdown) {
-            Template.instance().$(".moreDropdownContent").fadeIn(150);
-            this.showMoreDropdown = true;
+            Template.instance().showMoreDropdown();
         } else {
-            Template.instance().$(".moreDropdownContent").fadeOut(150);
-            this.showMoreDropdown = false;
+            Template.instance().hideMoreDropdown();
         }
     },
     'click .editPostButton': function(event) {
@@ -403,7 +442,7 @@ Template.detailedViewPostList.onCreated(function() {
     this.hide = function() {
         if (this.hideBuffer == false) {
             this.isVisible = false;
-            this.$(".postList").hide();
+            this.$(".postList").fadeOut(150);
         } else {
             this.hideBuffer = false;
         }
@@ -411,13 +450,9 @@ Template.detailedViewPostList.onCreated(function() {
 
     this.show = function() {
         this.isVisible = true;
-        this.$(".postList").show();
+        this.$(".postList").fadeIn(150);
         this.hideBuffer = true;
     };
-
-    $(window).click(function() {
-        postList.hide();
-    })
 });
 
 Template.detailedViewPostList.onRendered(function() {
@@ -470,3 +505,11 @@ Template.detailedViewPostListing.events({
         event.stopImmediatePropagation();
     }
 });
+
+$(window).click(function() {
+    postList.hide();
+    for (let i in templates) {
+        templates[i].hideReplyDropdown();
+        templates[i].hideMoreDropdown();
+    }
+})
