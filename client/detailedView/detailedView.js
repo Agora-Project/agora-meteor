@@ -165,6 +165,32 @@ Template.detailedViewPost.events({
             Template.instance().hideReplyDropdown();
         }
     },
+    'click .loadAllButton': function (event) {
+
+        for (var i in this.links) {
+            let linkID = this.links[i].target;
+            handlers.addHandler(linkID, {
+                onReady: function() {
+                    let doc = Post.findOne({_id: linkID});
+                    doc.type = "post";
+                    tree.addNode(doc);
+                }
+            });
+
+        }
+        for (var i in this.replyIDs) {
+            let replyID = this.replyIDs[i];
+            handlers.addHandler(replyID,  {
+                onReady: function() {
+                    let doc = Post.findOne({_id: replyID});
+                    doc.type = "post";
+                    tree.addNode(doc);
+                }
+            });
+
+        }
+        return;
+    },
     'click .showListButton': function (event) {
 
         postList.posts.remove({});
