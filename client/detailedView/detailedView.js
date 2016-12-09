@@ -177,12 +177,12 @@ Template.detailedViewPost.events({
         tree.removeNode(this);
     },
     'click .moreButton': function(event) {
-        if (!this.showDropdown) {
-            Template.instance().$(".dropdownContent").fadeIn(150);
-            this.showDropdown = true;
+        if (!this.showMoreDropdown) {
+            Template.instance().$(".moreDropdownContent").fadeIn(150);
+            this.showMoreDropdown = true;
         } else {
-            Template.instance().$(".dropdownContent").fadeOut(150);
-            this.showDropdown = false;
+            Template.instance().$(".moreDropdownContent").fadeOut(150);
+            this.showMoreDropdown = false;
         }
     },
     'click .editPostButton': function(event) {

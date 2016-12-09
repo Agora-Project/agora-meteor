@@ -187,7 +187,7 @@
     border-radius: 0px 0px 8px 0px;
 }
 
-.dropdownContent {
+.moreDropdownContent {
     display: none;
     position: absolute;
     right: 0px;
@@ -199,13 +199,13 @@
     border-radius: 8px;
 }
 
-.dropdownContent a {
+.moreDropdownContent a {
     display: inline-block;
     white-space: nowrap;
     padding: 8px;
 }
 
-.dropdownContent hr {
+.moreDropdownContent hr {
     margin: 0px;
     padding: 0px;
 }
