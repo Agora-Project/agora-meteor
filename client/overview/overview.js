@@ -51,8 +51,8 @@ Template.overview.onCreated(function() {
                 var k = 6 * e.alpha;
                 links.forEach(function(d, i) {
                     if (d.source.y < d.target.y + 160) {
-                        d.source.y += k;
-                        d.target.y -= k;
+                        d.source.y += 0.2;
+                        d.target.y -= 0.2;
                     }
                 });
             }

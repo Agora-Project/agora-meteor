@@ -198,15 +198,15 @@ ForumTree = function(forumIndex, nodesCursor) {
         var k = 6 * e.alpha;
         links.forEach(function(d, i) {
             if (d.source.y < d.target.y + 160) {
-                d.source.y += 1;
-                d.target.y -= 1;
+                d.source.y += 0.6;
+                d.target.y -= 0.6;
             }
         });
     }
 
     this.runGraph = function() {
         force.start();
-        for (var i = 0; i < 1000; i++) force.tick();
+        for (var i = 0; i < 100; i++) force.tick();
         force.stop();
     }
 
