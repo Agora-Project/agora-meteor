@@ -155,12 +155,6 @@ ForumTree = function(forumIndex, nodesCursor) {
 
     }
 
-    var tree = this;
-    nodesCursor.forEach(function(n) {
-        n.type = "post";
-        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id}))
-            tree.addNode(n);
-    });
     this.links = [];
 
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
@@ -192,7 +186,7 @@ ForumTree = function(forumIndex, nodesCursor) {
         .on("tick", tick);
 
     this.force = force;
-    
+
     // tick
     function tick(e) {
         //This if statement keeps the app from choking when reloading the page.
@@ -260,6 +254,13 @@ ForumTree = function(forumIndex, nodesCursor) {
             }
         });
     };
+
+    var tree = this;
+    nodesCursor.forEach(function(n) {
+        n.type = "post";
+        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id}))
+            tree.addNode(n);
+    });
 
     return this;
 }

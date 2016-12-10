@@ -345,12 +345,6 @@ Template.detailedViewReply.events({
     },
 });
 
-Template.detailedView.onRendered(function () {
-    var instance = Template.instance();
-
-    Template.instance().scale = 1;
-});
-
 Template.detailedView.events({
     'mousedown, touchstart': function(event, template) {
         if (event.button != 0) return;
@@ -411,6 +405,8 @@ Template.detailedView.rendered = function() {
     var init = true;
 
     var nodesCursor = Post.find({});
+
+    console.log("!!!");
 
     tree = new ForumTree(this, nodesCursor);
 
