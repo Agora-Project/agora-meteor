@@ -12,6 +12,11 @@ Package.onUse(function(api) {
     api.versionsFrom('1.1.0.3');
 
     api.addFiles([
+        'lib/XBBCode/xbbcode.js',
+        'lib/XBBCode/xbbcode.css'
+    ], 'client');
+
+    api.addFiles([
         'client/subscribe.js',
         'client/navigation.js',
         'client/main.css'
@@ -41,15 +46,15 @@ Package.onUse(function(api) {
         'client/overview/overview.css',
         'client/overview/overview.js'
     ], 'client');
-    
+
     api.addFiles([
-        'client/templates.html'
+        'client/templates.html',
     ], 'client');
 
     api.addAssets([
         'public/agoraforum.png'
     ], 'client');
-    
+
     api.addFiles([
         'lib/schemas/post.js',
         'lib/schemas/vote.js',

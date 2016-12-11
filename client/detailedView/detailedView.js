@@ -75,6 +75,14 @@ Template.detailedViewPost.onRendered(function () {
 
     tree.runGraph();
     tree.render();
+
+    if(this.data.content)
+        instance.$('.postContent').html(XBBCODE.process({
+            text: this.data.content,
+            removeMisalignedTags: false,
+            addInLineBreaks: true
+        }).html);
+
 });
 
 Template.detailedViewPost.onDestroyed(function () {
@@ -406,8 +414,6 @@ Template.detailedView.rendered = function() {
 
     var nodesCursor = Post.find({});
 
-    console.log("!!!");
-
     tree = new ForumTree(this, nodesCursor);
 
     nodesCursor.observe({
@@ -529,7 +535,7 @@ Template.detailedViewPostListing.events({
 });
 
 $(window).click(function() {
-    postList.hide();
+    if (postList) postList.hide();
     for (let i in templates) {
         templates[i].hideReplyDropdown();
         templates[i].hideMoreDropdown();
