@@ -1,0 +1,13 @@
+.profile-div {
+    position: absolute;
+    left: 2%;
+    right: 2%;
+    top: 5%;
+    height: 75vw;
+    padding: 0px;
+    margin: 0px auto;
+    border: 1px solid #999;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px #bbb;
+    overflow: hidden;
+}
