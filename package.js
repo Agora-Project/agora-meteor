@@ -51,6 +51,10 @@ Package.onUse(function(api) {
         'client/templates.html',
     ], 'client');
 
+    api.addFiles([
+        'client/profile/profile.html',
+    ], 'client');
+
     api.addAssets([
         'public/agoraforum.png'
     ], 'client');

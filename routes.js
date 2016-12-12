@@ -25,6 +25,18 @@ Router.route('/forum/post/:_id', function() {
     else routerThis.render('expandedPostLoading');
 });
 
+Router.route('/forum/user/:_id', function() {
+    var routerThis = this;
+    var id = this.params._id;
+
+    if (this.ready()) {
+        var user = Meteor.users.findOne({_id: id});
+        if (user) routerThis.render('userProfile', {data: user});
+        else routerThis.render('expandedPostNotFound', {data: {_id: id}});
+    }
+    else routerThis.render('expandedPostLoading');
+});
+
 Router.route('/forum/users', {
     name: 'userList',
     template: 'userList'
