@@ -3,7 +3,35 @@
     left: 2%;
     right: 2%;
     top: 5%;
-    height: 75vw;
+    height: 75vh;
+    padding: 0px;
+    margin: 0px auto;
+    border: 1px solid #999;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px #bbb;
+    overflow: hidden;
+}
+
+.profile-sidebar {
+    position: absolute;
+    left: 2%;
+    top: 20%;
+    width: 10vw;
+    height: 58vh;
+    padding: 0px;
+    margin: 0px auto;
+    border: 1px solid #999;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px #bbb;
+    overflow: hidden;
+}
+
+.profile-header {
+    position: absolute;
+    left: 2%;
+    right: 2%;
+    top: 5%;
+    height: 10vh;
     padding: 0px;
     margin: 0px auto;
     border: 1px solid #999;
