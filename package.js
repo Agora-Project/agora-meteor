@@ -53,7 +53,8 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'client/profile/profile.html',
-        'client/profile/profile.css'
+        'client/profile/profile.css',
+        'client/profile/profile.js'
     ], 'client');
 
     api.addAssets([
