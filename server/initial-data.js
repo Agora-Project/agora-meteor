@@ -1,4 +1,5 @@
 Meteor.startup(function() {
+
     var moderatorEmail, moderatorId;
     if (!Post.findOne({$where : 'this.links.length < 1'})) {
         console.log("Adding root post");

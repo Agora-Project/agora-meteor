@@ -31,7 +31,9 @@
         </div>
         <div class="postInfo unDraggable">
             {{#if user}}
-                <a href="#"><img class="avatar unDraggable" src="{{avatarURL}}" alt=""></a>
+                <a class="avatar unDraggable" href="/forum/user/{{user._id}}">
+                    {{> avatar user=(user) shape="rounded" class="avatar"}}
+                </a>
                 <a class="username unDraggable" href="/forum/user/{{user._id}}">{{user.username}}</a>
             {{/if}}
             <span class="unDraggable">4 hours ago</span>

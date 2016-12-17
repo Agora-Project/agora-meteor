@@ -14,10 +14,10 @@
 
 .profile-avatar {
     display: block;
-    width: 74px;
-    height: 74px;
+    width: 8vh;
+    height: 8vh;
     border-radius: 4px;
-    margin: 6px;
+    margin: 1vh;
 }
 
 .profile-sidebar {
