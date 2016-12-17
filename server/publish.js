@@ -22,11 +22,7 @@ Meteor.publish("users", function() {
         return Meteor.users.find({});
     } else {
         return Meteor.users.find({}, {
-            fields: {
-                "emails" : false,
-                "services" : false,
-                "defaultEmail" : false //Exclude defaultEmail from the sent data
-            }
+            fields: {_id: 1, username: 1, avatar: 1}
         });
     }
 });
