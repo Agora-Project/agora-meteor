@@ -365,7 +365,13 @@ Template.detailedView.onCreated(function() {
                 tree.addNode(doc);
             }
         });
-    } else handlers.addHandler();
+    } else handlers.addHandler(null, {
+        onReady: function() {
+            let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
+            doc.type = "post";
+            tree.addNode(doc);
+        }
+    });
 })
 
 Template.detailedView.events({
