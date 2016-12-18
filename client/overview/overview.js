@@ -18,6 +18,7 @@ Template.overview.onCreated(function() {
             console.log("???");
 
             $.each(posts, function(id, post) {
+                if (post.data.links)
                 for (let link of post.data.links) {
                     if (link.target in posts) {
                         linkArray.push({
