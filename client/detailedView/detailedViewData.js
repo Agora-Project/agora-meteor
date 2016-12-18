@@ -1,5 +1,6 @@
 handlers = {};
 handlers.addHandler = function(id, callbacks) {
+    console.log(id);
     if (!id) id = "rootNode";
     if (!callbacks) callbacks = {};
     if (!this[id]) {

@@ -356,7 +356,16 @@ Template.detailedViewReply.events({
 });
 
 Template.detailedView.onCreated(function() {
-    handlers.addHandler();
+    if (this.data) {
+        let _id = this.data;
+        handlers.addHandler(_id, {
+            onReady: function() {
+                let doc = Post.findOne({_id: _id});
+                doc.type = "post";
+                tree.addNode(doc);
+            }
+        });
+    } else handlers.addHandler();
 })
 
 Template.detailedView.events({
@@ -425,10 +434,6 @@ Template.detailedView.onRendered(function() {
     nodesCursor.observe({
         added: function(doc) {
             if (init) return;
-            if (!doc.links || doc.links.length < 1) {
-                doc.type = "post";
-                tree.addNode(doc);
-            }
 
             if (nodesInGraph.findOne({_id: doc._id})) {
                 for (var i in doc.links) {

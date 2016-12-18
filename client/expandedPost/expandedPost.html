@@ -1,7 +1,14 @@
 <template name="expandedPost">
+    <a class="unDraggable" href="/forum/post/{{_id}}?view=forum">Back to Forum</a>
     <div class="expanded-post">
         <h4 class="expanded-post-title">{{title}}</h4>
-        <p class="expanded-post-content"></p>
+        <p class="expanded-post-content">
+            <!--
+            This is where the posts content will be added, but that function is
+            not performed here, it is carried out in expandedPost.js, in order
+            to make the BBCode work properly.
+            -->
+        </p>
     </div>
 </template>
 

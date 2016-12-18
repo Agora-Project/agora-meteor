@@ -26,7 +26,9 @@
 <template name="detailedViewPost">
     <div class="post" id="post-{{_id}}">
         <div class="postHeader draggable">
-            <div class="titleBar draggable"><a class="unDraggable" href="/forum/post/{{_id}}">{{title}}</a></div>
+            <div class="titleBar draggable">
+                <a class="unDraggable" href="/forum/post/{{_id}}">{{title}}</a>
+            </div>
             <button class="closeButton unDraggable"><i class="fa fa-close"></i></button>
         </div>
         <div class="postInfo unDraggable">
