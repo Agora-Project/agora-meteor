@@ -1,6 +1,6 @@
 Package.describe({
     name: 'agoraforum:core',
-    version: '0.0.7',
+    version: '0.0.8',
     summary: 'Graph-based forum',
     git: 'https://github.com/Agora-Project/agora-meteor',
     documentation: 'README.md'
@@ -81,7 +81,7 @@ Package.onUse(function(api) {
         'ui',
         'd3js:d3@3.5.5',
         'zodiase:mdl@1.0.2',
-        'utilities:avatar'
+        'utilities:avatar@0.9.2'
     ], 'client');
 
     api.use([

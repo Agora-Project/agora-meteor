@@ -1,29 +1,31 @@
 currentAction = "none";
 templates = {};
 var unFocus = function () {
-  if (document.selection) {
-    document.selection.empty()
-  } else {
-    window.getSelection().removeAllRanges()
-  }
+    if (document.selection) {
+        document.selection.empty();
+    } else {
+        window.getSelection().removeAllRanges();
+    }
 }
 
 Template.detailedViewPost.onCreated(function () {
     templates[this.data._id] = this;
     let count = 0;
 
-    this.data.links.forEach(function(link) {
-        handlers.addHandler(link.target);
-        var temp = templates[link.target];
-        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-        else count++;
-    });
-    this.data.replyIDs.forEach(function(link) {
-        handlers.addHandler(link);
-        var temp = templates[link];
-        if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-        else count++;
-    });
+    if (this.data.links)
+        this.data.links.forEach(function(link) {
+            handlers.addHandler(link.target);
+            var temp = templates[link.target];
+            if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
+            else count++;
+        });
+    if (this.data.replyIDs)
+        this.data.replyIDs.forEach(function(link) {
+            handlers.addHandler(link);
+            var temp = templates[link];
+            if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
+            else count++;
+        });
 
     this.linkCount = new ReactiveVar(count);
 
@@ -353,6 +355,10 @@ Template.detailedViewReply.events({
     },
 });
 
+Template.detailedView.onCreated(function() {
+    handlers.addHandler();
+})
+
 Template.detailedView.events({
     'mousedown, touchstart': function(event, template) {
         if (event.button != 0) return;
@@ -409,7 +415,7 @@ Template.detailedView.helpers({
     }
 });
 
-Template.detailedView.rendered = function() {
+Template.detailedView.onRendered(function() {
     var init = true;
 
     var nodesCursor = Post.find({});
@@ -419,7 +425,7 @@ Template.detailedView.rendered = function() {
     nodesCursor.observe({
         added: function(doc) {
             if (init) return;
-            if (doc.links.length < 1) {
+            if (!doc.links || doc.links.length < 1) {
                 doc.type = "post";
                 tree.addNode(doc);
             }
@@ -459,7 +465,7 @@ Template.detailedView.rendered = function() {
     tree.runGraph();
     tree.render();
     init = false;
-};
+});
 
 Template.detailedViewPostList.onCreated(function() {
     postList = this;

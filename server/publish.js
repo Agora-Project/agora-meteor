@@ -30,7 +30,7 @@ Meteor.publish("users", function() {
 Meteor.publish("post", function(id) {
     if (id == 'rootNode') {
         return Post.find({
-            $where : 'this.links.length < 1'
+            $where : '!this.links || this.links.length < 1'
         });
     }
     return Post.find({

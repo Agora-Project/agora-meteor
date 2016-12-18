@@ -29,4 +29,3 @@ handlers.stop = function(node) {
         return;
     }
 }
-handlers.addHandler();
