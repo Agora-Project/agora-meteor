@@ -143,6 +143,7 @@
     height: 32px;
     border-radius: 4px;
     margin: 3px 10px 6px -3px;
+    z-index: 0;
 }
 
 .postInfo span {
