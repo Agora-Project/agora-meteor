@@ -11,6 +11,11 @@ Router.route('/forum', {
     template: 'doubleView'
 });
 
+Router.route('/forum/overview', {
+    name: 'overview',
+    template: 'overview'
+});
+
 Router.route('/forum/post/:_id', function() {
     var routerThis = this;
     var id = this.params._id;
