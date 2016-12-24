@@ -466,6 +466,13 @@ Template.detailedView.onRendered(function() {
                 var countChange = (doc.links.length + doc.replyIDs.length)
                                 - (post.links.length + post.replyIDs.length);
                 doc.type = post.type;
+                if (countChange < 0) {
+                    for (let link of post.links) {
+                        if (doc.links.find(function(n) {return (link._id == n._id)})) {
+                            tree.removeLink(link);
+                        }
+                    }
+                }
                 nodesInGraph.update({_id: doc._id}, doc);
                 var temp = templates[doc._id];
                 temp.linkCount.set(temp.linkCount.get() + countChange);
