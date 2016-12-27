@@ -247,7 +247,8 @@ ForumTree = function(forumIndex, nodesCursor) {
                 let post = $("#post-" + d._id);
                 let xAdjust = (post.outerWidth() / 2);
                 let yAdjust = (post.outerHeight() / 2);
-                post.css("left", d.x - xAdjust).css("top", d.y - yAdjust);
+                post.css("left", d.x - (post.outerWidth() / 2))
+                    .css("top", d.y - (post.outerHeight() / 2));
             } else if (d.type == "reply" || d.type == "edit") {
                 $("#reply-" + d._id).css("left", d.x - 160).css("top", d.y - 112);
             }

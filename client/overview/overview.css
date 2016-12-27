@@ -31,3 +31,13 @@
     border-radius: 50%;
     background-color: #555;
 }
+
+.title-display-div {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 320px;
+    max-height: 224px;
+    margin: 0px;
+    padding: 0px;
+}

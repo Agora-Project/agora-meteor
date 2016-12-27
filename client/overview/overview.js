@@ -145,4 +145,29 @@ Template.overviewPost.onRendered(function () {
             addInLineBreaks: true
         }).html);
 
+    let post = instance.$(".post");
+    let point = $("#overview-node-" + this.data._id);
+    post.css("left", point.css("left")).css("top", point.css("top"));
+
+});
+
+Template.overviewPost.helpers({
+    avatarURL: function() {
+        return 'https://avatars3.githubusercontent.com/u/6981448';
+    },
+    user: function() {
+        return Meteor.users.findOne(this.posterID);
+    },
+    hasContent: function() {
+        return (this.content && this.content.length > 0);
+    }
+});
+
+Template.overviewTitle.onRendered(function () {
+    var instance = Template.instance();
+
+    let post = instance.$(".title-display-div");
+    let point = $("#overview-node-" + this.data._id);
+    post.css("left", point.css("left")).css("top", point.css("top"));
+
 });
