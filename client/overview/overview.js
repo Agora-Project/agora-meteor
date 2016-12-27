@@ -1,4 +1,12 @@
 Template.overview.onCreated(function() {
+
+    this.titleDisplay = new Mongo.Collection(null);
+    this.nodeDisplay = new Mongo.Collection(null);
+    this.displayingNode = false;
+    this.displayBuffer = false;
+
+    overviewObject = this;
+
     let postSubscription = this.subscribe('newestPosts', Date.now());
 
     this.autorun(function() {
@@ -85,7 +93,56 @@ Template.overview.onCreated(function() {
 });
 
 Template.overview.helpers({
+    titleDisplay: function() {
+        return Template.instance().titleDisplay.find({});
+    },
+    nodeDisplay: function() {
+        return Template.instance().nodeDisplay.find({});
+    },
     nodes: function() {
         return Post.find({}, {limit: 1000});
     }
+});
+
+Template.overviewNode.events({
+    "mouseenter": function(event) {
+        if (!overviewObject.displayingNode) {
+            overviewObject.titleDisplay.remove({});
+            overviewObject.titleDisplay.insert(this);
+        }
+    },
+    "click": function(event) {
+        overviewObject.titleDisplay.remove({});
+        overviewObject.nodeDisplay.remove({});
+        overviewObject.nodeDisplay.insert(this);
+        overviewObject.displayingNode = true;
+        overviewObject.displayBuffer = true;
+    }
+});
+
+$(window).click(function() {
+    if (overviewObject && !overviewObject.displayBuffer) {
+        overviewObject.titleDisplay.remove({});
+        overviewObject.nodeDisplay.remove({});
+        overviewObject.displayingNode = false;
+    } else if (overviewObject && overviewObject.displayBuffer)
+        overviewObject.displayBuffer = false;
+});
+
+Template.overviewPost.onRendered(function () {
+    var instance = Template.instance();
+
+    var postLink = instance.$('.titleBar a');
+    postLink.attr('title', postLink.text());
+
+    var usernameLink = instance.$('.username');
+    usernameLink.attr('title', usernameLink.text());
+
+    if(this.data.content)
+        instance.$('.postContent').html(XBBCODE.process({
+            text: this.data.content,
+            removeMisalignedTags: false,
+            addInLineBreaks: true
+        }).html);
+
 });

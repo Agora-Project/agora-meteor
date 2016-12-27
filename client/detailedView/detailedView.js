@@ -75,8 +75,10 @@ Template.detailedViewPost.onRendered(function () {
     var usernameLink = instance.$('.username');
     usernameLink.attr('title', usernameLink.text());
 
-    tree.runGraph();
-    tree.render();
+    if (tree) {
+        tree.runGraph();
+        tree.render();
+    }
 
     if(this.data.content)
         instance.$('.postContent').html(XBBCODE.process({
@@ -563,4 +565,4 @@ $(window).click(function() {
         templates[i].hideReplyDropdown();
         templates[i].hideMoreDropdown();
     }
-})
+});

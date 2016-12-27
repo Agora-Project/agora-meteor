@@ -1,5 +1,11 @@
 <template name="overview">
     <div class="overview-viewport">
+            {{#each titleDisplay}}
+                {{> overviewTitle}}
+            {{/each}}
+            {{#each nodeDisplay}}
+                {{> overviewPost}}
+            {{/each}}
         <div class="overview-centerer">
             <svg class="overview-links-graph"></svg>
             {{#each nodes}}
@@ -7,9 +13,45 @@
             {{/each}}
         </div>
     </div>
+
 </template>
 
 <template name="overviewNode">
     <div class="overview-node" id="overview-node-{{_id}}">
+    </div>
+</template>
+
+<template name="overviewTitle">
+    <div class="title-display-div" id="title-display-div-{{_id}}">
+        <div class="postHeader draggable">
+            <div class="titleBar draggable">
+                <a class="unDraggable" href="/forum/post/{{_id}}">{{title}}</a>
+            </div>
+            <button class="closeButton unDraggable"><i class="fa fa-close"></i></button>
+        </div>
+    </div>
+</template>
+
+<template name="overviewPost">
+    <div class="post" id="post-{{_id}}">
+        <div class="postHeader draggable">
+            <div class="titleBar draggable">
+                <a class="unDraggable" href="/forum/post/{{_id}}">{{title}}</a>
+            </div>
+            <button class="closeButton unDraggable"><i class="fa fa-close"></i></button>
+        </div>
+        <div class="postInfo unDraggable">
+            {{#if user}}
+                <a class="avatar unDraggable" href="/forum/user/{{user._id}}">
+                    {{> avatar user=(user) shape="rounded" class="avatar"}}
+                </a>
+                <a class="username unDraggable" href="/forum/user/{{user._id}}">{{user.username}}</a>
+            {{/if}}
+            <span class="unDraggable">4 hours ago</span>
+        </div>
+        {{#if hasContent}}
+            <div class="postContent unDraggable">
+            </div>
+        {{/if}}
     </div>
 </template>
