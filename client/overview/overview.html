@@ -1,9 +1,6 @@
 <template name="overview">
     <div class="overview-viewport">
         <div class="overview-centerer">
-            {{#each titleDisplay}}
-                {{> overviewTitle}}
-            {{/each}}
             {{#each nodeDisplay}}
                 {{> overviewPost}}
             {{/each}}
@@ -18,16 +15,6 @@
 
 <template name="overviewNode">
     <div class="overview-node" id="overview-node-{{_id}}">
-    </div>
-</template>
-
-<template name="overviewTitle">
-    <div class="title-display-div" id="title-display-div-{{_id}}">
-        <div class="postHeader draggable">
-            <div class="titleBar draggable">
-                <a class="unDraggable" href="/forum/post/{{_id}}">{{title}}</a>
-            </div>
-        </div>
     </div>
 </template>
 

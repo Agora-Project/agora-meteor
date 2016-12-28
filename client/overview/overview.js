@@ -1,9 +1,6 @@
 Template.overview.onCreated(function() {
 
-    this.titleDisplay = new Mongo.Collection(null);
     this.nodeDisplay = new Mongo.Collection(null);
-    this.displayingNode = false;
-    this.displayBuffer = false;
 
     overviewObject = this;
 
@@ -106,30 +103,15 @@ Template.overview.helpers({
 
 Template.overviewNode.events({
     "mouseenter": function(event) {
-        if (!overviewObject.displayingNode) {
-            overviewObject.titleDisplay.remove({});
-            overviewObject.titleDisplay.insert(this);
-        }
-    },
-    "mouseleave": function(event) {
-        overviewObject.titleDisplay.remove({});
-    },
-    "click": function(event) {
-        overviewObject.titleDisplay.remove({});
         overviewObject.nodeDisplay.remove({});
         overviewObject.nodeDisplay.insert(this);
-        overviewObject.displayingNode = true;
-        overviewObject.displayBuffer = true;
-    }
-});
-
-$(window).click(function() {
-    if (overviewObject && !overviewObject.displayBuffer) {
-        overviewObject.titleDisplay.remove({});
+    },
+    "mouseleave": function(event) {
         overviewObject.nodeDisplay.remove({});
-        overviewObject.displayingNode = false;
-    } else if (overviewObject && overviewObject.displayBuffer)
-        overviewObject.displayBuffer = false;
+    },
+    "click": function(event) {
+        Router.go('/forum/post/'+this._id);
+    }
 });
 
 Template.overviewPost.onRendered(function () {
@@ -164,13 +146,4 @@ Template.overviewPost.helpers({
     hasContent: function() {
         return (this.content && this.content.length > 0);
     }
-});
-
-Template.overviewTitle.onRendered(function () {
-    var instance = Template.instance();
-
-    let post = instance.$(".title-display-div");
-    let point = $("#overview-node-" + this.data._id);
-    post.css("left", parseInt(point.css("left")) + 20).css("top", point.css("top"));
-
 });
