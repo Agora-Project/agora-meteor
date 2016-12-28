@@ -111,6 +111,9 @@ Template.overviewNode.events({
             overviewObject.titleDisplay.insert(this);
         }
     },
+    "mouseleave": function(event) {
+        overviewObject.titleDisplay.remove({});
+    },
     "click": function(event) {
         overviewObject.titleDisplay.remove({});
         overviewObject.nodeDisplay.remove({});
@@ -147,7 +150,7 @@ Template.overviewPost.onRendered(function () {
 
     let post = instance.$(".post");
     let point = $("#overview-node-" + this.data._id);
-    post.css("left", point.css("left")).css("top", point.css("top"));
+    post.css("left", parseInt(point.css("left")) + 20).css("top", point.css("top"));
 
 });
 
@@ -168,6 +171,6 @@ Template.overviewTitle.onRendered(function () {
 
     let post = instance.$(".title-display-div");
     let point = $("#overview-node-" + this.data._id);
-    post.css("left", point.css("left")).css("top", point.css("top"));
+    post.css("left", parseInt(point.css("left")) + 20).css("top", point.css("top"));
 
 });
