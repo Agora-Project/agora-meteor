@@ -31,3 +31,7 @@
     border-radius: 50%;
     background-color: #555;
 }
+
+.overview-post {
+    z-index: 2;
+}
