@@ -14,8 +14,10 @@
 </template>
 
 <template name="overviewNode">
-    <div class="overview-node" id="overview-node-{{_id}}">
-    </div>
+    <a class="unDraggable" href="/forum/post/{{_id}}">
+        <div class="overview-node" id="overview-node-{{_id}}">
+        </div>
+    </a>
 </template>
 
 <template name="overviewPost">

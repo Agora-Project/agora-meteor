@@ -108,9 +108,6 @@ Template.overviewNode.events({
     },
     "mouseleave": function(event) {
         overviewObject.nodeDisplay.remove({});
-    },
-    "click": function(event) {
-        Router.go('/forum/post/'+this._id);
     }
 });
 
