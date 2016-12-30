@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 Package.describe({
     name: 'agoraforum:core',
     version: '0.0.8',

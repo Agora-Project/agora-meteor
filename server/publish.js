@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 Meteor.publish(null, function() {
     return Meteor.roles.find({});
 });

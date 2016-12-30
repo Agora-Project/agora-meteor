@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 Router.onBeforeAction(function() {
     if (Meteor.user() && Meteor.user().isBanned) {
         return this.render('forbidden');

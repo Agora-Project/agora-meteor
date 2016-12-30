@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 Meteor.methods({
     switchBanned: function (targetUserId, isBanned) {
         var loggedInUser = Meteor.user();

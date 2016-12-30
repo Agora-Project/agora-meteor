@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 Template.overview.onCreated(function() {
 
     this.nodeDisplay = new Mongo.Collection(null);

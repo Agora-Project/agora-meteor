@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 handlers = {};
 handlers.addHandler = function(id, callbacks) {
     if (!id) id = "rootNode";

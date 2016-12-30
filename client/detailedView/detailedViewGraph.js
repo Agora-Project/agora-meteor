@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 //The local collections for keeping track of what posts and kinks are shown.
 //though the links collection is only used to assign links _ids right now.
 nodesInGraph = new Mongo.Collection(null);
