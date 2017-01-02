@@ -126,6 +126,9 @@ Template.detailedViewPost.helpers({
     editAccess: function() {
         return ((this.ownerId && this.ownerId === Meteor.userId()) ||
         Roles.userIsInRole(Meteor.userId(), ['moderator']));
+    },
+    age: function() {
+        return new Date(this.postedOn).toDateString();
     }
 });
 
