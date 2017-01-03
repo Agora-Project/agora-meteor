@@ -5,9 +5,18 @@
 -->
 
 <template name="expandedPost">
-    <a class="unDraggable" href="/forum/post/{{_id}}?view=forum">Forum</a>
+    <a href="/forum/post/{{_id}}?view=forum">Forum</a>
     <div class="expanded-post">
         <h4 class="expanded-post-title">{{title}}</h4>
+        <div class="expanded-post-info">
+            {{#if user}}
+                <a class="expanded-post-avatar" href="/forum/user/{{user._id}}">
+                    {{> avatar user=(user) shape="rounded" class="avatar"}}
+                </a>
+                <a class="expanded-post-username" href="/forum/user/{{user._id}}">{{user.username}}</a>
+            {{/if}}
+            <span >{{age}}</span>
+        </div>
         <p class="expanded-post-content">
             <!--
             This is where the posts content will be added, but that function is

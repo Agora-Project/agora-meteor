@@ -131,7 +131,7 @@
     box-shadow: inset 0 0 8px #444;
 }
 
-.postInfo {
+.post-info {
     display: flex;
     flex-direction: row;
     height: 45px;
@@ -152,7 +152,7 @@
     z-index: 0;
 }
 
-.postInfo span {
+.post-info span {
     flex-shrink: 0;
     display: block;
     float: right;

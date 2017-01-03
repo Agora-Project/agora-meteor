@@ -31,3 +31,22 @@
 .expanded-post-loading {
     text-align: center;
 }
+
+.expanded-post-info {
+    display: flex;
+    flex-direction: row;
+    height: 45px;
+    line-height: 45px;
+    border: 1px solid #999;
+    border-top: none;
+    padding-right: 6px;
+
+    background-color: #f6f6f6;
+}
+
+.expanded-post-info span {
+    flex-shrink: 0;
+    display: block;
+    float: right;
+    margin: 3px 0 0px 6px;
+}

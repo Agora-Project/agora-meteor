@@ -111,9 +111,6 @@ Template.detailedViewPost.onDestroyed(function () {
 });
 
 Template.detailedViewPost.helpers({
-    avatarURL: function() {
-        return 'https://avatars3.githubusercontent.com/u/6981448';
-    },
     replyCount: function() {
         return Template.instance().linkCount.get();
     },
