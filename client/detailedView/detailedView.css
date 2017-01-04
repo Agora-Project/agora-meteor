@@ -277,7 +277,7 @@
     text-decoration: underline;
 }
 
-.titleInput {
+.title-input {
     overflow: hidden;
     width: 100%;
     border: 1px solid #999;
@@ -289,7 +289,7 @@
     font-weight: bold;
 }
 
-.replyHeader, .replyFooter {
+.reply-header, .reply-footer {
     flex-shrink: 0;
     display: flex;
     flex-direction: row;
@@ -297,7 +297,7 @@
     line-height: 32px;
 }
 
-.contentInput {
+.content-input {
     display: block;
     overflow: auto;
     height: 100%;
@@ -311,7 +311,7 @@
     resize: none;
 }
 
-.replyFooter button {
+.reply-footer button {
     flex-grow: 1;
     background-color: #fff;
     background-image: linear-gradient(#fcfcfc, #ddd);
@@ -320,13 +320,13 @@
     cursor: pointer;
 }
 
-.replyFooter button:active {
+.reply-footer button:active {
     background-color: #ddd;
     background-image: none;
     box-shadow: inset 0 0 8px #888;
 }
 
-.postList {
+.post-list {
     display: none;
     position: relative;
     top: 10%;

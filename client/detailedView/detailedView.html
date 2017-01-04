@@ -74,23 +74,23 @@
 
 <template name="detailedViewReply">
     <div class="reply" id="reply-{{_id}}">
-        <div class="replyHeader draggable">
-            <input type="text" class="titleInput draggable" id="titleInput-{{_id}}" placeholder="Title">
-            <button class="closeButton unDraggable"><i class="fa fa-close"></i></button>
+        <div class="reply-header draggable">
+            <input type="text" class="title-input draggable" id="titleInput-{{_id}}" placeholder="Title">
+            <button class="close-button undraggable"><i class="fa fa-close"></i></button>
         </div>
-        <textarea class="contentInput unDraggable" id="contentInput-{{_id}}" placeholder="Reply Content"></textarea>
-        <div class="replyFooter unDraggable">
-            <button class="submitButton unDraggable">Submit</button>
+        <textarea class="content-input undraggable" id="contentInput-{{_id}}" placeholder="Reply Content"></textarea>
+        <div class="reply-footer undraggable">
+            <button class="submit-button undraggable">Submit</button>
         </div>
     </div>
 </template>
 
 <template name="detailedViewPostList">
-    <div class="postList">
+    <div class="post-list">
 
-        <a class="unDraggable">Title</a>
-        <a class="username unDraggable">Username</a>
-        <span class="unDraggable">Date Posted</span>
+        <a class="undraggable">Title</a>
+        <a class="username undraggable">Username</a>
+        <span class="undraggable">Date Posted</span>
         {{#each posts}}
             {{> detailedViewPostListing}}
         {{/each}}
@@ -98,9 +98,9 @@
 </template>
 
 <template name="detailedViewPostListing">
-    <div class="postListingDiv unDraggable">
-        <a class="unDraggable">{{title}}</a>
-        <a class="username unDraggable" href="#">{{user.username}}</a>
-        <span class="unDraggable">4 hours ago</span>
+    <div class="post-listing-div undraggable">
+        <a class="undraggable">{{title}}</a>
+        <a class="username undraggable" href="#">{{user.username}}</a>
+        <span class="undraggable">4 hours ago</span>
     </div>
 </template>

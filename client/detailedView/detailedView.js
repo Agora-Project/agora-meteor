@@ -285,14 +285,14 @@ Template.detailedViewReply.onRendered(function () {
     tree.runGraph();
     tree.render();
 
-    instance.$(".titleInput").focus();
+    instance.$(".title-input").focus();
     if (!this.data) return;
-    if (this.data.title) instance.$(".titleInput").val(this.data.title);
-    if (this.data.content) instance.$(".contentInput").val(this.data.content);
+    if (this.data.title) instance.$(".title-input").val(this.data.title);
+    if (this.data.content) instance.$(".content-input").val(this.data.content);
 });
 
 Template.detailedViewReply.events({
-    'mousedown .unDraggable, touchstart .unDraggable': function(event) {
+    'mousedown .unDraggable, touchstart .undraggable': function(event) {
         if (event.button != 0) return;
         event.stopImmediatePropagation();
     },
@@ -321,10 +321,10 @@ Template.detailedViewReply.events({
             this.counter = 2;
         } else this.counter--;
     },
-    'click .closeButton': function(event) {
+    'click .close-button': function(event) {
         tree.removeNode(this);
     },
-    'click .submitButton': function(event) {
+    'click .submit-button': function(event) {
         if (this.type == "reply") {
             if (this.links.length < 1) return;
             let title = $('#titleInput-' + this._id).val();
@@ -409,6 +409,7 @@ Template.detailedView.events({
         }
     },
     'wheel': function(event) {
+        return;
         if (event.originalEvent.deltaY < 0) {
             Template.instance().scale *= 4;
             Template.instance().scale /= 3;
@@ -416,7 +417,7 @@ Template.detailedView.events({
             Template.instance().scale *= 3;
             Template.instance().scale /= 4;
         }
-        $(".graphContainer").css("transform", "scale(" +
+        $(".detailed-view-centerer").css("transform", "scale(" +
         Template.instance().scale + ")");
     },
     'click .button-delete': function(event) {
@@ -501,7 +502,7 @@ Template.detailedViewPostList.onCreated(function() {
     this.hide = function() {
         if (this.hideBuffer == false) {
             this.isVisible = false;
-            this.$(".postList").fadeOut(150);
+            this.$(".post-list").fadeOut(150);
         } else {
             this.hideBuffer = false;
         }
@@ -509,7 +510,7 @@ Template.detailedViewPostList.onCreated(function() {
 
     this.show = function() {
         this.isVisible = true;
-        this.$(".postList").fadeIn(150);
+        this.$(".post-list").fadeIn(150);
         this.hideBuffer = true;
     };
 });
