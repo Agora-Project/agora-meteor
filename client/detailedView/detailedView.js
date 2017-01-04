@@ -41,7 +41,7 @@ Template.detailedViewPost.onCreated(function () {
     this.hideReplyDropdown = function() {
         if (this.hideReplyBuffer == false) {
             this.replyDrowpdownVisible = false;
-            this.$(".repliesDropdownContent").fadeOut(150);
+            this.$(".replies-dropdown-content").fadeOut(150);
         } else {
             this.hideReplyBuffer = false;
         }
@@ -49,7 +49,7 @@ Template.detailedViewPost.onCreated(function () {
 
     this.showReplyDropdown = function() {
         this.replyDrowpdownVisible = true;
-        this.$(".repliesDropdownContent").fadeIn(150);
+        this.$(".replies-dropdown-content").fadeIn(150);
         this.hideReplyBuffer = true;
     };
 
@@ -59,7 +59,7 @@ Template.detailedViewPost.onCreated(function () {
     this.hideMoreDropdown = function() {
         if (this.hideMoreBuffer == false) {
             this.moreDrowpdownVisible = false;
-            this.$(".moreDropdownContent").fadeOut(150);
+            this.$(".more-dropdown-content").fadeOut(150);
         } else {
             this.hideMoreBuffer = false;
         }
@@ -67,7 +67,7 @@ Template.detailedViewPost.onCreated(function () {
 
     this.showMoreDropdown = function() {
         this.moreDrowpdownVisible = true;
-        this.$(".moreDropdownContent").fadeIn(150);
+        this.$(".more-dropdown-content").fadeIn(150);
         this.hideMoreBuffer = true;
     };
 });
@@ -75,7 +75,7 @@ Template.detailedViewPost.onCreated(function () {
 Template.detailedViewPost.onRendered(function () {
     var instance = Template.instance();
 
-    var postLink = instance.$('.titleBar a');
+    var postLink = instance.$('.title-bar a');
     postLink.attr('title', postLink.text());
 
     var usernameLink = instance.$('.username');
@@ -87,7 +87,7 @@ Template.detailedViewPost.onRendered(function () {
     }
 
     if(this.data.content)
-        instance.$('.postContent').html(XBBCODE.process({
+        instance.$('.post-content').html(XBBCODE.process({
             text: this.data.content,
             removeMisalignedTags: false,
             addInLineBreaks: true
@@ -147,7 +147,7 @@ Template.detailedViewPost.events({
         }
 
     },
-    'mousedown .unDraggable, touchstart .unDraggable': function(event) {
+    'mousedown .undraggable, touchstart .undraggable': function(event) {
         if (event.button != 0) return;
         event.stopImmediatePropagation();
     },
@@ -176,14 +176,14 @@ Template.detailedViewPost.events({
             this.counter = 2;
         } else this.counter--;
     },
-    'click .showRepliesButton': function (event) {
+    'click .show-replies-button': function (event) {
         if (!this.showReplyDropdown) {
             Template.instance().showReplyDropdown();
         } else {
             Template.instance().hideReplyDropdown();
         }
     },
-    'click .loadAllButton': function (event) {
+    'click .load-all-button': function (event) {
 
         for (var i in this.links) {
             let linkID = this.links[i].target;
@@ -209,7 +209,7 @@ Template.detailedViewPost.events({
         }
         return;
     },
-    'click .showListButton': function (event) {
+    'click .show-list-button': function (event) {
 
         postList.posts.remove({});
 
@@ -239,7 +239,7 @@ Template.detailedViewPost.events({
         postList.show();
         return;
     },
-    'click .replyButton': function(event) {
+    'click .reply-button': function(event) {
         if (!Meteor.userId()) return;
         if (!nodesInGraph.findOne({ $or: [ {type: "reply"}, {type: "edit"} ] })) {
             let _id = tree.addNode({type: "reply", links: [{target: this._id}]})._id;
@@ -258,17 +258,17 @@ Template.detailedViewPost.events({
             }
         }
     },
-    'click .closeButton': function(event) {
+    'click .close-button': function(event) {
         tree.removeNode(this);
     },
-    'click .moreButton': function(event) {
+    'click .more-button': function(event) {
         if (!this.showMoreDropdown) {
             Template.instance().showMoreDropdown();
         } else {
             Template.instance().hideMoreDropdown();
         }
     },
-    'click .editPostButton': function(event) {
+    'click .edit-post-button': function(event) {
         if (!nodesInGraph.findOne({type: "reply"})) {
             tree.removeNode(this);
             nodesInGraph.remove({_id: this._id});

@@ -46,12 +46,12 @@ Template.overview.onCreated(function() {
                 }
                 postArray.push(post);
             });
-            
+
             //let layout = new GraphLayoutForce(postArray, linkArray);
             let layout = new GraphLayoutLayered(postArray, linkArray);
-            
+
             overviewObject.postArray = layout.nodes;
-            
+
             overviewObject.render = function() {
                 for (let post of layout.nodes) {
                     if (post.name !== undefined) {
@@ -141,7 +141,7 @@ Template.overviewPost.onRendered(function () {
     usernameLink.attr('title', usernameLink.text());
 
     if(this.data.content)
-        instance.$('.postContent').html(XBBCODE.process({
+        instance.$('.post-content').html(XBBCODE.process({
             text: this.data.content,
             removeMisalignedTags: false,
             addInLineBreaks: true

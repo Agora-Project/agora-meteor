@@ -41,3 +41,22 @@
 .overview-post {
     z-index: 2;
 }
+
+.overview-post-info {
+    display: flex;
+    flex-direction: row;
+    height: 45px;
+    line-height: 45px;
+    border: 1px solid #999;
+    border-top: none;
+    padding-right: 6px;
+
+    background-color: #f6f6f6;
+}
+
+.overview-post-info span {
+    flex-shrink: 0;
+    display: block;
+    float: right;
+    margin: 0 0 10px 10px;
+}

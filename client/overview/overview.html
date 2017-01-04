@@ -28,22 +28,22 @@
 
 <template name="overviewPost">
     <div class="post overview-post" id="post-{{_id}}">
-        <div class="postHeader draggable">
-            <div class="titleBar draggable">
-                <a class="unDraggable" href="/forum/post/{{_id}}">{{title}}</a>
+        <div class="post-header">
+            <div class="title-bar">
+                <a  href="/forum/post/{{_id}}">{{title}}</a>
             </div>
         </div>
-        <div class="postInfo unDraggable">
+        <div class="overview-post-info">
             {{#if user}}
-                <a class="avatar unDraggable" href="/forum/user/{{user._id}}">
+                <a class="avatar" href="/forum/user/{{user._id}}">
                     {{> avatar user=(user) shape="rounded" class="avatar"}}
                 </a>
-                <a class="username unDraggable" href="/forum/user/{{user._id}}">{{user.username}}</a>
+                <a class="username" href="/forum/user/{{user._id}}">{{user.username}}</a>
             {{/if}}
-            <span class="unDraggable">4 hours ago</span>
+            <span>4 hours ago</span>
         </div>
         {{#if hasContent}}
-            <div class="postContent unDraggable">
+            <div class="post-content">
             </div>
         {{/if}}
     </div>

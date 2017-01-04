@@ -6,10 +6,8 @@
 
 .detailed-view-viewport {
     position: relative;
-    max-width: 1024px;
-    max-height: 768px;
-    width: 100vw;
-    height: 75vw;
+    width: 80vw;
+    height: 90vh;
     padding: 0px;
     margin: 0px auto;
     border: 1px solid #999;
@@ -88,7 +86,7 @@
     text-decoration: underline;
 }
 
-.postHeader, .postFooter {
+.post-header, .post-footer {
     flex-shrink: 0;
     display: flex;
     flex-direction: row;
@@ -96,7 +94,7 @@
     line-height: 32px;
 }
 
-.titleBar {
+.title-bar {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -111,7 +109,7 @@
     font-weight: bold;
 }
 
-.closeButton {
+.close-button {
     display: flex;
     align-items: center;
     width: 64px;
@@ -125,7 +123,7 @@
     font-size: 16px;
 }
 
-.closeButton:active {
+.close-button:active {
     background-color: #b44;
     background-image: none;
     box-shadow: inset 0 0 8px #444;
@@ -166,7 +164,7 @@
     text-overflow: ellipsis;
 }
 
-.postContent {
+.post-content {
     display: block;
     overflow: hidden;
     height: 100%;
@@ -178,23 +176,23 @@
     background-color: #fff;
 }
 
-.showRepliesButton {
+.show-replies-button {
     border: 1px solid #999;
     border-right: none;
     border-radius: 0px 0px 0px 8px;
 }
 
-.replyButton {
+.reply-button {
     border: 1px solid #999;
     border-right: none;
 }
 
-.moreButton {
+.more-button {
     border: 1px solid #999;
     border-radius: 0px 0px 8px 0px;
 }
 
-.moreDropdownContent {
+.more-dropdown-content {
     display: none;
     position: absolute;
     right: 0px;
@@ -206,18 +204,18 @@
     border-radius: 8px;
 }
 
-.moreDropdownContent a {
+.more-dropdown-content a {
     display: inline-block;
     white-space: nowrap;
     padding: 8px;
 }
 
-.moreDropdownContent hr {
+.more-dropdown-content hr {
     margin: 0px;
     padding: 0px;
 }
 
-.repliesDropdownContent {
+.replies-dropdown-content {
     display: none;
     position: absolute;
     left: 0px;
@@ -229,18 +227,18 @@
     border-radius: 8px;
 }
 
-.repliesDropdownContent a {
+.replies-dropdown-content a {
     display: inline-block;
     white-space: nowrap;
     padding: 8px;
 }
 
-.repliesDropdownContent hr {
+.replies-dropdown-content hr {
     margin: 0px;
     padding: 0px;
 }
 
-.postFooter button {
+.post-footer button {
     flex-grow: 1;
     background-color: #fff;
     background-image: linear-gradient(#fcfcfc, #ddd);
@@ -248,7 +246,7 @@
     border-top: none;
 }
 
-.postFooter button:active {
+.post-footer button:active {
     background-color: #ddd;
     background-image: none;
     box-shadow: inset 0 0 8px #888;

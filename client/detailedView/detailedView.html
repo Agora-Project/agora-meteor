@@ -31,43 +31,43 @@
 
 <template name="detailedViewPost">
     <div class="post" id="post-{{_id}}">
-        <div class="postHeader draggable">
-            <div class="titleBar draggable">
-                <a class="unDraggable" href="/forum/post/{{_id}}">{{title}}</a>
+        <div class="post-header draggable">
+            <div class="title-bar draggable">
+                <a class="undraggable" href="/forum/post/{{_id}}">{{title}}</a>
             </div>
-            <button class="closeButton unDraggable"><i class="fa fa-close"></i></button>
+            <button class="close-button undraggable"><i class="fa fa-close"></i></button>
         </div>
-        <div class="post-info unDraggable">
+        <div class="post-info undraggable">
             {{#if user}}
-                <a class="avatar unDraggable" href="/forum/user/{{user._id}}">
+                <a class="avatar undraggable" href="/forum/user/{{user._id}}">
                     {{> avatar user=(user) shape="rounded" class="avatar"}}
                 </a>
-                <a class="username unDraggable" href="/forum/user/{{user._id}}">{{user.username}}</a>
+                <a class="username undraggable" href="/forum/user/{{user._id}}">{{user.username}}</a>
             {{/if}}
-            <span class="unDraggable">{{age}}</span>
+            <span class="undraggable">{{age}}</span>
         </div>
         {{#if hasContent}}
-            <div class="postContent unDraggable">
+            <div class="post-content undraggable">
             </div>
         {{/if}}
-        <div class="postFooter unDraggable">
-            <button class="showRepliesButton unDraggable">Connecting Posts ({{replyCount}})</button>
+        <div class="post-footer undraggable">
+            <button class="show-replies-button undraggable">Connecting Posts ({{replyCount}})</button>
             {{#if currentUser}}
-                <button class="replyButton unDraggable">Reply</button>
+                <button class="reply-button undraggable">Reply</button>
             {{/if}}
-            <button class="moreButton unDraggable">More<i class="fa fa-caret-down"></i></button>
+            <button class="more-button undraggable">More<i class="fa fa-caret-down"></i></button>
         </div>
-        <div class="moreDropdownContent unDraggable">
+        <div class="more-dropdown-content undraggable">
             {{#if editAccess}}
-                <a class="editPostButton" href="#">Edit Post</a>
+                <a class="edit-post-button" href="#">Edit Post</a>
             {{/if}}
             <hr>
-            <a class="reportPostButton" href="#">Report</a>
+            <a class="report-post-button" href="#">Report</a>
         </div>
-        <div class="repliesDropdownContent unDraggable">
-            <a class="loadAllButton" href="#">Load All</a>
+        <div class="replies-dropdown-content undraggable">
+            <a class="load-all-button" href="#">Load All</a>
             <hr>
-            <a class="showListButton" href="#">Show List</a>
+            <a class="show-list-button" href="#">Show List</a>
         </div>
     </div>
 </template>
