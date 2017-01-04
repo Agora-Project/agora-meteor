@@ -32,6 +32,11 @@ Package.onUse(function(api) {
         'client/userList/userList.html',
         'client/userList/userList.js'
     ], 'client');
+    
+    api.addFiles([
+        'lib/layered_grapher/layered_grapher.js',
+        'client/graphLayoutMethods.js'
+    ], 'client');
 
     api.addFiles([
         'client/expandedPost/expandedPost.html',

@@ -34,9 +34,6 @@ Template.overview.onCreated(function() {
             let postArray = [];
             let linkArray = [];
 
-            overviewObject.postArray = postArray;
-            overviewObject.linkArray = linkArray;
-
             $.each(posts, function(id, post) {
                 if (post.data.links)
                 for (let link of post.data.links) {
@@ -49,51 +46,25 @@ Template.overview.onCreated(function() {
                 }
                 postArray.push(post);
             });
-
-            let graph = d3.layout.force()
-                .nodes(postArray)
-                .links(linkArray)
-                .gravity(1.0)
-                .charge(-2000)
-                .chargeDistance(512)
-                .friction(0.9)
-                .linkStrength(0.3)
-                .linkDistance(function(link) {
-                    return 16.0;
-                })
-                .on("tick", tick);
-
-            // tick
-            function tick(e) {
-                //This if statement keeps the app from choking when reloading the page.
-                if (!graph.nodes()[0] || !graph.nodes()[0].y) { return; }
-
-                var links = graph.links();
-                var nodes = graph.nodes();
-
-                var k = 6 * e.alpha;
-                links.forEach(function(d, i) {
-                    if (d.source.y < d.target.y + 160) {
-                        d.target.y -= 1;
-                    }
-                });
-            }
-
-            graph.start();
-            for (let i = 0; i < 256; i++) graph.tick();
-            graph.stop();
-
+            
+            //let layout = new GraphLayoutForce(postArray, linkArray);
+            let layout = new GraphLayoutLayered(postArray, linkArray);
+            
+            overviewObject.postArray = layout.nodes;
+            
             overviewObject.render = function() {
-                for (let post of postArray) {
-                    let div = post.div;
-                    div.css("left", post.x - div.outerWidth()/2.0);
-                    div.css("top", post.y - div.outerHeight()/2.0);
+                for (let post of layout.nodes) {
+                    if (post.name !== undefined) {
+                        let div = post.name.div;
+                        div.css("left", post.x - div.outerWidth()/2.0);
+                        div.css("top", post.y - div.outerHeight()/2.0);
+                    }
                 }
 
                 $('.overview-link').remove(); //TODO: don't redo all links upon change to graph
                 let svg = $('.overview-links-graph');
 
-                for (let link of linkArray) {
+                for (let link of layout.links) {
                     $(document.createElementNS('http://www.w3.org/2000/svg','line'))
                         .attr('class', 'overview-link')
                         .attr('stroke', 'black')
@@ -103,7 +74,6 @@ Template.overview.onCreated(function() {
                         .attr('y2', link.target.y)
                         .appendTo(svg);
                 }
-
             }
 
             overviewObject.render();
@@ -125,15 +95,15 @@ Template.overview.events({
     'mousemove, touchmove': function(event, template) {
         if (template.dragging) {
             unFocus();
-            for (let i = 0; i < overviewObject.postArray.length; i++) {
-                overviewObject.postArray[i].x += (event.screenX - template.mousePos.x);
-                overviewObject.postArray[i].y += (event.screenY - template.mousePos.y);
+            for (let post of overviewObject.postArray) {
+                post.x += (event.screenX - template.mousePos.x);
+                post.y += (event.screenY - template.mousePos.y);
             }
             template.mousePos = {x: event.screenX, y: event.screenY};
 
             if (template.counter <= 0) {
                 overviewObject.render();
-                template.counter = 2;
+                template.counter = 3;
             } else template.counter--;
         }
     }
