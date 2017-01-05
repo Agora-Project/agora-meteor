@@ -162,5 +162,8 @@ Template.overviewPost.helpers({
     },
     hasContent: function() {
         return (this.content && this.content.length > 0);
+    },
+    age: function() {
+        return new Date(this.postedOn).toDateString();
     }
 });
