@@ -24,6 +24,8 @@
             to make the BBCode work properly.
             -->
         </p>
+
+        {{> expandedViewPostList this}}
     </div>
 </template>
 
@@ -33,4 +35,24 @@
 
 <template name="expandedPostLoading">
     <h4 class="expanded-post-loading">Loading...</h4>
+</template>
+
+<template name="expandedViewPostList">
+    <div class="post-list">
+
+        <a class="undraggable">Title</a>
+        <a class="username undraggable">Username</a>
+        <span class="undraggable">Date Posted</span>
+        {{#each posts}}
+            {{> expandedViewPostListing}}
+        {{/each}}
+    </div>
+</template>
+
+<template name="expandedViewPostListing">
+    <div class="post-listing-div undraggable">
+        <a class="undraggable" href="/forum/post/{{_id}}">{{title}}</a>
+        <a class="username undraggable" href="/forum/user/{{user._id}}">{{user.username}}</a>
+        <span class="undraggable">4 hours ago</span>
+    </div>
 </template>

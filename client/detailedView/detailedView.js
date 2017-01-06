@@ -502,7 +502,7 @@ Template.detailedViewPostList.onCreated(function() {
     this.hide = function() {
         if (this.hideBuffer == false) {
             this.isVisible = false;
-            this.$(".post-list").fadeOut(150);
+            this.$(".detailed-post-list").fadeOut(150);
         } else {
             this.hideBuffer = false;
         }
@@ -510,7 +510,7 @@ Template.detailedViewPostList.onCreated(function() {
 
     this.show = function() {
         this.isVisible = true;
-        this.$(".post-list").fadeIn(150);
+        this.$(".detailed-post-list").fadeIn(150);
         this.hideBuffer = true;
     };
 });

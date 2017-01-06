@@ -15,3 +15,8 @@ html {
 body {
     background-color: #fff;
 }
+
+.hidden {
+
+        display: none;
+}

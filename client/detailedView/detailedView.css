@@ -326,7 +326,7 @@
     box-shadow: inset 0 0 8px #888;
 }
 
-.post-list {
+.detailed-post-list {
     display: none;
     position: relative;
     top: 10%;
