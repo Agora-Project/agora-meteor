@@ -35,7 +35,7 @@
 .expanded-post-info {
     display: flex;
     flex-direction: row;
-    height: 45px;
+    height: 65px;
     line-height: 45px;
     border: 1px solid #999;
     border-top: none;
@@ -49,4 +49,11 @@
     display: block;
     float: right;
     margin: 3px 0 0px 6px;
+}
+
+.expanded-post-avatar {
+    display: block;
+    border-radius: 4px;
+    margin: 6px 12px 6px 0px;
+    z-index: 0;
 }
