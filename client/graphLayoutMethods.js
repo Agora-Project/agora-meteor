@@ -19,8 +19,11 @@ GraphLayoutLayered = function(nodes, links) {
         if (node.vertex !== undefined) {
             node.name = node.vertex.name;
         }
-        node.x = node.column*32.0;
-        node.y = node.layer*32.0;
+        
+        let layerWidth = layout.table[node.layer].length - 1;
+        
+        node.x = (node.column - layerWidth*0.5)*32.0;
+        node.y = (node.layer - layout.height*0.5)*32.0;
     }
     
     this.nodes = layout.nodes;
