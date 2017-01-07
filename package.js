@@ -25,7 +25,8 @@ Package.onUse(function(api) {
     api.addFiles([
         'client/subscribe.js',
         'client/navigation.js',
-        'client/main.css'
+        'client/main.css',
+        'client/main.js'
     ], 'client');
 
     api.addFiles([
