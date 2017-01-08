@@ -35,8 +35,8 @@
         </div>
         <div class="overview-post-info">
             {{#if user}}
-                <a class="avatar" href="/forum/user/{{user._id}}">
-                    {{> avatar user=(user) shape="rounded" class="avatar"}}
+                <a href="/forum/user/{{user._id}}">
+                    {{> avatar user=(user) size="small" shape="rounded" class="overview-avatar"}}
                 </a>
                 <a class="username" href="/forum/user/{{user._id}}">{{user.username}}</a>
             {{/if}}

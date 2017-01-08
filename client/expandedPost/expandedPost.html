@@ -10,8 +10,8 @@
         <h4 class="expanded-post-title">{{title}}</h4>
         <div class="expanded-post-info">
             {{#if user}}
-                <a class="expanded-post-avatar" href="/forum/user/{{user._id}}">
-                    {{> avatar user=(user) shape="rounded"}}
+                <a href="/forum/user/{{user._id}}">
+                    {{> avatar user=(user) shape="rounded" class="expanded-post-avatar"}}
                 </a>
                 <a class="expanded-post-username" href="/forum/user/{{user._id}}">{{user.username}}</a>
             {{/if}}

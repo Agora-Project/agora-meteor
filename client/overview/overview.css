@@ -60,3 +60,10 @@
     float: right;
     margin: 0 0 10px 10px;
 }
+
+.overview-avatar {
+    display: block;
+    border-radius: 4px;
+    margin: 6px 12px 6px -6px;
+    z-index: 0;
+}
