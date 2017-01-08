@@ -3,6 +3,7 @@
 //  B. We can return extra dummy nodes and links.
 
 GraphLayoutLayered = function(nodes, links) {
+    let SPACING_DISTANCE = 32.0;
     let dag = new DAG();
     
     for (let node of nodes) {
@@ -22,8 +23,47 @@ GraphLayoutLayered = function(nodes, links) {
         
         let layerWidth = layout.table[node.layer].length - 1;
         
-        node.x = (node.column - layerWidth*0.5)*32.0;
-        node.y = (node.layer - layout.height*0.5)*32.0;
+        node.x = (node.column - layerWidth*0.5)*SPACING_DISTANCE;
+        node.y = (node.layer - layout.height*0.5)*SPACING_DISTANCE;
+    }
+    
+    //Try to move nodes towards their connections, while maintaining distance
+    //from their neighbors.
+    for (let i = 0; i < 3; i++) {
+        for (let node of layout.nodes) {
+            let totalX = 0.0;
+            let xCount = 0;
+            
+            for (let edge of node.edgesOut) {
+                totalX += edge.target.x;
+                xCount++;
+            }
+            
+            for (let edge of node.edgesIn) {
+                totalX += edge.source.x;
+                xCount++;
+            }
+            
+            node.targetX = totalX/xCount;
+            
+            //Limit offset based on neighboring nodes.
+            if (node.targetX < node.x) {
+                let neighbor = layout.table[node.layer][node.column - 1];
+                if (neighbor !== undefined) {
+                    node.targetX = Math.max(neighbor.x + SPACING_DISTANCE, node.targetX);
+                }
+            }
+            else {
+                let neighbor = layout.table[node.layer][node.column + 1];
+                if (neighbor !== undefined) {
+                    node.targetX = Math.min(neighbor.x - SPACING_DISTANCE, node.targetX);
+                }
+            }
+        }
+        
+        for (let node of layout.nodes) {
+            node.x = node.targetX;
+        }
     }
     
     this.nodes = layout.nodes;
@@ -34,14 +74,14 @@ GraphLayoutForce = function(nodes, links) {
     let nodeMap = new IdentityMap();
     this.nodes = [];
     
-    //Wrap nodes
+    //Wrap nodes.
     for (let node of nodes) {
         let nodeWrapper = {name:node};
         nodeMap.put(node, nodeWrapper);
         this.nodes.push(nodeWrapper);
     }
     
-    //Wrap links
+    //Wrap links.
     this.links = [];
     for (let link of links) {
         this.links.push({
@@ -50,7 +90,7 @@ GraphLayoutForce = function(nodes, links) {
         });
     }
     
-    //Set up force graph
+    //Set up force graph.
     let graph = d3.layout.force()
         .nodes(this.nodes)
         .links(this.links)
@@ -72,7 +112,7 @@ GraphLayoutForce = function(nodes, links) {
             });
         });
     
-    //Run force graph
+    //Run force graph.
     graph.start();
     for (let i = 0; i < 256; i++) graph.tick();
     graph.stop();
