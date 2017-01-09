@@ -16,7 +16,7 @@ Template.overview.onCreated(function() {
 
     this.nodeDisplay = new Mongo.Collection(null);
 
-    overviewObject = this;
+    overviewObject = this; // !! Global variable!
 
     let postSubscription = this.subscribe('newestPosts', Date.now());
 
