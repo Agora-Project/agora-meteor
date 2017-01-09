@@ -44,6 +44,11 @@ GraphLayoutLayered = function(nodes, links) {
                 xCount++;
             }
             
+            if (xCount == 0) {
+                node.targetX = node.x;
+                continue;
+            }
+            
             node.targetX = totalX/xCount;
             
             //Limit offset based on neighboring nodes.
