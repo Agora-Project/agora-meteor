@@ -122,6 +122,10 @@ Template.overview.helpers({
 });
 
 Template.overviewNode.events({
+    'mousedown .undraggable, touchstart .undraggable': function(event) {
+        if (event.button != 0) return;
+        event.stopImmediatePropagation();
+    },
     "mouseenter": function(event) {
         overviewObject.nodeDisplay.remove({});
         overviewObject.nodeDisplay.insert(this);
