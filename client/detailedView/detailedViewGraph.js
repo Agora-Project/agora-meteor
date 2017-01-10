@@ -71,8 +71,6 @@ ForumTree = function(forumIndex, nodesCursor) {
         if (this.findLink(link))
             return true;
         else return false;
-
-        // !! Never returns true?
     };
 
     this.addNode = function(node) {
@@ -161,8 +159,6 @@ ForumTree = function(forumIndex, nodesCursor) {
         return false;
     };
 
-    this.links = []; // !! Redundant? Maybe? See line 48.
-
     //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
     //it will draw them to the mouse cursor as it's moved around.
@@ -189,27 +185,14 @@ ForumTree = function(forumIndex, nodesCursor) {
             linkDistance *= 3;
             return linkDistance;
         })
-        .on("tick", tick);
-
-    this.force = force; // !! Why are we exposing this? Where is it used?
-
-    // tick
-    // !! Named function despite being used only once. Also, useless commend.
-    function tick(e) {
-        //This if statement keeps the app from choking when reloading the page.
-        // !! (how?)
-        if (!force.nodes()[0] || !force.nodes()[0].y) { return; }
-
-        var links = force.links(); //Only used once
-        var nodes = force.nodes(); //Never used
-
-        var k = 6 * e.alpha;
-        links.forEach(function(d, i) {
-            if (d.source.y < d.target.y + 160) {
-                d.target.y -= 1;
-            }
-        });
-    }
+        .on("tick", function tick(e) {
+            var k = 6 * e.alpha;
+            force.links().forEach(function(d, i) {
+                if (d.source.y < d.target.y + 160) {
+                    d.target.y -= 1;
+                }
+            });
+        } );
 
     this.runGraph = function() {
         force.start();
@@ -221,8 +204,6 @@ ForumTree = function(forumIndex, nodesCursor) {
     this.render = function() {
 
         // add links
-        contextMenuShowing = false; // !! Global variable! Also, where is this used?
-
         linkElements = linkElements.data(force.links(), function(d, i) { return d._id; });
         linkElements.exit().remove();
 
@@ -253,8 +234,6 @@ ForumTree = function(forumIndex, nodesCursor) {
         this.nodes.forEach(function(d) {
             if (d.type == "post") {
                 let post = $("#post-" + d._id);
-                let xAdjust = (post.outerWidth() / 2); // !! Unused.
-                let yAdjust = (post.outerHeight() / 2); // !! Unused.
                 post.css("left", d.x - (post.outerWidth() / 2))
                     .css("top", d.y - (post.outerHeight() / 2));
             } else if (d.type == "reply" || d.type == "edit") {
