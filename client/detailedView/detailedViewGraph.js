@@ -47,52 +47,52 @@ ForumTree = function(forumIndex, nodesCursor) {
     this.nodes = [];
     this.links = [];
 
-    // !! Function parameters should be descriptive. Why is everything named 'doc'?
-    this.findNode = function(doc) {
-        if (doc._id)
-            return this.nodes.find(function(n) {return (doc._id == n._id)});
-        else return this.nodes.find(function(n) {return (doc == n._id)});
+    this.findNode = function(node) {
+        if (node._id)
+            return this.nodes.find(function(n) {return (node._id == n._id)});
+        else return this.nodes.find(function(n) {return (node == n._id)});
     };
 
-    this.findLink = function(doc) {
-        if (doc._id)
-            return this.links.find(function(l) {return (doc._id == l._id)});
+    this.findLink = function(linkDocument) {
+        if (linkDocument._id)
+            return this.links.find(function(l) {return (linkDocument._id == l._id)});
 
-        if (!doc.source || !doc.target) var link = linksToD3Array([doc], this.nodes)[0];
-        else var link = doc;
+        if (!linkDocument.source || !linkDocument.target) var link = linksToD3Array([linkDocument], this.nodes)[0];
+        else var link = linkDocument;
         return this.links.find(function(l) {return (link.source == l.source && link.target == l.target)});
     };
 
-    this.containsNode = function(doc) {
-        if (this.findNode(doc)) return true;
+    this.containsNode = function(node) {
+        if (this.findNode(node)) return true;
         else return false;
     };
 
-    this.containsLink = function(doc) {
-        if (this.findLink(doc))
-            return false;
-        
+    this.containsLink = function(link) {
+        if (this.findLink(link))
+            return true;
+        else return false;
+
         // !! Never returns true?
     };
 
-    this.addNode = function(doc) {
-        if (!this.nodes.find(function(n) {return (doc._id == n._id)})) {
-            let _id = doc._id;
-            if (!nodesInGraph.findOne({_id: doc._id}))
-                _id = nodesInGraph.insert(doc);
+    this.addNode = function(node) {
+        if (!this.nodes.find(function(n) {return (node._id == n._id)})) {
+            let _id = node._id;
+            if (!nodesInGraph.findOne({_id: node._id}))
+                _id = nodesInGraph.insert(node);
 
-            doc = nodesInGraph.findOne({_id: _id});
-            this.nodes.push(doc);
+            node = nodesInGraph.findOne({_id: _id});
+            this.nodes.push(node);
 
-            if (doc.links) {
-                for (var i in doc.links) {
-                    tree.addLink({sourceId: doc._id, targetId: doc.links[i].target});
+            if (node.links) {
+                for (var i in node.links) {
+                    tree.addLink({sourceId: node._id, targetId: node.links[i].target});
                 }
             }
 
-            if (doc.replyIDs) {
-                for (var i in doc.replyIDs) {
-                    tree.addLink({sourceId: doc.replyIDs[i], targetId: doc._id});
+            if (node.replyIDs) {
+                for (var i in node.replyIDs) {
+                    tree.addLink({sourceId: node.replyIDs[i], targetId: node._id});
                 }
             }
 
@@ -101,14 +101,14 @@ ForumTree = function(forumIndex, nodesCursor) {
         return false;
     };
 
-    this.addLink = function(doc) {
-        if (!doc._id) {
-            var _id = linksInGraph.insert(doc);
-            doc = linksInGraph.findOne({_id: _id});
+    this.addLink = function(linkDocument) {
+        if (!linkDocument._id) {
+            var _id = linksInGraph.insert(linkDocument);
+            linkDocument = linksInGraph.findOne({_id: _id});
         }
 
-        let link = linksToD3Array([doc], this.nodes)[0];
-        if (link && !this.containsLink(doc)) {
+        let link = linksToD3Array([linkDocument], this.nodes)[0];
+        if (link && !this.containsLink(linkDocument)) {
             this.links.push(link);
             this.runGraph();
             this.render();
@@ -117,11 +117,11 @@ ForumTree = function(forumIndex, nodesCursor) {
         return false;
     };
 
-    this.removeNode = function(doc) {
+    this.removeNode = function(nodeDocument) {
         var iToRemove = -1;
         if (this.nodes.length !== 0) {
             this.nodes.forEach(function(node, i) {
-                if (node._id === doc._id) {
+                if (node._id === nodeDocument._id) {
                     iToRemove = i;
                 }
             });
@@ -129,12 +129,12 @@ ForumTree = function(forumIndex, nodesCursor) {
         if (iToRemove != -1) {
             for (i = 0; i < this.links.length;) {
                 link = this.links[i];
-                if (link.source._id === doc._id || link.target._id == doc._id)
+                if (link.source._id === nodeDocument._id || link.target._id == nodeDocument._id)
                     this.links.splice(i, 1);
                 else i++;
             }
             this.nodes.splice(iToRemove, 1);
-            nodesInGraph.remove({_id: doc._id});
+            nodesInGraph.remove({_id: nodeDocument._id});
             this.runGraph();
             this.render();
             return true;
@@ -142,12 +142,13 @@ ForumTree = function(forumIndex, nodesCursor) {
         return false;
     };
 
-    this.removeLink = function(doc) {
+    this.removeLink = function(linkDocument) {
         var iToRemove = -1;
         this.links.forEach(function(link, i) {
-            if (link._id === doc._id) {
+            if (link._id === linkDocument._id) {
                 iToRemove = i;
-            } else if (link.source._id == doc.sourceId && link.target._id == doc.targetId) {
+            } else if (link.source._id == linkDocument.sourceId
+                && link.target._id == linkDocument.targetId) {
                 iToRemove = i;
             }
         });
@@ -159,11 +160,6 @@ ForumTree = function(forumIndex, nodesCursor) {
         }
         return false;
     };
-
-    // !! Unused code.
-    this.placeNode = function(node, parents, children) {
-
-    }
 
     this.links = []; // !! Redundant? Maybe? See line 48.
 
