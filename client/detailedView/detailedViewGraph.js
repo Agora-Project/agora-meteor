@@ -4,10 +4,11 @@
     License: GPL, Check file LICENSE
 */
 
-//The local collections for keeping track of what posts and kinks are shown.
-//though the links collection is only used to assign links _ids right now.
-nodesInGraph = new Mongo.Collection(null);
-linksInGraph = new Mongo.Collection(null);
+// The local collections for keeping track of what posts and kinks are shown.
+// though the links collection is only used to assign links _ids right now.
+// Only the nodesInGraph collection is referenced outside this file.
+nodesInGraph = new Mongo.Collection(null); //global variable!
+let linksInGraph = new Mongo.Collection(null);
 
 //The function for interpreting links into the right format to add to the graph.
 function linksToD3Array(linksCol, nodesCol) {
@@ -38,15 +39,19 @@ function linksToD3Array(linksCol, nodesCol) {
 
 //the object that stores the information on the graph.
 //It takes up the entire rest of the file.
+//Note, this object is referenced outside this file. Change with care!
 ForumTree = function(forumIndex, nodesCursor) {
     this.forumIndex = forumIndex;
 
     var postWidth = 140, postHeight = 100;
 
-    //put nodes and links into D3-friendly arrays
+    // Put nodes and links into D3-friendly arrays. The nodes are referenced
+    // outside this file, but the links are not.
     this.nodes = [];
     this.links = [];
 
+
+    // All of these functions are referenced outside this file.
     this.findNode = function(node) {
         if (node._id)
             return this.nodes.find(function(n) {return (node._id == n._id)});
@@ -159,9 +164,10 @@ ForumTree = function(forumIndex, nodesCursor) {
         return false;
     };
 
-    //find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
+    //Find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
     //Then, beloy that add code so that when we're adding new links to the graph,
     //it will draw them to the mouse cursor as it's moved around.
+    //This code, at least, is not referenced outside this file.
     var svg = d3.select(".detailed-view-link-graph");
 
     svg.selectAll("*").remove();
@@ -194,6 +200,7 @@ ForumTree = function(forumIndex, nodesCursor) {
             });
         } );
 
+    // Both of these two functions are called outside this file.
     this.runGraph = function() {
         force.start();
         for (var i = 0; i < 100; i++) force.tick();
@@ -242,11 +249,11 @@ ForumTree = function(forumIndex, nodesCursor) {
         });
     };
 
-    var tree = this;
+    var self = this;
     nodesCursor.forEach(function(n) {
         n.type = "post";
         if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id}))
-            tree.addNode(n);
+            self.addNode(n);
     });
 
     return this;
