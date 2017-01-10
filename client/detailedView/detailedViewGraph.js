@@ -6,11 +6,14 @@
 
 // The local collections for keeping track of what posts and kinks are shown.
 // though the links collection is only used to assign links _ids right now.
-// Only the nodesInGraph collection is referenced outside this file.
-nodesInGraph = new Mongo.Collection(null); //global variable!
+// The nodesInGraph collection is referenced outside this file in the
+// detailedViw.js file, where it's used to figure out what nodes are visible to
+// the user and should be drawn on the screen.
+nodesInGraph = new Mongo.Collection(null);
 let linksInGraph = new Mongo.Collection(null);
 
 //The function for interpreting links into the right format to add to the graph.
+//not used outside this file.
 function linksToD3Array(linksCol, nodesCol) {
     var nodes = {};
     nodesCol.forEach(function(n) {
@@ -37,9 +40,11 @@ function linksToD3Array(linksCol, nodesCol) {
     return result;
 };
 
-//the object that stores the information on the graph.
-//It takes up the entire rest of the file.
-//Note, this object is referenced outside this file. Change with care!
+// The object that stores the information on the graph.
+// It takes up the entire rest of the file.
+// Note, this object is referenced outside this file - mainly by being
+// instantiated when the detailedView template renders as a global object and
+// having it's methods called in a dozen places.
 ForumTree = function(forumIndex, nodesCursor) {
     this.forumIndex = forumIndex;
 
@@ -51,7 +56,8 @@ ForumTree = function(forumIndex, nodesCursor) {
     this.links = [];
 
 
-    // All of these functions are referenced outside this file.
+    // All of these functions are referenced outside this file, whenever the
+    // user works with the graph in the detailedView.
     this.findNode = function(node) {
         if (node._id)
             return this.nodes.find(function(n) {return (node._id == n._id)});
@@ -200,14 +206,15 @@ ForumTree = function(forumIndex, nodesCursor) {
             });
         } );
 
-    // Both of these two functions are called outside this file.
+    // Both of these two functions are called outside this file, whenever the
+    // graph needs to have it's nodes repositioned or rerendered.
     this.runGraph = function() {
         force.start();
         for (var i = 0; i < 100; i++) force.tick();
         force.stop();
     }
 
-    // dynamically update the graph
+    // Updates the position of the various nodes on the graph
     this.render = function() {
 
         // add links
@@ -249,6 +256,8 @@ ForumTree = function(forumIndex, nodesCursor) {
         });
     };
 
+    // This code adds any posts that are already loaded to the graph once the
+    // graph is finished being instantiated.
     var self = this;
     nodesCursor.forEach(function(n) {
         n.type = "post";
