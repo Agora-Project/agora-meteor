@@ -396,26 +396,30 @@ Template.detailedView.events({
     'mousemove, touchmove': function(event, template) {
         if (template.dragging) {
             unFocus();
-            for (let i = 0; i < tree.nodes.length; i++) {
-                tree.nodes[i].x += (event.screenX - template.mousePos.x);
-                tree.nodes[i].y += (event.screenY - template.mousePos.y);
-            }
+            tree.forEachNode(function(node) {
+                node.x += event.screenX - template.mousePos.x;
+                node.y += event.screenY - template.mousePos.y;
+            });
+            
             template.mousePos = {x: event.screenX, y: event.screenY};
 
+            //Horrible hack to improve performance.
+            //TODO: Replace with a requestAnimationFrame() callback.
             if (template.counter <= 0) {
                 tree.render();
                 template.counter = 2;
-            } else template.counter--;
+            }
+            else {
+                template.counter--;
+            }
         }
     },
     'wheel': function(event) {
         return;
         if (event.originalEvent.deltaY < 0) {
-            Template.instance().scale *= 4;
-            Template.instance().scale /= 3;
+            Template.instance().scale *= 4.0/3.0;
         } else {
-            Template.instance().scale *= 3;
-            Template.instance().scale /= 4;
+            Template.instance().scale *= 3.0/4.0;
         }
         $(".detailed-view-centerer").css("transform", "scale(" +
         Template.instance().scale + ")");
@@ -444,7 +448,7 @@ Template.detailedView.onRendered(function() {
 
     var nodesCursor = Post.find({});
 
-    tree = new ForumTree(this, nodesCursor);
+    tree = new ForumTree(nodesCursor);
 
     nodesCursor.observe({
         added: function(doc) {

@@ -45,36 +45,28 @@ function linksToD3Array(linksCol, nodesCol) {
 // Note, this object is referenced outside this file - mainly by being
 // instantiated when the detailedView template renders as a global object and
 // having it's methods called in a dozen places.
-ForumTree = function(forumIndex, nodesCursor) {
-    this.forumIndex = forumIndex;
-
-    var postWidth = 140, postHeight = 100;
-
-    // Put nodes and links into D3-friendly arrays. The nodes are referenced
-    // outside this file, but the links are not.
-    this.nodes = [];
-    this.links = [];
-
-
-    // All of these functions are referenced outside this file, whenever the
-    // user works with the graph in the detailedView.
+ForumTree = function(nodesCursor) {
+    let nodes = [];
+    let links = [];
+    
     this.findNode = function(node) {
         if (node._id)
-            return this.nodes.find(function(n) {return (node._id == n._id)});
-        else return this.nodes.find(function(n) {return (node == n._id)});
+            return nodes.find(function(n) {return (node._id == n._id)});
+        else return nodes.find(function(n) {return (node == n._id)});
     };
-
+    
     this.findLink = function(linkDocument) {
         if (linkDocument._id)
-            return this.links.find(function(l) {return (linkDocument._id == l._id)});
+            return links.find(function(l) {return (linkDocument._id == l._id)});
 
-        if (!linkDocument.source || !linkDocument.target) var link = linksToD3Array([linkDocument], this.nodes)[0];
+        if (!linkDocument.source || !linkDocument.target) var link = linksToD3Array([linkDocument], nodes)[0];
         else var link = linkDocument;
-        return this.links.find(function(l) {return (link.source == l.source && link.target == l.target)});
+        
+        return links.find(function(l) {return (link.source == l.source && link.target == l.target)});
     };
 
     this.containsNode = function(node) {
-        if (this.findNode(node)) return true;
+        if (findNode(node)) return true;
         else return false;
     };
 
@@ -85,13 +77,13 @@ ForumTree = function(forumIndex, nodesCursor) {
     };
 
     this.addNode = function(node) {
-        if (!this.nodes.find(function(n) {return (node._id == n._id)})) {
+        if (!nodes.find(function(n) {return (node._id == n._id)})) {
             let _id = node._id;
             if (!nodesInGraph.findOne({_id: node._id}))
                 _id = nodesInGraph.insert(node);
 
             node = nodesInGraph.findOne({_id: _id});
-            this.nodes.push(node);
+            nodes.push(node);
 
             if (node.links) {
                 for (var i in node.links) {
@@ -105,7 +97,7 @@ ForumTree = function(forumIndex, nodesCursor) {
                 }
             }
 
-            return this.nodes[this.nodes.length - 1];
+            return nodes[nodes.length - 1];
         }
         return false;
     };
@@ -116,9 +108,9 @@ ForumTree = function(forumIndex, nodesCursor) {
             linkDocument = linksInGraph.findOne({_id: _id});
         }
 
-        let link = linksToD3Array([linkDocument], this.nodes)[0];
+        let link = linksToD3Array([linkDocument], nodes)[0];
         if (link && !this.containsLink(linkDocument)) {
-            this.links.push(link);
+            links.push(link);
             this.runGraph();
             this.render();
             return true;
@@ -128,21 +120,21 @@ ForumTree = function(forumIndex, nodesCursor) {
 
     this.removeNode = function(nodeDocument) {
         var iToRemove = -1;
-        if (this.nodes.length !== 0) {
-            this.nodes.forEach(function(node, i) {
+        if (nodes.length !== 0) {
+            nodes.forEach(function(node, i) {
                 if (node._id === nodeDocument._id) {
                     iToRemove = i;
                 }
             });
         }
         if (iToRemove != -1) {
-            for (i = 0; i < this.links.length;) {
-                link = this.links[i];
+            for (i = 0; i < links.length;) {
+                link = links[i];
                 if (link.source._id === nodeDocument._id || link.target._id == nodeDocument._id)
-                    this.links.splice(i, 1);
+                    links.splice(i, 1);
                 else i++;
             }
-            this.nodes.splice(iToRemove, 1);
+            nodes.splice(iToRemove, 1);
             nodesInGraph.remove({_id: nodeDocument._id});
             this.runGraph();
             this.render();
@@ -153,7 +145,7 @@ ForumTree = function(forumIndex, nodesCursor) {
 
     this.removeLink = function(linkDocument) {
         var iToRemove = -1;
-        this.links.forEach(function(link, i) {
+        links.forEach(function(link, i) {
             if (link._id === linkDocument._id) {
                 iToRemove = i;
             } else if (link.source._id == linkDocument.sourceId
@@ -162,12 +154,18 @@ ForumTree = function(forumIndex, nodesCursor) {
             }
         });
         if (iToRemove != -1) {
-            this.links.splice(iToRemove, 1);
+            links.splice(iToRemove, 1);
             this.runGraph();
             this.render();
             return true;
         }
         return false;
+    };
+    
+    this.forEachNode = function(action) {
+        for (let node of nodes) {
+            action(node);
+        }
     };
 
     //Find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
@@ -183,8 +181,8 @@ ForumTree = function(forumIndex, nodesCursor) {
 
     // init force layout
     var force = d3.layout.force()
-        .nodes(this.nodes)
-        .links(this.links)
+        .nodes(nodes)
+        .links(links)
         .gravity(0.10)
         .charge(-20000)
         .chargeDistance(400)
@@ -245,7 +243,7 @@ ForumTree = function(forumIndex, nodesCursor) {
                 return d.target.y;
             });
 
-        this.nodes.forEach(function(d) {
+        nodes.forEach(function(d) {
             if (d.type == "post") {
                 let post = $("#post-" + d._id);
                 post.css("left", d.x - (post.outerWidth() / 2))

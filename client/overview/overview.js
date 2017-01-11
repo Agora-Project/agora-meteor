@@ -101,10 +101,15 @@ Template.overview.events({
             }
             template.mousePos = {x: event.screenX, y: event.screenY};
 
+            //Horrible hack to improve performance.
+            //TODO: Replace with a requestAnimationFrame() callback.
             if (template.counter <= 0) {
                 overviewObject.render();
                 template.counter = 3;
-            } else template.counter--;
+            }
+            else {
+                template.counter--;
+            }
         }
     }
 });
