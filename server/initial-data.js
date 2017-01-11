@@ -15,7 +15,7 @@ Meteor.startup(function() {
 
     }
 
-    
+    /*
     console.log("Adding fake posts");
     for (let i=0; i<128; i++) {
         let posts = [];
@@ -40,7 +40,7 @@ Meteor.startup(function() {
         Meteor.call('insertPost', reply);
     }
 
-
+*/
 
     moderatorEmail = "moderator@example.com";
     if (!Meteor.users.findOne({
