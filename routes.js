@@ -22,6 +22,11 @@ Router.route('/forum/overview', {
     template: 'overview'
 });
 
+Router.route('/forum/adminScreen', {
+    name: 'Admin Screen',
+    template: 'adminScreen'
+});
+
 Router.route('/forum/post/:_id', function() {
     var routerThis = this;
     var id = this.params._id;
