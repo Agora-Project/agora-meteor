@@ -79,6 +79,9 @@ ForumTree = function() {
     this.addNode = function(node) {
         if (!nodes.find(function(n) {return (node._id == n._id)})) {
             let _id = node._id;
+
+            if (!node.type) node.type = "post";
+
             if (!nodesInGraph.findOne({_id: node._id}))
                 _id = nodesInGraph.insert(node);
 

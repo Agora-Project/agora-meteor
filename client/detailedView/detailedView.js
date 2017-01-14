@@ -188,7 +188,6 @@ Template.detailedViewPost.events({
             handlers.addHandler(linkID, {
                 onReady: function() {
                     let doc = Post.findOne({_id: linkID});
-                    doc.type = "post";
                     tree.addNode(doc);
                 }
             });
@@ -199,7 +198,6 @@ Template.detailedViewPost.events({
             handlers.addHandler(replyID,  {
                 onReady: function() {
                     let doc = Post.findOne({_id: replyID});
-                    doc.type = "post";
                     tree.addNode(doc);
                 }
             });
@@ -340,7 +338,6 @@ Template.detailedViewReply.events({
                 handlers.addHandler(result, {
                     onReady: function() {
                         let doc = Post.findOne({_id: result});
-                        doc.type = "post";
                         tree.addNode(doc);
                     }
                 });
@@ -350,7 +347,6 @@ Template.detailedViewReply.events({
             this.content = $('#contentInput-' + this._id).val();
             Meteor.call("editPost", this, function(error, result) {
                 let doc = Post.findOne({_id: result});
-                doc.type = "post";
                 tree.addNode(doc);
             });
         }
@@ -367,14 +363,12 @@ Template.detailedView.onCreated(function() {
         handlers.addHandler(_id, {
             onReady: function() {
                 let doc = Post.findOne({_id: _id});
-                doc.type = "post";
                 tree.addNode(doc);
             }
         });
     } else handlers.addHandler(null, {
         onReady: function() {
             let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
-            doc.type = "post";
             tree.addNode(doc);
         }
     });
@@ -451,7 +445,6 @@ Template.detailedView.onRendered(function() {
     // graph is finished being instantiated.
     nodesCursor.forEach(function(n) {
         if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
-            n.type = "post";
             tree.addNode(n);
         }
     });
@@ -558,7 +551,6 @@ Template.detailedViewPostListing.events({
         handlers.addHandler(_id, {
             onReady: function() {
                 let doc = Post.findOne({_id: _id});
-                doc.type = "post";
                 tree.addNode(doc);
                 postList.posts.remove({_id: _id});
                 if (postList.posts.find({}).count() == 0)
