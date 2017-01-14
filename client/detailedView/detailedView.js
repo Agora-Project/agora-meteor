@@ -81,10 +81,8 @@ Template.detailedViewPost.onRendered(function () {
     var usernameLink = instance.$('.username');
     usernameLink.attr('title', usernameLink.text());
 
-    if (tree) {
-        tree.runGraph();
-        tree.render();
-    }
+    tree.runGraph();
+    tree.render();
 
     if(this.data.content)
         instance.$('.post-content').html(XBBCODE.process({
@@ -400,7 +398,7 @@ Template.detailedView.events({
                 node.x += event.screenX - template.mousePos.x;
                 node.y += event.screenY - template.mousePos.y;
             });
-            
+
             template.mousePos = {x: event.screenX, y: event.screenY};
 
             //Horrible hack to improve performance.
@@ -444,15 +442,22 @@ Template.detailedView.helpers({
 });
 
 Template.detailedView.onRendered(function() {
-    var init = true;
+
+    tree = new ForumTree();
 
     var nodesCursor = Post.find({});
 
-    tree = new ForumTree(nodesCursor);
+    // This code adds any posts that are already loaded to the graph once the
+    // graph is finished being instantiated.
+    nodesCursor.forEach(function(n) {
+        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
+            n.type = "post";
+            tree.addNode(n);
+        }
+    });
 
     nodesCursor.observe({
         added: function(doc) {
-            if (init) return;
 
             if (nodesInGraph.findOne({_id: doc._id})) {
                 for (var i in doc.links) {
@@ -470,7 +475,6 @@ Template.detailedView.onRendered(function() {
 
         },
         removed: function(doc) {
-            if (init) return;
             tree.removeNode(doc);
         },
         changed: function(doc) {
@@ -494,7 +498,6 @@ Template.detailedView.onRendered(function() {
 
     tree.runGraph();
     tree.render();
-    init = false;
 });
 
 Template.detailedViewPostList.onCreated(function() {

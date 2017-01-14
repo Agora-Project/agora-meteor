@@ -45,23 +45,23 @@ function linksToD3Array(linksCol, nodesCol) {
 // Note, this object is referenced outside this file - mainly by being
 // instantiated when the detailedView template renders as a global object and
 // having it's methods called in a dozen places.
-ForumTree = function(nodesCursor) {
+ForumTree = function() {
     let nodes = [];
     let links = [];
-    
+
     this.findNode = function(node) {
         if (node._id)
             return nodes.find(function(n) {return (node._id == n._id)});
         else return nodes.find(function(n) {return (node == n._id)});
     };
-    
+
     this.findLink = function(linkDocument) {
         if (linkDocument._id)
             return links.find(function(l) {return (linkDocument._id == l._id)});
 
         if (!linkDocument.source || !linkDocument.target) var link = linksToD3Array([linkDocument], nodes)[0];
         else var link = linkDocument;
-        
+
         return links.find(function(l) {return (link.source == l.source && link.target == l.target)});
     };
 
@@ -161,7 +161,7 @@ ForumTree = function(nodesCursor) {
         }
         return false;
     };
-    
+
     this.forEachNode = function(action) {
         for (let node of nodes) {
             action(node);
@@ -253,15 +253,6 @@ ForumTree = function(nodesCursor) {
             }
         });
     };
-
-    // This code adds any posts that are already loaded to the graph once the
-    // graph is finished being instantiated.
-    var self = this;
-    nodesCursor.forEach(function(n) {
-        n.type = "post";
-        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id}))
-            self.addNode(n);
-    });
 
     return this;
 }
