@@ -1,0 +1,18 @@
+<template name="adminScreen">
+    <div class="admin-viewport">
+        {{#each issues}}
+            {{> issue}}
+        {{/each}}
+    </div>
+</template>
+
+<template name="issue">
+    <div class="issue-div">
+        <div class="header-div">
+
+        </div>
+        <div class="content-div">
+            {{content}}
+        </div>
+    </div>
+</template>

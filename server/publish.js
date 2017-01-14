@@ -33,6 +33,12 @@ Meteor.publish("users", function() {
     }
 });
 
+Meteor.publish("post-issues", function() {
+    if (Roles.userIsInRole(this.userId, ['moderator'])) {
+        return postIssues.find({});
+    } else return this.ready();
+})
+
 Meteor.publish("post", function(id) {
     if (id == 'rootNode') {
         return Post.find({

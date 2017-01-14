@@ -33,7 +33,7 @@ Package.onUse(function(api) {
         'client/userList/userList.html',
         'client/userList/userList.js'
     ], 'client');
-    
+
     api.addFiles([
         'lib/layered_grapher/layered_grapher.js',
         'client/graphLayoutMethods.js'
@@ -67,6 +67,13 @@ Package.onUse(function(api) {
         'client/profile/profile.html',
         'client/profile/profile.css',
         'client/profile/profile.js'
+    ], 'client');
+
+
+    api.addFiles([
+        'client/adminScreen/adminScreen.html',
+        'client/adminScreen/adminScreen.css',
+        'client/adminScreen/adminScreen.js'
     ], 'client');
 
     api.addAssets([
