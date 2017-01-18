@@ -33,9 +33,9 @@ Meteor.publish("users", function() {
     }
 });
 
-Meteor.publish("post-issues", function() {
+Meteor.publish("issues", function() {
     if (Roles.userIsInRole(this.userId, ['moderator'])) {
-        return postIssues.find({});
+        return Issues.find({});
     } else return this.ready();
 })
 

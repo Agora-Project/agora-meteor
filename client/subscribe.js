@@ -6,3 +6,4 @@
 
 Meteor.subscribe('users');
 Meteor.subscribe("myself");
+Meteor.subscribe("issues");
