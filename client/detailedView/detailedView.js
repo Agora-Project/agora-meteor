@@ -34,41 +34,21 @@ Template.detailedViewPost.onCreated(function () {
         });
 
     this.linkCount = new ReactiveVar(count);
-
-    this.replyDrowpdownVisible = false;
-    this.hideReplyBuffer = false;
-
+    
     this.hideReplyDropdown = function() {
-        if (this.hideReplyBuffer == false) {
-            this.replyDrowpdownVisible = false;
-            this.$(".replies-dropdown-content").fadeOut(150);
-        } else {
-            this.hideReplyBuffer = false;
-        }
+        this.$(".replies-dropdown-content").fadeOut(150);
     };
 
     this.showReplyDropdown = function() {
-        this.replyDrowpdownVisible = true;
         this.$(".replies-dropdown-content").fadeIn(150);
-        this.hideReplyBuffer = true;
     };
 
-    this.moreDrowpdownVisible = false;
-    this.hideMoreBuffer = false;
-
     this.hideMoreDropdown = function() {
-        if (this.hideMoreBuffer == false) {
-            this.moreDrowpdownVisible = false;
-            this.$(".more-dropdown-content").fadeOut(150);
-        } else {
-            this.hideMoreBuffer = false;
-        }
+        this.$(".more-dropdown-content").fadeOut(150);
     };
 
     this.showMoreDropdown = function() {
-        this.moreDrowpdownVisible = true;
         this.$(".more-dropdown-content").fadeIn(150);
-        this.hideMoreBuffer = true;
     };
 });
 
@@ -91,6 +71,8 @@ Template.detailedViewPost.onRendered(function () {
             addInLineBreaks: true
         }).html);
 
+    this.showRepliesButton = this.$(".show-replies-button");
+    this.moreButton = this.$(".more-button");
 });
 
 Template.detailedViewPost.onDestroyed(function () {
@@ -477,7 +459,6 @@ Template.detailedView.onRendered(function() {
                                 - (post.links.length + post.replyIDs.length);
                 doc.type = post.type;
                 for (let link of post.links) {
-                    console.log(link);
                     if (!doc.links.find(function(l) {return (link.target == l.target)}))
                         tree.removeLink({sourceId: doc._id, targetId: link.target});
                 }
@@ -496,22 +477,13 @@ Template.detailedView.onRendered(function() {
 Template.detailedViewPostList.onCreated(function() {
     postList = this;
     this.posts = new Mongo.Collection(null);
-    this.isVisible = false;
-    this.hideBuffer = false;
 
     this.hide = function() {
-        if (this.hideBuffer == false) {
-            this.isVisible = false;
-            this.$(".detailed-post-list").fadeOut(150);
-        } else {
-            this.hideBuffer = false;
-        }
+        this.$(".detailed-post-list").fadeOut(150);
     };
 
     this.show = function() {
-        this.isVisible = true;
         this.$(".detailed-post-list").fadeIn(150);
-        this.hideBuffer = true;
     };
 });
 
@@ -531,7 +503,6 @@ Template.detailedViewPostList.helpers({
 Template.detailedViewPostList.events({
     "click ": function(event) {
         event.stopImmediatePropagation();
-        postList.hideBuffer = true;
     },
     "mousedown": function(event) {
         event.stopImmediatePropagation();
@@ -546,7 +517,6 @@ Template.detailedViewPostListing.helpers({
 
 Template.detailedViewPostListing.events({
     "click": function(event) {
-        postList.hideBuffer = true;
         let _id = this._id;
         handlers.addHandler(_id, {
             onReady: function() {
@@ -565,10 +535,23 @@ Template.detailedViewPostListing.events({
     }
 });
 
-$(window).click(function() {
-    if (postList) postList.hide();
-    for (let i in templates) {
-        templates[i].hideReplyDropdown();
-        templates[i].hideMoreDropdown();
+$(window).click(function(event) {
+    let target = $(event.originalEvent.originalTarget);
+    
+    if (!target.hasClass('show-list-button') &&
+        !target.hasClass('detailed-post-list')) {
+        postList.hide();
+    }
+    
+    for (let id in templates) {
+        let template = templates[id];
+        
+        if (!target.is(template.showRepliesButton)) {
+            template.hideReplyDropdown();
+        }
+        
+        if (!target.is(template.moreButton)) {
+            template.hideMoreDropdown();
+        }
     }
 });

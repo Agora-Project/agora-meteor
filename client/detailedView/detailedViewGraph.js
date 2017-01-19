@@ -99,8 +99,8 @@ ForumTree = function() {
                     tree.addLink({sourceId: node.replyIDs[i], targetId: node._id});
                 }
             }
-
-            return nodes[nodes.length - 1];
+            
+            return node;
         }
         return false;
     };
