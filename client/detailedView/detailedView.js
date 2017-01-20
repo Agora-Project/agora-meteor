@@ -256,6 +256,7 @@ Template.detailedViewPost.events({
         }
     },
     'click .report-post-button': function(event) {
+        reportForm.data = this;
         reportForm.show();
     }
 });
@@ -556,14 +557,22 @@ Template.reportPopupForm.onRendered(function() {
 });
 
 Template.reportPopupForm.events({
+    "click .submit-report-button": function(event) {
+        console.log("???");
+        let content = Template.instance().$('.report-input').val();
+        let report = {
+            userID: Meteor.userId(),
+            targetID: this._id,
+            content: content
+        }
+        Meteor.call("submitReport", report);
+        Template.instance().hide();
+    },
     "click": function(event) {
         event.stopImmediatePropagation();
     },
     "mousedown": function(event) {
         event.stopImmediatePropagation();
-    },
-    "click .submit-button": function(event) {
-        
     }
 })
 
@@ -571,12 +580,14 @@ $(window).click(function(event) {
     let target = $(event.originalEvent.originalTarget);
 
     if (!target.hasClass('show-list-button') &&
-        !target.hasClass('detailed-post-list')) {
+        !target.hasClass('detailed-post-list') &&
+        postList) {
         postList.hide();
     }
 
     if (!target.hasClass('report-post-button') &&
-        !target.hasClass('report-div')) {
+        !target.hasClass('report-div') &&
+        reportForm) {
         reportForm.hide();
     }
 
