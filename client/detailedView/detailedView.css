@@ -340,16 +340,20 @@
 }
 
 .report-div {
-    display: none;
+    display: flex;
     position: relative;
-    top: 10%;
-    width: 100vw;
-    max-width: 384px;
-    height: 80%;
+    top: 40%;
+    width: 20%;
+    height: 20%;
     padding: 0px;
     border: 1px solid #999;
     border-radius: 8px;
     margin: auto;
     overflow: auto;
     background-color: #fff;
+}
+
+.report-input {
+    display: block;
+    resize: none;
 }

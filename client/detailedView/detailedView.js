@@ -551,6 +551,19 @@ Template.reportPopupForm.onCreated(function() {
     };
 });
 
+Template.reportPopupForm.onRendered(function() {
+    this.$(".report-div").hide();
+});
+
+Template.reportPopupForm.events({
+    "click ": function(event) {
+        event.stopImmediatePropagation();
+    },
+    "mousedown": function(event) {
+        event.stopImmediatePropagation();
+    }
+})
+
 $(window).click(function(event) {
     let target = $(event.originalEvent.originalTarget);
 
