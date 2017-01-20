@@ -18,6 +18,7 @@
         </div>
 
         {{> detailedViewPostList}}
+        {{> reportPopupForm}}
     </div>
 
     {{#if checkIfModerator}}
@@ -102,5 +103,14 @@
         <a class="undraggable">{{title}}</a>
         <a class="username undraggable">{{user.username}}</a>
         <span class="undraggable">4 hours ago</span>
+    </div>
+</template>
+
+<template name="reportPopupForm">
+    <div class="report-div">
+        <textarea class="report-input"  placeholder="Report Reason"></textarea>
+        <div class="report-footer">
+            <button class="submit-button">Submit</button>
+        </div>
     </div>
 </template>

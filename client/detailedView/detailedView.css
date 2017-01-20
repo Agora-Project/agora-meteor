@@ -338,3 +338,18 @@
     overflow: auto;
     background-color: #fff;
 }
+
+.report-div {
+    display: none;
+    position: relative;
+    top: 10%;
+    width: 100vw;
+    max-width: 384px;
+    height: 80%;
+    padding: 0px;
+    border: 1px solid #999;
+    border-radius: 8px;
+    margin: auto;
+    overflow: auto;
+    background-color: #fff;
+}

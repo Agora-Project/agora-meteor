@@ -34,7 +34,7 @@ Template.detailedViewPost.onCreated(function () {
         });
 
     this.linkCount = new ReactiveVar(count);
-    
+
     this.hideReplyDropdown = function() {
         this.$(".replies-dropdown-content").fadeOut(150);
     };
@@ -254,6 +254,9 @@ Template.detailedViewPost.events({
             nodesInGraph.insert(this);
             tree.addNode(this);
         }
+    },
+    'click .report-post-button': function(event) {
+        reportForm.show();
     }
 });
 
@@ -535,21 +538,39 @@ Template.detailedViewPostListing.events({
     }
 });
 
+Template.reportPopupForm.onCreated(function() {
+    //!!Global Variable!!
+    reportForm = this;
+
+    this.hide = function() {
+        this.$(".report-div").fadeOut(150);
+    };
+
+    this.show = function() {
+        this.$(".report-div").fadeIn(150);
+    };
+});
+
 $(window).click(function(event) {
     let target = $(event.originalEvent.originalTarget);
-    
+
     if (!target.hasClass('show-list-button') &&
         !target.hasClass('detailed-post-list')) {
         postList.hide();
     }
-    
+
+    if (!target.hasClass('report-post-button') &&
+        !target.hasClass('report-div')) {
+        reportForm.hide();
+    }
+
     for (let id in templates) {
         let template = templates[id];
-        
+
         if (!target.is(template.showRepliesButton)) {
             template.hideReplyDropdown();
         }
-        
+
         if (!target.is(template.moreButton)) {
             template.hideMoreDropdown();
         }
