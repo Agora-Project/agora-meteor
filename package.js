@@ -82,7 +82,7 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'lib/schemas/post.js',
-        'lib/schemas/issue.js',
+        'lib/schemas/report.js',
         'lib/schemas/vote.js',
         'routes.js'
     ], both);

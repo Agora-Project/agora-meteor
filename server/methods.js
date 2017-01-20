@@ -82,5 +82,8 @@ Meteor.methods({
             console.log("Oh no! Edited " + ret + " Posts!");
             return post._id;
         }
+    },
+    submitReport: function(report) {
+        
     }
 });

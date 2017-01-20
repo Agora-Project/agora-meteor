@@ -1,8 +1,8 @@
 
 
 Template.adminScreen.helpers({
-    issues: function() {
-        return Issues.find({});
+    reports: function() {
+        return Reports.find({});
     }
 });
 
@@ -10,9 +10,9 @@ Template.adminScreen.events({
 });
 
 
-Template.issue.helpers({
+Template.report.helpers({
 });
 
-Template.issue.events({
+Template.report.events({
 
 });

@@ -556,11 +556,14 @@ Template.reportPopupForm.onRendered(function() {
 });
 
 Template.reportPopupForm.events({
-    "click ": function(event) {
+    "click": function(event) {
         event.stopImmediatePropagation();
     },
     "mousedown": function(event) {
         event.stopImmediatePropagation();
+    },
+    "click .submit-button": function(event) {
+        
     }
 })
 
