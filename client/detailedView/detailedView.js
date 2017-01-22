@@ -344,20 +344,6 @@ Template.detailedViewReply.events({
 });
 
 Template.detailedView.onCreated(function() {
-    if (this.data) {
-        let _id = this.data;
-        handlers.addHandler(_id, {
-            onReady: function() {
-                let doc = Post.findOne({_id: _id});
-                tree.addNode(doc);
-            }
-        });
-    } else handlers.addHandler(null, {
-        onReady: function() {
-            let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
-            tree.addNode(doc);
-        }
-    });
 })
 
 Template.detailedView.events({
@@ -432,6 +418,21 @@ Template.detailedView.onRendered(function() {
     nodesCursor.forEach(function(n) {
         if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
             tree.addNode(n);
+        }
+    });
+
+    if (this.data) {
+        let _id = this.data;
+        handlers.addHandler(_id, {
+            onReady: function() {
+                let doc = Post.findOne({_id: _id});
+                tree.addNode(doc);
+            }
+        });
+    } else handlers.addHandler(null, {
+        onReady: function() {
+            let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
+            tree.addNode(doc);
         }
     });
 

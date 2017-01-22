@@ -139,7 +139,6 @@ ForumTree = function() {
             }
             nodes.splice(iToRemove, 1);
             nodesInGraph.remove({_id: nodeDocument._id});
-            this.runGraph();
             this.render();
             return true;
         }

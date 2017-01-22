@@ -22,10 +22,6 @@ Template.report.onCreated(function() {
     handlers.addHandler(this.targetID);
 })
 
-Template.report.onDestroyed(function() {
-    handlers.stop(this.targetID);
-})
-
 Template.report.events({
 
 });
