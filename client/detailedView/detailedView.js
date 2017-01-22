@@ -256,7 +256,7 @@ Template.detailedViewPost.events({
         }
     },
     'click .report-post-button': function(event) {
-        reportForm.data = this;
+        reportForm.postData = this;
         reportForm.show();
     }
 });
@@ -562,7 +562,7 @@ Template.reportPopupForm.events({
         let content = Template.instance().$('.report-input').val();
         let report = {
             userID: Meteor.userId(),
-            targetID: this._id,
+            targetID: Template.instance().postData._id,
             content: content
         }
         Meteor.call("submitReport", report);

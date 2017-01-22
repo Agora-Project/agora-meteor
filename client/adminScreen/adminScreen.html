@@ -9,7 +9,9 @@
 <template name="report">
     <div class="report-div">
         <div class="header-div">
-
+            <a class="undraggable" href="/forum/post/{{post._id}}">
+                {{post.title}}
+            </a>
         </div>
         <div class="content-div">
             {{content}}
