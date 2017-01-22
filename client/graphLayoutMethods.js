@@ -16,6 +16,7 @@ GraphLayoutLayered = function(nodes, links) {
     
     let layout = new LayeredGraph(dag);
     
+    //Place nodes depending on their layers and columns.
     for (let node of layout.nodes) {
         if (node.vertex !== undefined) {
             node.name = node.vertex.name;
@@ -27,50 +28,114 @@ GraphLayoutLayered = function(nodes, links) {
         node.y = (node.layer - layout.height*0.5)*SPACING_DISTANCE;
     }
     
-    //Try to move nodes towards their connections, while maintaining distance
-    //from their neighbors.
-    for (let i = 0; i < 3; i++) {
-        for (let node of layout.nodes) {
-            let totalX = 0.0;
-            let xCount = 0;
+    //Iterate from bottom to top of table.
+    for (let layer = layout.height; layer > 0; layer--) {
+        let sourceLayer = layout.table[layer - 1];
+        let targetLayer = layout.table[layer];
+        
+        //Place source groups directly above their targets, regardless of
+        //whether this creates edges crossings or not.
+        for (let target of targetLayer) {
+            let left = null, right = null;
             
-            for (let edge of node.edgesOut) {
-                totalX += edge.target.x;
-                xCount++;
-            }
-            
-            for (let edge of node.edgesIn) {
-                totalX += edge.source.x;
-                xCount++;
-            }
-            
-            if (xCount == 0) {
-                node.targetX = node.x;
-                continue;
-            }
-            
-            node.targetX = totalX/xCount;
-            
-            //Limit offset based on neighboring nodes.
-            if (node.targetX < node.x) {
-                let neighbor = layout.table[node.layer][node.column - 1];
-                if (neighbor !== undefined) {
-                    node.targetX = Math.max(neighbor.x + SPACING_DISTANCE, node.targetX);
+            for (let edge of target.edgesIn) {
+                if (left === null || edge.source.x < left.x) {
+                    left = edge.source;
+                }
+                if (right === null || edge.source.x > right.x) {
+                    right = edge.source;
                 }
             }
-            else {
-                let neighbor = layout.table[node.layer][node.column + 1];
-                if (neighbor !== undefined) {
-                    node.targetX = Math.min(neighbor.x - SPACING_DISTANCE, node.targetX);
+            
+            if (left !== null) {
+                let offset = target.x - (left.x + right.x)*0.5;
+                for (let edge of target.edgesIn) {
+                    edge.source.x += offset;
                 }
             }
         }
         
-        for (let node of layout.nodes) {
-            node.x = node.targetX;
+        //Enforce spacing and order of layer.
+        for (let column = 1; column < sourceLayer.length; column++) {
+            let left = sourceLayer[column - 1];
+            let right = sourceLayer[column];
+            right.x = Math.max(right.x, left.x + SPACING_DISTANCE);
+        }
+        
+        //Shift entire layer to minimize average edge slant.
+        let edgeSlant = 0.0;
+        let edgeCount = 0;
+        
+        for (let node of targetLayer) {
+            for (let edge of node.edgesIn) {
+                edgeSlant += edge.source.x - node.x;
+            }
+            edgeCount += node.edgesIn.length;
+        }
+        
+        if (edgeCount > 0) {
+            let offset = -edgeSlant/edgeCount;
+            for (let node of sourceLayer) {
+                node.x += offset;
+            }
+        }
+        
+        //If there's room, place source groups above their targets again.
+        for (let target of targetLayer) {
+            let left = null, right = null;
+            
+            for (let edge of target.edgesIn) {
+                if (left === null || edge.source.x < left.x) {
+                    left = edge.source;
+                }
+                if (right === null || edge.source.x > right.x) {
+                    right = edge.source;
+                }
+            }
+            
+            if (left !== null) {
+                let offset = target.x - (left.x + right.x)*0.5;
+                
+                //Limit offset based on neighboring nodes.
+                if (offset < 0.0) {
+                    let neighbor = sourceLayer[left.column - 1];
+                    if (neighbor !== undefined) {
+                        if (left.x + offset < neighbor.x + SPACING_DISTANCE) {
+                            continue;
+                        }
+                    }
+                }
+                else {
+                    let neighbor = sourceLayer[right.column + 1];
+                    if (neighbor !== undefined) {
+                        if (right.x + offset > neighbor.x - SPACING_DISTANCE) {
+                            continue;
+                        }
+                    }
+                }
+                
+                for (let edge of target.edgesIn) {
+                    edge.source.x += offset;
+                }
+            }
         }
     }
     
+    //Center new layout horizontally.
+    let leftBound = Infinity, rightBound = -Infinity;
+    
+    for (let node of layout.nodes) {
+        leftBound = Math.min(leftBound, node.x);
+        rightBound = Math.max(rightBound, node.x);
+    }
+    
+    let offset = -(leftBound + rightBound)*0.5;
+    
+    for (let node of layout.nodes) {
+        node.x += offset;
+    }
+    
+    //Expose arrays.
     this.nodes = layout.nodes;
     this.links = layout.edges;
 }
