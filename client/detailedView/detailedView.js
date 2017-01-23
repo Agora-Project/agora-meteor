@@ -311,7 +311,8 @@ Template.detailedViewReply.events({
             if (this.links.length < 1) return;
             let title = $('#titleInput-' + this._id).val();
             let content = $('#contentInput-' + this._id).val();
-            if (!Meteor.userId() || this.links.length < 1 || title.length < 1) return;
+            if (!Meteor.userId() || this.links.length < 1 ||
+            title.length < 1 || title.length > 30) return;
             let newReplyPost = {
                 links: this.links,
                 title: title,
@@ -331,6 +332,8 @@ Template.detailedViewReply.events({
         } else if (this.type == "edit") {
             this.title = $('#titleInput-' + this._id).val();
             this.content = $('#contentInput-' + this._id).val();
+            if (!Meteor.userId() || this.links.length < 1 ||
+            this.title.length < 1 || this.title.length > 30) return;
             Meteor.call("editPost", this, function(error, result) {
                 let doc = Post.findOne({_id: result});
                 tree.addNode(doc);
