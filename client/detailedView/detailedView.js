@@ -312,7 +312,7 @@ Template.detailedViewReply.events({
             let title = $('#titleInput-' + this._id).val();
             let content = $('#contentInput-' + this._id).val();
             if (!Meteor.userId() || this.links.length < 1 ||
-            title.length < 1 || title.length > 30) return;
+            title.length < 1 || title.length > 100) return;
             let newReplyPost = {
                 links: this.links,
                 title: title,
@@ -333,7 +333,7 @@ Template.detailedViewReply.events({
             this.title = $('#titleInput-' + this._id).val();
             this.content = $('#contentInput-' + this._id).val();
             if (!Meteor.userId() || this.links.length < 1 ||
-            this.title.length < 1 || this.title.length > 30) return;
+            this.title.length < 1 || this.title.length > 100) return;
             Meteor.call("editPost", this, function(error, result) {
                 let doc = Post.findOne({_id: result});
                 tree.addNode(doc);
