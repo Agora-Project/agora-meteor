@@ -115,9 +115,6 @@ Template.overview.events({
 });
 
 Template.overview.helpers({
-    titleDisplay: function() {
-        return Template.instance().titleDisplay.find({});
-    },
     nodeDisplay: function() {
         return Template.instance().nodeDisplay.find({});
     },
@@ -163,9 +160,6 @@ Template.overviewPost.onRendered(function () {
 });
 
 Template.overviewPost.helpers({
-    avatarURL: function() {
-        return 'https://avatars3.githubusercontent.com/u/6981448';
-    },
     user: function() {
         return Meteor.users.findOne(this.posterID);
     },
