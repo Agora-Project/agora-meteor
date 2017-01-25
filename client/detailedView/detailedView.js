@@ -253,7 +253,6 @@ Template.detailedViewPost.events({
             tree.removeNode(this);
             nodesInGraph.remove({_id: this._id});
             this.type = "edit";
-            nodesInGraph.insert(this);
             tree.addNode(this);
         }
     },
