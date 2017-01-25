@@ -19,10 +19,6 @@ handlers.addHandler = function(id, callbacks) {
     }
 }
 handlers.stop = function(node) {
-    if (!node) {
-        console.log("No node!");
-        console.log(node);
-    }
     if (this[node]) {
         this[node].stop();
         delete this[node];
