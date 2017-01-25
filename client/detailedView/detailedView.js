@@ -418,7 +418,9 @@ Template.detailedView.onRendered(function() {
     var nodesCursor = Post.find({});
 
     // This code adds any posts that are already loaded to the graph once the
-    // graph is finished being instantiated.
+    // graph is finished being instantiated. This is used when navigating way
+    // from the detailed view page and then back to it, so as to keep the same
+    // nodes in the graph.
     nodesCursor.forEach(function(n) {
         if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
             tree.addNode(n);
