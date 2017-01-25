@@ -88,18 +88,20 @@ ForumTree = function() {
             node = nodesInGraph.findOne({_id: _id});
             nodes.push(node);
 
+            let self = this;
+
             if (node.links) {
                 for (var i in node.links) {
-                    tree.addLink({sourceId: node._id, targetId: node.links[i].target});
+                    self.addLink({sourceId: node._id, targetId: node.links[i].target});
                 }
             }
 
             if (node.replyIDs) {
                 for (var i in node.replyIDs) {
-                    tree.addLink({sourceId: node.replyIDs[i], targetId: node._id});
+                    self.addLink({sourceId: node.replyIDs[i], targetId: node._id});
                 }
             }
-            
+
             return node;
         }
         return false;

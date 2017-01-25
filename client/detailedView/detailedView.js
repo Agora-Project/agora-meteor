@@ -4,8 +4,10 @@
     License: GPL, Check file LICENSE
 */
 
-currentAction = "none";
-templates = {};
+let currentAction = "none";
+let templates = {};
+let tree, postList, reportForm;
+
 var unFocus = function () {
     if (document.selection) {
         document.selection.empty();
