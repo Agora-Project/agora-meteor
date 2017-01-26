@@ -134,8 +134,12 @@ Template.detailedView.onRendered(function() {
             tree.removeNode(doc);
         },
         changed: function(doc) {
+            //If the changed post is in the graph, adjust things appropriately.
+            //If not, we don't need to do anything.
             post = nodesInGraph.findOne({_id: doc._id});
             if (post) {
+                //specifically, change the counters to show how many links it's
+                //post has.
                 var countChange = (doc.links.length + doc.replyIDs.length)
                                 - (post.links.length + post.replyIDs.length);
                 doc.type = post.type;
@@ -144,9 +148,11 @@ Template.detailedView.onRendered(function() {
                         tree.removeLink({sourceId: doc._id, targetId: link.target});
                 }
 
-                nodesInGraph.update({_id: doc._id}, doc);
                 var temp = templates[doc._id];
                 temp.linkCount.set(temp.linkCount.get() + countChange);
+                
+                //And update it's text, of course.
+                nodesInGraph.update({_id: doc._id}, doc);
             }
         }
     });
