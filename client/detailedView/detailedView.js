@@ -16,6 +16,145 @@ var unFocus = function () {
     }
 }
 
+
+Template.detailedView.onCreated(function() {
+})
+
+Template.detailedView.events({
+    'mousedown, touchstart': function(event, template) {
+        if (event.button != 0) return;
+        template.dragging = true;
+        template.counter = 0;
+        template.mousePos = {x: event.screenX, y: event.screenY};
+    },
+    'mouseup, touchend': function(event, template) {
+        template.dragging = false;
+        tree.render();
+    },
+    'mousemove, touchmove': function(event, template) {
+        if (template.dragging) {
+            unFocus();
+            tree.forEachNode(function(node) {
+                node.x += event.screenX - template.mousePos.x;
+                node.y += event.screenY - template.mousePos.y;
+            });
+
+            template.mousePos = {x: event.screenX, y: event.screenY};
+
+            //Horrible hack to improve performance.
+            //TODO: Replace with a requestAnimationFrame() callback.
+            if (template.counter <= 0) {
+                tree.render();
+                template.counter = 2;
+            }
+            else {
+                template.counter--;
+            }
+        }
+    },
+    'wheel': function(event) {
+        return;
+        if (event.originalEvent.deltaY < 0) {
+            Template.instance().scale *= 4.0/3.0;
+        } else {
+            Template.instance().scale *= 3.0/4.0;
+        }
+        $(".detailed-view-centerer").css("transform", "scale(" +
+        Template.instance().scale + ")");
+    },
+    'click .button-delete': function(event) {
+        event.preventDefault();
+        if (currentAction != "deleting") currentAction = "deleting";
+        else currentAction = "none";
+    },
+});
+
+Template.detailedView.helpers({
+    posts: function() {
+        return nodesInGraph.find({type: "post"});
+    },
+    replies: function() {
+        return nodesInGraph.find({ $or: [ {type: "reply"}, {type: "edit"} ] });
+    },
+    checkIfModerator: function() {
+        return Roles.userIsInRole(Meteor.userId(), ['moderator']);
+    }
+});
+
+Template.detailedView.onRendered(function() {
+
+    tree = new ForumTree();
+
+    var nodesCursor = Post.find({});
+
+    // This code adds any posts that are already loaded to the graph once the
+    // graph is finished being instantiated. This is used when navigating way
+    // from the detailed view page and then back to it, so as to keep the same
+    // nodes in the graph.
+    nodesCursor.forEach(function(n) {
+        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
+            tree.addNode(n);
+        }
+    });
+
+    if (this.data) {
+        let _id = this.data;
+        handlers.addHandler(_id, {
+            onReady: function() {
+                let doc = Post.findOne({_id: _id});
+                tree.addNode(doc);
+            }
+        });
+    } else handlers.addHandler(null, {
+        onReady: function() {
+            let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
+            tree.addNode(doc);
+        }
+    });
+
+    nodesCursor.observe({
+        added: function(doc) {
+
+            if (nodesInGraph.findOne({_id: doc._id})) {
+                for (var i in doc.links) {
+                    let linkID = doc.links[i].target;
+                    handlers.addHandler(linkID);
+
+                }
+                for (var i in doc.replyIDs) {
+                    let replyID = doc.replyIDs[i];
+                    handlers.addHandler(replyID);
+
+                }
+            }
+
+
+        },
+        removed: function(doc) {
+            tree.removeNode(doc);
+        },
+        changed: function(doc) {
+            post = nodesInGraph.findOne({_id: doc._id});
+            if (post) {
+                var countChange = (doc.links.length + doc.replyIDs.length)
+                                - (post.links.length + post.replyIDs.length);
+                doc.type = post.type;
+                for (let link of post.links) {
+                    if (!doc.links.find(function(l) {return (link.target == l.target)}))
+                        tree.removeLink({sourceId: doc._id, targetId: link.target});
+                }
+
+                nodesInGraph.update({_id: doc._id}, doc);
+                var temp = templates[doc._id];
+                temp.linkCount.set(temp.linkCount.get() + countChange);
+            }
+        }
+    });
+
+    tree.runGraph();
+    tree.render();
+});
+
 Template.detailedViewPost.onCreated(function () {
     templates[this.data._id] = this;
     let count = 0;
@@ -345,144 +484,6 @@ Template.detailedViewReply.events({
     'wheel': function(event) {
         event.stopImmediatePropagation();
     },
-});
-
-Template.detailedView.onCreated(function() {
-})
-
-Template.detailedView.events({
-    'mousedown, touchstart': function(event, template) {
-        if (event.button != 0) return;
-        template.dragging = true;
-        template.counter = 0;
-        template.mousePos = {x: event.screenX, y: event.screenY};
-    },
-    'mouseup, touchend': function(event, template) {
-        template.dragging = false;
-        tree.render();
-    },
-    'mousemove, touchmove': function(event, template) {
-        if (template.dragging) {
-            unFocus();
-            tree.forEachNode(function(node) {
-                node.x += event.screenX - template.mousePos.x;
-                node.y += event.screenY - template.mousePos.y;
-            });
-
-            template.mousePos = {x: event.screenX, y: event.screenY};
-
-            //Horrible hack to improve performance.
-            //TODO: Replace with a requestAnimationFrame() callback.
-            if (template.counter <= 0) {
-                tree.render();
-                template.counter = 2;
-            }
-            else {
-                template.counter--;
-            }
-        }
-    },
-    'wheel': function(event) {
-        return;
-        if (event.originalEvent.deltaY < 0) {
-            Template.instance().scale *= 4.0/3.0;
-        } else {
-            Template.instance().scale *= 3.0/4.0;
-        }
-        $(".detailed-view-centerer").css("transform", "scale(" +
-        Template.instance().scale + ")");
-    },
-    'click .button-delete': function(event) {
-        event.preventDefault();
-        if (currentAction != "deleting") currentAction = "deleting";
-        else currentAction = "none";
-    },
-});
-
-Template.detailedView.helpers({
-    posts: function() {
-        return nodesInGraph.find({type: "post"});
-    },
-    replies: function() {
-        return nodesInGraph.find({ $or: [ {type: "reply"}, {type: "edit"} ] });
-    },
-    checkIfModerator: function() {
-        return Roles.userIsInRole(Meteor.userId(), ['moderator']);
-    }
-});
-
-Template.detailedView.onRendered(function() {
-
-    tree = new ForumTree();
-
-    var nodesCursor = Post.find({});
-
-    // This code adds any posts that are already loaded to the graph once the
-    // graph is finished being instantiated. This is used when navigating way
-    // from the detailed view page and then back to it, so as to keep the same
-    // nodes in the graph.
-    nodesCursor.forEach(function(n) {
-        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
-            tree.addNode(n);
-        }
-    });
-
-    if (this.data) {
-        let _id = this.data;
-        handlers.addHandler(_id, {
-            onReady: function() {
-                let doc = Post.findOne({_id: _id});
-                tree.addNode(doc);
-            }
-        });
-    } else handlers.addHandler(null, {
-        onReady: function() {
-            let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
-            tree.addNode(doc);
-        }
-    });
-
-    nodesCursor.observe({
-        added: function(doc) {
-
-            if (nodesInGraph.findOne({_id: doc._id})) {
-                for (var i in doc.links) {
-                    let linkID = doc.links[i].target;
-                    handlers.addHandler(linkID);
-
-                }
-                for (var i in doc.replyIDs) {
-                    let replyID = doc.replyIDs[i];
-                    handlers.addHandler(replyID);
-
-                }
-            }
-
-
-        },
-        removed: function(doc) {
-            tree.removeNode(doc);
-        },
-        changed: function(doc) {
-            post = nodesInGraph.findOne({_id: doc._id});
-            if (post) {
-                var countChange = (doc.links.length + doc.replyIDs.length)
-                                - (post.links.length + post.replyIDs.length);
-                doc.type = post.type;
-                for (let link of post.links) {
-                    if (!doc.links.find(function(l) {return (link.target == l.target)}))
-                        tree.removeLink({sourceId: doc._id, targetId: link.target});
-                }
-
-                nodesInGraph.update({_id: doc._id}, doc);
-                var temp = templates[doc._id];
-                temp.linkCount.set(temp.linkCount.get() + countChange);
-            }
-        }
-    });
-
-    tree.runGraph();
-    tree.render();
 });
 
 Template.detailedViewPostList.onCreated(function() {

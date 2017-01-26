@@ -3,6 +3,7 @@
 //  B. We can return extra dummy nodes and links.
 
 GraphLayoutLayered = function(nodes, links) {
+    //Set up the Directed Acyclic Graph (DAG)
     let SPACING_DISTANCE = 32.0;
     let dag = new DAG();
     
