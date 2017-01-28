@@ -172,17 +172,6 @@ ForumTree = function() {
         }
     };
 
-    //Find our SVG element for the forumIndex template and assign our SVG variable to it as a reference.
-    //Then, beloy that add code so that when we're adding new links to the graph,
-    //it will draw them to the mouse cursor as it's moved around.
-    //This code, at least, is not referenced outside this file.
-    var svg = d3.select(".detailed-view-link-graph");
-
-    svg.selectAll("*").remove();
-
-    var linksGroup = svg.append("g");
-    var linkElements = linksGroup.selectAll("line");
-
     // init force layout
     var force = d3.layout.force()
         .nodes(nodes)
@@ -216,36 +205,8 @@ ForumTree = function() {
         force.stop();
     }
 
-    // Updates the position of the various nodes on the graph
+    // Updates the position of the various nodes and lines on the graph
     this.render = function() {
-
-        // add links
-        linkElements = linkElements.data(force.links(), function(d, i) { return d._id; });
-        linkElements.exit().remove();
-
-        var edgeSelection = linkElements.enter().append("line")
-            .classed('link', true)
-            .attr('stroke', function (d) {
-                if (d.type == "Attack") {
-                    return 'red';
-                } else {
-                    return 'black';
-                }
-            });
-
-        linkElements
-            .attr("x1", function (d) {
-                return d.source.x;
-            })
-            .attr("y1", function (d) {
-                return d.source.y;
-            })
-            .attr("x2", function (d) {
-                return d.target.x;
-            })
-            .attr("y2", function (d) {
-                return d.target.y;
-            });
 
         nodes.forEach(function(d) {
             if (d.type == "post") {
@@ -256,6 +217,20 @@ ForumTree = function() {
                 $("#reply-" + d._id).css("left", d.x - 160).css("top", d.y - 112);
             }
         });
+
+        $('.detailed-view-link').remove(); //TODO: don't redo all links upon change to graph
+        let svg = $('.detailed-view-links-graph');
+
+        for (let link of force.links()) {
+            $(document.createElementNS('http://www.w3.org/2000/svg','line'))
+                .attr('class', 'detailed-view-link')
+                .attr('stroke', 'black')
+                .attr('x1', link.source.x)
+                .attr('y1', link.source.y)
+                .attr('x2', link.target.x)
+                .attr('y2', link.target.y)
+                .appendTo(svg);
+        }
     };
 
     return this;
