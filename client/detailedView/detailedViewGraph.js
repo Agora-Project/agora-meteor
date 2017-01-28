@@ -49,10 +49,83 @@ ForumTree = function() {
     let nodes = [];
     let links = [];
 
+    // Both of these two functions are called outside this file, whenever the
+    // graph needs to have it's nodes repositioned or rerendered.
+    this.runGraph = function() {
+
+            let posts = {};
+
+            nodesInGraph.find({}, {limit: 1000}).forEach(function(post) {
+                let div;
+                if (post.type == "post") {
+                    div = $("#post-" + post._id);
+                } else if (post.type == "reply" || post.type == "edit") {
+                    div = $("#reply-" + post._id);
+                }
+                posts[post._id] = {
+                    data: post,
+                    div: div
+                };
+            });
+
+            let postArray = [];
+            let linkArray = [];
+
+            $.each(posts, function(id, post) {
+                if (post.data.links)
+                for (let link of post.data.links) {
+                    if (link.target in posts) {
+                        linkArray.push({
+                            source: post,
+                            target: posts[link.target]
+                        });
+                    }
+                }
+                postArray.push(post);
+            });
+
+            //let layout = new GraphLayoutForce(postArray, linkArray);
+            this.layout = new GraphLayoutLayered(postArray, linkArray,
+                {spacingHorizontal:330, spacingVertical: 160});
+
+
+
+            this.nodes = this.layout.nodes;
+    }
+
+    this.runGraph();
+
+    // Updates the position of the various nodes and lines on the graph
+    this.render = function() {
+
+        for (let post of this.layout.nodes) {
+            if (post.name !== undefined) {
+                let div = post.name.div;
+                div.css("left", post.x - div.outerWidth()/2.0);
+                div.css("top", post.y - div.outerHeight()/2.0);
+            }
+        }
+
+        $('.detailed-view-link').remove(); //TODO: don't redo all links upon change to graph
+        let svg = $('.detailed-view-links-graph');
+
+
+        for (let link of this.layout.links) {
+            $(document.createElementNS('http://www.w3.org/2000/svg','line'))
+                .attr('class', 'detailed-view-link')
+                .attr('stroke', 'black')
+                .attr('x1', link.source.x)
+                .attr('y1', link.source.y)
+                .attr('x2', link.target.x)
+                .attr('y2', link.target.y)
+                .appendTo(svg);
+        }
+    };
+
     this.findNode = function(node) {
         if (node._id)
-            return nodes.find(function(n) {return (node._id == n._id)});
-        else return nodes.find(function(n) {return (node == n._id)});
+            return this.layout.nodes.find(function(n) {return (node._id == n.name.data._id)});
+        else return this.layout.nodes.find(function(n) {return (node == n.name.data._id)});
     };
 
     this.findLink = function(linkDocument) {
@@ -167,69 +240,8 @@ ForumTree = function() {
     };
 
     this.forEachNode = function(action) {
-        for (let node of nodes) {
+        for (let node of this.layout.nodes) {
             action(node);
-        }
-    };
-
-    // init force layout
-    var force = d3.layout.force()
-        .nodes(nodes)
-        .links(links)
-        .gravity(0.10)
-        .charge(-20000)
-        .chargeDistance(400)
-        .friction(0.9)
-        .linkStrength(0.3)
-        .linkDistance(function(link) {
-            let linkDistance = 0;
-            linkDistance += $("#post-" + link.source._id).outerHeight() / 2;
-            linkDistance += $("#post-" + link.target._id).outerHeight() / 2;
-            linkDistance *= 3;
-            return linkDistance;
-        })
-        .on("tick", function tick(e) {
-            var k = 6 * e.alpha;
-            force.links().forEach(function(d, i) {
-                if (d.source.y < d.target.y + 160) {
-                    d.target.y -= 1;
-                }
-            });
-        } );
-
-    // Both of these two functions are called outside this file, whenever the
-    // graph needs to have it's nodes repositioned or rerendered.
-    this.runGraph = function() {
-        force.start();
-        for (var i = 0; i < 100; i++) force.tick();
-        force.stop();
-    }
-
-    // Updates the position of the various nodes and lines on the graph
-    this.render = function() {
-
-        nodes.forEach(function(d) {
-            if (d.type == "post") {
-                let post = $("#post-" + d._id);
-                post.css("left", d.x - (post.outerWidth() / 2))
-                    .css("top", d.y - (post.outerHeight() / 2));
-            } else if (d.type == "reply" || d.type == "edit") {
-                $("#reply-" + d._id).css("left", d.x - 160).css("top", d.y - 112);
-            }
-        });
-
-        $('.detailed-view-link').remove(); //TODO: don't redo all links upon change to graph
-        let svg = $('.detailed-view-links-graph');
-
-        for (let link of force.links()) {
-            $(document.createElementNS('http://www.w3.org/2000/svg','line'))
-                .attr('class', 'detailed-view-link')
-                .attr('stroke', 'black')
-                .attr('x1', link.source.x)
-                .attr('y1', link.source.y)
-                .attr('x2', link.target.x)
-                .attr('y2', link.target.y)
-                .appendTo(svg);
         }
     };
 
