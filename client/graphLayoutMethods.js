@@ -26,7 +26,7 @@ GraphLayoutLayered = function(nodes, links) {
         let layerWidth = layout.table[node.layer].length - 1;
         
         node.x = (node.column - layerWidth*0.5)*SPACING_DISTANCE;
-        node.y = (node.layer - layout.height*0.5)*SPACING_DISTANCE;
+        node.y = (layout.height*0.5 - node.layer)*SPACING_DISTANCE;
     }
     
     //Iterate from bottom to top of table.
