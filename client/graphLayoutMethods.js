@@ -2,9 +2,15 @@
 //  A. We don't contaminate given objects with new data.
 //  B. We can return extra dummy nodes and links.
 
-GraphLayoutLayered = function(nodes, links) {
+GraphLayoutLayered = function(nodes, links, args) {
+    //Set default parameters
+    let spacingHorizontal = args ? args.spacingHorizontal : undefined;
+    spacingHorizontal = spacingHorizontal ? spacingHorizontal : 38.0;
+    
+    let spacingVertical = args ? args.spacingVertical : undefined;
+    spacingVertical = spacingVertical ? spacingVertical : 38.0;
+    
     //Set up the Directed Acyclic Graph (DAG)
-    let SPACING_DISTANCE = 38.0;
     let dag = new DAG();
 
     for (let node of nodes) {
@@ -25,8 +31,8 @@ GraphLayoutLayered = function(nodes, links) {
 
         let layerWidth = layout.table[node.layer].length - 1;
 
-        node.x = (node.column - layerWidth*0.5)*SPACING_DISTANCE;
-        node.y = (layout.height*0.5 - node.layer)*SPACING_DISTANCE;
+        node.x = (node.column - layerWidth*0.5)*spacingHorizontal;
+        node.y = (layout.height*0.5 - node.layer)*spacingVertical;
     }
 
     //Iterate from bottom to top of table.
@@ -60,7 +66,7 @@ GraphLayoutLayered = function(nodes, links) {
         for (let column = 1; column < sourceLayer.length; column++) {
             let left = sourceLayer[column - 1];
             let right = sourceLayer[column];
-            right.x = Math.max(right.x, left.x + SPACING_DISTANCE);
+            right.x = Math.max(right.x, left.x + spacingHorizontal);
         }
 
         //Shift entire layer to minimize average edge slant.
@@ -101,7 +107,7 @@ GraphLayoutLayered = function(nodes, links) {
                 if (offset < 0.0) {
                     let neighbor = sourceLayer[left.column - 1];
                     if (neighbor !== undefined) {
-                        if (left.x + offset < neighbor.x + SPACING_DISTANCE) {
+                        if (left.x + offset < neighbor.x + spacingHorizontal) {
                             continue;
                         }
                     }
@@ -109,7 +115,7 @@ GraphLayoutLayered = function(nodes, links) {
                 else {
                     let neighbor = sourceLayer[right.column + 1];
                     if (neighbor !== undefined) {
-                        if (right.x + offset > neighbor.x - SPACING_DISTANCE) {
+                        if (right.x + offset > neighbor.x - spacingHorizontal) {
                             continue;
                         }
                     }
