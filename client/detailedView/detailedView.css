@@ -339,6 +339,10 @@
     background-color: #fff;
 }
 
+.detailed-post-list a {
+    color: #4078c0;
+}
+
 .report-div {
     display: flex;
     position: relative;

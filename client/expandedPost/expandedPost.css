@@ -51,6 +51,10 @@
     margin: 3px 0 0px 6px;
 }
 
+.expanded-post a {
+    color: #4078c0;
+}
+
 .expanded-post-avatar {
     display: block;
     border-radius: 4px;
