@@ -86,7 +86,7 @@ ForumTree = function() {
 
             //let layout = new GraphLayoutForce(postArray, linkArray);
             this.layout = new GraphLayoutLayered(postArray, linkArray,
-                {spacingHorizontal:330, spacingVertical: 160});
+                {spacingHorizontal:330, spacingVertical: 180});
 
 
 
@@ -214,6 +214,7 @@ ForumTree = function() {
             }
             nodes.splice(iToRemove, 1);
             nodesInGraph.remove({_id: nodeDocument._id});
+            this.runGraph();
             this.render();
             return true;
         }
