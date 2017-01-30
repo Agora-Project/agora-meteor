@@ -90,9 +90,9 @@
 <template name="detailedViewPostList">
     <div class="detailed-post-list">
 
-        <a class="undraggable">Title</a>
-        <a class="username undraggable">Username</a>
-        <span class="undraggable">Date Posted</span>
+        <a>Title</a>
+        <a class="username">Username</a>
+        <span >Date Posted</span>
         {{#each posts}}
             {{> detailedViewPostListing}}
         {{/each}}
@@ -100,10 +100,10 @@
 </template>
 
 <template name="detailedViewPostListing">
-    <div class="post-listing-div undraggable">
-        <a class="undraggable">{{title}}</a>
-        <a class="username undraggable">{{user.username}}</a>
-        <span class="undraggable">4 hours ago</span>
+    <div class="post-listing-div">
+        <a>{{title}}</a>
+        <a class="username ">{{user.username}}</a>
+        <span >4 hours ago</span>
     </div>
 </template>
 
