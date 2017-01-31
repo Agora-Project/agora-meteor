@@ -116,13 +116,12 @@ Template.detailedView.onRendered(function() {
         added: function(doc) {
 
             if (nodesInGraph.findOne({_id: doc._id})) {
-                for (var i in doc.links) {
-                    let linkID = doc.links[i].target;
+                for (var i of doc.links) {
+                    let linkID = i.target;
                     handlers.addHandler(linkID);
 
                 }
-                for (var i in doc.replyIDs) {
-                    let replyID = doc.replyIDs[i];
+                for (var replyID of doc.replyIDs) {
                     handlers.addHandler(replyID);
 
                 }
@@ -312,8 +311,8 @@ Template.detailedViewPost.events({
     },
     'click .load-all-button': function (event) {
 
-        for (var i in this.links) {
-            let linkID = this.links[i].target;
+        for (var i of this.links) {
+            let linkID = i.target;
             handlers.addHandler(linkID, {
                 onReady: function() {
                     let doc = Post.findOne({_id: linkID});
@@ -322,8 +321,7 @@ Template.detailedViewPost.events({
             });
 
         }
-        for (var i in this.replyIDs) {
-            let replyID = this.replyIDs[i];
+        for (var replyID of this.replyIDs) {
             handlers.addHandler(replyID,  {
                 onReady: function() {
                     let doc = Post.findOne({_id: replyID});
@@ -338,8 +336,8 @@ Template.detailedViewPost.events({
 
         postList.posts.remove({});
 
-        for (var i in this.links) {
-            let linkID = this.links[i].target;
+        for (var i of this.links) {
+            let linkID = i.target;
             handlers.addHandler(linkID, {
                 onReady: function() {
                     let doc = Post.findOne({_id: linkID});
@@ -349,8 +347,7 @@ Template.detailedViewPost.events({
             });
 
         }
-        for (var i in this.replyIDs) {
-            let replyID = this.replyIDs[i];
+        for (var replyID of this.replyIDs) {
             handlers.addHandler(replyID,  {
                 onReady: function() {
                     let doc = Post.findOne({_id: replyID});
