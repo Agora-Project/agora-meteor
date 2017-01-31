@@ -52,6 +52,9 @@ Template.hourglassView.onCreated(function() {
     this.autorun(function() {
         if (postSubscription.ready()) {
             let posts = {}, postsToProcess = [overviewObject.data];
+            
+            //Go through and grab the post and all posts above it, and add them
+            //to the graph.
             while (postsToProcess.length > 0) {
                 let post = postsToProcess[0];
                 if (!posts[post._id]) {
@@ -68,6 +71,9 @@ Template.hourglassView.onCreated(function() {
                 }
                 postsToProcess.splice(0,1);
             }
+
+            //Go through and grab the post and all posts below it, and add them
+            //to the graph.
             postsToProcess = [overviewObject.data];
             while (postsToProcess.length > 0) {
                 let post = postsToProcess[0];
