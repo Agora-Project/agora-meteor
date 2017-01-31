@@ -61,3 +61,67 @@
     margin: 6px 12px 6px 0px;
     z-index: 0;
 }
+
+.hourglass-viewport {
+    position: relative;
+    max-width: 1024px;
+    max-height: 568px;
+    width: 100vw;
+    height: 75vw;
+    padding: 0px;
+    margin: 0px auto;
+    border: 1px solid #999;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px #bbb;
+    overflow: hidden;
+}
+
+.hourglass-centerer {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.hourglass-links-graph {
+    overflow: visible;
+}
+
+.hourglass-node {
+    position: absolute;
+    left: 384px;
+    top: 256px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #555;
+}
+
+.hourglass-post {
+    z-index: 2;
+}
+
+.hourglass-post-info {
+    display: flex;
+    flex-direction: row;
+    height: 45px;
+    line-height: 45px;
+    border: 1px solid #999;
+    border-top: none;
+    padding-right: 6px;
+
+    background-color: #f6f6f6;
+}
+
+.hourglass-post-info span {
+    flex-shrink: 0;
+    display: block;
+    float: right;
+    margin: 0 0 10px 10px;
+}
+
+.hourglass-avatar {
+    display: block;
+    border-radius: 4px;
+    margin: 6px 12px 6px -6px;
+    z-index: 0;
+}

@@ -25,7 +25,7 @@
             -->
         </p>
 
-        {{> expandedViewPostList this}}
+        {{> hourglassView this}}
     </div>
 </template>
 
@@ -37,22 +37,51 @@
     <h4 class="expanded-post-loading">Loading...</h4>
 </template>
 
-<template name="expandedViewPostList">
-    <div class="post-list">
-
-        <a class="undraggable">Title</a>
-        <a class="username undraggable">Username</a>
-        <span class="undraggable">Date Posted</span>
-        {{#each posts}}
-            {{> expandedViewPostListing}}
-        {{/each}}
+<template name="hourglassView">
+    <div class="hourglass-viewport">
+        <div class="hourglass-centerer">
+            {{#each nodeDisplay}}
+                {{> hourglassPost}}
+            {{/each}}
+            <svg class="hourglass-links-graph"></svg>
+            {{#each nodes}}
+                {{> hourglassNode}}
+            {{/each}}
+        </div>
     </div>
+
 </template>
 
-<template name="expandedViewPostListing">
-    <div class="post-listing-div undraggable">
-        <a class="undraggable" href="/forum/post/{{_id}}">{{title}}</a>
-        <a class="username undraggable" href="/forum/user/{{user._id}}">{{user.username}}</a>
-        <span class="undraggable">4 hours ago</span>
+<template name="hourglassNode">
+    <a class="undraggable" href="/forum/post/{{_id}}">
+        <div class="hourglass-node" id="hourglass-node-{{_id}}">
+        </div>
+    </a>
+</template>
+
+<template name="hourglassPost">
+    <div class="post hourglass-post" id="post-{{_id}}">
+        <div class="post-header">
+            <div class="title-bar">
+                <a  href="/forum/post/{{_id}}">{{title}}</a>
+            </div>
+        </div>
+        <div class="hourglass-post-info">
+            {{#if user}}
+                <a href="/forum/user/{{user._id}}">
+                    {{> avatar user=(user) size="small" shape="rounded" class="overview-avatar"}}
+                </a>
+                <a class="username" href="/forum/user/{{user._id}}">
+                    {{user.username}}
+                </a>
+            {{/if}}
+            <span>
+                {{age}}
+            </span>
+        </div>
+        {{#if hasContent}}
+            <div class="post-content">
+            </div>
+        {{/if}}
     </div>
 </template>
