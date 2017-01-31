@@ -43,23 +43,28 @@ Template.expandedPost.helpers({
 
 Template.hourglassView.onCreated(function() {
 
+    //This collection keeps track of posts we want to
+    //create nodes for in the graph.
     this.nodeDisplay = new Mongo.Collection(null);
+
+    //This collection keeps track of posts we want to
+    //display entirely in the graph.
     this.postDisplay = new Mongo.Collection(null);
 
-    overviewObject = this; // !! Global variable!
+    hourglassObject = this; // !! Global variable!
 
     let postSubscription = this.subscribe('newestPosts', Date.now());
 
     this.autorun(function() {
         if (postSubscription.ready()) {
-            let posts = {}, postsToProcess = [overviewObject.data];
+            let posts = {}, postsToProcess = [hourglassObject.data];
 
             //Go through and grab the post and all posts above it, and add them
             //to the graph.
             while (postsToProcess.length > 0) {
                 let post = postsToProcess[0];
                 if (!posts[post._id]) {
-                    overviewObject.nodeDisplay.insert(post);
+                    hourglassObject.nodeDisplay.insert(post);
                     posts[post._id] = {
                         data: post,
                         div: $('#hourglass-node-' + post._id)
@@ -76,11 +81,11 @@ Template.hourglassView.onCreated(function() {
 
             //Go through and grab the post and all posts below it, and add them
             //to the graph.
-            postsToProcess = [overviewObject.data];
+            postsToProcess = [hourglassObject.data];
             while (postsToProcess.length > 0) {
                 let post = postsToProcess[0];
                 if (!posts[post._id]) {
-                    overviewObject.nodeDisplay.insert(post);
+                    hourglassObject.nodeDisplay.insert(post);
                     posts[post._id] = {
                         data: post,
                         div: $('#hourglass-node-' + post._id)
@@ -113,9 +118,9 @@ Template.hourglassView.onCreated(function() {
             //let layout = new GraphLayoutForce(postArray, linkArray);
             let layout = new GraphLayoutLayered(postArray, linkArray);
 
-            overviewObject.postArray = layout.nodes;
+            hourglassObject.postArray = layout.nodes;
 
-            overviewObject.render = function() {
+            hourglassObject.render = function() {
                 for (let post of layout.nodes) {
                     if (post.name !== undefined) {
                         let div = post.name.div;
@@ -139,7 +144,7 @@ Template.hourglassView.onCreated(function() {
                 }
             }
 
-            overviewObject.render();
+            hourglassObject.render();
         }
     });
 });
@@ -153,12 +158,12 @@ Template.hourglassView.events({
     },
     'mouseup, touchend': function(event, template) {
         template.dragging = false;
-        overviewObject.render();
+        hourglassObject.render();
     },
     'mousemove, touchmove': function(event, template) {
         if (template.dragging) {
             unFocus();
-            for (let post of overviewObject.postArray) {
+            for (let post of hourglassObject.postArray) {
                 post.x += (event.screenX - template.mousePos.x);
                 post.y += (event.screenY - template.mousePos.y);
             }
@@ -167,7 +172,7 @@ Template.hourglassView.events({
             //Horrible hack to improve performance.
             //TODO: Replace with a requestAnimationFrame() callback.
             if (template.counter <= 0) {
-                overviewObject.render();
+                hourglassObject.render();
                 template.counter = 3;
             }
             else {
@@ -192,11 +197,11 @@ Template.hourglassNode.events({
         event.stopImmediatePropagation();
     },
     "mouseenter": function(event) {
-        overviewObject.postDisplay.remove({});
-        overviewObject.postDisplay.insert(this);
+        hourglassObject.postDisplay.remove({});
+        hourglassObject.postDisplay.insert(this);
     },
     "mouseleave": function(event) {
-        overviewObject.postDisplay.remove({});
+        hourglassObject.postDisplay.remove({});
     }
 });
 
