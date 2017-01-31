@@ -44,6 +44,7 @@ Template.expandedPost.helpers({
 Template.hourglassView.onCreated(function() {
 
     this.nodeDisplay = new Mongo.Collection(null);
+    this.postDisplay = new Mongo.Collection(null);
 
     overviewObject = this; // !! Global variable!
 
@@ -52,12 +53,13 @@ Template.hourglassView.onCreated(function() {
     this.autorun(function() {
         if (postSubscription.ready()) {
             let posts = {}, postsToProcess = [overviewObject.data];
-            
+
             //Go through and grab the post and all posts above it, and add them
             //to the graph.
             while (postsToProcess.length > 0) {
                 let post = postsToProcess[0];
                 if (!posts[post._id]) {
+                    overviewObject.nodeDisplay.insert(post);
                     posts[post._id] = {
                         data: post,
                         div: $('#hourglass-node-' + post._id)
@@ -77,10 +79,14 @@ Template.hourglassView.onCreated(function() {
             postsToProcess = [overviewObject.data];
             while (postsToProcess.length > 0) {
                 let post = postsToProcess[0];
-                posts[post._id] = {
-                    data: post,
-                    div: $('#hourglass-node-' + post._id)
-                };
+                if (!posts[post._id]) {
+                    overviewObject.nodeDisplay.insert(post);
+                    posts[post._id] = {
+                        data: post,
+                        div: $('#hourglass-node-' + post._id)
+                    };
+                }
+
                 for (var replyID of post.replyIDs) {
                     let doc = Post.findOne({_id: replyID});
                     postsToProcess.push(doc);
@@ -172,11 +178,11 @@ Template.hourglassView.events({
 });
 
 Template.hourglassView.helpers({
-    nodeDisplay: function() {
-        return Template.instance().nodeDisplay.find({});
+    postDisplay: function() {
+        return Template.instance().postDisplay.find({});
     },
     nodes: function() {
-        return Post.find({}, {limit: 1000});
+        return Template.instance().nodeDisplay.find({});
     }
 });
 
@@ -186,11 +192,11 @@ Template.hourglassNode.events({
         event.stopImmediatePropagation();
     },
     "mouseenter": function(event) {
-        overviewObject.nodeDisplay.remove({});
-        overviewObject.nodeDisplay.insert(this);
+        overviewObject.postDisplay.remove({});
+        overviewObject.postDisplay.insert(this);
     },
     "mouseleave": function(event) {
-        overviewObject.nodeDisplay.remove({});
+        overviewObject.postDisplay.remove({});
     }
 });
 
