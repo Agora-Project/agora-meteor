@@ -57,9 +57,9 @@ ForumTree = function() {
 
             nodesInGraph.find({}, {limit: 1000}).forEach(function(post) {
                 let div;
-                if (post.type == "post") {
+                if (post.nodeType == "post") {
                     div = $("#post-" + post._id);
-                } else if (post.type == "reply" || post.type == "edit") {
+                } else if (post.nodeType == "reply" || post.nodeType == "edit") {
                     div = $("#reply-" + post._id);
                 }
                 posts[post._id] = {
@@ -153,7 +153,7 @@ ForumTree = function() {
         if (!nodes.find(function(n) {return (node._id == n._id)})) {
             let _id = node._id;
 
-            if (!node.type) node.type = "post";
+            if (!node.nodeType) node.nodeType = "post";
 
             if (!nodesInGraph.findOne({_id: node._id}))
                 _id = nodesInGraph.insert(node);

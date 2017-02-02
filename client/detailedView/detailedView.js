@@ -71,10 +71,10 @@ Template.detailedView.events({
 
 Template.detailedView.helpers({
     posts: function() {
-        return nodesInGraph.find({type: "post"});
+        return nodesInGraph.find({nodeType: "post"});
     },
     replies: function() {
-        return nodesInGraph.find({ $or: [ {type: "reply"}, {type: "edit"} ] });
+        return nodesInGraph.find({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] });
     },
     checkIfModerator: function() {
         return Roles.userIsInRole(Meteor.userId(), ['moderator']);
@@ -141,7 +141,7 @@ Template.detailedView.onRendered(function() {
                 //post has.
                 var countChange = (doc.links.length + doc.replyIDs.length)
                                 - (post.links.length + post.replyIDs.length);
-                doc.type = post.type;
+                doc.nodeType = post.nodeType;
                 for (let link of post.links) {
                     if (!doc.links.find(function(l) {return (link.target == l.target)}))
                         tree.removeLink({sourceId: doc._id, targetId: link.target});
@@ -149,7 +149,7 @@ Template.detailedView.onRendered(function() {
 
                 var temp = templates[doc._id];
                 temp.linkCount.set(temp.linkCount.get() + countChange);
-                
+
                 //And update it's text, of course.
                 nodesInGraph.update({_id: doc._id}, doc);
             }
@@ -363,11 +363,11 @@ Template.detailedViewPost.events({
     },
     'click .reply-button': function(event) {
         if (!Meteor.userId()) return;
-        if (!nodesInGraph.findOne({ $or: [ {type: "reply"}, {type: "edit"} ] })) {
-            let _id = tree.addNode({type: "reply", links: [{target: this._id}]})._id;
+        if (!nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] })) {
+            let _id = tree.addNode({nodeType: "reply", links: [{target: this._id}]})._id;
             tree.addLink({sourceId: _id, targetId: this._id});
         } else {
-            let reply = nodesInGraph.findOne({ $or: [ {type: "reply"}, {type: "edit"} ] });
+            let reply = nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] });
             let self = this;
             if (!reply.links.find(function(link) {
                 return (link.target == self._id);
@@ -391,10 +391,10 @@ Template.detailedViewPost.events({
         }
     },
     'click .edit-post-button': function(event) {
-        if (!nodesInGraph.findOne({type: "reply"})) {
+        if (!nodesInGraph.findOne({nodeType: "reply"})) {
             tree.removeNode(this);
             nodesInGraph.remove({_id: this._id});
-            this.type = "edit";
+            this.nodeType = "edit";
             tree.addNode(this);
         }
     },
@@ -450,7 +450,7 @@ Template.detailedViewReply.events({
         tree.removeNode(this);
     },
     'click .submit-button': function(event) {
-        if (this.type == "reply") {
+        if (this.nodeType == "reply") {
             if (this.links.length < 1) return;
             let title = $('#titleInput-' + this._id).val();
             let content = $('#contentInput-' + this._id).val();
@@ -472,7 +472,7 @@ Template.detailedViewReply.events({
                     }
                 });
             });
-        } else if (this.type == "edit") {
+        } else if (this.nodeType == "edit") {
             this.title = $('#titleInput-' + this._id).val();
             this.content = $('#contentInput-' + this._id).val();
             if (!Meteor.userId() || this.links.length < 1 ||
