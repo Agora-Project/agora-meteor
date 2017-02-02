@@ -86,7 +86,7 @@ ForumTree = function() {
 
             //let layout = new GraphLayoutForce(postArray, linkArray);
             this.layout = new GraphLayoutLayered(postArray, linkArray,
-                {spacingHorizontal:330, spacingVertical: 180});
+                {spacingHorizontal:330, spacingVertical: 240});
 
 
 
