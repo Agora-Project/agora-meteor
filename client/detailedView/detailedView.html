@@ -41,8 +41,8 @@
         </div>
         <div class="post-info undraggable">
             {{#if user}}
-                <a class="undraggable" href="/forum/user/{{user._id}}">
-                    {{> avatar user=(user) size="small" shape="rounded" class="forum-avatar"}}
+                <a class="forum-avatar undraggable" href="/forum/user/{{user._id}}">
+                    {{> avatar user=(user) size="small" shape="rounded"}}
                 </a>
                 <a class="username undraggable" href="/forum/user/{{user._id}}">{{user.username}}</a>
             {{/if}}
