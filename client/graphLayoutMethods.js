@@ -134,86 +134,56 @@ GraphLayoutLayered = function(nodes, links, args) {
         let targetLayer = layout.table[layer + 1];
 
         //If there's room, place targets above their  source groups.
-        for (let i in targetLayer) {
+        for (let i = 0; i < targetLayer.length/2; i++) {
             //First, from left to right...
             let target = targetLayer[i];
 
-            if (target.edgesIn.length > 0) {
-                let edgeSlant = 0.0;
-                let edgeCount = 0;
+            //We use this code twice, so lets declare it a function.
+            function offsetNode(node) {
+                if (node.edgesIn.length > 0) {
+                    let edgeSlant = 0.0;
+                    let edgeCount = 0;
 
-                for (let edge of target.edgesIn) {
-                    edgeSlant += edge.source.x - target.x;
-                }
-                edgeCount += target.edgesIn.length;
+                    for (let edge of target.edgesIn) {
+                        edgeSlant += edge.source.x - node.x;
+                    }
+                    edgeCount += target.edgesIn.length;
 
-                /*for (let edge of target.edgesOut) {
-                    edgeSlant += edge.target.x - target.x;
-                }
-                edgeCount += target.edgesOut.length;*/
+                    /*for (let edge of target.edgesOut) {
+                        edgeSlant += edge.target.x - target.x;
+                    }
+                    edgeCount += target.edgesOut.length;*/
 
-                let offset = 0.5*edgeSlant/edgeCount;
+                    let offset = 0.5*edgeSlant/edgeCount;
 
-                //Limit offset based on neighboring nodes.
-                if (offset < 0.0) {
-                    let neighbor = targetLayer[target.column - 1];
-                    if (neighbor !== undefined) {
-                        if (target.x + offset < neighbor.x + spacingHorizontal) {
-                            offset = neighbor.x + spacingHorizontal - target.x;
+                    //Limit offset based on neighboring nodes.
+                    if (offset < 0.0) {
+                        let neighbor = targetLayer[node.column - 1];
+                        if (neighbor !== undefined) {
+                            if (node.x + offset < neighbor.x + spacingHorizontal) {
+                                offset = neighbor.x + spacingHorizontal - node.x;
+                            }
                         }
                     }
-                }
-                else {
-                    let neighbor = targetLayer[target.column + 1];
-                    if (neighbor !== undefined) {
-                        if (target.x + offset > neighbor.x - spacingHorizontal) {
-                            offset = neighbor.x - spacingHorizontal - target.x;
+                    else {
+                        let neighbor = targetLayer[node.column + 1];
+                        if (neighbor !== undefined) {
+                            if (node.x + offset > neighbor.x - spacingHorizontal) {
+                                offset = neighbor.x - spacingHorizontal - node.x;
+                            }
                         }
                     }
-                }
 
-                target.x += offset;
+                    node.x += offset;
+                }
             }
+
+            offsetNode(target);
 
             //Then, from right to left.
             target = targetLayer[targetLayer.length -1 - i];
 
-            if (target.edgesIn.length > 0) {
-                let edgeSlant = 0.0;
-                let edgeCount = 0;
-
-                for (let edge of target.edgesIn) {
-                    edgeSlant += edge.source.x - target.x;
-                }
-                edgeCount += target.edgesIn.length;
-
-                /*for (let edge of target.edgesOut) {
-                    edgeSlant += edge.target.x - target.x;
-                }
-                edgeCount += target.edgesOut.length;*/
-
-                let offset = 0.5*edgeSlant/edgeCount;
-
-                //Limit offset based on neighboring nodes.
-                if (offset < 0.0) {
-                    let neighbor = targetLayer[target.column - 1];
-                    if (neighbor !== undefined) {
-                        if (target.x + offset < neighbor.x + spacingHorizontal) {
-                            offset = neighbor.x + spacingHorizontal - target.x;
-                        }
-                    }
-                }
-                else {
-                    let neighbor = targetLayer[target.column + 1];
-                    if (neighbor !== undefined) {
-                        if (target.x + offset > neighbor.x - spacingHorizontal) {
-                            offset = neighbor.x - spacingHorizontal - target.x;
-                        }
-                    }
-                }
-
-                target.x += offset;
-            }
+            offsetNode(target);
         }
 
 
