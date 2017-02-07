@@ -148,32 +148,79 @@ GraphLayoutLayered = function(nodes, links, args) {
                     }
                     edgeCount += target.edgesIn.length;
 
-                    /*for (let edge of target.edgesOut) {
-                        edgeSlant += edge.target.x - target.x;
-                    }
-                    edgeCount += target.edgesOut.length;*/
-
                     let offset = 0.5*edgeSlant/edgeCount;
 
+                    /*edgeSlant = 0.0;
+                    edgeCount = 0;
+
+                    for (let edge of target.edgesOut) {
+                        edgeSlant += edge.target.x - target.x;
+                    }
+                    edgeCount += target.edgesOut.length;
+
+                    offset += 0.5*edgeSlant/edgeCount;
+                    */
+
+
                     //Limit offset based on neighboring nodes.
-                    if (offset < 0.0) {
+                    while (offset < 0.0) {
                         let neighbor = targetLayer[node.column - 1];
                         if (neighbor !== undefined) {
                             if (node.x + offset < neighbor.x + spacingHorizontal) {
-                                offset = neighbor.x + spacingHorizontal - node.x;
+                                if (neighbor.edgesIn.length < 1 &&
+                                    neighbor.edgesOut.length == 1 &&
+                                    node.edgesOut.length == 1 &&
+                                    neighbor.edgesOut[0].target ===
+                                    node.edgesOut[0].target) {
+                                        targetLayer.splice(node.column, 1);
+                                        targetLayer.splice(node.column - 1, 0, node);
+                                        node.column--;
+                                        neighbor.column++;
+                                        node.x -= spacingHorizontal;
+                                        neighbor.x += spacingHorizontal;
+                                        offset += spacingHorizontal;
+                                } else {
+                                    node.x = neighbor.x + spacingHorizontal;
+                                    offset = 0;
+                                }
+                            } else {
+                                node.x += offset;
+                                offset = 0;
                             }
+                        } else {
+                            node.x += offset;
+                            offset = 0;
                         }
                     }
-                    else {
+                    while (offset > 0.0) {
                         let neighbor = targetLayer[node.column + 1];
                         if (neighbor !== undefined) {
                             if (node.x + offset > neighbor.x - spacingHorizontal) {
-                                offset = neighbor.x - spacingHorizontal - node.x;
+                                if (neighbor.edgesIn.length < 1 &&
+                                    neighbor.edgesOut.length == 1 &&
+                                    node.edgesOut.length == 1 &&
+                                    neighbor.edgesOut[0].target ===
+                                    node.edgesOut[0].target) {
+                                        targetLayer.splice(node.column, 1);
+                                        targetLayer.splice(node.column + 1, 0, node);
+                                        node.column++;
+                                        neighbor.column--;
+                                        node.x += spacingHorizontal;
+                                        neighbor.x -= spacingHorizontal;
+                                        offset -= spacingHorizontal;
+                                } else {
+                                    node.x = neighbor.x - spacingHorizontal;
+                                    offset = 0;
+                                }
+                            } else {
+                                node.x += offset;
+                                offset = 0;
                             }
+                        } else {
+                            node.x += offset;
+                            offset = 0;
                         }
                     }
-
-                    node.x += offset;
                 }
             }
 
