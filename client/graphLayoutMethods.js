@@ -134,10 +134,9 @@ GraphLayoutLayered = function(nodes, links, args) {
         let targetLayer = layout.table[layer + 1];
 
         //If there's room, place targets above their  source groups.
+        //This for loop is weird, it goes from both ends
+        //converging on the middle.
         for (let i = 0; i < targetLayer.length/2; i++) {
-            //First, from left to right...
-            let target = targetLayer[i];
-
             //We use this code twice, so lets declare it a function.
             function offsetNode(node) {
                 if (node.edgesIn.length > 0) {
@@ -177,6 +176,9 @@ GraphLayoutLayered = function(nodes, links, args) {
                     node.x += offset;
                 }
             }
+
+            //First, from left to right...
+            let target = targetLayer[i];
 
             offsetNode(target);
 
