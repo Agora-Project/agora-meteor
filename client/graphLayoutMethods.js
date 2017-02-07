@@ -108,7 +108,7 @@ GraphLayoutLayered = function(nodes, links, args) {
                     let neighbor = sourceLayer[left.column - 1];
                     if (neighbor !== undefined) {
                         if (left.x + offset < neighbor.x + spacingHorizontal) {
-                            continue;
+                            offset = neighbor.x + spacingHorizontal - left.x;
                         }
                     }
                 }
@@ -116,7 +116,7 @@ GraphLayoutLayered = function(nodes, links, args) {
                     let neighbor = sourceLayer[right.column + 1];
                     if (neighbor !== undefined) {
                         if (right.x + offset > neighbor.x - spacingHorizontal) {
-                            continue;
+                            offset = neighbor.x - spacingHorizontal - right.x;
                         }
                     }
                 }
@@ -134,7 +134,9 @@ GraphLayoutLayered = function(nodes, links, args) {
         let targetLayer = layout.table[layer + 1];
 
         //If there's room, place targets above their  source groups.
-        for (let target of targetLayer) {
+        for (let i in targetLayer) {
+            //First, from left to right...
+            let target = targetLayer[i];
             if (target.edgesIn.length > 0) {
                 let edgeSlant = 0.0;
                 let edgeCount = 0;
@@ -149,7 +151,7 @@ GraphLayoutLayered = function(nodes, links, args) {
                 }
                 edgeCount += target.edgesOut.length;*/
 
-                let offset = edgeSlant/edgeCount;
+                let offset = 0.5*edgeSlant/edgeCount;
 
                 //Limit offset based on neighboring nodes.
                 if (offset < 0.0) {
@@ -169,9 +171,50 @@ GraphLayoutLayered = function(nodes, links, args) {
                     }
                 }
 
-                target.x += offset/2;
+                target.x += offset;
+            }
+
+            //Then, from right to left.
+            target = targetLayer[targetLayer.length -1 - i];
+            if (target.edgesIn.length > 0) {
+                let edgeSlant = 0.0;
+                let edgeCount = 0;
+
+                for (let edge of target.edgesIn) {
+                    edgeSlant += edge.source.x - target.x;
+                }
+                edgeCount += target.edgesIn.length;
+
+                /*for (let edge of target.edgesOut) {
+                    edgeSlant += edge.target.x - target.x;
+                }
+                edgeCount += target.edgesOut.length;*/
+
+                let offset = 0.5*edgeSlant/edgeCount;
+
+                //Limit offset based on neighboring nodes.
+                if (offset < 0.0) {
+                    let neighbor = targetLayer[target.column - 1];
+                    if (neighbor !== undefined) {
+                        if (target.x + offset < neighbor.x + spacingHorizontal) {
+                            continue;
+                        }
+                    }
+                }
+                else {
+                    let neighbor = targetLayer[target.column + 1];
+                    if (neighbor !== undefined) {
+                        if (target.x + offset > neighbor.x - spacingHorizontal) {
+                            continue;
+                        }
+                    }
+                }
+
+                target.x += offset;
             }
         }
+
+
     }
 
     //Center new layout horizontally.
