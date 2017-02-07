@@ -6,10 +6,10 @@ GraphLayoutLayered = function(nodes, links, args) {
     //Set default parameters
     let spacingHorizontal = args ? args.spacingHorizontal : undefined;
     spacingHorizontal = spacingHorizontal ? spacingHorizontal : 38.0;
-    
+
     let spacingVertical = args ? args.spacingVertical : undefined;
     spacingVertical = spacingVertical ? spacingVertical : 38.0;
-    
+
     //Set up the Directed Acyclic Graph (DAG)
     let dag = new DAG();
 
@@ -35,12 +35,12 @@ GraphLayoutLayered = function(nodes, links, args) {
         node.y = (layout.height*0.5 - node.layer)*spacingVertical;
     }
 
-    //Iterate from bottom to top of table.
+    //Iterate from top to bottom of table.
     for (let layer = layout.height; layer > 0; layer--) {
         let sourceLayer = layout.table[layer - 1];
         let targetLayer = layout.table[layer];
 
-        //Place source groups directly above their targets, regardless of
+        //Place source groups directly below their targets, regardless of
         //whether this creates edges crossings or not.
         for (let target of targetLayer) {
             let left = null, right = null;
@@ -87,7 +87,7 @@ GraphLayoutLayered = function(nodes, links, args) {
             }
         }
 
-        //If there's room, place source groups above their targets again.
+        //If there's room, place source groups below their targets again.
         for (let target of targetLayer) {
             let left = null, right = null;
 
@@ -124,6 +124,52 @@ GraphLayoutLayered = function(nodes, links, args) {
                 for (let edge of target.edgesIn) {
                     edge.source.x += offset;
                 }
+            }
+        }
+    }
+
+    //Iterate from bottom to top of table.
+    for (let layer = 0; layer < layout.height; layer++) {
+        let sourceLayer = layout.table[layer];
+        let targetLayer = layout.table[layer + 1];
+
+        //If there's room, place targets above their  source groups.
+        for (let target of targetLayer) {
+            if (target.edgesIn.length > 0) {
+                let edgeSlant = 0.0;
+                let edgeCount = 0;
+
+                for (let edge of target.edgesIn) {
+                    edgeSlant += edge.source.x - target.x;
+                }
+                edgeCount += target.edgesIn.length;
+
+                /*for (let edge of target.edgesOut) {
+                    edgeSlant += edge.target.x - target.x;
+                }
+                edgeCount += target.edgesOut.length;*/
+
+                let offset = edgeSlant/edgeCount;
+
+                //Limit offset based on neighboring nodes.
+                if (offset < 0.0) {
+                    let neighbor = targetLayer[target.column - 1];
+                    if (neighbor !== undefined) {
+                        if (target.x + offset < neighbor.x + spacingHorizontal) {
+                            continue;
+                        }
+                    }
+                }
+                else {
+                    let neighbor = targetLayer[target.column + 1];
+                    if (neighbor !== undefined) {
+                        if (target.x + offset > neighbor.x - spacingHorizontal) {
+                            continue;
+                        }
+                    }
+                }
+
+                target.x += offset/2;
             }
         }
     }
