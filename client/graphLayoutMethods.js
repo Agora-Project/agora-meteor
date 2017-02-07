@@ -169,8 +169,7 @@ GraphLayoutLayered = function(nodes, links, args) {
                     }
                 }
 
-                console.log(offset);
-                target.x += offset;
+                target.x += offset/2;
             }
         }
     }
