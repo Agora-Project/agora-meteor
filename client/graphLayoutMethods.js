@@ -137,6 +137,7 @@ GraphLayoutLayered = function(nodes, links, args) {
         for (let i in targetLayer) {
             //First, from left to right...
             let target = targetLayer[i];
+
             if (target.edgesIn.length > 0) {
                 let edgeSlant = 0.0;
                 let edgeCount = 0;
@@ -176,6 +177,7 @@ GraphLayoutLayered = function(nodes, links, args) {
 
             //Then, from right to left.
             target = targetLayer[targetLayer.length -1 - i];
+
             if (target.edgesIn.length > 0) {
                 let edgeSlant = 0.0;
                 let edgeCount = 0;
@@ -197,7 +199,7 @@ GraphLayoutLayered = function(nodes, links, args) {
                     let neighbor = targetLayer[target.column - 1];
                     if (neighbor !== undefined) {
                         if (target.x + offset < neighbor.x + spacingHorizontal) {
-                            continue;
+                            offset = neighbor.x + spacingHorizontal - target.x;
                         }
                     }
                 }
@@ -205,7 +207,7 @@ GraphLayoutLayered = function(nodes, links, args) {
                     let neighbor = targetLayer[target.column + 1];
                     if (neighbor !== undefined) {
                         if (target.x + offset > neighbor.x - spacingHorizontal) {
-                            continue;
+                            offset = neighbor.x - spacingHorizontal - target.x;
                         }
                     }
                 }
