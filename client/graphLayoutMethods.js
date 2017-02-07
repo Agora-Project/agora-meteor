@@ -158,7 +158,7 @@ GraphLayoutLayered = function(nodes, links, args) {
                     let neighbor = targetLayer[target.column - 1];
                     if (neighbor !== undefined) {
                         if (target.x + offset < neighbor.x + spacingHorizontal) {
-                            continue;
+                            offset = neighbor.x + spacingHorizontal - target.x;
                         }
                     }
                 }
@@ -166,7 +166,7 @@ GraphLayoutLayered = function(nodes, links, args) {
                     let neighbor = targetLayer[target.column + 1];
                     if (neighbor !== undefined) {
                         if (target.x + offset > neighbor.x - spacingHorizontal) {
-                            continue;
+                            offset = neighbor.x - spacingHorizontal - target.x;
                         }
                     }
                 }
