@@ -148,7 +148,7 @@ GraphLayoutLayered = function(nodes, links, args) {
                     }
                     edgeCount += target.edgesIn.length;
 
-                    let offset = 0.5*edgeSlant/edgeCount;
+                    let offset = edgeSlant/edgeCount;
 
                     /*edgeSlant = 0.0;
                     edgeCount = 0;
