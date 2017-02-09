@@ -16,10 +16,6 @@ var unFocus = function () {
     }
 }
 
-
-Template.detailedView.onCreated(function() {
-})
-
 Template.detailedView.events({
     'mousedown, touchstart': function(event, template) {
         if (event.button != 0) return;
@@ -259,6 +255,8 @@ Template.detailedViewPost.events({
     'click': function(event) {
         switch (currentAction) {
             case "deleting":
+                //Stop the event from cascading down to other objects and
+                //tirggering their events.
                 event.stopImmediatePropagation();
                 if ((this.ownerId === Meteor.userId() ||
                     Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
@@ -275,10 +273,14 @@ Template.detailedViewPost.events({
     },
     'mousedown .undraggable, touchstart .undraggable': function(event) {
         if (event.button != 0) return;
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
     },
     'mousedown .draggable, touchstart .draggable': function(event) {
         if (event.button != 0) return;
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
         this.dragging = true;
         this.counter = 0;
@@ -419,10 +421,14 @@ Template.detailedViewReply.onRendered(function () {
 Template.detailedViewReply.events({
     'mousedown .unDraggable, touchstart .undraggable': function(event) {
         if (event.button != 0) return;
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
     },
     'mousedown draggable, touchstart .draggable': function(event) {
         if (event.button != 0) return;
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
         this.dragging = true;
         this.counter = 0;
@@ -485,6 +491,8 @@ Template.detailedViewReply.events({
         tree.removeNode(this);
     },
     'wheel': function(event) {
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
     },
 });
@@ -502,13 +510,6 @@ Template.detailedViewPostList.onCreated(function() {
     };
 });
 
-Template.detailedViewPostList.onRendered(function() {
-});
-
-Template.detailedViewPostList.onDestroyed(function() {
-
-});
-
 Template.detailedViewPostList.helpers({
     posts: function() {
         return Template.instance().posts.find({});
@@ -517,9 +518,13 @@ Template.detailedViewPostList.helpers({
 
 Template.detailedViewPostList.events({
     "click ": function(event) {
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
     },
     "mousedown": function(event) {
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
     }
 });
@@ -546,6 +551,8 @@ Template.detailedViewPostListing.events({
 
     },
     "mousedown": function(event) {
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
     }
 });
@@ -580,9 +587,13 @@ Template.reportPopupForm.events({
         Template.instance().hide();
     },
     "click": function(event) {
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
     },
     "mousedown": function(event) {
+        //Stop the event from cascading down to other objects and
+        //tirggering their events.
         event.stopImmediatePropagation();
     }
 })
