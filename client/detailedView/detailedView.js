@@ -395,7 +395,6 @@ Template.detailedViewPost.events({
     'click .edit-post-button': function(event) {
         if (!nodesInGraph.findOne({nodeType: "reply"})) {
             tree.removeNode(this);
-            nodesInGraph.remove({_id: this._id});
             this.nodeType = "edit";
             tree.addNode(this);
         }
