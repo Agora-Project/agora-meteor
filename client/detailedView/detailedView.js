@@ -257,7 +257,7 @@ Template.detailedViewPost.events({
             case "deleting":
                 //Stop the event from cascading down to other objects and
                 //tirggering their events.
-                event.stopImmediatePropagation();
+                event.originalEvent.stopPropagation();
                 if ((this.ownerId === Meteor.userId() ||
                     Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
                     confirm("Are you sure you want to permanently delete this post?")) {
@@ -275,13 +275,13 @@ Template.detailedViewPost.events({
         if (event.button != 0) return;
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
     },
     'mousedown .draggable, touchstart .draggable': function(event) {
         if (event.button != 0) return;
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
         this.dragging = true;
         this.counter = 0;
         this.mousePos = {x: event.screenX, y: event.screenY};
@@ -422,13 +422,13 @@ Template.detailedViewReply.events({
         if (event.button != 0) return;
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
     },
     'mousedown draggable, touchstart .draggable': function(event) {
         if (event.button != 0) return;
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
         this.dragging = true;
         this.counter = 0;
         this.mousePos = {x: event.screenX, y: event.screenY};
@@ -492,7 +492,7 @@ Template.detailedViewReply.events({
     'wheel': function(event) {
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
     },
 });
 
@@ -519,12 +519,12 @@ Template.detailedViewPostList.events({
     "click ": function(event) {
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
     },
     "mousedown": function(event) {
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
     }
 });
 
@@ -552,7 +552,7 @@ Template.detailedViewPostListing.events({
     "mousedown": function(event) {
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
     }
 });
 
@@ -588,17 +588,25 @@ Template.reportPopupForm.events({
     "click": function(event) {
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
     },
     "mousedown": function(event) {
         //Stop the event from cascading down to other objects and
         //tirggering their events.
-        event.stopImmediatePropagation();
+        event.originalEvent.stopPropagation();
     }
 })
 
 $(window).click(function(event) {
-    let target = $(event.originalEvent.originalTarget);
+    let target;
+
+    if (event.originalEvent.originalTarget) {
+        target = $(event.originalEvent.originalTarget);
+
+    }
+    else {
+        target = $(event.originalEvent.srcElement);
+    }
 
     if (!target.hasClass('show-list-button') &&
         !target.hasClass('detailed-post-list') &&
