@@ -67,9 +67,13 @@
             <a class="report-post-button" href="#">Report</a>
         </div>
         <div class="replies-dropdown-content undraggable">
-            <a class="load-all-button" href="#">Load All</a>
-            <hr>
-            <a class="show-list-button" href="#">Show List</a>
+            {{#if showLoadButtons}}
+                <a class="load-all-button" href="#">Load All</a>
+                <hr>
+            {{/if}}
+            {{#if showLoadButtons}}
+                <a class="show-list-button" href="#">Show List</a>
+            {{/if}}
         </div>
     </div>
 </template>

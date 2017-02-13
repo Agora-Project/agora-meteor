@@ -248,6 +248,9 @@ Template.detailedViewPost.helpers({
     },
     age: function() {
         return new Date(this.postedOn).toDateString();
+    },
+    showLoadButtons: function() {
+        return Template.instance().linkCount.get() >= 1;
     }
 });
 
