@@ -609,8 +609,10 @@ $(window).click(function(event) {
 
     if (!target.hasClass('show-list-button') &&
         !target.hasClass('detailed-post-list') &&
+        !target.hasClass('post-listing-component') &&
         postList) {
-        postList.hide();
+            console.log(target);
+            postList.hide();
     }
 
     if (!target.hasClass('report-post-button') &&
