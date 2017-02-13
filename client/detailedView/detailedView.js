@@ -533,6 +533,9 @@ Template.detailedViewPostList.events({
 Template.detailedViewPostListing.helpers({
     user: function() {
         return Meteor.users.findOne(this.posterID);
+    },
+    age: function() {
+        return new Date(this.postedOn).toDateString();
     }
 });
 
@@ -614,7 +617,6 @@ $(window).click(function(event) {
         !target.hasClass('detailed-post-list') &&
         !target.hasClass('post-listing-component') &&
         postList) {
-            console.log(target);
             postList.hide();
     }
 
