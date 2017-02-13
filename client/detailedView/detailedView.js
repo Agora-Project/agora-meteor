@@ -287,7 +287,6 @@ Template.detailedViewPost.events({
         this.mousePos = {x: event.screenX, y: event.screenY};
     },
     'mouseup, touchend': function(event) {
-        unFocus();
         this.dragging = false;
         tree.render();
     },
@@ -434,7 +433,7 @@ Template.detailedViewReply.events({
         this.mousePos = {x: event.screenX, y: event.screenY};
     },
     'mouseup, touchend': function(event) {
-        unFocus();
+
         this.dragging = false;
         tree.render();
     },
