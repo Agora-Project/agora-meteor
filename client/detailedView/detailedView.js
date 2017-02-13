@@ -192,6 +192,16 @@ Template.detailedViewPost.onCreated(function () {
     this.showMoreDropdown = function() {
         this.$(".more-dropdown-content").fadeIn(150);
     };
+
+    this.closeAll = function() {
+        for (var replyID of this.data.replyIDs) {
+            if (templates[replyID]) {
+                templates[replyID].closeAll();
+                tree.removeNode(replyID);
+            }
+        };
+        return;
+    }
 });
 
 Template.detailedViewPost.onRendered(function () {
@@ -251,6 +261,9 @@ Template.detailedViewPost.helpers({
     },
     showLoadButtons: function() {
         return Template.instance().linkCount.get() >= 1;
+    },
+    showCloseButton: function() {
+        return Template.instance().linkCount.get() == 0;
     }
 });
 
@@ -335,6 +348,9 @@ Template.detailedViewPost.events({
 
         }
         return;
+    },
+    'click .close-all-button': function (event) {
+        Template.instance().closeAll();
     },
     'click .show-list-button': function (event) {
 

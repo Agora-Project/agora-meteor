@@ -197,10 +197,13 @@ ForumTree = function() {
     };
 
     this.removeNode = function(nodeDocument) {
+        let nodeID;
+        if (nodeDocument._id) nodeID = nodeDocument._id;
+        else nodeID = nodeDocument;
         var iToRemove = -1;
         if (nodes.length !== 0) {
             nodes.forEach(function(node, i) {
-                if (node._id === nodeDocument._id) {
+                if (node._id === nodeID) {
                     iToRemove = i;
                 }
             });
@@ -208,12 +211,12 @@ ForumTree = function() {
         if (iToRemove != -1) {
             for (i = 0; i < links.length;) {
                 link = links[i];
-                if (link.source._id === nodeDocument._id || link.target._id == nodeDocument._id)
+                if (link.source._id === nodeID || link.target._id == nodeID)
                     links.splice(i, 1);
                 else i++;
             }
             nodes.splice(iToRemove, 1);
-            nodesInGraph.remove({_id: nodeDocument._id});
+            nodesInGraph.remove({_id: nodeID});
             this.runGraph();
             this.render();
             return true;
