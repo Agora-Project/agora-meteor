@@ -178,7 +178,7 @@ Template.detailedViewPost.onCreated(function () {
             var temp = templates[link];
             if (temp) {
                 temp.linkCount.set(temp.linkCount.get() - 1);
-                this.openReplyCount.set(this.openReplyCount.get() + 1);
+                self.openReplyCount.set(self.openReplyCount.get() + 1);
             } else count++;
         });
 
