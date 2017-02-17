@@ -159,20 +159,27 @@ Template.detailedView.onRendered(function() {
 Template.detailedViewPost.onCreated(function () {
     templates[this.data._id] = this;
     let count = 0;
+    this.openReplyCount = new ReactiveVar(0);
+
+    let self = this
 
     if (this.data.links)
         this.data.links.forEach(function(link) {
             handlers.addHandler(link.target);
             var temp = templates[link.target];
-            if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-            else count++;
+            if (temp) {
+                temp.linkCount.set(temp.linkCount.get() - 1);
+                temp.openReplyCount.set(temp.openReplyCount.get() + 1);
+            } else count++;
         });
     if (this.data.replyIDs)
         this.data.replyIDs.forEach(function(link) {
             handlers.addHandler(link);
             var temp = templates[link];
-            if (temp) temp.linkCount.set(temp.linkCount.get() - 1);
-            else count++;
+            if (temp) {
+                temp.linkCount.set(temp.linkCount.get() - 1);
+                this.openReplyCount.set(this.openReplyCount.get() + 1);
+            } else count++;
         });
 
     this.linkCount = new ReactiveVar(count);
@@ -232,7 +239,10 @@ Template.detailedViewPost.onDestroyed(function () {
 
     this.data.links.forEach(function(link) {
         var temp = templates[link.target];
-        if (temp) temp.linkCount.set(temp.linkCount.get() + 1);
+        if (temp) {
+            temp.linkCount.set(temp.linkCount.get() + 1);
+            temp.openReplyCount.set(temp.openReplyCount.get() - 1);
+        }
     });
     this.data.replyIDs.forEach(function(link) {
         var temp = templates[link];
@@ -263,7 +273,7 @@ Template.detailedViewPost.helpers({
         return Template.instance().linkCount.get() >= 1;
     },
     showCloseButton: function() {
-        return Template.instance().linkCount.get() == 0;
+        return Template.instance().openReplyCount.get() > 0;
     }
 });
 
