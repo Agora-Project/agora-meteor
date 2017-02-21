@@ -138,11 +138,6 @@ ForumTree = function() {
         return links.find(function(l) {return (link.source == l.source && link.target == l.target)});
     };
 
-    this.containsNode = function(node) {
-        if (findNode(node)) return true;
-        else return false;
-    };
-
     this.containsLink = function(link) {
         if (this.findLink(link))
             return true;
