@@ -145,34 +145,34 @@ ForumTree = function() {
     };
 
     this.addNode = function(node) {
-        if (!nodes.find(function(n) {return (node._id == n._id)})) {
-            let _id = node._id;
-
-            if (!node.nodeType) node.nodeType = "post";
-
-            if (!nodesInGraph.findOne({_id: node._id}))
-                _id = nodesInGraph.insert(node);
-
-            node = nodesInGraph.findOne({_id: _id});
-            nodes.push(node);
-
-            let self = this;
-
-            if (node.links) {
-                for (var i in node.links) {
-                    self.addLink({sourceId: node._id, targetId: node.links[i].target});
-                }
-            }
-
-            if (node.replyIDs) {
-                for (var i in node.replyIDs) {
-                    self.addLink({sourceId: node.replyIDs[i], targetId: node._id});
-                }
-            }
-
-            return node;
+        if (!node.nodeType) {
+            node.nodeType = "post";
         }
-        return false;
+
+        let _id;
+
+        if (!nodesInGraph.findOne({_id: node._id}))
+            _id = nodesInGraph.insert(node);
+        else _id = node._id;
+
+        node = nodesInGraph.findOne({_id: _id});
+        nodes.push(node);
+
+        let self = this;
+
+        if (node.links) {
+            for (var i in node.links) {
+                self.addLink({sourceId: node._id, targetId: node.links[i].target});
+            }
+        }
+
+        if (node.replyIDs) {
+            for (var i in node.replyIDs) {
+                self.addLink({sourceId: node.replyIDs[i], targetId: node._id});
+            }
+        }
+
+        return node;
     };
 
     this.addLink = function(linkDocument) {
