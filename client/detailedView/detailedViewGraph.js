@@ -141,7 +141,6 @@ ForumTree = function() {
     };
 
     this.addNode = function(node) {
-        console.log(node);
         if (!node.nodeType) {
             node.nodeType = "post";
         }

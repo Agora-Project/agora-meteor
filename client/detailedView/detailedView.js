@@ -99,6 +99,7 @@ Template.detailedView.onRendered(function() {
         let _id = this.data;
         handlers.addHandler(_id, {
             onReady: function() {
+                if (nodesInGraph.findOne({_id: _id})) return;
                 let doc = Post.findOne({_id: _id});
                 tree.addNode(doc);
                 nodesInGraph.insert(doc);
@@ -106,6 +107,7 @@ Template.detailedView.onRendered(function() {
         });
     } else handlers.addHandler(null, {
         onReady: function() {
+            if (nodesInGraph.findOne({$where : '!this.links || this.links.length < 1'})) return;
             let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
             tree.addNode(doc);
             nodesInGraph.insert(doc);
@@ -347,6 +349,7 @@ Template.detailedViewPost.events({
             let linkID = i.target;
             handlers.addHandler(linkID, {
                 onReady: function() {
+                    if (nodesInGraph.findOne({_id: linkID})) return;
                     let doc = Post.findOne({_id: linkID});
                     tree.addNode(doc);
                     nodesInGraph.insert(doc);
@@ -357,6 +360,7 @@ Template.detailedViewPost.events({
         for (var replyID of this.replyIDs) {
             handlers.addHandler(replyID,  {
                 onReady: function() {
+                    if (nodesInGraph.findOne({_id: replyID})) return;
                     let doc = Post.findOne({_id: replyID});
                     tree.addNode(doc);
                     nodesInGraph.insert(doc);
@@ -377,6 +381,7 @@ Template.detailedViewPost.events({
             let linkID = i.target;
             handlers.addHandler(linkID, {
                 onReady: function() {
+                    if (nodesInGraph.findOne({_id: linkID})) return;
                     let doc = Post.findOne({_id: linkID});
                     if (!nodesInGraph.findOne({_id: doc._id}))
                         postList.posts.insert(doc);
@@ -387,6 +392,7 @@ Template.detailedViewPost.events({
         for (var replyID of this.replyIDs) {
             handlers.addHandler(replyID,  {
                 onReady: function() {
+                    if (nodesInGraph.findOne({_id: replyID})) return;
                     let doc = Post.findOne({_id: replyID});
                     if (!nodesInGraph.findOne({_id: doc._id}))
                         postList.posts.insert(doc);
@@ -509,6 +515,7 @@ Template.detailedViewReply.events({
                 handlers.stop(result);
                 handlers.addHandler(result, {
                     onReady: function() {
+                        if (nodesInGraph.findOne({_id: result})) return;
                         let doc = Post.findOne({_id: result});
                         tree.addNode(doc);
                         nodesInGraph.insert(doc);
@@ -581,6 +588,7 @@ Template.detailedViewPostListing.events({
         let _id = this._id;
         handlers.addHandler(_id, {
             onReady: function() {
+                if (nodesInGraph.findOne({_id: _id})) return;
                 let doc = Post.findOne({_id: _id});
                 tree.addNode(doc);
                 nodesInGraph.insert(doc);
