@@ -6,7 +6,7 @@
 
 <template name="expandedPost">
     <div class="expanded-post">
-        <a href="/forum/post/{{_id}}?view=forum">Forum</a>
+        <a class="expanded-post-return-link" href="/forum/post/{{_id}}?view=forum">&laquo; Back to Forum</a>
         <h4 class="expanded-post-title">{{title}}</h4>
         <div class="expanded-post-info">
             {{#if user}}
@@ -15,15 +15,17 @@
                 </a>
                 <a class="expanded-post-username" href="/forum/user/{{user._id}}">{{user.username}}</a>
             {{/if}}
-            <span >{{age}}</span>
+            <span>{{age}}</span>
         </div>
-        <p class="expanded-post-content">
-            <!--
-            This is where the posts content will be added, but that function is
-            not performed here, it is carried out in expandedPost.js, in order
-            to make the BBCode work properly.
-            -->
-        </p>
+        {{#if hasContent}}
+            <p class="expanded-post-content">
+                <!--
+                This is where the posts content will be added, but that function is
+                not performed here, it is carried out in expandedPost.js, in order
+                to make the BBCode work properly.
+                -->
+            </p>
+        {{/if}}
 
         {{> hourglassView this}}
     </div>
