@@ -52,31 +52,27 @@ Template.overview.onCreated(function() {
 
             overviewObject.postArray = layout.nodes;
 
-            overviewObject.render = function() {
-                for (let post of layout.nodes) {
-                    if (post.name !== undefined) {
-                        let div = post.name.div;
-                        div.css("left", post.x - div.outerWidth()/2.0);
-                        div.css("top", post.y - div.outerHeight()/2.0);
-                    }
-                }
-
-                $('.overview-link').remove(); //TODO: don't redo all links upon change to graph
-                let svg = $('.overview-links-graph');
-
-                for (let link of layout.links) {
-                    $(document.createElementNS('http://www.w3.org/2000/svg','line'))
-                        .attr('class', 'overview-link')
-                        .attr('stroke', 'black')
-                        .attr('x1', link.source.x)
-                        .attr('y1', link.source.y)
-                        .attr('x2', link.target.x)
-                        .attr('y2', link.target.y)
-                        .appendTo(svg);
+            for (let post of layout.nodes) {
+                if (post.name !== undefined) {
+                    let div = post.name.div;
+                    div.css("left", post.x - div.outerWidth()/2.0);
+                    div.css("top", post.y - div.outerHeight()/2.0);
                 }
             }
 
-            overviewObject.render();
+            $('.overview-link').remove(); //TODO: don't redo all links upon change to graph
+            let svg = $('.overview-links-graph');
+
+            for (let link of layout.links) {
+                $(document.createElementNS('http://www.w3.org/2000/svg','line'))
+                    .attr('class', 'overview-link')
+                    .attr('stroke', 'black')
+                    .attr('x1', link.source.x)
+                    .attr('y1', link.source.y)
+                    .attr('x2', link.target.x)
+                    .attr('y2', link.target.y)
+                    .appendTo(svg);
+            }
         }
     });
 });
@@ -90,26 +86,15 @@ Template.overview.events({
     },
     'mouseup, touchend': function(event, template) {
         template.dragging = false;
-        overviewObject.render();
     },
     'mousemove, touchmove': function(event, template) {
         if (template.dragging) {
-            unFocus();
-            for (let post of overviewObject.postArray) {
-                post.x += (event.screenX - template.mousePos.x);
-                post.y += (event.screenY - template.mousePos.y);
-            }
+            let centerer = $('.overview-centerer');
+            let pos = centerer.position();
+            pos.left += (event.screenX - template.mousePos.x);
+            pos.top += (event.screenY - template.mousePos.y);
+            centerer.css({left: pos.left, top: pos.top});
             template.mousePos = {x: event.screenX, y: event.screenY};
-
-            //Horrible hack to improve performance.
-            //TODO: Replace with a requestAnimationFrame() callback.
-            if (template.counter <= 0) {
-                overviewObject.render();
-                template.counter = 3;
-            }
-            else {
-                template.counter--;
-            }
         }
     }
 });
@@ -146,17 +131,17 @@ Template.overviewPost.onRendered(function () {
     var usernameLink = instance.$('.overview-username');
     usernameLink.attr('title', usernameLink.text());
 
-    if(this.data.content)
+    if (this.data.content) {
         instance.$('.overview-post-content').html(XBBCODE.process({
             text: this.data.content,
             removeMisalignedTags: false,
             addInLineBreaks: true
         }).html);
+    }
 
     let post = instance.$(".overview-post");
     let point = $("#overview-node-" + this.data._id);
     post.css("left", parseInt(point.css("left")) + 20).css("top", point.css("top"));
-
 });
 
 Template.overviewPost.helpers({
