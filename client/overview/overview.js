@@ -140,20 +140,20 @@ Template.overviewNode.events({
 Template.overviewPost.onRendered(function () {
     var instance = Template.instance();
 
-    var postLink = instance.$('.titleBar a');
+    var postLink = instance.$('.overview-post-header a');
     postLink.attr('title', postLink.text());
 
-    var usernameLink = instance.$('.username');
+    var usernameLink = instance.$('.overview-username');
     usernameLink.attr('title', usernameLink.text());
 
     if(this.data.content)
-        instance.$('.post-content').html(XBBCODE.process({
+        instance.$('.overview-post-content').html(XBBCODE.process({
             text: this.data.content,
             removeMisalignedTags: false,
             addInLineBreaks: true
         }).html);
 
-    let post = instance.$(".post");
+    let post = instance.$(".overview-post");
     let point = $("#overview-node-" + this.data._id);
     post.css("left", parseInt(point.css("left")) + 20).css("top", point.css("top"));
 
