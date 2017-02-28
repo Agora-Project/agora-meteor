@@ -6,10 +6,6 @@
 
 // The local collections for keeping track of what posts and kinks are shown.
 // though the links collection is only used to assign links _ids right now.
-// The nodesInGraph collection is referenced outside this file in the
-// detailedViw.js file, where it's used to figure out what nodes are visible to
-// the user and should be drawn on the screen.
-nodesInGraph = new Mongo.Collection(null);
 let linksInGraph = new Mongo.Collection(null);
 
 //The function for interpreting links into the right format to add to the graph.
@@ -55,7 +51,7 @@ ForumTree = function() {
 
             let posts = {};
 
-            nodesInGraph.find({}, {limit: 1000}).forEach(function(post) {
+            nodes.forEach(function(post) {
                 let div;
                 if (post.nodeType == "post") {
                     div = $("#post-" + post._id);
@@ -145,17 +141,11 @@ ForumTree = function() {
     };
 
     this.addNode = function(node) {
+        console.log(node);
         if (!node.nodeType) {
             node.nodeType = "post";
         }
 
-        let _id;
-
-        if (!nodesInGraph.findOne({_id: node._id}))
-            _id = nodesInGraph.insert(node);
-        else _id = node._id;
-
-        node = nodesInGraph.findOne({_id: _id});
         nodes.push(node);
 
         let self = this;
@@ -211,7 +201,6 @@ ForumTree = function() {
                 else i++;
             }
             nodes.splice(iToRemove, 1);
-            nodesInGraph.remove({_id: nodeID});
             this.runGraph();
             this.render();
             return true;

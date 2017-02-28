@@ -7,6 +7,7 @@
 let currentAction = "none";
 let templates = {};
 let tree, postList, reportForm;
+let nodesInGraph = new Mongo.Collection(null);
 
 var unFocus = function () {
     if (document.selection) {
@@ -90,6 +91,7 @@ Template.detailedView.onRendered(function() {
     nodesCursor.forEach(function(n) {
         if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
             tree.addNode(n);
+            nodesInGraph.insert(n);
         }
     });
 
@@ -99,12 +101,14 @@ Template.detailedView.onRendered(function() {
             onReady: function() {
                 let doc = Post.findOne({_id: _id});
                 tree.addNode(doc);
+                nodesInGraph.insert(doc);
             }
         });
     } else handlers.addHandler(null, {
         onReady: function() {
             let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
             tree.addNode(doc);
+            nodesInGraph.insert(doc);
         }
     });
 
@@ -204,6 +208,7 @@ Template.detailedViewPost.onCreated(function () {
         for (var replyID of this.data.replyIDs) {
             if (templates[replyID]) {
                 templates[replyID].closeAll();
+                nodesInGraph.remove({_id: replyID});
                 tree.removeNode(replyID);
             }
         };
@@ -344,6 +349,7 @@ Template.detailedViewPost.events({
                 onReady: function() {
                     let doc = Post.findOne({_id: linkID});
                     tree.addNode(doc);
+                    nodesInGraph.insert(doc);
                 }
             });
 
@@ -353,6 +359,7 @@ Template.detailedViewPost.events({
                 onReady: function() {
                     let doc = Post.findOne({_id: replyID});
                     tree.addNode(doc);
+                    nodesInGraph.insert(doc);
                 }
             });
 
@@ -412,6 +419,7 @@ Template.detailedViewPost.events({
     },
     'click .close-button': function(event) {
         tree.removeNode(this);
+        nodesInGraph.remove({_id: this._id});
     },
     'click .more-button': function(event) {
         if (!this.showMoreDropdown) {
@@ -480,6 +488,7 @@ Template.detailedViewReply.events({
         } else this.counter--;
     },
     'click .close-button': function(event) {
+        nodesInGraph.remove({_id: this._id});
         tree.removeNode(this);
     },
     'click .submit-button': function(event) {
@@ -502,6 +511,7 @@ Template.detailedViewReply.events({
                     onReady: function() {
                         let doc = Post.findOne({_id: result});
                         tree.addNode(doc);
+                        nodesInGraph.insert(doc);
                     }
                 });
             });
@@ -513,6 +523,7 @@ Template.detailedViewReply.events({
             Meteor.call("editPost", this, function(error, result) {
                 let doc = Post.findOne({_id: result});
                 tree.addNode(doc);
+                nodesInGraph.insert(doc);
             });
         }
         tree.removeNode(this);
@@ -572,6 +583,7 @@ Template.detailedViewPostListing.events({
             onReady: function() {
                 let doc = Post.findOne({_id: _id});
                 tree.addNode(doc);
+                nodesInGraph.insert(doc);
                 postList.posts.remove({_id: _id});
                 if (postList.posts.find({}).count() == 0)
                     postList.hide();
