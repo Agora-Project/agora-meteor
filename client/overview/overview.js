@@ -4,11 +4,42 @@
     License: GPL, Check file LICENSE
 */
 
-var unFocus = function () {
-    if (document.selection) {
-        document.selection.empty();
+//requestAnimationFrame polyfill - https://gist.github.com/paulirish/1579671
+//MIT license
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+//End polyfill
+
+function addEvent(elem, type, eventHandle) {
+    if (elem == null || typeof(elem) == 'undefined') return;
+    if (elem.addEventListener) {
+        elem.addEventListener(type, eventHandle, false);
+    } else if (elem.attachEvent) {
+        elem.attachEvent( "on" + type, eventHandle );
     } else {
-        window.getSelection().removeAllRanges();
+        elem["on"+type]=eventHandle;
     }
 }
 
@@ -77,11 +108,27 @@ Template.overview.onCreated(function() {
     });
 });
 
+Template.overview.onRendered(function() {
+    let template = Template.instance();
+    let centerer = $('.overview-centerer');
+    template.position = centerer.position();
+    
+    let animate = function() {
+        if (template.isPositionDirty) {
+            centerer.css({left: template.position.left, top: template.position.top});
+            template.isPositionDirty = false;
+        }
+        
+        window.requestAnimationFrame(animate);
+    }
+    
+    window.requestAnimationFrame(animate);
+});
+
 Template.overview.events({
     'mousedown, touchstart': function(event, template) {
         if (event.button != 0) return;
         template.dragging = true;
-        template.counter = 0;
         template.mousePos = {x: event.screenX, y: event.screenY};
     },
     'mouseup, touchend': function(event, template) {
@@ -89,12 +136,15 @@ Template.overview.events({
     },
     'mousemove, touchmove': function(event, template) {
         if (template.dragging) {
-            let centerer = $('.overview-centerer');
-            let pos = centerer.position();
-            pos.left += (event.screenX - template.mousePos.x);
-            pos.top += (event.screenY - template.mousePos.y);
-            centerer.css({left: pos.left, top: pos.top});
-            template.mousePos = {x: event.screenX, y: event.screenY};
+            let dx = (event.screenX - template.mousePos.x);
+            let dy = (event.screenY - template.mousePos.y);
+            
+            if (dx !== 0 || dy !== 0) {
+                template.isPositionDirty = true;
+                template.position.left += dx;
+                template.position.top += dy;
+                template.mousePos = {x: event.screenX, y: event.screenY};
+            }
         }
     }
 });
