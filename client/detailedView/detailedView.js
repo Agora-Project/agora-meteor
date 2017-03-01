@@ -595,13 +595,11 @@ Template.detailedViewPostListing.events({
         let _id = this._id;
         handlers.addHandler(_id, {
             onReady: function() {
-                if (!nodesInGraph.findOne({_id: _id})) {
-                    let doc = Post.findOne({_id: _id});
-                    nodesInGraph.insert(doc);
-                    postList.posts.remove({_id: _id});
-                    if (postList.posts.find({}).count() == 0)
-                        postList.hide();
-                }
+                let doc = Post.findOne({_id: _id});
+                nodesInGraph.insert(doc);
+                postList.posts.remove({_id: _id});
+                if (postList.posts.find({}).count() == 0)
+                    postList.hide();
             }
         });
 
