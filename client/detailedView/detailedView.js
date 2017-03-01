@@ -407,7 +407,8 @@ Template.detailedViewPost.events({
     'click .reply-button': function(event) {
         if (!Meteor.userId()) return;
         if (!nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] })) {
-            let _id = tree.addNode({nodeType: "reply", links: [{target: this._id}]})._id;
+            let _id = nodesInGraph.insert({nodeType: "reply", links: [{target: this._id}]});
+            tree.addNode(nodesInGraph.findOne({_id: _id}));
             tree.addLink({sourceId: _id, targetId: this._id});
         } else {
             let reply = nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] });
@@ -437,8 +438,10 @@ Template.detailedViewPost.events({
     'click .edit-post-button': function(event) {
         if (!nodesInGraph.findOne({nodeType: "reply"})) {
             tree.removeNode(this);
+            nodesInGraph.remove({_id: this._id});
             this.nodeType = "edit";
             tree.addNode(this);
+            nodesInGraph.insert(this);
         }
     },
     'click .report-post-button': function(event) {
@@ -533,6 +536,7 @@ Template.detailedViewReply.events({
                 nodesInGraph.insert(doc);
             });
         }
+        nodesInGraph.remove({_id: this._id})
         tree.removeNode(this);
     },
     'wheel': function(event) {
