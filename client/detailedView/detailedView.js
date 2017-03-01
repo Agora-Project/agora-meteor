@@ -88,16 +88,18 @@ Template.detailedView.onRendered(function() {
         let _id = this.data;
         handlers.addHandler(_id, {
             onReady: function() {
-                if (nodesInGraph.findOne({_id: _id})) return;
-                let doc = Post.findOne({_id: _id});
-                nodesInGraph.insert(doc);
+                if (!nodesInGraph.findOne({_id: _id})) {
+                    let doc = Post.findOne({_id: _id});
+                    nodesInGraph.insert(doc);
+                }
             }
         });
     } else handlers.addHandler(null, {
         onReady: function() {
-            if (nodesInGraph.findOne({$where : '!this.links || this.links.length < 1'})) return;
-            let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
-            nodesInGraph.insert(doc);
+            if (!nodesInGraph.findOne({$where : '!this.links || this.links.length < 1'})) {
+                let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
+                nodesInGraph.insert(doc);
+            }
         }
     });
 
@@ -113,8 +115,6 @@ Template.detailedView.onRendered(function() {
                     handlers.addHandler(replyID);
                 }
             }
-
-
         },
         removed: function(doc) {
             nodesInGraph.remove({_id: doc._id});
@@ -357,9 +357,10 @@ Template.detailedViewPost.events({
             let linkID = i.target;
             handlers.addHandler(linkID, {
                 onReady: function() {
-                    if (nodesInGraph.findOne({_id: linkID})) return;
-                    let doc = Post.findOne({_id: linkID});
-                    nodesInGraph.insert(doc);
+                    if (!nodesInGraph.findOne({_id: linkID})) {
+                        let doc = Post.findOne({_id: linkID});
+                        nodesInGraph.insert(doc);
+                    }
                 }
             });
 
@@ -367,9 +368,10 @@ Template.detailedViewPost.events({
         for (var replyID of this.replyIDs) {
             handlers.addHandler(replyID,  {
                 onReady: function() {
-                    if (nodesInGraph.findOne({_id: replyID})) return;
-                    let doc = Post.findOne({_id: replyID});
-                    nodesInGraph.insert(doc);
+                    if (!nodesInGraph.findOne({_id: replyID})) {
+                        let doc = Post.findOne({_id: replyID});
+                        nodesInGraph.insert(doc);
+                    }
                 }
             });
 
@@ -387,10 +389,11 @@ Template.detailedViewPost.events({
             let linkID = i.target;
             handlers.addHandler(linkID, {
                 onReady: function() {
-                    if (nodesInGraph.findOne({_id: linkID})) return;
-                    let doc = Post.findOne({_id: linkID});
-                    if (!nodesInGraph.findOne({_id: doc._id}))
-                        postList.posts.insert(doc);
+                    if (!nodesInGraph.findOne({_id: linkID})) {
+                        let doc = Post.findOne({_id: linkID});
+                        if (!nodesInGraph.findOne({_id: doc._id}))
+                            postList.posts.insert(doc);
+                    }
                 }
             });
 
@@ -398,10 +401,11 @@ Template.detailedViewPost.events({
         for (var replyID of this.replyIDs) {
             handlers.addHandler(replyID,  {
                 onReady: function() {
-                    if (nodesInGraph.findOne({_id: replyID})) return;
-                    let doc = Post.findOne({_id: replyID});
-                    if (!nodesInGraph.findOne({_id: doc._id}))
-                        postList.posts.insert(doc);
+                    if (!nodesInGraph.findOne({_id: replyID})) {
+                        let doc = Post.findOne({_id: replyID});
+                        if (!nodesInGraph.findOne({_id: doc._id}))
+                            postList.posts.insert(doc);
+                    }
                 }
             });
 
@@ -519,9 +523,10 @@ Template.detailedViewReply.events({
                 handlers.stop(result);
                 handlers.addHandler(result, {
                     onReady: function() {
-                        if (nodesInGraph.findOne({_id: result})) return;
-                        let doc = Post.findOne({_id: result});
-                        nodesInGraph.insert(doc);
+                        if (!nodesInGraph.findOne({_id: result})) {
+                            let doc = Post.findOne({_id: result});
+                            nodesInGraph.insert(doc);
+                        }
                     }
                 });
             });
@@ -590,12 +595,13 @@ Template.detailedViewPostListing.events({
         let _id = this._id;
         handlers.addHandler(_id, {
             onReady: function() {
-                if (nodesInGraph.findOne({_id: _id})) return;
-                let doc = Post.findOne({_id: _id});
-                nodesInGraph.insert(doc);
-                postList.posts.remove({_id: _id});
-                if (postList.posts.find({}).count() == 0)
-                    postList.hide();
+                if (!nodesInGraph.findOne({_id: _id})) {
+                    let doc = Post.findOne({_id: _id});
+                    nodesInGraph.insert(doc);
+                    postList.posts.remove({_id: _id});
+                    if (postList.posts.find({}).count() == 0)
+                        postList.hide();
+                }
             }
         });
 
@@ -627,7 +633,6 @@ Template.reportPopupForm.onRendered(function() {
 
 Template.reportPopupForm.events({
     "click .submit-report-button": function(event) {
-        console.log("???");
         let content = Template.instance().$('.report-input').val();
         let report = {
             userID: Meteor.userId(),
