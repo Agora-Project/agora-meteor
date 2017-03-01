@@ -84,24 +84,12 @@ Template.detailedView.onRendered(function() {
 
     var nodesCursor = Post.find({});
 
-    // This code adds any posts that are already loaded to the graph once the
-    // graph is finished being instantiated. This is used when navigating way
-    // from the detailed view page and then back to it, so as to keep the same
-    // nodes in the graph.
-    nodesCursor.forEach(function(n) {
-        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
-            tree.addNode(n);
-            nodesInGraph.insert(n);
-        }
-    });
-
     if (this.data) {
         let _id = this.data;
         handlers.addHandler(_id, {
             onReady: function() {
                 if (nodesInGraph.findOne({_id: _id})) return;
                 let doc = Post.findOne({_id: _id});
-                tree.addNode(doc);
                 nodesInGraph.insert(doc);
             }
         });
@@ -109,7 +97,6 @@ Template.detailedView.onRendered(function() {
         onReady: function() {
             if (nodesInGraph.findOne({$where : '!this.links || this.links.length < 1'})) return;
             let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
-            tree.addNode(doc);
             nodesInGraph.insert(doc);
         }
     });
@@ -121,18 +108,16 @@ Template.detailedView.onRendered(function() {
                 for (var i of doc.links) {
                     let linkID = i.target;
                     handlers.addHandler(linkID);
-
                 }
                 for (var replyID of doc.replyIDs) {
                     handlers.addHandler(replyID);
-
                 }
             }
 
 
         },
         removed: function(doc) {
-            tree.removeNode(doc);
+            nodesInGraph.remove({_id: doc._id});
         },
         changed: function(doc) {
             //If the changed post is in the graph, adjust things appropriately.
@@ -155,6 +140,31 @@ Template.detailedView.onRendered(function() {
                 //And update it's text, of course.
                 nodesInGraph.update({_id: doc._id}, doc);
             }
+        }
+    });
+
+    nodesInGraph.before.insert(function(userId, post) {
+        if (!post.nodeType) {
+            post.nodeType = "post";
+        }
+    });
+
+    nodesInGraph.find({}).observe({
+        added: function(doc) {
+            tree.addNode(doc);
+        },
+        removed: function(doc) {
+            tree.removeNode(doc);
+        }
+    });
+
+    // This code adds any posts that are already loaded to the graph once the
+    // graph is finished being instantiated. This is used when navigating way
+    // from the detailed view page and then back to it, so as to keep the same
+    // nodes in the graph.
+    nodesCursor.forEach(function(n) {
+        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
+            nodesInGraph.insert(n);
         }
     });
 
@@ -211,7 +221,6 @@ Template.detailedViewPost.onCreated(function () {
             if (templates[replyID]) {
                 templates[replyID].closeAll();
                 nodesInGraph.remove({_id: replyID});
-                tree.removeNode(replyID);
             }
         };
         return;
@@ -295,7 +304,6 @@ Template.detailedViewPost.events({
                     Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
                     confirm("Are you sure you want to permanently delete this post?")) {
 
-                    tree.removeNode(this);
                     handlers.stop(this._id);
                     Meteor.call('removeWithLinks', this._id);
                 }
@@ -351,7 +359,6 @@ Template.detailedViewPost.events({
                 onReady: function() {
                     if (nodesInGraph.findOne({_id: linkID})) return;
                     let doc = Post.findOne({_id: linkID});
-                    tree.addNode(doc);
                     nodesInGraph.insert(doc);
                 }
             });
@@ -362,7 +369,6 @@ Template.detailedViewPost.events({
                 onReady: function() {
                     if (nodesInGraph.findOne({_id: replyID})) return;
                     let doc = Post.findOne({_id: replyID});
-                    tree.addNode(doc);
                     nodesInGraph.insert(doc);
                 }
             });
@@ -408,7 +414,6 @@ Template.detailedViewPost.events({
         if (!Meteor.userId()) return;
         if (!nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] })) {
             let _id = nodesInGraph.insert({nodeType: "reply", links: [{target: this._id}]});
-            tree.addNode(nodesInGraph.findOne({_id: _id}));
             tree.addLink({sourceId: _id, targetId: this._id});
         } else {
             let reply = nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] });
@@ -425,7 +430,6 @@ Template.detailedViewPost.events({
         }
     },
     'click .close-button': function(event) {
-        tree.removeNode(this);
         nodesInGraph.remove({_id: this._id});
     },
     'click .more-button': function(event) {
@@ -437,10 +441,8 @@ Template.detailedViewPost.events({
     },
     'click .edit-post-button': function(event) {
         if (!nodesInGraph.findOne({nodeType: "reply"})) {
-            tree.removeNode(this);
             nodesInGraph.remove({_id: this._id});
             this.nodeType = "edit";
-            tree.addNode(this);
             nodesInGraph.insert(this);
         }
     },
@@ -498,7 +500,6 @@ Template.detailedViewReply.events({
     },
     'click .close-button': function(event) {
         nodesInGraph.remove({_id: this._id});
-        tree.removeNode(this);
     },
     'click .submit-button': function(event) {
         if (this.nodeType == "reply") {
@@ -520,7 +521,6 @@ Template.detailedViewReply.events({
                     onReady: function() {
                         if (nodesInGraph.findOne({_id: result})) return;
                         let doc = Post.findOne({_id: result});
-                        tree.addNode(doc);
                         nodesInGraph.insert(doc);
                     }
                 });
@@ -532,12 +532,10 @@ Template.detailedViewReply.events({
             this.title.length < 1 || this.title.length > 100) return;
             Meteor.call("editPost", this, function(error, result) {
                 let doc = Post.findOne({_id: result});
-                tree.addNode(doc);
                 nodesInGraph.insert(doc);
             });
         }
         nodesInGraph.remove({_id: this._id})
-        tree.removeNode(this);
     },
     'wheel': function(event) {
         //Stop the event from cascading down to other objects and
@@ -594,7 +592,6 @@ Template.detailedViewPostListing.events({
             onReady: function() {
                 if (nodesInGraph.findOne({_id: _id})) return;
                 let doc = Post.findOne({_id: _id});
-                tree.addNode(doc);
                 nodesInGraph.insert(doc);
                 postList.posts.remove({_id: _id});
                 if (postList.posts.find({}).count() == 0)
