@@ -16,7 +16,6 @@
             {{/each}}
         </div>
     </div>
-
 </template>
 
 <template name="overviewNode">
@@ -27,23 +26,21 @@
 </template>
 
 <template name="overviewPost">
-    <div class="post overview-post" id="post-{{_id}}">
-        <div class="post-header">
-            <div class="title-bar">
+    <div class="overview-post" id="post-{{_id}}">
+        <div class="overview-post-header">
                 <a  href="/forum/post/{{_id}}">{{title}}</a>
-            </div>
         </div>
         <div class="overview-post-info">
             {{#if user}}
                 <a href="/forum/user/{{user._id}}">
                     {{> avatar user=(user) size="small" shape="rounded" class="overview-avatar"}}
                 </a>
-                <a class="username" href="/forum/user/{{user._id}}">{{user.username}}</a>
+                <a class="overview-username" href="/forum/user/{{user._id}}">{{user.username}}</a>
             {{/if}}
             <span>{{age}}</span>
         </div>
         {{#if hasContent}}
-            <div class="post-content">
+            <div class="overview-post-content">
             </div>
         {{/if}}
     </div>

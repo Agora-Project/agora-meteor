@@ -4,11 +4,42 @@
     License: GPL, Check file LICENSE
 */
 
-var unFocus = function () {
-    if (document.selection) {
-        document.selection.empty();
+//requestAnimationFrame polyfill - https://gist.github.com/paulirish/1579671
+//MIT license
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+//End polyfill
+
+function addEvent(elem, type, eventHandle) {
+    if (elem == null || typeof(elem) == 'undefined') return;
+    if (elem.addEventListener) {
+        elem.addEventListener(type, eventHandle, false);
+    } else if (elem.attachEvent) {
+        elem.attachEvent( "on" + type, eventHandle );
     } else {
-        window.getSelection().removeAllRanges();
+        elem["on"+type]=eventHandle;
     }
 }
 
@@ -52,63 +83,67 @@ Template.overview.onCreated(function() {
 
             overviewObject.postArray = layout.nodes;
 
-            overviewObject.render = function() {
-                for (let post of layout.nodes) {
-                    if (post.name !== undefined) {
-                        let div = post.name.div;
-                        div.css("left", post.x - div.outerWidth()/2.0);
-                        div.css("top", post.y - div.outerHeight()/2.0);
-                    }
-                }
-
-                $('.overview-link').remove(); //TODO: don't redo all links upon change to graph
-                let svg = $('.overview-links-graph');
-
-                for (let link of layout.links) {
-                    $(document.createElementNS('http://www.w3.org/2000/svg','line'))
-                        .attr('class', 'overview-link')
-                        .attr('stroke', 'black')
-                        .attr('x1', link.source.x)
-                        .attr('y1', link.source.y)
-                        .attr('x2', link.target.x)
-                        .attr('y2', link.target.y)
-                        .appendTo(svg);
+            for (let post of layout.nodes) {
+                if (post.name !== undefined) {
+                    let div = post.name.div;
+                    div.css("left", post.x - div.outerWidth()/2.0);
+                    div.css("top", post.y - div.outerHeight()/2.0);
                 }
             }
 
-            overviewObject.render();
+            $('.overview-link').remove(); //TODO: don't redo all links upon change to graph
+            let svg = $('.overview-links-graph');
+
+            for (let link of layout.links) {
+                $(document.createElementNS('http://www.w3.org/2000/svg','line'))
+                    .attr('class', 'overview-link')
+                    .attr('stroke', 'black')
+                    .attr('x1', link.source.x)
+                    .attr('y1', link.source.y)
+                    .attr('x2', link.target.x)
+                    .attr('y2', link.target.y)
+                    .appendTo(svg);
+            }
         }
     });
+});
+
+Template.overview.onRendered(function() {
+    let template = Template.instance();
+    let centerer = $('.overview-centerer');
+    template.position = centerer.position();
+    
+    let animate = function() {
+        if (template.isPositionDirty) {
+            centerer.css({left: template.position.left, top: template.position.top});
+            template.isPositionDirty = false;
+        }
+        
+        window.requestAnimationFrame(animate);
+    }
+    
+    window.requestAnimationFrame(animate);
 });
 
 Template.overview.events({
     'mousedown, touchstart': function(event, template) {
         if (event.button != 0) return;
         template.dragging = true;
-        template.counter = 0;
         template.mousePos = {x: event.screenX, y: event.screenY};
     },
     'mouseup, touchend': function(event, template) {
         template.dragging = false;
-        overviewObject.render();
     },
     'mousemove, touchmove': function(event, template) {
         if (template.dragging) {
-            unFocus();
-            for (let post of overviewObject.postArray) {
-                post.x += (event.screenX - template.mousePos.x);
-                post.y += (event.screenY - template.mousePos.y);
-            }
-            template.mousePos = {x: event.screenX, y: event.screenY};
-
-            //Horrible hack to improve performance.
-            //TODO: Replace with a requestAnimationFrame() callback.
-            if (template.counter <= 0) {
-                overviewObject.render();
-                template.counter = 3;
-            }
-            else {
-                template.counter--;
+            let dx = (event.screenX - template.mousePos.x);
+            let dy = (event.screenY - template.mousePos.y);
+            
+            if (dx !== 0 || dy !== 0) {
+                template.isPositionDirty = true;
+                template.position.left += dx;
+                template.position.top += dy;
+                template.mousePos = {x: event.screenX, y: event.screenY};
             }
         }
     }
@@ -140,23 +175,23 @@ Template.overviewNode.events({
 Template.overviewPost.onRendered(function () {
     var instance = Template.instance();
 
-    var postLink = instance.$('.titleBar a');
+    var postLink = instance.$('.overview-post-header a');
     postLink.attr('title', postLink.text());
 
-    var usernameLink = instance.$('.username');
+    var usernameLink = instance.$('.overview-username');
     usernameLink.attr('title', usernameLink.text());
 
-    if(this.data.content)
-        instance.$('.post-content').html(XBBCODE.process({
+    if (this.data.content) {
+        instance.$('.overview-post-content').html(XBBCODE.process({
             text: this.data.content,
             removeMisalignedTags: false,
             addInLineBreaks: true
         }).html);
+    }
 
-    let post = instance.$(".post");
+    let post = instance.$(".overview-post");
     let point = $("#overview-node-" + this.data._id);
     post.css("left", parseInt(point.css("left")) + 20).css("top", point.css("top"));
-
 });
 
 Template.overviewPost.helpers({
