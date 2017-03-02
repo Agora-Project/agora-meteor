@@ -167,7 +167,7 @@ ForumTree = function() {
         }
 
         let link = linksToD3Array([linkDocument], nodes)[0];
-        if (link && !this.containsLink(linkDocument)) {
+        if (link) {
             links.push(link);
             this.runGraph();
             this.render();
