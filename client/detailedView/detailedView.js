@@ -123,23 +123,7 @@ Template.detailedView.onRendered(function() {
             //If the changed post is in the graph, adjust things appropriately.
             //If not, we don't need to do anything.
             post = nodesInGraph.findOne({_id: doc._id});
-            if (post) {
-                //specifically, change the counters to show how many links it's
-                //post has.
-                var countChange = (doc.links.length + doc.replyIDs.length)
-                                - (post.links.length + post.replyIDs.length);
-                doc.nodeType = post.nodeType;
-                for (let link of post.links) {
-                    if (!doc.links.find(function(l) {return (link.target == l.target)}))
-                        tree.removeLink({sourceId: doc._id, targetId: link.target});
-                }
-
-                var temp = templates[doc._id];
-                temp.linkCount.set(temp.linkCount.get() + countChange);
-
-                //And update it's text, of course.
-                nodesInGraph.update({_id: doc._id}, doc);
-            }
+            if (post) nodesInGraph.update({_id: doc._id}, doc);
         }
     });
 
@@ -155,6 +139,39 @@ Template.detailedView.onRendered(function() {
         },
         removed: function(doc) {
             tree.removeNode(doc);
+        },
+        changed: function(newDoc, oldDoc) {
+            //specifically, change the counters to show how many links it's
+            //post has.
+            if (oldDoc.nodeType == "post") {
+                var countChange = (newDoc.links.length + newDoc.replyIDs.length)
+                                - (oldDoc.links.length + oldDoc.replyIDs.length);
+
+                newDoc.nodeType = oldDoc.nodeType;
+
+                for (let link of oldDoc.links) {
+                    if (!newDoc.links.find(function(l) {return (link.target == l.target)}))
+                        tree.removeLink({sourceId: newDoc._id, targetId: link.target});
+                }
+
+                for (let link of newDoc.links) {
+                    if (!oldDoc.links.find(function(l) {return (link.target == l.target)}))
+                        tree.addLink({sourceId: newDoc._id, targetId: link.target});
+                }
+
+                var temp = templates[newDoc._id];
+                temp.linkCount.set(temp.linkCount.get() + countChange);
+            } else {
+                for (let link of oldDoc.links) {
+                    if (!newDoc.links.find(function(l) {return (link.target == l.target)}))
+                        tree.removeLink({sourceId: newDoc._id, targetId: link.target});
+                }
+
+                for (let link of newDoc.links) {
+                    if (!oldDoc.links.find(function(l) {return (link.target == l.target)}))
+                        tree.addLink({sourceId: newDoc._id, targetId: link.target});
+                }
+            }
         }
     });
 
@@ -416,20 +433,17 @@ Template.detailedViewPost.events({
     },
     'click .reply-button': function(event) {
         if (!Meteor.userId()) return;
-        if (!nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] })) {
-            let _id = nodesInGraph.insert({nodeType: "reply", links: [{target: this._id}]});
-            tree.addLink({sourceId: _id, targetId: this._id});
+        reply = nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] });
+        if (!reply) {
+            nodesInGraph.insert({nodeType: "reply", links: [{target: this._id}]});
         } else {
-            let reply = nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] });
             let self = this;
             if (!reply.links.find(function(link) {
                 return (link.target == self._id);
             })) {
                 nodesInGraph.update({_id: reply._id}, { $push: { links: {target: this._id}}});
-                tree.addLink({sourceId: reply._id, targetId: this._id});
             } else {
                 nodesInGraph.update({_id: reply._id}, { $pull: { links: {target: this._id}}});
-                tree.removeLink({sourceId: reply._id, targetId: this._id});
             }
         }
     },
