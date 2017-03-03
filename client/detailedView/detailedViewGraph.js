@@ -145,18 +145,6 @@ ForumTree = function() {
 
         let self = this;
 
-        if (node.links) {
-            for (var i in node.links) {
-                self.addLink({sourceId: node._id, targetId: node.links[i].target});
-            }
-        }
-
-        if (node.replyIDs) {
-            for (var i in node.replyIDs) {
-                self.addLink({sourceId: node.replyIDs[i], targetId: node._id});
-            }
-        }
-
         return node;
     };
 
