@@ -153,7 +153,7 @@ Template.detailedView.onRendered(function() {
                 var temp = templates[newDoc._id];
                 temp.linkCount.set(temp.linkCount.get() + countChange);
             }
-            
+            tree.updateNode(newDoc);
             tree.runGraph();
             tree.render();
         }

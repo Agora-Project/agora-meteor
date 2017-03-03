@@ -15,7 +15,6 @@ let linksInGraph = new Mongo.Collection(null);
 // having it's methods called in a dozen places.
 ForumTree = function() {
     let nodes = [];
-    let links = [];
 
     // Both of these two functions are called outside this file, whenever the
     // graph needs to have it's nodes repositioned or rerendered.
@@ -56,9 +55,7 @@ ForumTree = function() {
             this.layout = new GraphLayoutLayered(postArray, linkArray,
                 {spacingHorizontal: 330, spacingVertical: 240});
 
-
-
-            this.nodes = this.layout.nodes;
+            //this.nodes = this.layout.nodes;
     }
 
     this.runGraph();
@@ -95,6 +92,11 @@ ForumTree = function() {
             return this.layout.nodes.find(function(n) {return (node._id == n.name.data._id)});
         else return this.layout.nodes.find(function(n) {return (node == n.name.data._id)});
     };
+
+    this.updateNode = function(node) {
+        this.removeNode(node);
+        this.addNode(node);
+    }
 
     this.addNode = function(node) {
         nodes.push(node);
