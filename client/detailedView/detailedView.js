@@ -150,29 +150,12 @@ Template.detailedView.onRendered(function() {
                 var countChange = (newDoc.links.length + newDoc.replyIDs.length)
                                 - (oldDoc.links.length + oldDoc.replyIDs.length);
 
-                for (let link of oldDoc.links) {
-                    if (!newDoc.links.find(function(l) {return (link.target == l.target)}))
-                        tree.removeLink({sourceId: newDoc._id, targetId: link.target});
-                }
-
-                for (let link of newDoc.links) {
-                    if (!oldDoc.links.find(function(l) {return (link.target == l.target)}))
-                        tree.addLink({sourceId: newDoc._id, targetId: link.target});
-                }
-
                 var temp = templates[newDoc._id];
                 temp.linkCount.set(temp.linkCount.get() + countChange);
-            } else {
-                for (let link of oldDoc.links) {
-                    if (!newDoc.links.find(function(l) {return (link.target == l.target)}))
-                        tree.removeLink({sourceId: newDoc._id, targetId: link.target});
-                }
-
-                for (let link of newDoc.links) {
-                    if (!oldDoc.links.find(function(l) {return (link.target == l.target)}))
-                        tree.addLink({sourceId: newDoc._id, targetId: link.target});
-                }
             }
+            
+            tree.runGraph();
+            tree.render();
         }
     });
 
