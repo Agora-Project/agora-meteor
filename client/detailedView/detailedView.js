@@ -123,7 +123,10 @@ Template.detailedView.onRendered(function() {
             //If the changed post is in the graph, adjust things appropriately.
             //If not, we don't need to do anything.
             post = nodesInGraph.findOne({_id: doc._id});
-            if (post) nodesInGraph.update({_id: doc._id}, doc);
+            if (post) {
+                if (post.nodeType) doc.nodeType = post.nodeType;
+                nodesInGraph.update({_id: doc._id}, doc);
+            }
         }
     });
 
@@ -146,8 +149,6 @@ Template.detailedView.onRendered(function() {
             if (oldDoc.nodeType == "post") {
                 var countChange = (newDoc.links.length + newDoc.replyIDs.length)
                                 - (oldDoc.links.length + oldDoc.replyIDs.length);
-
-                newDoc.nodeType = oldDoc.nodeType;
 
                 for (let link of oldDoc.links) {
                     if (!newDoc.links.find(function(l) {return (link.target == l.target)}))
