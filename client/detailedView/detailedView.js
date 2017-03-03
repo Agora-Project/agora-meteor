@@ -7,6 +7,7 @@
 let currentAction = "none";
 let templates = {};
 let tree, postList, reportForm;
+let nodesInGraph = new Mongo.Collection(null);
 
 var unFocus = function () {
     if (document.selection) {
@@ -83,28 +84,22 @@ Template.detailedView.onRendered(function() {
 
     var nodesCursor = Post.find({});
 
-    // This code adds any posts that are already loaded to the graph once the
-    // graph is finished being instantiated. This is used when navigating way
-    // from the detailed view page and then back to it, so as to keep the same
-    // nodes in the graph.
-    nodesCursor.forEach(function(n) {
-        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
-            tree.addNode(n);
-        }
-    });
-
     if (this.data) {
         let _id = this.data;
         handlers.addHandler(_id, {
             onReady: function() {
-                let doc = Post.findOne({_id: _id});
-                tree.addNode(doc);
+                if (!nodesInGraph.findOne({_id: _id})) {
+                    let doc = Post.findOne({_id: _id});
+                    nodesInGraph.insert(doc);
+                }
             }
         });
     } else handlers.addHandler(null, {
         onReady: function() {
-            let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
-            tree.addNode(doc);
+            if (!nodesInGraph.findOne({$where : '!this.links || this.links.length < 1'})) {
+                let doc = Post.findOne({$where : '!this.links || this.links.length < 1'});
+                nodesInGraph.insert(doc);
+            }
         }
     });
 
@@ -115,40 +110,62 @@ Template.detailedView.onRendered(function() {
                 for (var i of doc.links) {
                     let linkID = i.target;
                     handlers.addHandler(linkID);
-
                 }
                 for (var replyID of doc.replyIDs) {
                     handlers.addHandler(replyID);
-
                 }
             }
-
-
         },
         removed: function(doc) {
-            tree.removeNode(doc);
+            nodesInGraph.remove({_id: doc._id});
         },
         changed: function(doc) {
             //If the changed post is in the graph, adjust things appropriately.
             //If not, we don't need to do anything.
             post = nodesInGraph.findOne({_id: doc._id});
             if (post) {
-                //specifically, change the counters to show how many links it's
-                //post has.
-                var countChange = (doc.links.length + doc.replyIDs.length)
-                                - (post.links.length + post.replyIDs.length);
-                doc.nodeType = post.nodeType;
-                for (let link of post.links) {
-                    if (!doc.links.find(function(l) {return (link.target == l.target)}))
-                        tree.removeLink({sourceId: doc._id, targetId: link.target});
-                }
-
-                var temp = templates[doc._id];
-                temp.linkCount.set(temp.linkCount.get() + countChange);
-
-                //And update it's text, of course.
+                if (post.nodeType) doc.nodeType = post.nodeType;
                 nodesInGraph.update({_id: doc._id}, doc);
             }
+        }
+    });
+
+    nodesInGraph.before.insert(function(userId, post) {
+        if (!post.nodeType) {
+            post.nodeType = "post";
+        }
+    });
+
+    nodesInGraph.find({}).observe({
+        added: function(doc) {
+            tree.addNode(doc);
+        },
+        removed: function(doc) {
+            tree.removeNode(doc);
+        },
+        changed: function(newDoc, oldDoc) {
+            //specifically, change the counters to show how many links it's
+            //post has.
+            if (oldDoc.nodeType == "post") {
+                var countChange = (newDoc.links.length + newDoc.replyIDs.length)
+                                - (oldDoc.links.length + oldDoc.replyIDs.length);
+
+                var temp = templates[newDoc._id];
+                temp.linkCount.set(temp.linkCount.get() + countChange);
+            }
+            tree.updateNode(newDoc);
+            tree.runGraph();
+            tree.render();
+        }
+    });
+
+    // This code adds any posts that are already loaded to the graph once the
+    // graph is finished being instantiated. This is used when navigating way
+    // from the detailed view page and then back to it, so as to keep the same
+    // nodes in the graph.
+    nodesCursor.forEach(function(n) {
+        if (n.links.length < 1 || nodesInGraph.findOne({_id: n._id})) {
+            nodesInGraph.insert(n);
         }
     });
 
@@ -204,7 +221,7 @@ Template.detailedViewPost.onCreated(function () {
         for (var replyID of this.data.replyIDs) {
             if (templates[replyID]) {
                 templates[replyID].closeAll();
-                tree.removeNode(replyID);
+                nodesInGraph.remove({_id: replyID});
             }
         };
         return;
@@ -288,7 +305,6 @@ Template.detailedViewPost.events({
                     Roles.userIsInRole(Meteor.userId(), ['moderator'])) &&
                     confirm("Are you sure you want to permanently delete this post?")) {
 
-                    tree.removeNode(this);
                     handlers.stop(this._id);
                     Meteor.call('removeWithLinks', this._id);
                 }
@@ -342,8 +358,10 @@ Template.detailedViewPost.events({
             let linkID = i.target;
             handlers.addHandler(linkID, {
                 onReady: function() {
-                    let doc = Post.findOne({_id: linkID});
-                    tree.addNode(doc);
+                    if (!nodesInGraph.findOne({_id: linkID})) {
+                        let doc = Post.findOne({_id: linkID});
+                        nodesInGraph.insert(doc);
+                    }
                 }
             });
 
@@ -351,8 +369,10 @@ Template.detailedViewPost.events({
         for (var replyID of this.replyIDs) {
             handlers.addHandler(replyID,  {
                 onReady: function() {
-                    let doc = Post.findOne({_id: replyID});
-                    tree.addNode(doc);
+                    if (!nodesInGraph.findOne({_id: replyID})) {
+                        let doc = Post.findOne({_id: replyID});
+                        nodesInGraph.insert(doc);
+                    }
                 }
             });
 
@@ -370,9 +390,11 @@ Template.detailedViewPost.events({
             let linkID = i.target;
             handlers.addHandler(linkID, {
                 onReady: function() {
-                    let doc = Post.findOne({_id: linkID});
-                    if (!nodesInGraph.findOne({_id: doc._id}))
-                        postList.posts.insert(doc);
+                    if (!nodesInGraph.findOne({_id: linkID})) {
+                        let doc = Post.findOne({_id: linkID});
+                        if (!nodesInGraph.findOne({_id: doc._id}))
+                            postList.posts.insert(doc);
+                    }
                 }
             });
 
@@ -380,9 +402,11 @@ Template.detailedViewPost.events({
         for (var replyID of this.replyIDs) {
             handlers.addHandler(replyID,  {
                 onReady: function() {
-                    let doc = Post.findOne({_id: replyID});
-                    if (!nodesInGraph.findOne({_id: doc._id}))
-                        postList.posts.insert(doc);
+                    if (!nodesInGraph.findOne({_id: replyID})) {
+                        let doc = Post.findOne({_id: replyID});
+                        if (!nodesInGraph.findOne({_id: doc._id}))
+                            postList.posts.insert(doc);
+                    }
                 }
             });
 
@@ -393,25 +417,22 @@ Template.detailedViewPost.events({
     },
     'click .reply-button': function(event) {
         if (!Meteor.userId()) return;
-        if (!nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] })) {
-            let _id = tree.addNode({nodeType: "reply", links: [{target: this._id}]})._id;
-            tree.addLink({sourceId: _id, targetId: this._id});
+        reply = nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] });
+        if (!reply) {
+            nodesInGraph.insert({nodeType: "reply", links: [{target: this._id}]});
         } else {
-            let reply = nodesInGraph.findOne({ $or: [ {nodeType: "reply"}, {nodeType: "edit"} ] });
             let self = this;
             if (!reply.links.find(function(link) {
                 return (link.target == self._id);
             })) {
                 nodesInGraph.update({_id: reply._id}, { $push: { links: {target: this._id}}});
-                tree.addLink({sourceId: reply._id, targetId: this._id});
             } else {
                 nodesInGraph.update({_id: reply._id}, { $pull: { links: {target: this._id}}});
-                tree.removeLink({sourceId: reply._id, targetId: this._id});
             }
         }
     },
     'click .close-button': function(event) {
-        tree.removeNode(this);
+        nodesInGraph.remove({_id: this._id});
     },
     'click .more-button': function(event) {
         if (!this.showMoreDropdown) {
@@ -422,9 +443,9 @@ Template.detailedViewPost.events({
     },
     'click .edit-post-button': function(event) {
         if (!nodesInGraph.findOne({nodeType: "reply"})) {
-            tree.removeNode(this);
+            nodesInGraph.remove({_id: this._id});
             this.nodeType = "edit";
-            tree.addNode(this);
+            nodesInGraph.insert(this);
         }
     },
     'click .report-post-button': function(event) {
@@ -480,7 +501,7 @@ Template.detailedViewReply.events({
         } else this.counter--;
     },
     'click .close-button': function(event) {
-        tree.removeNode(this);
+        nodesInGraph.remove({_id: this._id});
     },
     'click .submit-button': function(event) {
         if (this.nodeType == "reply") {
@@ -500,8 +521,10 @@ Template.detailedViewReply.events({
                 handlers.stop(result);
                 handlers.addHandler(result, {
                     onReady: function() {
-                        let doc = Post.findOne({_id: result});
-                        tree.addNode(doc);
+                        if (!nodesInGraph.findOne({_id: result})) {
+                            let doc = Post.findOne({_id: result});
+                            nodesInGraph.insert(doc);
+                        }
                     }
                 });
             });
@@ -512,10 +535,10 @@ Template.detailedViewReply.events({
             this.title.length < 1 || this.title.length > 100) return;
             Meteor.call("editPost", this, function(error, result) {
                 let doc = Post.findOne({_id: result});
-                tree.addNode(doc);
+                nodesInGraph.insert(doc);
             });
         }
-        tree.removeNode(this);
+        nodesInGraph.remove({_id: this._id})
     },
     'wheel': function(event) {
         //Stop the event from cascading down to other objects and
@@ -571,7 +594,7 @@ Template.detailedViewPostListing.events({
         handlers.addHandler(_id, {
             onReady: function() {
                 let doc = Post.findOne({_id: _id});
-                tree.addNode(doc);
+                nodesInGraph.insert(doc);
                 postList.posts.remove({_id: _id});
                 if (postList.posts.find({}).count() == 0)
                     postList.hide();
@@ -606,7 +629,6 @@ Template.reportPopupForm.onRendered(function() {
 
 Template.reportPopupForm.events({
     "click .submit-report-button": function(event) {
-        console.log("???");
         let content = Template.instance().$('.report-input').val();
         let report = {
             userID: Meteor.userId(),

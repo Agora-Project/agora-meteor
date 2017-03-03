@@ -6,39 +6,7 @@
 
 // The local collections for keeping track of what posts and kinks are shown.
 // though the links collection is only used to assign links _ids right now.
-// The nodesInGraph collection is referenced outside this file in the
-// detailedViw.js file, where it's used to figure out what nodes are visible to
-// the user and should be drawn on the screen.
-nodesInGraph = new Mongo.Collection(null);
 let linksInGraph = new Mongo.Collection(null);
-
-//The function for interpreting links into the right format to add to the graph.
-//not used outside this file.
-function linksToD3Array(linksCol, nodesCol) {
-    var nodes = {};
-    nodesCol.forEach(function(n) {
-        nodes[n._id] = n;
-    });
-    var result = [];
-    linksCol.forEach(function(link) {
-        if (link.source && link.target) {
-            result.push(link);
-        } else {
-
-            var tmp = {
-                source: nodes[link.sourceId],
-                target: nodes[link.targetId],
-                type: link.type,
-                _id: link._id
-            };
-
-            if (tmp.source && tmp.target) {
-                result.push(tmp);
-            }
-        }
-    });
-    return result;
-};
 
 // The object that stores the information on the graph.
 // It takes up the entire rest of the file.
@@ -47,7 +15,6 @@ function linksToD3Array(linksCol, nodesCol) {
 // having it's methods called in a dozen places.
 ForumTree = function() {
     let nodes = [];
-    let links = [];
 
     // Both of these two functions are called outside this file, whenever the
     // graph needs to have it's nodes repositioned or rerendered.
@@ -55,7 +22,7 @@ ForumTree = function() {
 
             let posts = {};
 
-            nodesInGraph.find({}, {limit: 1000}).forEach(function(post) {
+            nodes.forEach(function(post) {
                 let div;
                 if (post.nodeType == "post") {
                     div = $("#post-" + post._id);
@@ -88,9 +55,7 @@ ForumTree = function() {
             this.layout = new GraphLayoutLayered(postArray, linkArray,
                 {spacingHorizontal: 330, spacingVertical: 240});
 
-
-
-            this.nodes = this.layout.nodes;
+            //this.nodes = this.layout.nodes;
     }
 
     this.runGraph();
@@ -128,112 +93,30 @@ ForumTree = function() {
         else return this.layout.nodes.find(function(n) {return (node == n.name.data._id)});
     };
 
-    this.findLink = function(linkDocument) {
-        if (linkDocument._id)
-            return links.find(function(l) {return (linkDocument._id == l._id)});
-
-        if (!linkDocument.source || !linkDocument.target) var link = linksToD3Array([linkDocument], nodes)[0];
-        else var link = linkDocument;
-
-        return links.find(function(l) {return (link.source == l.source && link.target == l.target)});
-    };
-
-    this.containsLink = function(link) {
-        if (this.findLink(link))
-            return true;
-        else return false;
-    };
+    this.updateNode = function(node) {
+        this.removeNode(node);
+        this.addNode(node);
+    }
 
     this.addNode = function(node) {
-        if (!node.nodeType) {
-            node.nodeType = "post";
-        }
-
-        let _id;
-
-        if (!nodesInGraph.findOne({_id: node._id}))
-            _id = nodesInGraph.insert(node);
-        else _id = node._id;
-
-        node = nodesInGraph.findOne({_id: _id});
         nodes.push(node);
-
-        let self = this;
-
-        if (node.links) {
-            for (var i in node.links) {
-                self.addLink({sourceId: node._id, targetId: node.links[i].target});
-            }
-        }
-
-        if (node.replyIDs) {
-            for (var i in node.replyIDs) {
-                self.addLink({sourceId: node.replyIDs[i], targetId: node._id});
-            }
-        }
-
         return node;
-    };
-
-    this.addLink = function(linkDocument) {
-        if (!linkDocument._id) {
-            var _id = linksInGraph.insert(linkDocument);
-            linkDocument = linksInGraph.findOne({_id: _id});
-        }
-
-        let link = linksToD3Array([linkDocument], nodes)[0];
-        if (link && !this.containsLink(linkDocument)) {
-            links.push(link);
-            this.runGraph();
-            this.render();
-            return true;
-        }
-        return false;
     };
 
     this.removeNode = function(nodeDocument) {
         let nodeID;
         if (nodeDocument._id) nodeID = nodeDocument._id;
         else nodeID = nodeDocument;
-        var iToRemove = -1;
+        let self = this;
         if (nodes.length !== 0) {
             nodes.forEach(function(node, i) {
                 if (node._id === nodeID) {
-                    iToRemove = i;
+                    nodes.splice(i, 1);
+                    self.runGraph();
+                    self.render();
+                    return true;
                 }
             });
-        }
-        if (iToRemove != -1) {
-            for (i = 0; i < links.length;) {
-                link = links[i];
-                if (link.source._id === nodeID || link.target._id == nodeID)
-                    links.splice(i, 1);
-                else i++;
-            }
-            nodes.splice(iToRemove, 1);
-            nodesInGraph.remove({_id: nodeID});
-            this.runGraph();
-            this.render();
-            return true;
-        }
-        return false;
-    };
-
-    this.removeLink = function(linkDocument) {
-        var iToRemove = -1;
-        links.forEach(function(link, i) {
-            if (link._id === linkDocument._id) {
-                iToRemove = i;
-            } else if (link.source._id == linkDocument.sourceId
-                && link.target._id == linkDocument.targetId) {
-                iToRemove = i;
-            }
-        });
-        if (iToRemove != -1) {
-            links.splice(iToRemove, 1);
-            this.runGraph();
-            this.render();
-            return true;
         }
         return false;
     };
