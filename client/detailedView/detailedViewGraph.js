@@ -94,11 +94,6 @@ ForumTree = function() {
         else return this.layout.nodes.find(function(n) {return (node == n.name.data._id)});
     };
 
-    this.updateNode = function(node) {
-        this.removeNode(node);
-        this.addNode(node);
-    }
-
     this.addNode = function(node) {
         nodes.push(node);
         return node;
@@ -119,6 +114,11 @@ ForumTree = function() {
         }
         return false;
     };
+
+    this.updateNode = function(node) {
+        this.removeNode(node);
+        this.addNode(node);
+    }
 
     this.forEachNode = function(action) {
         for (let node of this.layout.nodes) {
