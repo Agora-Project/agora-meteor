@@ -139,9 +139,13 @@ Template.detailedView.onRendered(function() {
     nodesInGraph.find({}).observe({
         added: function(doc) {
             tree.addNode(doc);
+            tree.runGraph();
+            tree.render();
         },
         removed: function(doc) {
             tree.removeNode(doc);
+            tree.runGraph();
+            tree.render();
         },
         changed: function(newDoc, oldDoc) {
             //specifically, change the counters to show how many links it's

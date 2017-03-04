@@ -26,7 +26,8 @@ ForumTree = function() {
                 let div;
                 if (post.nodeType == "post") {
                     div = $("#post-" + post._id);
-                } else if (post.nodeType == "reply" || post.nodeType == "edit") {
+                } else if (post.nodeType == "reply" ||
+                           post.nodeType == "edit") {
                     div = $("#reply-" + post._id);
                 }
                 posts[post._id] = {
@@ -112,8 +113,6 @@ ForumTree = function() {
             nodes.forEach(function(node, i) {
                 if (node._id === nodeID) {
                     nodes.splice(i, 1);
-                    self.runGraph();
-                    self.render();
                     return true;
                 }
             });
