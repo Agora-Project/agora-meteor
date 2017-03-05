@@ -32,23 +32,9 @@
 }());
 //End polyfill
 
-function addEvent(elem, type, eventHandle) {
-    if (elem == null || typeof(elem) == 'undefined') return;
-    if (elem.addEventListener) {
-        elem.addEventListener(type, eventHandle, false);
-    } else if (elem.attachEvent) {
-        elem.attachEvent( "on" + type, eventHandle );
-    } else {
-        elem["on"+type]=eventHandle;
-    }
-}
-
 Template.overview.onCreated(function() {
-
     this.nodeDisplay = new Mongo.Collection(null);
-
-    overviewObject = this; // !! Global variable!
-
+    
     let postSubscription = this.subscribe('newestPosts', Date.now());
 
     this.autorun(function() {
@@ -81,7 +67,7 @@ Template.overview.onCreated(function() {
             //let layout = new GraphLayoutForce(postArray, linkArray);
             let layout = new GraphLayoutLayered(postArray, linkArray);
 
-            overviewObject.postArray = layout.nodes;
+            this.postArray = layout.nodes;
 
             for (let post of layout.nodes) {
                 if (post.name !== undefined) {
@@ -158,17 +144,26 @@ Template.overview.helpers({
     }
 });
 
+Template.overviewNode.onCreated(function() {
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    
+    this.parent = parentView.templateInstance();
+});
+
 Template.overviewNode.events({
     'mousedown .undraggable, touchstart .undraggable': function(event) {
         if (event.button != 0) return;
         event.stopImmediatePropagation();
     },
-    "mouseenter": function(event) {
-        overviewObject.nodeDisplay.remove({});
-        overviewObject.nodeDisplay.insert(this);
+    "mouseenter": function(event, template) {
+        template.parent.nodeDisplay.remove({});
+        template.parent.nodeDisplay.insert(this);
     },
-    "mouseleave": function(event) {
-        overviewObject.nodeDisplay.remove({});
+    "mouseleave": function(event, template) {
+        template.parent.nodeDisplay.remove({});
     }
 });
 
