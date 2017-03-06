@@ -120,11 +120,5 @@ ForumTree = function() {
         this.addNode(node);
     }
 
-    this.forEachNode = function(action) {
-        for (let node of this.layout.nodes) {
-            action(node);
-        }
-    };
-
     return this;
 }

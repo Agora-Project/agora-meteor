@@ -31,10 +31,12 @@ Template.detailedView.events({
     'mousemove, touchmove': function(event, template) {
         if (template.dragging) {
             unFocus();
-            tree.forEachNode(function(node) {
-                node.x += event.screenX - template.mousePos.x;
-                node.y += event.screenY - template.mousePos.y;
-            });
+            let centerer = $(".detailed-view-centerer");
+            console.log(centerer);
+            let coordinates = centerer.offset();
+            coordinates.left += event.screenX - template.mousePos.x;
+            coordinates.top += event.screenY - template.mousePos.y;
+            centerer.offset(coordinates);
 
             template.mousePos = {x: event.screenX, y: event.screenY};
 
