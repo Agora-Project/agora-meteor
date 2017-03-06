@@ -40,12 +40,12 @@
 </template>
 
 <template name="hourglassView">
-    <div class="hourglass-viewport">
-        <div class="hourglass-centerer">
-            {{#each postDisplay}}
+    <div class="overview-viewport" style="max-width:1024px;max-height: 568px">
+        <div class="overview-centerer">
+            {{#each displayedPost}}
                 {{> hourglassPost}}
             {{/each}}
-            <svg class="hourglass-links-graph"></svg>
+            <svg class="overview-links-graph"></svg>
             {{#each nodes}}
                 {{> hourglassNode}}
             {{/each}}
@@ -56,24 +56,22 @@
 
 <template name="hourglassNode">
     <a class="undraggable" href="/forum/post/{{_id}}">
-        <div class="hourglass-node" id="hourglass-node-{{_id}}">
+        <div class="overview-node" id="overview-node-{{_id}}">
         </div>
     </a>
 </template>
 
 <template name="hourglassPost">
-    <div class="post hourglass-post" id="post-{{_id}}">
-        <div class="post-header">
-            <div class="title-bar">
-                <a  href="/forum/post/{{_id}}">{{title}}</a>
-            </div>
+    <div class="post overview-post" id="overview-post-{{_id}}">
+        <div class="overview-post-header">
+            <a  href="/forum/post/{{_id}}">{{title}}</a>
         </div>
-        <div class="hourglass-post-info">
+        <div class="overview-post-info">
             {{#if user}}
                 <a href="/forum/user/{{user._id}}">
                     {{> avatar user=(user) size="small" shape="rounded" class="overview-avatar"}}
                 </a>
-                <a class="username" href="/forum/user/{{user._id}}">
+                <a class="overview-username" href="/forum/user/{{user._id}}">
                     {{user.username}}
                 </a>
             {{/if}}
@@ -82,7 +80,7 @@
             </span>
         </div>
         {{#if hasContent}}
-            <div class="post-content">
+            <div class="overview-post-content">
             </div>
         {{/if}}
     </div>

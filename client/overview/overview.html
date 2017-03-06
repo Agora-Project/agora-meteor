@@ -5,9 +5,9 @@
 -->
 
 <template name="overview">
-    <div class="overview-viewport">
+    <div class="overview-viewport" style="max-width:1824px;max-height: 808px">
         <div class="overview-centerer">
-            {{#each nodeDisplay}}
+            {{#each displayedPost}}
                 {{> overviewPost}}
             {{/each}}
             <svg class="overview-links-graph"></svg>
@@ -28,7 +28,7 @@
 <template name="overviewPost">
     <div class="overview-post" id="post-{{_id}}">
         <div class="overview-post-header">
-                <a  href="/forum/post/{{_id}}">{{title}}</a>
+            <a  href="/forum/post/{{_id}}">{{title}}</a>
         </div>
         <div class="overview-post-info">
             {{#if user}}

@@ -36,7 +36,9 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'lib/layered_grapher/layered_grapher.js',
-        'client/graphLayoutMethods.js'
+        'client/graphLayoutMethods.js',
+        'lib/overviewGraphMaker/overviewGraphMaker.css',
+        'lib/overviewGraphMaker/overviewGraphMaker.js'
     ], 'client');
 
     api.addFiles([
@@ -55,7 +57,6 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'client/overview/overview.html',
-        'client/overview/overview.css',
         'client/overview/overview.js'
     ], 'client');
 
