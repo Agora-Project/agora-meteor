@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 Accounts.onLogin = function() {
     user = Meteor.user()
     if(user.isBanned) {
@@ -5,10 +11,3 @@ Accounts.onLogin = function() {
         Meteor.users.update({_id: user._id}, {$set : { "services.resume.loginTokens" : [] }})
     }
 };
-
-Template.forumIndex.helpers({
-    checkIfModerator: function() {
-        return Roles.userIsInRole(Meteor.userId(), ['moderator']);
-    }
-
-});

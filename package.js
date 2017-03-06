@@ -1,6 +1,12 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 Package.describe({
     name: 'agoraforum:core',
-    version: '0.0.5',
+    version: '0.0.8',
     summary: 'Graph-based forum',
     git: 'https://github.com/Agora-Project/agora-meteor',
     documentation: 'README.md'
@@ -12,16 +18,64 @@ Package.onUse(function(api) {
     api.versionsFrom('1.1.0.3');
 
     api.addFiles([
-        'imports/dotdotdot.min.js',
+        'lib/XBBCode/xbbcode.js',
+        'lib/XBBCode/xbbcode.css'
+    ], 'client');
+
+    api.addFiles([
         'client/subscribe.js',
-        'client/users.html',
-        'client/users.js',
-        'client/data.js',
-        'client/templates.html',
-        'client/graph.js',
         'client/navigation.js',
-        'client/main.css'
-      ], 'client');
+        'client/main.css',
+        'client/main.js'
+    ], 'client');
+
+    api.addFiles([
+        'client/userList/userList.html',
+        'client/userList/userList.js'
+    ], 'client');
+
+    api.addFiles([
+        'lib/layered_grapher/layered_grapher.js',
+        'client/graphLayoutMethods.js',
+        'lib/overviewGraphMaker/overviewGraphMaker.css',
+        'lib/overviewGraphMaker/overviewGraphMaker.js'
+    ], 'client');
+
+    api.addFiles([
+        'client/expandedPost/expandedPost.html',
+        'client/expandedPost/expandedPost.css',
+        'client/expandedPost/expandedPost.js'
+    ], 'client');
+
+    api.addFiles([
+        'client/detailedView/detailedViewData.js',
+        'client/detailedView/detailedViewGraph.js',
+        'client/detailedView/detailedView.html',
+        'client/detailedView/detailedView.css',
+        'client/detailedView/detailedView.js'
+    ], 'client');
+
+    api.addFiles([
+        'client/overview/overview.html',
+        'client/overview/overview.js'
+    ], 'client');
+
+    api.addFiles([
+        'client/templates.html',
+    ], 'client');
+
+    api.addFiles([
+        'client/profile/profile.html',
+        'client/profile/profile.css',
+        'client/profile/profile.js'
+    ], 'client');
+
+
+    api.addFiles([
+        'client/adminScreen/adminScreen.html',
+        'client/adminScreen/adminScreen.css',
+        'client/adminScreen/adminScreen.js'
+    ], 'client');
 
     api.addAssets([
         'public/agoraforum.png'
@@ -29,7 +83,7 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'lib/schemas/post.js',
-        'lib/schemas/link.js',
+        'lib/schemas/report.js',
         'lib/schemas/vote.js',
         'routes.js'
     ], both);
@@ -37,7 +91,6 @@ Package.onUse(function(api) {
     api.addFiles([
         'server/initial-data.js',
         'server/methods.js',
-        'server/permits.js',
         'server/publish.js',
         'server/users.js'
     ], 'server');
@@ -45,21 +98,20 @@ Package.onUse(function(api) {
     api.use([
         'session',
         'templating',
+        'reactive-var',
         'ui',
         'd3js:d3@3.5.5',
-        'zodiase:mdl@1.0.2'
+        'zodiase:mdl@1.0.2',
+        'utilities:avatar@0.9.2'
     ], 'client');
 
     api.use([
-        'coffeescript',
-        'reactive-var',
+        'ecmascript@0.6.0',
         'iron:router@1.0.0',
-        'aldeed:collection2',
-        'matb33:collection-hooks',
+        'aldeed:collection2@2.3.3',
+        'matb33:collection-hooks@0.7.13',
         'accounts-base',
-        'mrt:moment@2.8.1',
-        'alanning:roles@1.2.13',
-        'meteorhacks:subs-manager@1.2.0'
+        'alanning:roles@1.2.13'
     ], both);
 });
 

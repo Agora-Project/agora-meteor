@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
 Meteor.publish(null, function() {
     return Meteor.roles.find({});
 });
@@ -18,26 +24,38 @@ Meteor.publish("myself", function() {
 });
 
 Meteor.publish("users", function() {
-    return Meteor.users.find({});
+    if (Roles.userIsInRole(this.userId, ['moderator'])) {
+        return Meteor.users.find({});
+    } else {
+        return Meteor.users.find({}, {
+            fields: {_id: 1, username: 1, avatar: 1}
+        });
+    }
 });
 
-Meteor.publish("forum", function(id) {
-    if (!id) {
-        id = Post.findOne({
-            isRoot: true
-        })._id;
+Meteor.publish("reports", function() {
+    if (Roles.userIsInRole(this.userId, ['moderator'])) {
+        return Reports.find({});
+    } else return this.ready();
+})
+
+Meteor.publish("post", function(id) {
+    if (id == 'rootNode') {
+        return Post.find({
+            $where : '!this.links || this.links.length < 1'
+        });
     }
-    return [
-        Post.find({
-            _id: id
-        }), Link.find({
-            $or: [
-                {
-                    sourceId: id
-                }, {
-                    targetId: id
-                }
-            ]
-        })
-    ];
+    return Post.find({
+        _id: id
+    });
+});
+
+Meteor.publish("postRange", function(beforeDate, endDate) {
+    return Post.find({
+        "createdAt" : { $lte : beforeDate, $gte : endDate }
+    }, {limit: 1000});
+});
+
+Meteor.publish("newestPosts", function(beforeDate) {
+    return Post.find({}, {limit: 1000});
 });

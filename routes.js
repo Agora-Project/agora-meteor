@@ -1,9 +1,8 @@
-var subs;
-
-subs = new SubsManager({
-    cacheLimit: 10,
-    expireIn: 5
-});
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
 
 Router.onBeforeAction(function() {
     if (Meteor.user() && Meteor.user().isBanned) {
@@ -15,15 +14,52 @@ Router.onBeforeAction(function() {
 
 Router.route('/forum', {
     name: 'forumIndex',
-    template: 'forumIndex'
+    template: 'doubleView'
 });
 
-Router.route('/forum/post', {
-    name: 'forumPost',
-    template: 'forumPost'
+Router.route('/forum/overview', {
+    name: 'overview',
+    template: 'overview'
+});
+
+Router.route('/forum/adminScreen', {
+    name: 'Admin Screen',
+    template: 'adminScreen'
+});
+
+Router.route('/forum/post/:_id', function() {
+    var routerThis = this;
+    var id = this.params._id;
+
+    this.wait(Meteor.subscribe('post', id));
+
+    if (this.params.query.view == "forum") {
+        if (this.ready()) {;
+            routerThis.render('detailedView', {data: id});
+        }
+    } else {
+        if (this.ready()) {
+            var post = Post.findOne({_id: id});
+            if (post) routerThis.render('expandedPost', {data: post});
+            else routerThis.render('expandedPostNotFound', {data: {_id: id}});
+        }
+        else routerThis.render('expandedPostLoading');
+    }
+});
+
+Router.route('/forum/user/:_id', function() {
+    var routerThis = this;
+    var id = this.params._id;
+
+    if (this.ready()) {
+        var user = Meteor.users.findOne({_id: id});
+        if (user) routerThis.render('userProfile', {data: user});
+        else routerThis.render('expandedPostNotFound', {data: {_id: id}});
+    }
+    else routerThis.render('expandedPostLoading');
 });
 
 Router.route('/forum/users', {
-    name: 'forumUsers',
-    template: 'forumUsers'
+    name: 'userList',
+    template: 'userList'
 });

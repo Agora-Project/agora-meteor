@@ -1,0 +1,47 @@
+<!--
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+-->
+
+<template name="overview">
+    <div class="overview-viewport" style="max-width:1824px;max-height: 808px">
+        <div class="overview-centerer">
+            {{#each displayedPost}}
+                {{> overviewPost}}
+            {{/each}}
+            <svg class="overview-links-graph"></svg>
+            {{#each nodes}}
+                {{> overviewNode}}
+            {{/each}}
+        </div>
+    </div>
+</template>
+
+<template name="overviewNode">
+    <a class="undraggable" href="/forum/post/{{_id}}">
+        <div class="overview-node" id="overview-node-{{_id}}">
+        </div>
+    </a>
+</template>
+
+<template name="overviewPost">
+    <div class="overview-post" id="post-{{_id}}">
+        <div class="overview-post-header">
+            <a  href="/forum/post/{{_id}}">{{title}}</a>
+        </div>
+        <div class="overview-post-info">
+            {{#if user}}
+                <a href="/forum/user/{{user._id}}">
+                    {{> avatar user=(user) size="small" shape="rounded" class="overview-avatar"}}
+                </a>
+                <a class="overview-username" href="/forum/user/{{user._id}}">{{user.username}}</a>
+            {{/if}}
+            <span>{{age}}</span>
+        </div>
+        {{#if hasContent}}
+            <div class="overview-post-content">
+            </div>
+        {{/if}}
+    </div>
+</template>

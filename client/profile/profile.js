@@ -4,6 +4,5 @@
     License: GPL, Check file LICENSE
 */
 
-Meteor.subscribe('users');
-Meteor.subscribe("myself");
-Meteor.subscribe("reports");
+Template.userProfile.helpers({
+});

@@ -1,0 +1,125 @@
+<!--
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+-->
+
+<template name="detailedView">
+    <div class="detailed-view-viewport">
+        <div class="detailed-view-centerer">
+            <svg class="detailed-view-links-graph">
+            </svg>
+            {{#each posts}}
+                {{> detailedViewPost}}
+            {{/each}}
+
+            {{#each replies}}
+                {{> detailedViewReply}}
+            {{/each}}
+        </div>
+
+        {{> detailedViewPostList}}
+        {{> reportPopupForm}}
+    </div>
+
+    {{#if checkIfModerator}}
+    <div class="delete-button-box">
+        <button class="button-delete mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect">
+            <i class="material-icons">remove</i>
+        </button>
+    </div>
+    {{/if}}
+</template>
+
+<template name="detailedViewPost">
+    <div class="post" id="post-{{_id}}">
+        <div class="post-header draggable">
+            <div class="title-bar draggable">
+                <a class="undraggable" href="/forum/post/{{_id}}">{{title}}</a>
+            </div>
+            <button class="close-button undraggable"><i class="fa fa-close"></i></button>
+        </div>
+        <div class="post-info undraggable">
+            {{#if user}}
+                <a class="forum-avatar undraggable" href="/forum/user/{{user._id}}">
+                    {{> avatar user=(user) size="small" shape="rounded"}}
+                </a>
+                <a class="username undraggable" href="/forum/user/{{user._id}}">{{user.username}}</a>
+            {{/if}}
+            <span class="undraggable">{{age}}</span>
+        </div>
+        {{#if hasContent}}
+            <div class="post-content undraggable">
+            </div>
+        {{/if}}
+        <div class="post-footer undraggable">
+            <button class="show-replies-button undraggable">Connecting Posts ({{replyCount}})</button>
+            {{#if currentUser}}
+                <button class="reply-button undraggable">Reply</button>
+            {{/if}}
+            <button class="more-button undraggable">More<i class="fa fa-caret-down"></i></button>
+        </div>
+        <div class="more-dropdown-content undraggable">
+            {{#if editAccess}}
+                <a class="edit-post-button" href="#">Edit Post</a>
+            {{/if}}
+            <hr>
+            <a class="report-post-button" href="#">Report</a>
+        </div>
+        <div class="replies-dropdown-content undraggable">
+            {{#if showLoadButtons}}
+                <a class="load-all-button" href="#">Load All</a>
+                <hr>
+            {{/if}}
+            {{#if showCloseButton}}
+                <a class="close-all-button" href="#">Close All</a>
+                <hr>
+            {{/if}}
+            {{#if showLoadButtons}}
+                <a class="show-list-button" href="#">Show List</a>
+            {{/if}}
+        </div>
+    </div>
+</template>
+
+<template name="detailedViewReply">
+    <div class="reply" id="reply-{{_id}}">
+        <div class="reply-header draggable">
+            <input type="text" class="title-input draggable" id="titleInput-{{_id}}" placeholder="Title">
+            <button class="close-button undraggable"><i class="fa fa-close"></i></button>
+        </div>
+        <textarea class="content-input undraggable" id="contentInput-{{_id}}" placeholder="Reply Content"></textarea>
+        <div class="reply-footer undraggable">
+            <button class="submit-button undraggable">Submit</button>
+        </div>
+    </div>
+</template>
+
+<template name="detailedViewPostList">
+    <div class="detailed-post-list">
+
+        <a>Title</a>
+        <a class="username">Username</a>
+        <span >Date Posted</span>
+        {{#each posts}}
+            {{> detailedViewPostListing}}
+        {{/each}}
+    </div>
+</template>
+
+<template name="detailedViewPostListing">
+    <div class="post-listing-div post-listing-component">
+        <a class="post-listing-component" >{{title}}</a>
+        <a class="post-listing-component username ">{{user.username}}</a>
+        <span class="post-listing-component">{{age}}</span>
+    </div>
+</template>
+
+<template name="reportPopupForm">
+    <div class="report-div">
+        <textarea class="report-input"  placeholder="Report Reason"></textarea>
+        <div class="report-footer">
+            <button class="submit-report-button">Submit</button>
+        </div>
+    </div>
+</template>
