@@ -84,8 +84,12 @@ Meteor.methods({
         }
     },
     submitReport: function(report) {
-        console.log(report.content.length);
         if (report.content.length >= 1)
             return Reports.insert(report);
+    },
+    resolveReport: function(report) {
+        if (Roles.userIsInRole(this.userId, ['moderator']))
+        return Reports.update({_id: report._id},
+            {$set: {resolved: true} });
     }
 });

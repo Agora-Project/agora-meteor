@@ -2,7 +2,7 @@
 
 Template.adminScreen.helpers({
     reports: function() {
-        return Reports.find({});
+        return Reports.find({$where: "!this.resolved"});
     }
 });
 
@@ -26,5 +26,7 @@ Template.report.onCreated(function() {
 });
 
 Template.report.events({
-
+    "click .report-resolve-button": function(event) {
+        Meteor.call("resolveReport", this);
+    }
 });
