@@ -5,7 +5,7 @@
 */
 
 Template.overview.onCreated(function() {
-    let subscription = this.subscribe('newestPosts', Date.now());
+    let subscription = this.subscribe('abstractPosts', Date.now());
     
     this.autorun(function() {
         if (subscription.ready()) {

@@ -59,3 +59,8 @@ Meteor.publish("postRange", function(beforeDate, endDate) {
 Meteor.publish("newestPosts", function(beforeDate) {
     return Post.find({}, {limit: 1000});
 });
+
+//Returns an abstract shell of posts, each only containing its id and links.
+Meteor.publish("abstractPosts", function() {
+    return Post.find({}, {limit: 1000, fields: {'links': 1}});
+});
