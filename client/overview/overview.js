@@ -5,6 +5,20 @@
 */
 
 Template.overview.onCreated(function() {
+    let subscription = this.subscribe('newestPosts', Date.now());
+    
+    this.autorun(function() {
+        if (subscription.ready()) {
+            let posts = Post.find({});
+            
+            posts.observe({
+                added: function(post) {
+                },
+                removed: function(post) {
+                }
+            });
+        }
+    });
 });
 
 Template.overview.onRendered(function() {
