@@ -4,9 +4,16 @@
     License: GPL, Check file LICENSE
 */
 
-MakeOverviewGraph(Template.overview, Template.overviewNode, Template.overviewPost,
-    function(templateInstance, postCollection) {
-        Post.find({}, {limit: 1000}).forEach(function(post) {
-            postCollection.insert(post);
-        });
-    });
+Template.overview.onCreated(function() {
+});
+
+Template.overview.onRendered(function() {
+    let canvas = $(".glview-viewport");
+    let gl = canvas[0].getContext('experimental-webgl');
+
+    gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    
+    this.canvas = canvas;
+    this.gl = gl;
+});

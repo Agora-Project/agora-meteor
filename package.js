@@ -57,6 +57,7 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'client/overview/overview.html',
+        'client/overview/overview.css',
         'client/overview/overview.js'
     ], 'client');
 
