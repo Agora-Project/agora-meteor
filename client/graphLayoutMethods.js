@@ -150,18 +150,6 @@ GraphLayoutLayered = function(nodes, links, args) {
 
                     let offset = edgeSlant/edgeCount;
 
-                    /*edgeSlant = 0.0;
-                    edgeCount = 0;
-
-                    for (let edge of target.edgesOut) {
-                        edgeSlant += edge.target.x - target.x;
-                    }
-                    edgeCount += target.edgesOut.length;
-
-                    offset += 0.5*edgeSlant/edgeCount;
-                    */
-
-
                     //Limit offset based on neighboring nodes.
                     while (offset < 0.0) {
                         let neighbor = targetLayer[node.column - 1];
