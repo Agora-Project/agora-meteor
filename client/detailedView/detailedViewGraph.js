@@ -53,8 +53,7 @@ ForumTree = function() {
             });
 
             //let layout = new GraphLayoutForce(postArray, linkArray);
-            this.layout = new GraphLayoutLayered(postArray, linkArray,
-                {spacingHorizontal: 330, spacingVertical: 240});
+            this.layout = new GraphLayoutCytoscape(postArray, linkArray);
 
             //this.nodes = this.layout.nodes;
     }

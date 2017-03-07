@@ -294,3 +294,39 @@ GraphLayoutForce = function(nodes, links) {
     for (let i = 0; i < 256; i++) graph.tick();
     graph.stop();
 }
+
+GraphLayoutCytoscape = function(nodes, links) {
+    let nodeMap = new IdentityMap();
+    this.nodes = [];
+
+    //Wrap nodes.
+    for (let node of nodes) {
+        let nodeWrapper = {data:{id: node._id}};
+        nodeMap.put(node, nodeWrapper);
+        this.nodes.push(nodeWrapper);
+    }
+
+    //Wrap links.
+    this.links = [];
+    for (let link of links) {
+        this.links.push({data: {
+            source: nodeMap.get(link.source)._id,
+            target: nodeMap.get(link.target)._id
+        } });
+    }
+
+    var self = this;
+
+    let cy;
+	console.log("on rendered called");
+	cy = cytoscape({layout: {
+						name: 'dagre'
+					},
+
+					elements: {
+						nodes: self.nodes,
+						edges: self.links
+					},
+	});
+
+}
