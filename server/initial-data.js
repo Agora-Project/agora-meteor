@@ -22,9 +22,9 @@ Meteor.startup(function() {
     
     if (DEBUG_RESET) {
         console.log("Adding fake posts");
-        for (let i=0; i<4; i++) {
+        for (let i=0; i<128; i++) {
             let posts = [];
-            Posts.find({}, {fields: {'_id': 1}}).forEach(function(post) {
+            Posts.find({}, {fields: {'_id': 1, 'postedOn': 1}}).forEach(function(post) {
                 posts.push(post);
             });
 
@@ -48,14 +48,19 @@ Meteor.startup(function() {
     
     //Compute default layout of posts.
     console.log('Laying out posts');
-    
+    let posts = {};
     Posts.find({}, {fields: {'_id': 1, 'links': 1}}).forEach(function(post) {
-        post.layer = 0;
-        post.column = 0;
-        console.log(post);
-        Posts.update({_id: post._id},
-                    {$set: {defaultPosition: {x:-1, y:3}}});
+        posts[post._id] = post;
     });
+    
+    let grapher = new LayeredGrapher(posts);
+    
+    for (let id in posts) {
+        let post = posts[id];
+        
+        Posts.update({_id: id},
+                    {$set: {defaultPosition: {x:post.column, y:post.layer}}});
+    }
     
     //Set up moderator account if it does not exist.
     let moderatorEmail = "moderator@example.com";
