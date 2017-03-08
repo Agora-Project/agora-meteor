@@ -78,10 +78,10 @@ Template.webglView.onRendered(function() {
         if (sizeDirty) {
             canvas[0].width = canvas.width();
             canvas[0].height = canvas.height();
+            gl.viewport(0, 0, canvas[0].width, canvas[0].height);
             sizeDirty = false;
         }
         
-            gl.viewport(0, 0, canvas[0].width, canvas[0].height);
         gl.clearColor(0.0, 0.192, 0.325, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         
