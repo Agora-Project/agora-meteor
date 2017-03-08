@@ -36,7 +36,6 @@ Meteor.methods({
             }
             return postId;
         }
-
     },
     editPost: function(post) {
         if (post.title.length < 1 || post.title.length > 100 || post.links.length < 1 ||
