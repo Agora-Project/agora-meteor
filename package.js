@@ -16,11 +16,24 @@ Package.onUse(function(api) {
     both = ['client', 'server']
 
     api.versionsFrom('1.1.0.3');
+    
+    api.addFiles([
+        'lib/identity_collections/identity_collections.js',
+        'lib/grapher/layered_grapher.js',
+        'lib/grapher/graph_methods.js'
+    ], both);
 
     api.addFiles([
         'lib/XBBCode/xbbcode.js',
         'lib/XBBCode/xbbcode.css'
     ], 'client');
+    
+    api.addFiles([
+        'lib/schemas/post.js',
+        'lib/schemas/report.js',
+        'lib/schemas/vote.js',
+        'routes.js'
+    ], both);
 
     api.addFiles([
         'client/subscribe.js',
@@ -33,32 +46,11 @@ Package.onUse(function(api) {
         'client/userList/userList.html',
         'client/userList/userList.js'
     ], 'client');
-
+    
     api.addFiles([
-        'lib/layered_grapher/layered_grapher.js',
-        'client/graphLayoutMethods.js',
-        'lib/overviewGraphMaker/overviewGraphMaker.css',
-        'lib/overviewGraphMaker/overviewGraphMaker.js'
-    ], 'client');
-
-    api.addFiles([
-        'client/expandedPost/expandedPost.html',
-        'client/expandedPost/expandedPost.css',
-        'client/expandedPost/expandedPost.js'
-    ], 'client');
-
-    api.addFiles([
-        'client/detailedView/detailedViewData.js',
-        'client/detailedView/detailedViewGraph.js',
-        'client/detailedView/detailedView.html',
-        'client/detailedView/detailedView.css',
-        'client/detailedView/detailedView.js'
-    ], 'client');
-
-    api.addFiles([
-        'client/overview/overview.html',
-        'client/overview/overview.css',
-        'client/overview/overview.js'
+        'client/webglView/webglView.html',
+        'client/webglView/webglView.css',
+        'client/webglView/webglView.js'
     ], 'client');
 
     api.addFiles([
@@ -66,9 +58,9 @@ Package.onUse(function(api) {
     ], 'client');
 
     api.addFiles([
-        'client/profile/profile.html',
-        'client/profile/profile.css',
-        'client/profile/profile.js'
+        'client/userProfile/userProfile.html',
+        'client/userProfile/userProfile.css',
+        'client/userProfile/userProfile.js'
     ], 'client');
 
 
@@ -81,14 +73,7 @@ Package.onUse(function(api) {
     api.addAssets([
         'public/agoraforum.png'
     ], 'client');
-
-    api.addFiles([
-        'lib/schemas/post.js',
-        'lib/schemas/report.js',
-        'lib/schemas/vote.js',
-        'routes.js'
-    ], both);
-
+    
     api.addFiles([
         'server/initial-data.js',
         'server/methods.js',
