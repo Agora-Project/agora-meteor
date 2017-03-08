@@ -41,26 +41,26 @@ Meteor.publish("reports", function() {
 
 Meteor.publish("post", function(id) {
     if (id == 'rootNode') {
-        return Post.find({
+        return Posts.find({
             $where : '!this.links || this.links.length < 1'
         });
     }
-    return Post.find({
+    return Posts.find({
         _id: id
     });
 });
 
 Meteor.publish("postRange", function(beforeDate, endDate) {
-    return Post.find({
+    return Posts.find({
         "createdAt" : { $lte : beforeDate, $gte : endDate }
     }, {limit: 1000});
 });
 
 Meteor.publish("newestPosts", function(beforeDate) {
-    return Post.find({}, {limit: 1000});
+    return Posts.find({}, {limit: 1000});
 });
 
 //Returns an abstract shell of posts, each only containing its id and links.
 Meteor.publish("abstractPosts", function() {
-    return Post.find({}, {limit: 1000, fields: {'links': 1, 'defaultPosition': 1}});
+    return Posts.find({}, {limit: 1000, fields: {'links': 1, 'defaultPosition': 1}});
 });

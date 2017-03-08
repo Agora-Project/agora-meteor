@@ -9,10 +9,11 @@ Template.webglView.onCreated(function() {
     
     this.autorun(function() {
         if (subscription.ready()) {
-            let posts = Post.find({});
+            let posts = Posts.find({});
             
             posts.observe({
                 added: function(post) {
+                    console.log(post);
                 },
                 removed: function(post) {
                 }

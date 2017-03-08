@@ -5,26 +5,26 @@
 */
 
 Meteor.startup(function() {
-    let DEBUG_RESET = false; //Delete all posts and add a set of random fake posts.
+    let DEBUG_RESET = true; //Deletes all posts and add a set of random fake posts.
     
     if (DEBUG_RESET) {
         console.log('Deleting all posts');
-        Post.remove({});
+        Posts.remove({});
     }
     
-    if (!Post.findOne({$where : '!this.links || this.links.length < 1'})) {
+    if (!Posts.findOne({$where : '!this.links || this.links.length < 1'})) {
         console.log("Adding root post");
-        Post.insert({
+        Posts.insert({
             title: 'Forum Root',
             links: []
         });
     }
-
+    
     if (DEBUG_RESET) {
         console.log("Adding fake posts");
-        for (let i=0; i<128; i++) {
+        for (let i=0; i<4; i++) {
             let posts = [];
-            Post.find().forEach(function(post) {
+            Posts.find({}, {fields: {'_id': 1}}).forEach(function(post) {
                 posts.push(post);
             });
 
@@ -45,7 +45,19 @@ Meteor.startup(function() {
             Meteor.call('insertPost', reply);
         }
     }
-
+    
+    //Compute default layout of posts.
+    console.log('Laying out posts');
+    
+    Posts.find({}, {fields: {'_id': 1, 'links': 1}}).forEach(function(post) {
+        post.layer = 0;
+        post.column = 0;
+        console.log(post);
+        Posts.update({_id: post._id},
+                    {$set: {defaultPosition: {x:-1, y:3}}});
+    });
+    
+    //Set up moderator account if it does not exist.
     let moderatorEmail = "moderator@example.com";
     if (!Meteor.users.findOne({
         "emails.address": moderatorEmail
