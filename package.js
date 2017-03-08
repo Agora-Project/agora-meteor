@@ -19,8 +19,7 @@ Package.onUse(function(api) {
     
     api.addFiles([
         'lib/identity_collections/identity_collections.js',
-        'lib/grapher/layered_grapher.js',
-        'lib/grapher/graph_methods.js'
+        'lib/grapher/layered_grapher.js'
     ], both);
 
     api.addFiles([
