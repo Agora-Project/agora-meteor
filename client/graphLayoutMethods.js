@@ -301,7 +301,7 @@ GraphLayoutCytoscape = function(nodes, links) {
 
     //Wrap nodes.
     for (let node of nodes) {
-        let nodeWrapper = {data:{id: node._id}};
+        let nodeWrapper = {name: node};
         nodeMap.put(node, nodeWrapper);
         this.nodes.push(nodeWrapper);
     }
@@ -309,24 +309,36 @@ GraphLayoutCytoscape = function(nodes, links) {
     //Wrap links.
     this.links = [];
     for (let link of links) {
-        this.links.push({data: {
-            source: nodeMap.get(link.source)._id,
-            target: nodeMap.get(link.target)._id
-        } });
+        this.links.push({
+            source: nodeMap.get(link.source),
+            target: nodeMap.get(link.target),
+        });
+
     }
 
-    var self = this;
+    let cyNodes = [], cyLinks = [];
+
+    //Wrap nodes for cytoscape.
+    for (let node of this.nodes) {
+        cyNodes.push({data:{id: node.name.data._id}});
+    }
+
+    //Wrap links for cytoscape.
+    for (let link of this.links) {
+        console.log(link);
+        //cyLinks.push({data:{}});
+    }
 
     let cy;
-	console.log("on rendered called");
-	cy = cytoscape({layout: {
-						name: 'dagre'
-					},
+	cy = cytoscape({
+        layout: {
+			name: 'dagre'
+		},
 
-					elements: {
-						nodes: self.nodes,
-						edges: self.links
-					},
+		elements: {
+			nodes: cyNodes,
+			edges: cyLinks
+		},
 	});
 
 }
