@@ -6,12 +6,12 @@
 
 Template.webglView.onCreated(function() {
     let instance = this;
-    this.onSubReady = new Notifier();
     this.onRendererReady = new Notifier();
+    let onSubReady = new Notifier();
     
-    this.subscribe('abstractPosts', {onReady: this.onSubReady.fulfill});
+    this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
     
-    Notifier.all(this.onSubReady, this.onRendererReady).onFulfilled(function() {
+    Notifier.all(onSubReady, this.onRendererReady).onFulfilled(function() {
         Posts.find({}).observe({
             added: function(post) {
             },
