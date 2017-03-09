@@ -99,33 +99,32 @@ WebGLRenderer = function(canvas) {
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([-0.5, -0.5, 0.5, 0.5]));
     gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, 0, new Int16Array([0, 1]));
     
-    //Begin animating
-    this.begin = function() {
-        let render = function() {
-            if (self.isDestroyed) {
-                return;
-            }
-            
-            if (sizeDirty) {
-                canvas[0].width = canvas.width();
-                canvas[0].height = canvas.height();
-                gl.viewport(0, 0, canvas[0].width, canvas[0].height);
-                sizeDirty = false;
-            }
-            
-            gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.useProgram(postShader);
-            gl.drawArrays(gl.POINTS, 0, 2);
-            gl.useProgram(linkShader);
-            gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 0);
-            
-            window.requestAnimationFrame(render);
+    //Main render loop
+    let render = function() {
+        if (self.isDestroyed) {
+            return;
         }
+        
+        if (sizeDirty) {
+            canvas[0].width = canvas.width();
+            canvas[0].height = canvas.height();
+            gl.viewport(0, 0, canvas[0].width, canvas[0].height);
+            sizeDirty = false;
+        }
+        
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.useProgram(postShader);
+        gl.drawArrays(gl.POINTS, 0, 2);
+        gl.useProgram(linkShader);
+        gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 0);
         
         window.requestAnimationFrame(render);
     }
     
-    //Stop animating and release resources
+    this.begin = function() {
+        window.requestAnimationFrame(render);
+    }
+    
     this.destroy = function() {
         self.isDestroyed = true;
         $(window).off('resize'); //Destroy resize callback

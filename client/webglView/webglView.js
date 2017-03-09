@@ -5,28 +5,27 @@
 */
 
 Template.webglView.onCreated(function() {
-    let subscription = this.subscribe('abstractPosts', Date.now());
-    let template = this;
+    let instance = this;
     
-    this.autorun(function() {
-        if (subscription.ready()) {
-            let posts = Posts.find({});
-            
-            posts.observe({
-                added: function(post) {
-                },
-                removed: function(post) {
-                }
-            });
+    this.subscribe('abstractPosts', {
+        onReady: function() {
+        }
+    });
+    
+    Posts.find({}).observe({
+        added: function(post) {
+        },
+        removed: function(post) {
         }
     });
 });
 
 Template.webglView.onRendered(function() {
-    let renderer = new WebGLRenderer($(".gl-viewport"));
-    renderer.begin();
+    this.renderer = new WebGLRenderer($(".gl-viewport"));
+    this.renderer.begin();
 });
 
 Template.webglView.onDestroyed(function() {
-    renderer.destroy();
+    this.renderer.destroy();
+    delete this.renderer;
 });

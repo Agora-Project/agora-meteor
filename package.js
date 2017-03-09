@@ -47,6 +47,7 @@ Package.onUse(function(api) {
     ], 'client');
     
     api.addFiles([
+        'lib/notifier/notifier.js',
         'lib/requestAnimationFrame/requestAnimationFrame.js',
         'client/webglView/webglView.html',
         'client/webglView/webglView.css',
