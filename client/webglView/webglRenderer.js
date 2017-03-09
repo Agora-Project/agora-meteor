@@ -125,7 +125,7 @@ WebGLRenderer = function(canvas) {
         window.requestAnimationFrame(render);
     }
     
-    this.destroy = function() {
+    this.stop = function() {
         self.isDestroyed = true;
         $(window).off('resize'); //Destroy resize callback
     }
