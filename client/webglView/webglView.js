@@ -23,7 +23,7 @@ Template.webglView.onCreated(function() {
 });
 
 Template.webglView.onRendered(function() {
-    this.renderer = new WebGLRenderer($(".gl-viewport"));
+    this.renderer = new WebGLRenderer($('.gl-viewport'));
     this.renderer.begin();
     this.onRendererReady.fulfill();
 });

@@ -55,7 +55,7 @@ let linkShaderProgram = function(gl, vertShader, fragShader) {
         console.log(gl.getProgramInfoLog(shader));
         return null;
     }
-    shader.locMatrix = gl.getUniformLocation(shader, 'u_mat');
+    shader.locMat = gl.getUniformLocation(shader, 'u_mat');
     return shader;
 }
 
@@ -118,9 +118,9 @@ WebGLRenderer = function(canvas) {
                               0.0, 0.0, 1.0];
             
             gl.useProgram(postShader);
-            gl.uniformMatrix3fv(postShader.locMatrix, false, projection);
+            gl.uniformMatrix3fv(postShader.locMat, false, projection);
             gl.useProgram(linkShader);
-            gl.uniformMatrix3fv(linkShader.locMatrix, false, projection);
+            gl.uniformMatrix3fv(linkShader.locMat, false, projection);
             
             sizeDirty = false;
         }
