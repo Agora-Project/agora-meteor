@@ -107,14 +107,16 @@ WebGLRenderer = function(canvas) {
         }
         
         if (sizeDirty) {
-            canvas[0].width = canvas.width();
-            canvas[0].height = canvas.height();
-            gl.viewport(0, 0, canvas[0].width, canvas[0].height);
+            let width = canvas.width(), height = canvas.height();
             
-            let projection = [2.0/canvas[0].width, 0.0, 0.0,
-                          0.0, 2.0/canvas[0].height, 0.0,
-                          0.0, 0.0, 1.0];
-                          
+            canvas[0].width = width;
+            canvas[0].height = height;
+            gl.viewport(0, 0, width, height);
+            
+            let projection = [2.0/width, 0.0, 0.0,
+                              0.0, 2.0/height, 0.0,
+                              0.0, 0.0, 1.0];
+            
             gl.useProgram(postShader);
             gl.uniformMatrix3fv(postShader.locMatrix, false, projection);
             gl.useProgram(linkShader);

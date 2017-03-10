@@ -12,7 +12,7 @@ Template.webglView.onCreated(function() {
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
     
     Notifier.all(onSubReady, this.onRendererReady).onFulfilled(function() {
-        Posts.find({}).observe({
+        instance.postObserver = Posts.find({}).observe({
             added: function(post) {
                 instance.renderer.addPost(post);
             },
@@ -30,4 +30,5 @@ Template.webglView.onRendered(function() {
 
 Template.webglView.onDestroyed(function() {
     this.renderer.stop();
+    this.postObserver.stop();
 });
