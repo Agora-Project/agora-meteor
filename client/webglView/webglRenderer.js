@@ -73,7 +73,7 @@ WebGLRenderer = function(canvas) {
     let sizeDirty = true;
     
     $(window).resize(function() {
-        sizeDirty = true;
+        
     });
     
     //Set up shader program
@@ -121,14 +121,14 @@ WebGLRenderer = function(canvas) {
             let w = 2.0*camScale/width;
             let h = 2.0*camScale/height;
             
-            let projection = [w, 0.0, -w*camPos.x,
-                              0.0, h, -h*camPos.y,
-                              0.0, 0.0, 1.0];
+            let matrix = [w, 0.0, -w*camPos.x,
+                          0.0, h, -h*camPos.y,
+                          0.0, 0.0, 1.0];
                               
             gl.useProgram(postShader);
-            gl.uniformMatrix3fv(postShader.locMat, false, projection);
+            gl.uniformMatrix3fv(postShader.locMat, false, matrix);
             gl.useProgram(linkShader);
-            gl.uniformMatrix3fv(linkShader.locMat, false, projection);
+            gl.uniformMatrix3fv(linkShader.locMat, false, matrix);
             
             sizeDirty = false;
         }
@@ -149,6 +149,10 @@ WebGLRenderer = function(canvas) {
     let addLink = function(source, target) {
         gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, linkCount*4, new Int16Array([source, target]));
         linkCount++;
+    }
+    
+    this.resize = function() {
+        sizeDirty = true;
     }
     
     this.addPost = function(post) {
@@ -175,6 +179,5 @@ WebGLRenderer = function(canvas) {
     
     this.stop = function() {
         self.isDestroyed = true;
-        $(window).off('resize'); //Destroy resize callback
     }
 }
