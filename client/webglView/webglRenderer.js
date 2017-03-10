@@ -1,8 +1,10 @@
 let VERT_SHADER_SOURCE = "\
+uniform mat3 u_mat;\n\
 attribute vec2 in_pos;\n\
 void main() {\n\
     gl_PointSize = 16.0;\n\
-    gl_Position = vec4(in_pos, 0.0, 1.0);\n\
+    vec3 pos = vec3(in_pos, 1.0)*u_mat;\n\
+    gl_Position = vec4(pos.xy, 0.0, 1.0);\n\
 }";
 
 //Looks complicated and horrible, but this just draws circles.
@@ -53,6 +55,7 @@ let linkShaderProgram = function(gl, vertShader, fragShader) {
         console.log(gl.getProgramInfoLog(shader));
         return null;
     }
+    shader.locMatrix = gl.getUniformLocation(shader, 'u_mat');
     return shader;
 }
 
@@ -95,9 +98,7 @@ WebGLRenderer = function(canvas) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, MAX_LINKS*4, gl.DYNAMIC_DRAW);
     
-    //Test data
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array([-0.5, -0.5, 0.5, 0.5]));
-    gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, 0, new Int16Array([0, 1]));
+    let postCount = 0;
     
     //Main render loop
     let render = function() {
@@ -109,20 +110,36 @@ WebGLRenderer = function(canvas) {
             canvas[0].width = canvas.width();
             canvas[0].height = canvas.height();
             gl.viewport(0, 0, canvas[0].width, canvas[0].height);
+            
+            let projection = [2.0/canvas[0].width, 0.0, 0.0,
+                          0.0, 2.0/canvas[0].height, 0.0,
+                          0.0, 0.0, 1.0];
+                          
+            gl.useProgram(postShader);
+            gl.uniformMatrix3fv(postShader.locMatrix, false, projection);
+            gl.useProgram(linkShader);
+            gl.uniformMatrix3fv(linkShader.locMatrix, false, projection);
+            
             sizeDirty = false;
         }
         
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.useProgram(postShader);
-        gl.drawArrays(gl.POINTS, 0, 2);
+        gl.drawArrays(gl.POINTS, 0, postCount*2);
         gl.useProgram(linkShader);
-        gl.drawElements(gl.LINES, 2, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.LINES, 0, gl.UNSIGNED_SHORT, 0);
         
         window.requestAnimationFrame(render);
     }
     
     this.begin = function() {
         window.requestAnimationFrame(render);
+    }
+    
+    this.addPost = function(post) {
+        let pos = [post.defaultPosition.x*32.0, post.defaultPosition.y*32.0];
+        gl.bufferSubData(gl.ARRAY_BUFFER, postCount*8, new Float32Array(pos));
+        postCount++;
     }
     
     this.stop = function() {

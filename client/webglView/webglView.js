@@ -14,6 +14,7 @@ Template.webglView.onCreated(function() {
     Notifier.all(onSubReady, this.onRendererReady).onFulfilled(function() {
         Posts.find({}).observe({
             added: function(post) {
+                instance.renderer.addPost(post);
             },
             removed: function(post) {
             }
