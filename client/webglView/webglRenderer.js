@@ -102,6 +102,9 @@ WebGLRenderer = function(canvas) {
     let postIndices = {};
     let linkCount = 0;
     
+    let camScale = 16.0;
+    let camPos = {x:0.0, y:0.0};
+    
     //Main render loop
     let render = function() {
         if (self.isDestroyed) {
@@ -115,10 +118,13 @@ WebGLRenderer = function(canvas) {
             canvas[0].height = height;
             gl.viewport(0, 0, width, height);
             
-            let projection = [2.0/width, 0.0, 0.0,
-                              0.0, 2.0/height, 0.0,
-                              0.0, 0.0, 1.0];
+            let w = 2.0*camScale/width;
+            let h = 2.0*camScale/height;
             
+            let projection = [w, 0.0, -w*camPos.x,
+                              0.0, h, -h*camPos.y,
+                              0.0, 0.0, 1.0];
+                              
             gl.useProgram(postShader);
             gl.uniformMatrix3fv(postShader.locMat, false, projection);
             gl.useProgram(linkShader);
@@ -146,7 +152,7 @@ WebGLRenderer = function(canvas) {
     }
     
     this.addPost = function(post) {
-        let pos = [post.defaultPosition.x*32.0, post.defaultPosition.y*32.0];
+        let pos = [post.defaultPosition.x, post.defaultPosition.y];
         gl.bufferSubData(gl.ARRAY_BUFFER, postCount*8, new Float32Array(pos));
         postIndices[post._id] = postCount;
         
