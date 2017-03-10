@@ -18,16 +18,17 @@ Package.onUse(function(api) {
     api.versionsFrom('1.1.0.3');
     
     api.addFiles([
-        'lib/identity_collections/identity_collections.js',
-        'lib/grapher/layered_grapher.js'
+        
     ], both);
 
     api.addFiles([
-        'lib/XBBCode/xbbcode.js',
-        'lib/XBBCode/xbbcode.css'
+        'client/lib/XBBCode/xbbcode.js',
+        'client/lib/XBBCode/xbbcode.css'
     ], 'client');
     
     api.addFiles([
+        'lib/identity_collections/identity_collections.js',
+        'lib/grapher/layered_grapher.js',
         'lib/schemas/post.js',
         'lib/schemas/report.js',
         'lib/schemas/vote.js',
@@ -47,8 +48,8 @@ Package.onUse(function(api) {
     ], 'client');
     
     api.addFiles([
-        'lib/notifier/notifier.js',
-        'lib/requestAnimationFrame/requestAnimationFrame.js',
+        'client/lib/notifier/notifier.js',
+        'client/lib/requestAnimationFrame/requestAnimationFrame.js',
         'client/webglView/webglView.html',
         'client/webglView/webglView.css',
         'client/webglView/webglRenderer.js',
