@@ -2,7 +2,7 @@ let VERT_SHADER_SOURCE = "\
 uniform mat3 u_mat;\n\
 attribute vec2 in_pos;\n\
 void main() {\n\
-    gl_PointSize = 16.0;\n\
+    gl_PointSize = 4.0;\n\
     vec3 pos = vec3(in_pos, 1.0)*u_mat;\n\
     gl_Position = vec4(pos.xy, 0.0, 1.0);\n\
 }";
@@ -99,6 +99,8 @@ WebGLRenderer = function(canvas) {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, MAX_LINKS*4, gl.DYNAMIC_DRAW);
     
     let postCount = 0;
+    let postIndices = {};
+    let linkCount = 0;
     
     //Main render loop
     let render = function() {
@@ -129,7 +131,7 @@ WebGLRenderer = function(canvas) {
         gl.useProgram(postShader);
         gl.drawArrays(gl.POINTS, 0, postCount*2);
         gl.useProgram(linkShader);
-        gl.drawElements(gl.LINES, 0, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.LINES, linkCount*2, gl.UNSIGNED_SHORT, 0);
         
         window.requestAnimationFrame(render);
     }
@@ -138,9 +140,30 @@ WebGLRenderer = function(canvas) {
         window.requestAnimationFrame(render);
     }
     
+    let addLink = function(source, target) {
+        gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, linkCount*4, new Int16Array([source, target]));
+        linkCount++;
+    }
+    
     this.addPost = function(post) {
         let pos = [post.defaultPosition.x*32.0, post.defaultPosition.y*32.0];
         gl.bufferSubData(gl.ARRAY_BUFFER, postCount*8, new Float32Array(pos));
+        postIndices[post._id] = postCount;
+        
+        for (let link of post.links) {
+            let target = postIndices[link.target];
+            if (target !== undefined) {
+                addLink(postCount, target);
+            }
+        }
+        
+        for (let sourceID of post.replyIDs) {
+            let source = postIndices[sourceID];
+            if (source !== undefined) {
+                addLink(source, postCount);
+            }
+        }
+        
         postCount++;
     }
     
