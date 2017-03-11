@@ -26,11 +26,14 @@ Template.webglView.onCreated(function() {
 Template.webglView.onRendered(function() {
     let instance = this;
     
-    this.renderer = new WebGLRenderer($('.gl-viewport'));
+    let canvas = $('.gl-viewport');
+    this.camera = new Camera(canvas);
+    this.renderer = new WebGLRenderer(canvas, this.camera);
     this.renderer.begin();
     this.onRendererReady.fulfill();
     
     $(window).resize(function() {
+        instance.camera.resize();
         instance.renderer.resize();
     });
 });

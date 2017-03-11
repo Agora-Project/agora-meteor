@@ -52,6 +52,7 @@ Package.onUse(function(api) {
         'client/lib/requestAnimationFrame/requestAnimationFrame.js',
         'client/webglView/webglView.html',
         'client/webglView/webglView.css',
+        'client/webglView/webglCamera.js',
         'client/webglView/webglRenderer.js',
         'client/webglView/webglView.js'
     ], 'client');

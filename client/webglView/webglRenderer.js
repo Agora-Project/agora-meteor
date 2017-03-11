@@ -59,7 +59,7 @@ let linkShaderProgram = function(gl, vertShader, fragShader) {
     return shader;
 }
 
-WebGLRenderer = function(canvas) {
+WebGLRenderer = function(canvas, camera) {
     let self = this;
     
     let gl = canvas[0].getContext('experimental-webgl');
@@ -102,9 +102,6 @@ WebGLRenderer = function(canvas) {
     let postIndices = {};
     let linkCount = 0;
     
-    let camScale = 16.0;
-    let camPos = {x:0.0, y:0.0};
-    
     //Main render loop
     let render = function() {
         if (self.isDestroyed) {
@@ -112,25 +109,19 @@ WebGLRenderer = function(canvas) {
         }
         
         if (sizeDirty) {
-            let width = canvas.width(), height = canvas.height();
+            canvas[0].width = canvas.width();
+            canvas[0].height = canvas.height();
+            gl.viewport(0, 0, canvas[0].width, canvas[0].height);
+            sizeDirty = false;
+        }
+        
+        if (camera.isMatrixDirty()) {
+            let matrix = camera.getMatrix();
             
-            canvas[0].width = width;
-            canvas[0].height = height;
-            gl.viewport(0, 0, width, height);
-            
-            let w = 2.0*camScale/width;
-            let h = 2.0*camScale/height;
-            
-            let matrix = [w, 0.0, -w*camPos.x,
-                          0.0, h, -h*camPos.y,
-                          0.0, 0.0, 1.0];
-                              
             gl.useProgram(postShader);
             gl.uniformMatrix3fv(postShader.locMat, false, matrix);
             gl.useProgram(linkShader);
             gl.uniformMatrix3fv(linkShader.locMat, false, matrix);
-            
-            sizeDirty = false;
         }
         
         gl.clear(gl.COLOR_BUFFER_BIT);
