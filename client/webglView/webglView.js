@@ -40,14 +40,19 @@ Template.webglView.onRendered(function() {
 
 Template.webglView.events({
     'mousedown, touchstart': function(event, instance) {
-    },
-    'mouseup, mouseout, touchend': function(event, instance) {
+        let mp = {x:event.offsetX, y:event.offsetY};
+        instance.camera.mouseDown(mp);
     },
     'mousemove, touchmove': function(event, instance) {
-        //console.log(event.offsetX + " " + event.offsetY);
+        let mp = {x:event.offsetX, y:event.offsetY};
+        instance.camera.mouseMove(mp);
+    },
+    'mouseup, mouseout, touchend': function(event, instance) {
+        let mp = {x:event.offsetX, y:event.offsetY};
+        instance.camera.mouseUp(mp);
     },
     'wheel': function(event, instance) {
-        //event.originalEvent.deltaY
+        instance.camera.mouseWheel(event.originalEvent.deltaY);
     }
 });
 
