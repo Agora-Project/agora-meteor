@@ -5,7 +5,7 @@
 */
 
 Meteor.startup(function() {
-    let DEBUG_RESET = true; //Deletes all posts and add a set of random fake posts.
+    let DEBUG_RESET = false; //Deletes all posts and add a set of random fake posts.
     
     if (DEBUG_RESET) {
         console.log('Deleting all posts');
@@ -22,21 +22,20 @@ Meteor.startup(function() {
     
     if (DEBUG_RESET) {
         console.log("Adding fake posts");
-        for (let i=0; i<128; i++) {
-            let posts = [];
-            Posts.find({}, {fields: {'_id': 1, 'postedOn': 1}}).forEach(function(post) {
+        
+        let posts = [];
+        
+        let observer = Posts.find({}, {fields: {'_id': 1, 'postedOn': 1}}).observe({
+            added: function(post) {
                 posts.push(post);
-            });
-
-            //Sort by date.
-            posts.sort(function(a, b) {
-                return b.postedOn - a.postedOn;
-            });
-
-            //Increase exponent to more strongly prefer replying to newer posts.
-            let random = Math.pow(Math.random(), 3.0);
+            }
+        });
+        
+        for (let i=0; i<10000; i++) {
+            //Decrease exponent to more strongly prefer replying to newer posts.
+            let random = Math.pow(Math.random(), 0.05);
             let post = posts[Math.floor(random*posts.length)];
-
+            
             let reply = {
                 title: 'Fake Post',
                 links: [{target: post._id}]
@@ -44,22 +43,26 @@ Meteor.startup(function() {
 
             Meteor.call('insertPost', reply);
         }
+        
+        observer.stop();
     }
     
-    //Compute default layout of posts.
-    console.log('Laying out posts');
-    let posts = {};
-    Posts.find({}, {fields: {'_id': 1, 'links': 1}}).forEach(function(post) {
-        posts[post._id] = post;
-    });
-    
-    let grapher = new LayeredGrapher(posts);
-    
-    for (let id in posts) {
-        let post = posts[id];
+    if (DEBUG_RESET) {
+        //Compute default layout of posts.
+        console.log('Laying out posts');
+        let posts = {};
+        Posts.find({}, {fields: {'_id': 1, 'links': 1}}).forEach(function(post) {
+            posts[post._id] = post;
+        });
         
-        Posts.update({_id: id},
-                    {$set: {defaultPosition: {x:post.column, y:post.layer}}});
+        let grapher = new LayeredGrapher(posts);
+        
+        for (let id in posts) {
+            let post = posts[id];
+            
+            Posts.update({_id: id},
+                        {$set: {defaultPosition: {x:post.column, y:post.layer}}});
+        }
     }
     
     //Set up moderator account if it does not exist.

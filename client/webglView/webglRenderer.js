@@ -2,7 +2,7 @@ let VERT_SHADER_SOURCE = "\
 uniform mat3 u_mat;\n\
 attribute vec2 in_pos;\n\
 void main() {\n\
-    gl_PointSize = 4.0;\n\
+    gl_PointSize = 3.0;\n\
     vec3 pos = vec3(in_pos, 1.0)*u_mat;\n\
     gl_Position = vec4(pos.xy, 0.0, 1.0);\n\
 }";
@@ -84,8 +84,7 @@ WebGLRenderer = function(canvas, camera) {
     let linkShader = linkShaderProgram(gl, vertShader, linkFragShader);
     
     //Set up post vertex buffer
-    let MAX_POSTS = 1000;
-    let MAX_LINKS = 1000;
+    let MAX_POSTS = 50000;
     
     let vbo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -94,6 +93,8 @@ WebGLRenderer = function(canvas, camera) {
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     
     //Set up link index buffer
+    let MAX_LINKS = 50000;
+    
     let ebo = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, MAX_LINKS*4, gl.DYNAMIC_DRAW);
@@ -149,7 +150,6 @@ WebGLRenderer = function(canvas, camera) {
     this.addPost = function(post) {
         let pos = [post.defaultPosition.x, post.defaultPosition.y];
         gl.bufferSubData(gl.ARRAY_BUFFER, postCount*8, new Float32Array(pos));
-        postIndices[post._id] = postCount;
         
         for (let link of post.links) {
             let target = postIndices[link.target];
@@ -165,6 +165,7 @@ WebGLRenderer = function(canvas, camera) {
             }
         }
         
+        postIndices[post._id] = postCount;
         postCount++;
     }
     
