@@ -72,10 +72,6 @@ WebGLRenderer = function(canvas, camera) {
     this.isDestroyed = false;
     let sizeDirty = true;
     
-    $(window).resize(function() {
-        
-    });
-    
     //Set up shader program
     let vertShader = loadShader(gl, VERT_SHADER_SOURCE, gl.VERTEX_SHADER);
     let postFragShader = loadShader(gl, POST_FRAG_SHADER_SOURCE, gl.FRAGMENT_SHADER);
@@ -132,20 +128,20 @@ WebGLRenderer = function(canvas, camera) {
         gl.drawElements(gl.LINES, linkCount*2, gl.UNSIGNED_SHORT, 0);
         
         window.requestAnimationFrame(render);
-    }
+    };
     
     this.begin = function() {
         window.requestAnimationFrame(render);
-    }
+    };
     
     let addLink = function(source, target) {
         gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, linkCount*4, new Int16Array([source, target]));
         linkCount++;
-    }
+    };
     
     this.resize = function() {
         sizeDirty = true;
-    }
+    };
     
     this.addPost = function(post) {
         let pos = [post.defaultPosition.x, post.defaultPosition.y];
@@ -167,9 +163,9 @@ WebGLRenderer = function(canvas, camera) {
         
         postIndices[post._id] = postCount;
         postCount++;
-    }
+    };
     
     this.stop = function() {
         self.isDestroyed = true;
-    }
+    };
 }
