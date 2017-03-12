@@ -99,6 +99,7 @@ WebGLRenderer = function(canvas, camera) {
     let postCount = 0;
     let postIndices = {};
     let linkCount = 0;
+    let pointSize = 0.0;
     
     //Main render loop
     let render = function() {
@@ -115,17 +116,20 @@ WebGLRenderer = function(canvas, camera) {
         
         if (camera.isMatrixDirty()) {
             let matrix = camera.getMatrix();
+            pointSize = camera.getScale()/4.0;
             
             gl.useProgram(postShader);
             gl.uniformMatrix3fv(postShader.locMat, false, matrix);
-            gl.uniform1f(postShader.locSize, camera.getScale()/4.0);
+            gl.uniform1f(postShader.locSize, pointSize);
             gl.useProgram(linkShader);
             gl.uniformMatrix3fv(linkShader.locMat, false, matrix);
         }
         
         gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.useProgram(postShader);
-        gl.drawArrays(gl.POINTS, 0, postCount*2);
+        if (pointSize > 2.0) {
+            gl.useProgram(postShader);
+            gl.drawArrays(gl.POINTS, 0, postCount*2);
+        }
         gl.useProgram(linkShader);
         gl.drawElements(gl.LINES, linkCount*2, gl.UNSIGNED_SHORT, 0);
         
