@@ -1,8 +1,9 @@
 let VERT_SHADER_SOURCE = "\
 uniform mat3 u_mat;\n\
+uniform float u_point_size;\n\
 attribute vec2 in_pos;\n\
 void main() {\n\
-    gl_PointSize = 3.0;\n\
+    gl_PointSize = u_point_size;\n\
     vec3 pos = vec3(in_pos, 1.0)*u_mat;\n\
     gl_Position = vec4(pos.xy, 0.0, 1.0);\n\
 }";
@@ -18,8 +19,6 @@ void main() {\n\
     vec2 p = gl_PointCoord*2.0 - 1.0;\n\
     float r = dot(p, p);\n\
 #ifdef GL_OES_standard_derivatives\n\
-    //float delta = fwidth(r);\n\
-    //alpha = 1.0 - smoothstep(1.0 - delta, 1.0 + delta, r);\n\
     float delta = fwidth(r);\n\
     alpha = smoothstep(1.0, 1.0 - delta, r);\n\
 #else\n\
@@ -79,6 +78,8 @@ WebGLRenderer = function(canvas, camera) {
     let postShader = linkShaderProgram(gl, vertShader, postFragShader);
     let linkShader = linkShaderProgram(gl, vertShader, linkFragShader);
     
+    postShader.locSize = gl.getUniformLocation(postShader, 'u_point_size');
+    
     //Set up post vertex buffer
     let MAX_POSTS = 50000;
     
@@ -117,6 +118,7 @@ WebGLRenderer = function(canvas, camera) {
             
             gl.useProgram(postShader);
             gl.uniformMatrix3fv(postShader.locMat, false, matrix);
+            gl.uniform1f(postShader.locSize, camera.getScale()/4.0);
             gl.useProgram(linkShader);
             gl.uniformMatrix3fv(linkShader.locMat, false, matrix);
         }

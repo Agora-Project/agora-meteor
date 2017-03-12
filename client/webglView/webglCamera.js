@@ -13,6 +13,14 @@ Camera = function(canvas) {
         return matrixDirty;
     };
     
+    this.getPos = function() {
+        return {x:p.x, y:p.y};
+    };
+    
+    this.getScale = function() {
+        return scale;
+    };
+    
     this.getMatrix = function() {
         if (matrixDirty) {
             let w = 2.0*scale/canvas[0].width;
