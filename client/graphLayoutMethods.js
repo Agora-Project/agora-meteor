@@ -325,8 +325,18 @@ GraphLayoutCytoscape = function(nodes, links) {
 
     //Wrap links for cytoscape.
     for (let link of this.links) {
-        console.log(link);
-        //cyLinks.push({data:{}});
+        if (cyNodes.find(function(n) {
+            return n.data.id == link.source.name.data._id;
+        }) && cyNodes.find(function(n) {
+            return n.data.id == link.target.name.data._id;
+        })) {
+            cyLinks.push({
+                data:{
+                    source: link.source.name.data._id,
+                    target: link.target.name.data._id
+                }
+            });
+        }
     }
 
     let cy;
@@ -340,5 +350,7 @@ GraphLayoutCytoscape = function(nodes, links) {
 			edges: cyLinks
 		},
 	});
+
+    console.log(cyNodes);
 
 }
