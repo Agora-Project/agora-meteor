@@ -43,7 +43,7 @@ let loadShader = function(gl, source, type) {
         console.log(gl.getShaderInfoLog(shader));
     }
     return shader;
-}
+};
 
 let linkShaderProgram = function(gl, vertShader, fragShader) {
     let shader = gl.createProgram();
@@ -56,7 +56,7 @@ let linkShaderProgram = function(gl, vertShader, fragShader) {
     }
     shader.locMat = gl.getUniformLocation(shader, 'u_mat');
     return shader;
-}
+};
 
 WebGLRenderer = function(canvas, camera) {
     let self = this;
@@ -101,12 +101,7 @@ WebGLRenderer = function(canvas, camera) {
     let linkCount = 0;
     let pointSize = 0.0;
     
-    //Main render loop
-    let render = function() {
-        if (self.isDestroyed) {
-            return;
-        }
-        
+    this.render = function() {
         if (sizeDirty) {
             canvas[0].width = canvas.width();
             canvas[0].height = canvas.height();
@@ -126,18 +121,14 @@ WebGLRenderer = function(canvas, camera) {
         }
         
         gl.clear(gl.COLOR_BUFFER_BIT);
+        
         if (pointSize > 2.0) {
             gl.useProgram(postShader);
             gl.drawArrays(gl.POINTS, 0, postCount*2);
         }
+        
         gl.useProgram(linkShader);
         gl.drawElements(gl.LINES, linkCount*2, gl.UNSIGNED_SHORT, 0);
-        
-        window.requestAnimationFrame(render);
-    };
-    
-    this.begin = function() {
-        window.requestAnimationFrame(render);
     };
     
     let addLink = function(source, target) {
@@ -170,8 +161,4 @@ WebGLRenderer = function(canvas, camera) {
         postIndices[post._id] = postCount;
         postCount++;
     };
-    
-    this.stop = function() {
-        self.isDestroyed = true;
-    };
-}
+};

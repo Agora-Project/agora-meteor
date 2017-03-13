@@ -20,6 +20,24 @@ Template.webglView.onCreated(function() {
             removed: function(post) {
             }
         });
+        
+        let t0 = performance.now();
+        
+        //Begin rendering
+        let render = function() {
+            if (instance.isDestroyed) {
+                return;
+            }
+            
+            let t1 = performance.now();
+            let dt = (t1 - t0)/1000.0;
+            //instance.camera.step(dt);
+            instance.renderer.render();
+            window.requestAnimationFrame(render);
+            t0 = t1;
+        };
+        
+        window.requestAnimationFrame(render);
     });
 });
 
@@ -29,7 +47,6 @@ Template.webglView.onRendered(function() {
     let canvas = $('.gl-viewport');
     this.camera = new Camera(canvas);
     this.renderer = new WebGLRenderer(canvas, this.camera);
-    this.renderer.begin();
     this.onRendererReady.fulfill();
     
     $(window).resize(function() {
@@ -55,6 +72,6 @@ Template.webglView.events({
 
 Template.webglView.onDestroyed(function() {
     this.postObserver.stop();
-    this.renderer.stop();
+    this.isDestroyed = true;
     $(window).off('resize');
 });
