@@ -75,7 +75,7 @@ Camera = function(canvas) {
     let zooms = [];
     
     let SmoothZoom = function(factor, time) {
-        let t = 0.0;
+        let t = 0.0, st = 0.0;
         let finished = false;
         
         this.step = function(dt) {
@@ -84,12 +84,16 @@ Camera = function(canvas) {
                 finished = true;
             }
             
+            let st0 = st;
+            t += dt;
+            st = (1.0 - Math.cos(t*Math.PI/time))*time/2.0;
+            let sdt = st - st0;
+            
             let oldPos = self.toWorld(mp0);
-            scale *= Math.pow(factor, dt/time);
+            scale *= Math.pow(factor, sdt/time);
             let newPos = self.toWorld(mp0);
             p.x += oldPos.x - newPos.x;
             p.y += oldPos.y - newPos.y;
-            t += dt;
             matrixDirty = true;
         };
         
@@ -100,7 +104,7 @@ Camera = function(canvas) {
     
     this.mouseWheel = function(deltaY) {
         let factor = Math.pow(0.9, deltaY);
-        zooms.push(new SmoothZoom(factor, 0.125));
+        zooms.push(new SmoothZoom(factor, 0.25));
     };
     
     this.step = function(dt) {
