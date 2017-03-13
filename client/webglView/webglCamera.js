@@ -1,4 +1,5 @@
 Camera = function(canvas) {
+    let self = this;
     let p = {x:0.0, y:0.0};
     let scale = 16.0;
     
@@ -71,12 +72,46 @@ Camera = function(canvas) {
         }
     };
     
+    let zooms = [];
+    
+    let SmoothZoom = function(factor, time) {
+        let t = 0.0;
+        let finished = false;
+        
+        this.step = function(dt) {
+            if (t + dt >= time) {
+                dt = time - t;
+                finished = true;
+            }
+            
+            let oldPos = self.toWorld(mp0);
+            scale *= Math.pow(factor, dt/time);
+            let newPos = self.toWorld(mp0);
+            p.x += oldPos.x - newPos.x;
+            p.y += oldPos.y - newPos.y;
+            t += dt;
+            matrixDirty = true;
+        };
+        
+        this.isFinished = function() {
+            return finished;
+        };
+    };
+    
     this.mouseWheel = function(deltaY) {
-        let oldPos = this.toWorld(mp0);
-        scale *= Math.pow(0.9, deltaY);
-        let newPos = this.toWorld(mp0);
-        p.x += oldPos.x - newPos.x;
-        p.y += oldPos.y - newPos.y;
-        matrixDirty = true;
+        let factor = Math.pow(0.9, deltaY);
+        zooms.push(new SmoothZoom(factor, 0.125));
+    };
+    
+    this.step = function(dt) {
+        for (let i = zooms.length - 1; i >= 0; i--) {
+            let zoom = zooms[i];
+            
+            zoom.step(dt);
+            
+            if (zoom.isFinished()) {
+                zooms.splice(i, 1);
+            }
+        }
     };
 };

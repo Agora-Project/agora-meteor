@@ -31,7 +31,7 @@ Template.webglView.onCreated(function() {
             
             let t1 = performance.now();
             let dt = (t1 - t0)/1000.0;
-            //instance.camera.step(dt);
+            instance.camera.step(dt);
             instance.renderer.render();
             window.requestAnimationFrame(render);
             t0 = t1;
