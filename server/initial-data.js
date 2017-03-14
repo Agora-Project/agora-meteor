@@ -38,9 +38,7 @@ Meteor.startup(function() {
         };
 
         Meteor.call('insertPost', reply);
-    }
-
-*/
+    }*/
 
     moderatorEmail = "moderator@example.com";
     if (!Meteor.users.findOne({
