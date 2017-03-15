@@ -296,52 +296,41 @@ GraphLayoutForce = function(nodes, links) {
 }
 
 GraphLayoutDagre = function(nodes, links) {
+    let nodeMap = new IdentityMap();
     this.nodes = [];
     this.links = [];
-    try {
-        let nodeMap = new IdentityMap();
-        // Create a new directed graph
-        var g = new dagre.graphlib.Graph();
 
-        // Set an object for the graph label
-        g.setGraph({});
+    // Create a new directed graph
+    var g = new dagre.graphlib.Graph();
 
-        // Default to assigning a new object as a label for each new edge.
-        g.setDefaultEdgeLabel(function() { return {}; });
+    // Set an object for the graph label
+    g.setGraph({});
 
-        //Wrap nodes.
-        for (let node of nodes) {
-            let nodeWrapper = {name:node};
-            nodeMap.put(node, nodeWrapper);
-            g.setNode(node.data._id, {name:node});
-        }
+    // Default to assigning a new object as a label for each new edge.
+    g.setDefaultEdgeLabel(function() { return {}; });
 
-        //Wrap links.
-        for (let link of links) {
-            if (g.nodes().find(function(n) {
-                return n == link.source.data._id;
-            }) && g.nodes().find(function(n) {
-                return n == link.target.data._id;
-            }))
+    //Wrap nodes.
+    for (let node of nodes) {
+        g.setNode(node.data._id, {name:node});
+        let nodeWrapper = g.node(node.data._id);
+        nodeMap.put(node, nodeWrapper);
+        this.nodes.push(nodeWrapper);
+    }
+
+    //Wrap links.
+    for (let link of links) {
+        if (g.nodes().find(function(n) {
+            return n == link.source.data._id;
+        }) && g.nodes().find(function(n) {
+            return n == link.target.data._id;
+        })) {
             g.setEdge(link.target.data._id, link.source.data._id);
-        }
-
-        dagre.layout(g);
-
-        let self = this;
-
-        g.nodes().forEach(function(v) {
-            self.nodes.push(g.node(v));
-            console.log(g.node(v));
-        });
-        for (let link of links) {
             this.links.push({
                 source:nodeMap.get(link.source),
                 target:nodeMap.get(link.target)
             });
         }
-
-    } catch(e) {
-        console.log(e);
     }
+
+    dagre.layout(g);
 }
