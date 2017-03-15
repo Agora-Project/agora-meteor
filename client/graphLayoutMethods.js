@@ -296,7 +296,8 @@ GraphLayoutForce = function(nodes, links) {
 }
 
 GraphLayoutDagre = function(nodes, links) {
-    console.log("???");
+    this.nodes = [];
+    this.links = [];
     try {
         let nodeMap = new IdentityMap();
         // Create a new directed graph
@@ -322,15 +323,24 @@ GraphLayoutDagre = function(nodes, links) {
             }) && g.nodes().find(function(n) {
                 return n == link.target.data._id;
             }))
-            g.setEdge(link.source.data._id, link.target.data._id);
+            g.setEdge(link.target.data._id, link.source.data._id);
         }
 
         dagre.layout(g);
 
-        console.log(g.edges());
+        let self = this;
 
-        this.nodes = g.nodes();
-        this.links = g.edges();
+        g.nodes().forEach(function(v) {
+            self.nodes.push(g.node(v));
+            console.log(g.node(v));
+        });
+        for (let link of links) {
+            this.links.push({
+                source:nodeMap.get(link.source),
+                target:nodeMap.get(link.target)
+            });
+        }
+
     } catch(e) {
         console.log(e);
     }
