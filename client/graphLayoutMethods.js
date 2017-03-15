@@ -317,17 +317,17 @@ GraphLayoutDagre = function(nodes, links) {
 
         //Wrap links.
         for (let link of links) {
+            if (g.nodes().find(function(n) {
+                return n == link.source.data._id;
+            }) && g.nodes().find(function(n) {
+                return n == link.target.data._id;
+            }))
             g.setEdge(link.source.data._id, link.target.data._id);
         }
 
         dagre.layout(g);
 
-        /*g.nodes().forEach(function(v) {
-            console.log("Node " + v + ": " + JSON.stringify(g.node(v)));
-        });
-        g.edges().forEach(function(e) {
-            console.log("Edge " + e.v + " -> " + e.w + ": " + JSON.stringify(g.edge(e)));
-        });*/
+        console.log(g.edges());
 
         this.nodes = g.nodes();
         this.links = g.edges();
