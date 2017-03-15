@@ -32,7 +32,6 @@ Template.detailedView.events({
         if (template.dragging) {
             unFocus();
             let centerer = $(".detailed-view-centerer");
-            console.log(centerer);
             let coordinates = centerer.offset();
             coordinates.left += event.screenX - template.mousePos.x;
             coordinates.top += event.screenY - template.mousePos.y;

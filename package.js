@@ -102,7 +102,8 @@ Package.onUse(function(api) {
         'ui',
         'd3js:d3@3.5.5',
         'zodiase:mdl@1.0.2',
-        'utilities:avatar@0.9.2'
+        'utilities:avatar@0.9.2',
+        'benmgreene:dagre@0.7.2'
     ], 'client');
 
     api.use([

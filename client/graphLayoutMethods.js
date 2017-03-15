@@ -2,8 +2,6 @@
 //  A. We don't contaminate given objects with new data.
 //  B. We can return extra dummy nodes and links.
 
-import dagre from "dagre";
-
 GraphLayoutLayered = function(nodes, links, args) {
     //Set default parameters
     let spacingHorizontal = args ? args.spacingHorizontal : undefined;
@@ -298,37 +296,42 @@ GraphLayoutForce = function(nodes, links) {
 }
 
 GraphLayoutDagre = function(nodes, links) {
-    let nodeMap = new IdentityMap();
-    // Create a new directed graph
-    var g = new dagre.graphlib.Graph();
+    console.log("???");
+    try {
+        let nodeMap = new IdentityMap();
+        // Create a new directed graph
+        var g = new dagre.graphlib.Graph();
 
-    // Set an object for the graph label
-    g.setGraph({});
+        // Set an object for the graph label
+        g.setGraph({});
 
-    // Default to assigning a new object as a label for each new edge.
-    g.setDefaultEdgeLabel(function() { return {}; });
+        // Default to assigning a new object as a label for each new edge.
+        g.setDefaultEdgeLabel(function() { return {}; });
 
-    //Wrap nodes.
-    for (let node of nodes) {
-        let nodeWrapper = {name:node};
-        nodeMap.put(node, nodeWrapper);
-        g.setNode(node._id, {name:node});
+        //Wrap nodes.
+        for (let node of nodes) {
+            let nodeWrapper = {name:node};
+            nodeMap.put(node, nodeWrapper);
+            g.setNode(node.data._id, {name:node});
+        }
+
+        //Wrap links.
+        for (let link of links) {
+            g.setEdge(link.source.data._id, link.target.data._id);
+        }
+
+        dagre.layout(g);
+
+        /*g.nodes().forEach(function(v) {
+            console.log("Node " + v + ": " + JSON.stringify(g.node(v)));
+        });
+        g.edges().forEach(function(e) {
+            console.log("Edge " + e.v + " -> " + e.w + ": " + JSON.stringify(g.edge(e)));
+        });*/
+
+        this.nodes = g.nodes();
+        this.links = g.edges();
+    } catch(e) {
+        console.log(e);
     }
-
-    //Wrap links.
-    for (let link of links) {
-        g.setEdge(link.source._id, link.target._id);
-    }
-
-    dagre.layout(g);
-
-    g.nodes().forEach(function(v) {
-        console.log("Node " + v + ": " + JSON.stringify(g.node(v)));
-    });
-    g.edges().forEach(function(e) {
-        console.log("Edge " + e.v + " -> " + e.w + ": " + JSON.stringify(g.edge(e)));
-    });
-
-    this.nodes = g.nodes();
-    this.links = g.edges();
 }

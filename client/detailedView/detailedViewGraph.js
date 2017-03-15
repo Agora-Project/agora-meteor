@@ -53,7 +53,7 @@ ForumTree = function() {
             });
 
             //let layout = new GraphLayoutForce(postArray, linkArray);
-            this.layout = new GraphLayoutLayered(postArray, linkArray,
+            this.layout = new GraphLayoutDagre(postArray, linkArray,
                 {spacingHorizontal: 330, spacingVertical: 240});
 
             //this.nodes = this.layout.nodes;
