@@ -295,7 +295,14 @@ GraphLayoutForce = function(nodes, links) {
     graph.stop();
 }
 
-GraphLayoutDagre = function(nodes, links) {
+GraphLayoutDagre = function(nodes, links, args) {
+    //Set default parameters
+    let spacingHorizontal = args ? args.spacingHorizontal : undefined;
+    spacingHorizontal = spacingHorizontal ? spacingHorizontal : 38.0;
+
+    let spacingVertical = args ? args.spacingVertical : undefined;
+    spacingVertical = spacingVertical ? spacingVertical : 38.0;
+
     let nodeMap = new IdentityMap();
     this.nodes = [];
     this.links = [];
@@ -304,7 +311,10 @@ GraphLayoutDagre = function(nodes, links) {
     var g = new dagre.graphlib.Graph();
 
     // Set an object for the graph label
-    g.setGraph({});
+    g.setGraph({
+        nodesep: spacingHorizontal,
+        ranksep: spacingVertical
+    });
 
     // Default to assigning a new object as a label for each new edge.
     g.setDefaultEdgeLabel(function() { return {}; });
