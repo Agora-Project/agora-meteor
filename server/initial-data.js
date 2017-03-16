@@ -29,7 +29,7 @@ Meteor.startup(function() {
         });
 
         //Increase exponent to more strongly prefer replying to newer posts.
-        let random = Math.pow(Math.random(), 3.0);
+        let random = Math.pow(Math.random(), 0.25);
         let post = posts[Math.floor(random*posts.length)];
 
         let reply = {
