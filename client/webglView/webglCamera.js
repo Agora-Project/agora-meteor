@@ -73,10 +73,19 @@ Camera = function(canvas) {
     };
     
     let zooms = [];
+    let targetScale = scale;
     
     let SmoothZoom = function(factor, time) {
         let t = 0.0, st = 0.0;
         let finished = false;
+        
+        let MAX_ZOOM = 1024.0, MIN_ZOOM = 4.0;
+        
+        if (targetScale*factor >= MAX_ZOOM) factor = MAX_ZOOM/targetScale;
+        else if (targetScale*factor <= MIN_ZOOM) factor = MIN_ZOOM/targetScale;
+        
+        if (factor == 1.0) finished = true;
+        targetScale *= factor;
         
         this.step = function(dt) {
             if (t + dt >= time) {
@@ -116,6 +125,10 @@ Camera = function(canvas) {
             if (zoom.isFinished()) {
                 zooms.splice(i, 1);
             }
+        }
+        
+        if (zooms.length === 0) {
+            targetScale = scale;
         }
     };
 };
