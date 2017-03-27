@@ -47,9 +47,11 @@ Camera = function(canvas) {
     let mp0 = null;
     let dragging = false;
     
-    this.mouseDown = function(mp) {
-        mp0 = mp;
-        dragging = true;
+    this.mouseDown = function(mp, button) {
+        if (button === 0) {
+            mp0 = mp;
+            dragging = true;
+        }
     };
     
     this.mouseMove = function(mp) {
@@ -62,8 +64,8 @@ Camera = function(canvas) {
         mp0 = mp;
     };
     
-    this.mouseUp = function(mp) {
-        if (dragging) {
+    this.mouseUp = function(mp, button) {
+        if (button === 0 && dragging) {
             //Clamp position to edges of screen.
             mp.x = Math.max(0, Math.min(mp.x, canvas[0].width));
             mp.y = Math.max(0, Math.min(mp.y, canvas[0].height));
