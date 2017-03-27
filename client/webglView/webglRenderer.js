@@ -124,7 +124,7 @@ WebGLRenderer = function(canvas, camera) {
         
         if (pointSize > 2.0) {
             gl.useProgram(postShader);
-            gl.drawArrays(gl.POINTS, 0, postCount*2);
+            gl.drawArrays(gl.POINTS, 0, postCount);
         }
         
         gl.useProgram(linkShader);
