@@ -31,7 +31,7 @@ Meteor.startup(function() {
             }
         });
         
-        for (let i=0; i<10000; i++) {
+        for (let i=0; i<1000; i++) {
             //Decrease exponent to more strongly prefer replying to newer posts.
             let random = Math.pow(Math.random(), 0.05);
             let post = posts[Math.floor(random*posts.length)];
@@ -47,22 +47,19 @@ Meteor.startup(function() {
         observer.stop();
     }
     
-    if (DEBUG_RESET) {
-        //Compute default layout of posts.
-        console.log('Laying out posts');
-        let posts = {};
-        Posts.find({}, {fields: {'_id': 1, 'links': 1}}).forEach(function(post) {
-            posts[post._id] = post;
-        });
-        
-        let grapher = new LayeredGrapher(posts);
-        
-        for (let id in posts) {
-            let post = posts[id];
-            
-            Posts.update({_id: id},
-                        {$set: {defaultPosition: {x:post.column, y:post.layer}}});
-        }
+    //Compute default layout of posts.
+    console.log('Laying out posts');
+    let posts = {};
+    Posts.find({}, {fields: {'_id': 1, 'links': 1}}).forEach(function(post) {
+        posts[post._id] = post;
+    });
+    
+    let grapher = new LayeredGrapher(posts);
+    
+    for (let id in posts) {
+        let post = posts[id];
+        Posts.update({_id: id},
+                    {$set: {defaultPosition: {x:post.x, y:post.y}}});
     }
     
     //Set up moderator account if it does not exist.
