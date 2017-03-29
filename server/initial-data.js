@@ -31,7 +31,7 @@ Meteor.startup(function() {
             }
         });
         
-        for (let i=0; i<1000; i++) {
+        for (let i=0; i<10000; i++) {
             //Decrease exponent to more strongly prefer replying to newer posts.
             let random = Math.pow(Math.random(), 0.05);
             let post = posts[Math.floor(random*posts.length)];
