@@ -74,6 +74,10 @@ Camera = function(canvas) {
         }
     };
     
+    this.isDragging = function() {
+        return dragging;
+    };
+    
     let zooms = [];
     let targetScale = scale;
     

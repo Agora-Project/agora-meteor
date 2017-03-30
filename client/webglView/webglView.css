@@ -7,3 +7,16 @@
     padding: 0px;
     border: 0px;
 }
+
+.gl-detailed-post {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    width: 512px;
+    height: 512px;
+    margin: 0px;
+    padding: 0px;
+    
+    background-color: #fff;
+    border-radius: 16px;
+}

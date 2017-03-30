@@ -5,5 +5,15 @@
 -->
 
 <template name="webglView">
-    <canvas class="gl-viewport"></canvas>
+    <div class="gl-container">
+        <canvas class="gl-viewport"></canvas>
+        {{#each detailedPosts}}
+            {{> webglDetailedPost}}
+        {{/each}}
+    </div>
+</template>
+
+<template name="webglDetailedPost">
+    <div class="gl-detailed-post">
+    </div>
 </template>

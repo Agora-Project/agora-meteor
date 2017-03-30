@@ -55,6 +55,12 @@ Template.webglView.onRendered(function() {
     });
 });
 
+Template.webglView.helpers({
+    detailedPosts: function() {
+        return [];
+    }
+});
+
 Template.webglView.events({
     'mousedown, touchstart': function(event, instance) {
         instance.camera.mouseDown({x:event.offsetX, y:event.offsetY}, event.button);
@@ -62,8 +68,14 @@ Template.webglView.events({
     'mousemove, touchmove': function(event, instance) {
         instance.camera.mouseMove({x:event.offsetX, y:event.offsetY});
     },
-    'mouseup, mouseout, touchend': function(event, instance) {
+    'mouseup, touchend': function(event, instance) {
         instance.camera.mouseUp({x:event.offsetX, y:event.offsetY}, event.button);
+    },
+    'mouseleave': function(event, instance) {
+        //Stop dragging if we leave the canvas area. We can't see mouseup events if they are outside of the window.
+        if ($('.gl-container').is(event.target)) {
+            instance.camera.mouseUp({x:event.offsetX, y:event.offsetY}, 0);
+        }
     },
     'wheel': function(event, instance) {
         instance.camera.mouseWheel(event.originalEvent.deltaY);
@@ -74,4 +86,25 @@ Template.webglView.onDestroyed(function() {
     this.postObserver.stop();
     this.isDestroyed = true;
     $(window).off('resize');
+});
+
+Template.webglDetailedPost.onCreated(function() {
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.webglDetailedPost.events({
+    'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
+        if (instance.parent.camera.isDragging()) {
+            //Prevents interaction while dragging.
+            event.preventDefault();
+        }
+        else {
+            //Prevent events from passing through posts into the WebGL canvas.
+            event.stopImmediatePropagation();
+        }
+    }
 });
