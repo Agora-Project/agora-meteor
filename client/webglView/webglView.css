@@ -1,3 +1,10 @@
+.gl-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
 .gl-viewport {
     position: absolute;
     display: block;
@@ -10,7 +17,7 @@
 
 .gl-detailed-post {
     position: absolute;
-    display: flex;
+    display: none;
     flex-direction: column;
     width: 512px;
     height: 512px;

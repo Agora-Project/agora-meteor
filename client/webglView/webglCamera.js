@@ -1,4 +1,4 @@
-Camera = function(canvas) {
+WebGLCamera = function(canvas) {
     let self = this;
     let p = {x:0.0, y:0.0};
     let scale = 16.0;
@@ -20,6 +20,12 @@ Camera = function(canvas) {
     
     this.getScale = function() {
         return scale;
+    };
+    
+    this.isPointVisible = function(v) {
+        let w = 0.5*canvas[0].width/scale;
+        let h = 0.5*canvas[0].height/scale;
+        return v.x > p.x - w && v.x < p.x + w && v.y > p.y - h && v.y < p.y + h;
     };
     
     this.getMatrix = function() {

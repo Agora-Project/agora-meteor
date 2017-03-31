@@ -11,6 +11,7 @@ Template.webglView.onCreated(function() {
     let onSubReady = new Notifier();
     
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
+    this.detailedPosts = new WebGLDetailedPosts();
     
     Notifier.all(onSubReady, this.onRendererReady).onFulfilled(function() {
         instance.postObserver = Posts.find({}).observe({
@@ -31,8 +32,10 @@ Template.webglView.onCreated(function() {
             
             let t1 = performance.now();
             let dt = (t1 - t0)/1000.0;
+            
             instance.camera.step(dt);
             instance.renderer.render();
+            instance.detailedPosts.update(instance.camera);
             window.requestAnimationFrame(render);
             t0 = t1;
         };
@@ -45,7 +48,7 @@ Template.webglView.onRendered(function() {
     let instance = this;
     
     let canvas = $('.gl-viewport');
-    this.camera = new Camera(canvas);
+    this.camera = new WebGLCamera(canvas);
     this.renderer = new WebGLRenderer(canvas, this.camera);
     this.onRendererReady.fulfill();
     
@@ -57,7 +60,7 @@ Template.webglView.onRendered(function() {
 
 Template.webglView.helpers({
     detailedPosts: function() {
-        return [];
+        return Template.instance().detailedPosts.find();
     }
 });
 
@@ -86,25 +89,4 @@ Template.webglView.onDestroyed(function() {
     this.postObserver.stop();
     this.isDestroyed = true;
     $(window).off('resize');
-});
-
-Template.webglDetailedPost.onCreated(function() {
-    let parentView = this.view.parentView;
-    while (parentView.templateInstance === undefined) {
-        parentView = parentView.parentView;
-    }
-    this.parent = parentView.templateInstance();
-});
-
-Template.webglDetailedPost.events({
-    'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
-        if (instance.parent.camera.isDragging()) {
-            //Prevents interaction while dragging.
-            event.preventDefault();
-        }
-        else {
-            //Prevent events from passing through posts into the WebGL canvas.
-            event.stopImmediatePropagation();
-        }
-    }
 });
