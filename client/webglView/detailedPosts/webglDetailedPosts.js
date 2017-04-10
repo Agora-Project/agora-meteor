@@ -9,7 +9,6 @@ Template.webglDetailedPost.onCreated(function() {
 Template.webglDetailedPost.onRendered(function() {
     let div = $('#gl-detailed-post-' + this.data._id);
     div.fadeIn(200);
-    console.log(this.data._id);
 });
 
 Template.webglDetailedPost.events({
@@ -29,17 +28,24 @@ WebGLDetailedPosts = function() {
     //Collection of currently visible detailed posts.
     let posts = new Mongo.Collection(null);
     
+    let remove = function(post) {
+        let div = $('#gl-detailed-post-' + post._id);
+        div.fadeOut(100, function() {
+            posts.remove(post);
+        });
+    };
+    
     this.update = function(camera) {
         //Update visible posts.
-        if (camera.getScale() < 512.0) {
-            posts.remove({});
+        if (camera.getScale() < 767.0) {
+            posts.find({}).forEach(remove);
         }
         else {
             Posts.find({}).forEach(function(post) {
                 if (posts.findOne(post)) {
                     //Remove post if it is no longer visible.
                     if (!camera.isPointVisible(post.defaultPosition)) {
-                        posts.remove(post);
+                        remove(post);
                     }
                 }
                 else {
@@ -52,7 +58,12 @@ WebGLDetailedPosts = function() {
         }
         
         //Update post positions.
-        
+        posts.find({}).forEach(function(post) {
+            let div = $('#gl-detailed-post-' + post._id);
+            let pos = camera.toScreen(post.defaultPosition);
+            div.css('left', pos.x - div.outerWidth()/2);
+            div.css('top', pos.y - div.outerHeight()/2);
+        });
     };
     
     this.find = function() {

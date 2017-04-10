@@ -91,7 +91,7 @@ WebGLCamera = function(canvas) {
         let t = 0.0, st = 0.0;
         let finished = false;
         
-        let MAX_ZOOM = 1024.0, MIN_ZOOM = 0.25;
+        let MAX_ZOOM = 768.0, MIN_ZOOM = 0.25;
         
         if (targetScale*factor >= MAX_ZOOM) factor = MAX_ZOOM/targetScale;
         else if (targetScale*factor <= MIN_ZOOM) factor = MIN_ZOOM/targetScale;
