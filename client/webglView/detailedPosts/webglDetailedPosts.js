@@ -30,14 +30,14 @@ WebGLDetailedPosts = function() {
     
     let remove = function(post) {
         let div = $('#gl-detailed-post-' + post._id);
-        div.fadeOut(200, function() {
+        div.fadeOut(100, function() {
             posts.remove(post);
         });
     };
     
     this.update = function(camera) {
         //Update visible posts.
-        if (camera.getScale() < 512.0) {
+        if (camera.getScale() < 767.0) {
             posts.find({}).forEach(remove);
         }
         else {
@@ -58,7 +58,12 @@ WebGLDetailedPosts = function() {
         }
         
         //Update post positions.
-        
+        posts.find({}).forEach(function(post) {
+            let div = $('#gl-detailed-post-' + post._id);
+            let pos = camera.toScreen(post.defaultPosition);
+            div.css('left', pos.x - div.outerWidth()/2);
+            div.css('top', pos.y - div.outerHeight()/2);
+        });
     };
     
     this.find = function() {

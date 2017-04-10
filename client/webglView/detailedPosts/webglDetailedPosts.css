@@ -1,0 +1,12 @@
+.gl-detailed-post {
+    position: absolute;
+    display: none;
+    flex-direction: column;
+    width: 384px;
+    height: 384px;
+    margin: 0px;
+    padding: 0px;
+    
+    background-color: #fff;
+    border-radius: 16px;
+}

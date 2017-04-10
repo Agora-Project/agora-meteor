@@ -48,6 +48,13 @@ Template.webglView.onRendered(function() {
     let instance = this;
     
     let canvas = $('.gl-viewport');
+    
+    this.getMousePos = function(event) {
+        let pos = {x:event.pageX, y:event.pageY - canvas.offset().top};
+        console.log(canvas.offset().top);
+        return pos;
+    };
+    
     this.camera = new WebGLCamera(canvas);
     this.renderer = new WebGLRenderer(canvas, this.camera);
     this.onRendererReady.fulfill();
@@ -66,18 +73,18 @@ Template.webglView.helpers({
 
 Template.webglView.events({
     'mousedown, touchstart': function(event, instance) {
-        instance.camera.mouseDown({x:event.offsetX, y:event.offsetY}, event.button);
+        instance.camera.mouseDown(instance.getMousePos(event), event.button);
     },
     'mousemove, touchmove': function(event, instance) {
-        instance.camera.mouseMove({x:event.offsetX, y:event.offsetY});
+        instance.camera.mouseMove(instance.getMousePos(event));
     },
     'mouseup, touchend': function(event, instance) {
-        instance.camera.mouseUp({x:event.offsetX, y:event.offsetY}, event.button);
+        instance.camera.mouseUp(instance.getMousePos(event), event.button);
     },
     'mouseleave': function(event, instance) {
         //Stop dragging if we leave the canvas area. We can't see mouseup events if they are outside of the window.
         if ($('.gl-container').is(event.target)) {
-            instance.camera.mouseUp({x:event.offsetX, y:event.offsetY}, 0);
+            instance.camera.mouseUp(instance.getMousePos(event), 0);
         }
     },
     'wheel': function(event, instance) {
