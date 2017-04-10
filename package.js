@@ -53,7 +53,8 @@ Package.onUse(function(api) {
         'client/webglView/webglView.html',
         'client/webglView/webglView.css',
         'client/webglView/webglCamera.js',
-        'client/webglView/webglDetailedPosts.js',
+        'client/webglView/detailedPosts/webglPartition.js',
+        'client/webglView/detailedPosts/webglDetailedPosts.js',
         'client/webglView/webglRenderer.js',
         'client/webglView/webglView.js'
     ], 'client');
