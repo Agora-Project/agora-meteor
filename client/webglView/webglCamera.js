@@ -22,10 +22,18 @@ WebGLCamera = function(canvas) {
         return scale;
     };
     
-    this.isPointVisible = function(v) {
+    this.getBounds = function() {
         let w = 0.5*canvas[0].width/scale;
         let h = 0.5*canvas[0].height/scale;
-        return v.x > p.x - w && v.x < p.x + w && v.y > p.y - h && v.y < p.y + h;
+        let out = {left: p.x - w, right: p.x + w, bottom: p.y - h, top: p.y + h};
+        out.contains = function(v) {
+            return v.x > out.left && v.x < out.right && v.y > out.bottom && v.y < out.top;
+        };
+        return out;
+    };
+    
+    this.isPointVisible = function(v) {
+        return self.getBounds().contains(v);
     };
     
     this.getMatrix = function() {

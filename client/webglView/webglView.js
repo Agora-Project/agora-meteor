@@ -10,17 +10,28 @@ Template.webglView.onCreated(function() {
     this.onRendererReady = new Notifier();
     let onSubReady = new Notifier();
     
+    let postCursor = Posts.find({});
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
-    this.detailedPosts = new WebGLDetailedPosts();
+    this.detailedPosts = new WebGLDetailedPosts(postCursor);
     
     Notifier.all(onSubReady, this.onRendererReady).onFulfilled(function() {
-        instance.postObserver = Posts.find({}).observe({
+        //Perform initial setup
+        instance.detailedPosts.setup();
+        
+        //Make update callback
+        let isSetup = false;
+        instance.postObserver = postCursor.observe({
             added: function(post) {
+                if (isSetup) {
+                    //insert into partition
+                }
+                
                 instance.renderer.addPost(post);
             },
             removed: function(post) {
             }
         });
+        isSetup = true;
         
         let t0 = performance.now();
         
@@ -50,9 +61,7 @@ Template.webglView.onRendered(function() {
     let canvas = $('.gl-viewport');
     
     this.getMousePos = function(event) {
-        let pos = {x:event.pageX, y:event.pageY - canvas.offset().top};
-        console.log(canvas.offset().top);
-        return pos;
+        return {x:event.pageX, y:event.pageY - canvas.offset().top};
     };
     
     this.camera = new WebGLCamera(canvas);

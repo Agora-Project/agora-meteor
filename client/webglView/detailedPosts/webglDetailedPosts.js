@@ -24,41 +24,51 @@ Template.webglDetailedPost.events({
     }
 });
 
-WebGLDetailedPosts = function() {
+WebGLDetailedPosts = function(postCursor) {
+    let self = this;
+    
     //Collection of currently visible detailed posts.
-    let posts = new Mongo.Collection(null);
+    let visiblePosts = new Mongo.Collection(null);
+    let visiblePostsCursor = visiblePosts.find({});
+    let partition;
+    
+    this.setup = function() {
+        let posts = postCursor.fetch();
+        partition = new WebGLPartition(posts);
+    };
     
     let remove = function(post) {
         let div = $('#gl-detailed-post-' + post._id);
         div.fadeOut(100, function() {
-            posts.remove(post);
+            visiblePosts.remove(post);
         });
     };
     
     this.update = function(camera) {
         //Update visible posts.
         if (camera.getScale() < 767.0) {
-            posts.find({}).forEach(remove);
+            visiblePostsCursor.forEach(remove);
         }
         else {
-            Posts.find({}).forEach(function(post) {
-                if (posts.findOne(post)) {
-                    //Remove post if it is no longer visible.
-                    if (!camera.isPointVisible(post.defaultPosition)) {
-                        remove(post);
-                    }
-                }
-                else {
-                    //Add post if it is visible.
-                    if (camera.isPointVisible(post.defaultPosition)) {
-                        posts.insert(post);
-                    }
+            
+            //Remove posts which are no longer visible.
+            visiblePostsCursor.forEach(function(post) {
+                if (!camera.isPointVisible(post.defaultPosition)) {
+                    remove(post);
                 }
             });
+            
+            //Add posts which are newly visible.
+            let visible = partition.getVisible(camera);
+            for (let post of visible) {
+                if (!visiblePosts.findOne(post)) {
+                    visiblePosts.insert(post);
+                }
+            }
         }
         
         //Update post positions.
-        posts.find({}).forEach(function(post) {
+        visiblePostsCursor.forEach(function(post) {
             let div = $('#gl-detailed-post-' + post._id);
             let pos = camera.toScreen(post.defaultPosition);
             div.css('left', pos.x - div.outerWidth()/2);
@@ -67,6 +77,6 @@ WebGLDetailedPosts = function() {
     };
     
     this.find = function() {
-        return posts.find({});
+        return visiblePostsCursor;
     };
 };

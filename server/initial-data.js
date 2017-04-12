@@ -5,7 +5,7 @@
 */
 
 Meteor.startup(function() {
-    let DEBUG_RESET = false; //Deletes all posts and add a set of random fake posts.
+    let DEBUG_RESET = true; //Deletes all posts and add a set of random fake posts.
     
     if (DEBUG_RESET) {
         console.log('Deleting all posts');
@@ -31,9 +31,9 @@ Meteor.startup(function() {
             }
         });
         
-        for (let i=0; i<100; i++) {
+        for (let i=0; i<15000; i++) {
             //Decrease exponent to more strongly prefer replying to newer posts.
-            let random = Math.pow(Math.random(), 0.1);
+            let random = Math.pow(Math.random(), 0.01);
             let post = posts[Math.floor(random*posts.length)];
             
             let reply = {
