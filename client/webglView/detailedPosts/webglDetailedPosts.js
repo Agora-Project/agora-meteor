@@ -1,3 +1,6 @@
+let POST_WIDTH = 0.75;
+let POST_HEIGHT = 0.875;
+
 Template.webglDetailedPost.onCreated(function() {
     let parentView = this.view.parentView;
     while (parentView.templateInstance === undefined) {
@@ -46,7 +49,7 @@ WebGLDetailedPosts = function(postCursor) {
     
     this.update = function(camera) {
         //Update visible posts.
-        if (camera.getScale() < 767.0) {
+        if (camera.getScale() < 256.0) {
             visiblePostsCursor.forEach(remove);
         }
         else {
@@ -71,6 +74,8 @@ WebGLDetailedPosts = function(postCursor) {
         visiblePostsCursor.forEach(function(post) {
             let div = $('#gl-detailed-post-' + post._id);
             let pos = camera.toScreen(post.defaultPosition);
+            div.width(POST_WIDTH*camera.getScale());
+            div.height(POST_HEIGHT*camera.getScale());
             div.css('left', pos.x - div.outerWidth()/2);
             div.css('top', pos.y - div.outerHeight()/2);
         });
