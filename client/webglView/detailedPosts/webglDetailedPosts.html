@@ -1,8 +1,16 @@
 <template name="webglDetailedPost">
     <div class="gl-detailed-post" id="gl-detailed-post-{{_id}}">
         <div class="gl-detailed-post-flex">
-            {{post.title}}
-            {{post.content}}
+            {{#if post.title}}
+                <div class="gl-detailed-post-title">{{post.title}}</div>
+            {{/if}}
+            <div class="gl-detailed-post-info">
+                {{#if post.user}}
+                    <a href="/forum/user/{{user._id}}">{{post.user.username}}</a>
+                {{/if}}
+                <span>{{age}}</span>
+            </div>
+            <div class="gl-detailed-post-content">{{post.content}}</div>
         </div>
     </div>
 </template>

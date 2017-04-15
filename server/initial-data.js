@@ -5,7 +5,7 @@
 */
 
 Meteor.startup(function() {
-    let DEBUG_RESET = false; //Deletes all posts and add a set of random fake posts.
+    let DEBUG_RESET = false; //Deletes all posts and adds a set of random fake posts.
     
     if (DEBUG_RESET) {
         console.log('Deleting all posts');
@@ -16,6 +16,7 @@ Meteor.startup(function() {
         console.log("Adding root post");
         Posts.insert({
             title: 'Forum Root',
+            content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
             links: []
         });
     }
@@ -31,18 +32,18 @@ Meteor.startup(function() {
             }
         });
         
-        for (let i=0; i<15000; i++) {
+        for (let i=0; i<500; i++) {
             //Decrease exponent to more strongly prefer replying to newer posts.
             let random = Math.pow(Math.random(), 0.1);
             let post = posts[Math.floor(random*posts.length)];
             
             let reply = {
-                title: 'Fake Post',
+                content: 'Fake content.',
                 links: [{target: post._id}]
             };
             
             if (Math.random() > 0.5) {
-                reply.content = 'Fake content.';
+                reply.title = 'Fake Title';
             }
 
             Meteor.call('insertPost', reply);

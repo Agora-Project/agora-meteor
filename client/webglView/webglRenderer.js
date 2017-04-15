@@ -111,7 +111,7 @@ WebGLRenderer = function(canvas, camera) {
         
         if (camera.isMatrixDirty()) {
             let matrix = camera.getMatrix();
-            pointSize = camera.getScale()/4.0;
+            pointSize = camera.getScale()/6.0;
             
             gl.useProgram(postShader);
             gl.uniformMatrix3fv(postShader.locMat, false, matrix);

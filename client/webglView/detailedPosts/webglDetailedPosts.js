@@ -27,6 +27,9 @@ Template.webglDetailedPost.onRendered(function() {
 Template.webglDetailedPost.helpers({
     post: function() {
         return Template.instance().post.get();
+    },
+    age: function() {
+        return new Date(Template.instance().post.get().postedOn).toDateString();
     }
 });
 
@@ -58,7 +61,7 @@ WebGLDetailedPosts = function(postCursor) {
     
     let remove = function(post) {
         let div = $('#gl-detailed-post-' + post._id);
-        div.fadeOut(100, function() {
+        div.fadeOut(200, function() {
             visiblePosts.remove(post);
         });
     };
@@ -91,7 +94,7 @@ WebGLDetailedPosts = function(postCursor) {
             let div = $('#gl-detailed-post-' + post._id);
             let pos = camera.toScreen(post.defaultPosition);
             div.width(POST_WIDTH*camera.getScale());
-            div.height(POST_HEIGHT*camera.getScale());
+            div.css('max-height', POST_HEIGHT*camera.getScale());
             div.css('left', pos.x - div.outerWidth()/2);
             div.css('top', pos.y - div.outerHeight()/2);
         });

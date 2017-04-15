@@ -4,12 +4,28 @@
     margin: 0px;
     padding: 0px;
     overflow: hidden;
-    
     background-color: #fff;
-    border-radius: 16px;
+    border-radius: 4px;
 }
 
 .gl-detailed-post-flex {
     display: flex;
     flex-direction: column;
+}
+
+.gl-detailed-post-title {
+    padding: 5px 10px 5px 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.gl-detailed-post-info {
+    display: flex;
+    flex-direction: row;
+    padding: 5px 10px 5px 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.gl-detailed-post-content {
+    padding: 5px 10px 5px 10px;
+    white-space: pre-wrap;
 }

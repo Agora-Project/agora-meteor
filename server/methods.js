@@ -12,8 +12,7 @@ Meteor.methods({
             return;
 
         var results = [];
-
-
+        
         post.links.forEach(function(link) {
             results.push(Posts.update({_id: link.target},
                         { $pull: { replyIDs: postId}}));
@@ -28,14 +27,27 @@ Meteor.methods({
         return results;
     },
     insertPost: function(post) {
-        if (post.title.length >= 1 && post.title.length <= 100 && post.links.length >= 1) {
-            let postId = Posts.insert(post);
-            for (let i in post.links) {
-                Posts.update({_id: post.links[i].target},
-                            { $push: { replyIDs: postId}});
+        //Validate title and link count.
+        if (post.title) {
+            if (post.title.length < 1) {
+                delete post.title;
             }
-            return postId;
+            
+            if (post.title.length > 100) {
+                return;
+            }
         }
+        
+        if (post.links.length < 1) {
+            return;
+        }
+        
+        let postId = Posts.insert(post);
+        for (let i in post.links) {
+            Posts.update({_id: post.links[i].target},
+                        { $push: { replyIDs: postId}});
+        }
+        return postId;
     },
     editPost: function(post) {
         if (post.title.length < 1 || post.title.length > 100 || post.links.length < 1 ||
