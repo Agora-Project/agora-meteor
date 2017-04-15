@@ -21,11 +21,12 @@ let KDCell = function(posts, axis) {
     }
     
     //Select 16 different random posts to use as a sample.
-    let sample = [];
+    let sample;
     if (posts.length <= 16) {
         sample = posts;
     }
     else {
+        sample = [];
         let bucketSize = posts.length/SAMPLE_SIZE;
         
         for (let i=0; i<SAMPLE_SIZE; i++) {

@@ -50,12 +50,13 @@ Package.onUse(function(api) {
     api.addFiles([
         'client/lib/notifier/notifier.js',
         'client/lib/requestAnimationFrame/requestAnimationFrame.js',
-        'client/webglView/webglView.html',
-        'client/webglView/webglView.css',
+        'client/webglView/detailedPosts/webglDetailedPosts.html',
         'client/webglView/detailedPosts/webglDetailedPosts.css',
-        'client/webglView/webglCamera.js',
         'client/webglView/detailedPosts/webglPartition.js',
         'client/webglView/detailedPosts/webglDetailedPosts.js',
+        'client/webglView/webglView.html',
+        'client/webglView/webglView.css',
+        'client/webglView/webglCamera.js',
         'client/webglView/webglRenderer.js',
         'client/webglView/webglView.js'
     ], 'client');

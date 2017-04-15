@@ -40,14 +40,7 @@ Meteor.publish("reports", function() {
 })
 
 Meteor.publish("post", function(id) {
-    if (id == 'rootNode') {
-        return Posts.find({
-            $where : '!this.links || this.links.length < 1'
-        });
-    }
-    return Posts.find({
-        _id: id
-    });
+    return Posts.find({_id: id});
 });
 
 Meteor.publish("postRange", function(beforeDate, endDate) {

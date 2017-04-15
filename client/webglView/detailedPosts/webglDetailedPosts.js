@@ -2,16 +2,32 @@ let POST_WIDTH = 0.75;
 let POST_HEIGHT = 0.875;
 
 Template.webglDetailedPost.onCreated(function() {
+    let instance = this;
+    
     let parentView = this.view.parentView;
     while (parentView.templateInstance === undefined) {
         parentView = parentView.parentView;
     }
     this.parent = parentView.templateInstance();
+    
+    //Automatically update data with content, title, user data, etc.
+    this.post = new ReactiveVar();
+    this.subscribe('post', this.data._id, {
+        onReady: function() {
+            instance.post.set(Posts.findOne({_id: instance.data._id}));
+        }
+    });
 });
 
 Template.webglDetailedPost.onRendered(function() {
     let div = $('#gl-detailed-post-' + this.data._id);
     div.fadeIn(200);
+});
+
+Template.webglDetailedPost.helpers({
+    post: function() {
+        return Template.instance().post.get();
+    }
 });
 
 Template.webglDetailedPost.events({

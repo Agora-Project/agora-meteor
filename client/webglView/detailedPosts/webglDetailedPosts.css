@@ -1,10 +1,15 @@
 .gl-detailed-post {
     position: absolute;
     display: none;
-    flex-direction: column;
     margin: 0px;
     padding: 0px;
+    overflow: hidden;
     
     background-color: #fff;
     border-radius: 16px;
+}
+
+.gl-detailed-post-flex {
+    display: flex;
+    flex-direction: column;
 }
