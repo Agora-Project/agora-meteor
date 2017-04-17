@@ -1,6 +1,7 @@
 .gl-detailed-post {
     position: absolute;
     display: none;
+    min-height: 61px;
     margin: 0px;
     padding: 0px;
     overflow: hidden;
@@ -8,8 +9,23 @@
     border-radius: 4px;
 }
 
+.gl-detailed-post-spinner {
+    position: absolute;
+    font-size: 32px;
+    left: 50%;
+    top: 50%;
+    padding: 0px;
+    margin: -16px 0px 0px -16px;
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    from {transform: scale(1) rotate(0deg);}
+    to {transform: scale(1) rotate(360deg);}
+}
+
 .gl-detailed-post-flex {
-    display: flex;
+    display: none;
     flex-direction: column;
 }
 

@@ -82,22 +82,30 @@ Template.webglView.helpers({
 
 Template.webglView.events({
     'mousedown, touchstart': function(event, instance) {
-        instance.camera.mouseDown(instance.getMousePos(event), event.button);
+        if (instance.camera) {
+            instance.camera.mouseDown(instance.getMousePos(event), event.button);
+        }
     },
     'mousemove, touchmove': function(event, instance) {
-        instance.camera.mouseMove(instance.getMousePos(event));
+        if (instance.camera) {
+            instance.camera.mouseMove(instance.getMousePos(event));
+        }
     },
     'mouseup, touchend': function(event, instance) {
-        instance.camera.mouseUp(instance.getMousePos(event), event.button);
+        if (instance.camera) {
+            instance.camera.mouseUp(instance.getMousePos(event), event.button);
+        }
     },
     'mouseleave': function(event, instance) {
         //Stop dragging if we leave the canvas area. We can't see mouseup events if they are outside of the window.
-        if ($('.gl-container').is(event.target)) {
+        if (instance.camera && $('.gl-container').is(event.target)) {
             instance.camera.mouseUp(instance.getMousePos(event), 0);
         }
     },
     'wheel': function(event, instance) {
-        instance.camera.mouseWheel(event.originalEvent.deltaY);
+        if (instance.camera) {
+            instance.camera.mouseWheel(event.originalEvent.deltaY);
+        }
     }
 });
 

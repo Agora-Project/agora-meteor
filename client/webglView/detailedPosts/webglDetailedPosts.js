@@ -12,16 +12,28 @@ Template.webglDetailedPost.onCreated(function() {
     
     //Automatically update data with content, title, user data, etc.
     this.post = new ReactiveVar();
-    this.subscribe('post', this.data._id, {
-        onReady: function() {
-            instance.post.set(Posts.findOne({_id: instance.data._id}));
-        }
+    let onSubReady = new Notifier();
+    this.onRendered = new Notifier();
+    
+    this.subscribe('post', this.data._id, {onReady: onSubReady.fulfill});
+    
+    Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
+        //Populate post data.
+        instance.post.set(Posts.findOne({_id: instance.data._id}));
+        
+        //Fade out spinner and fade in actual post.
+        instance.div.children('.gl-detailed-post-spinner').fadeOut(100);
+        instance.div.children('.gl-detailed-post-flex')
+            .css('display', 'flex')
+            .hide()
+            .fadeIn(200);
     });
 });
 
 Template.webglDetailedPost.onRendered(function() {
-    let div = $('#gl-detailed-post-' + this.data._id);
-    div.fadeIn(200);
+    this.div = $('#gl-detailed-post-' + this.data._id);
+    this.div.fadeIn(200);
+    this.onRendered.fulfill();
 });
 
 Template.webglDetailedPost.helpers({
@@ -29,7 +41,10 @@ Template.webglDetailedPost.helpers({
         return Template.instance().post.get();
     },
     age: function() {
-        return new Date(Template.instance().post.get().postedOn).toDateString();
+        let post = Template.instance().post.get();
+        if (post) {
+            return new Date(post.postedOn).toDateString();
+        }
     }
 });
 
