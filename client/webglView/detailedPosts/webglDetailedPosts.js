@@ -33,7 +33,7 @@ Template.webglDetailedPost.onCreated(function() {
 Template.webglDetailedPost.onRendered(function() {
     this.div = $('#gl-detailed-post-' + this.data._id);
     this.div.fadeIn(200);
-    this.onRendered.fulfill();
+    setTimeout(this.onRendered.fulfill, 250);
 });
 
 Template.webglDetailedPost.helpers({
