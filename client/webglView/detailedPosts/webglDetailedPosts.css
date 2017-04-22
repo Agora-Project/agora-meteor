@@ -43,6 +43,11 @@
 
 .gl-detailed-post-content {
     padding: 5px 10px 5px 10px;
+}
+
+.gl-detailed-post-content p {
+    margin: 0px;
+    line-height: 130%;
     white-space: pre-wrap;
 }
 

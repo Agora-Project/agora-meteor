@@ -13,6 +13,7 @@ Template.webglView.onCreated(function() {
     let postCursor = Posts.find({});
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
     this.detailedPosts = new WebGLDetailedPosts(postCursor);
+    this.replyTarget = new ReactiveVar();
     
     Notifier.all(onSubReady, this.onRendererReady).onFulfilled(function() {
         //Perform initial setup
@@ -52,7 +53,7 @@ Template.webglView.onCreated(function() {
 Template.webglView.onRendered(function() {
     let instance = this;
     
-    let canvas = $('.gl-viewport');
+    let canvas = $('#gl-viewport');
     
     this.getMousePos = function(event) {
         return {x:event.pageX, y:event.pageY - canvas.offset().top};
@@ -71,6 +72,9 @@ Template.webglView.onRendered(function() {
 Template.webglView.helpers({
     detailedPosts: function() {
         return Template.instance().detailedPosts.find();
+    },
+    replyTarget: function() {
+        return Template.instance().replyTarget.get();
     }
 });
 
@@ -92,7 +96,7 @@ Template.webglView.events({
     },
     'mouseleave': function(event, instance) {
         //Stop dragging if we leave the canvas area. We can't see mouseup events if they are outside of the window.
-        if (instance.camera && $('.gl-container').is(event.target)) {
+        if (instance.camera && $('#gl-container').is(event.target)) {
             instance.camera.mouseUp(instance.getMousePos(event), 0);
         }
     },
@@ -115,6 +119,26 @@ Template.webglReply.onCreated(function() {
         parentView = parentView.parentView;
     }
     this.parent = parentView.templateInstance();
+});
+
+Template.webglReply.onRendered(function() {
+    let instance = this;
+    //No idea why we need curValue here. get() should work on its own but it doesn't.
+    let target = this.parent.replyTarget.get().curValue; 
+    
+    $('#gl-reply-submit-button').click(function(event) {
+        let post = {
+            content: $('#gl-reply-textarea').val(),
+            links: [{target: target._id}]
+        };
+        
+        Meteor.call("insertPost", post);
+        instance.parent.replyTarget.set();
+    });
+    
+    $('#gl-reply-cancel-button').click(function(event) {
+        instance.parent.replyTarget.set();
+    });
 });
 
 Template.webglReply.events({

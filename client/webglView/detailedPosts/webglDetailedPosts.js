@@ -45,6 +45,9 @@ Template.webglDetailedPost.helpers({
         if (post) {
             return new Date(post.postedOn).toDateString();
         }
+    },
+    hasReplyButton: function() {
+        return Template.instance().parent.replyTarget.get() === undefined;
     }
 });
 
@@ -119,3 +122,18 @@ WebGLDetailedPosts = function(postCursor) {
         return visiblePostsCursor;
     };
 };
+
+Template.webglDetailedPostReplyButton.onCreated(function() {
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.webglDetailedPostReplyButton.events({
+    'click': function(event, instance) {
+        //Our parent is a webglDetailedPost, and its parent is the webglView.
+        instance.parent.parent.replyTarget.set(instance.parent.post);
+    }
+});

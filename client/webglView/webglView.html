@@ -5,31 +5,25 @@
 -->
 
 <template name="webglView">
-    <div class="gl-container">
-        <canvas class="gl-viewport"></canvas>
+    <div id="gl-container">
+        <canvas id="gl-viewport"></canvas>
         {{#each detailedPosts}}
             {{> webglDetailedPost}}
         {{/each}}
-        {{> webglReply}}
+        {{#if replyTarget}}
+            {{> webglReply}}
+        {{/if}}
     </div>
 </template>
 
 <template name="webglReply">
-    <div class="gl-reply-centerer">
-        <div class="gl-reply">
-            <textarea></textarea>
-            <div class="gl-reply-button-container">
-                {{> webglReplySubmitButton}}
-                {{> webglReplyCancelButton}}
+    <div id="gl-reply-centerer">
+        <div id="gl-reply">
+            <textarea id="gl-reply-textarea"></textarea>
+            <div id="gl-reply-button-container">
+                <button id="gl-reply-submit-button">Submit</button>
+                <button id="gl-reply-cancel-button">Cancel</button>
             </div>
         </div>
     </div>
-</template>
-
-<template name="webglReplySubmitButton">
-    <button>Submit</button>
-</template>
-
-<template name="webglReplyCancelButton">
-    <button>Cancel</button>
 </template>

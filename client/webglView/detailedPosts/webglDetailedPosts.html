@@ -10,7 +10,12 @@
                 {{/if}}
                 <span>{{age}}</span>
             </div>
-            <div class="gl-detailed-post-content">{{post.content}}{{> webglDetailedPostReplyButton}}</div>
+            <div class="gl-detailed-post-content">
+                <p>{{post.content}}</p>
+                {{#if hasReplyButton}}
+                    {{> webglDetailedPostReplyButton}}
+                {{/if}}
+            </div>
         </div>
         <i class="gl-detailed-post-spinner fa fa-refresh" aria-hidden="true"></i>
     </div>

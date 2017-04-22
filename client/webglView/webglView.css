@@ -1,11 +1,11 @@
-.gl-container {
+#gl-container {
     position: absolute;
     width: 100%;
     height: 100%;
     overflow: hidden;
 }
 
-.gl-viewport {
+#gl-viewport {
     position: absolute;
     display: block;
     width: 100%;
@@ -15,14 +15,14 @@
     border: 0px;
 }
 
-.gl-reply-centerer {
+#gl-reply-centerer {
     position: absolute;
     height: 0px;
     left: 50%;
     bottom: 0px;
 }
 
-.gl-reply {
+#gl-reply {
     display: flex;
     flex-direction: column;
     position: relative;
@@ -35,16 +35,15 @@
     clear: both;
 }
 
-.gl-reply textarea {
+#gl-reply textarea {
     margin: 10px;
     width: 512px;
     height: 192px;
     resize: none;
 }
 
-.gl-reply-button-container {
+#gl-reply-button-container {
     display: flex;
     flex-direction: row;
     padding: 0px 10px 0px 10px;
 }
-
