@@ -4,9 +4,9 @@
     min-height: 61px;
     margin: 0px;
     padding: 0px;
-    overflow: hidden;
     background-color: #fff;
     border-radius: 4px;
+    overflow: hidden;
 }
 
 .gl-detailed-post-spinner {
@@ -44,4 +44,20 @@
 .gl-detailed-post-content {
     padding: 5px 10px 5px 10px;
     white-space: pre-wrap;
+}
+
+.gl-detailed-post-reply-button {
+    float: right;
+    padding: 2px 4px 2px 4px;
+    color: #000;
+    background-color: #ddd;
+    border: 1px solid #ccc;
+}
+
+.gl-detailed-post-reply-button:hover {
+    background-color: #eee;
+}
+
+.gl-detailed-post-reply-button:active {
+    background-color: #ddd;
 }

@@ -19,19 +19,13 @@ Template.webglView.onCreated(function() {
         instance.detailedPosts.setup();
         
         //Make update callback
-        let isSetup = false;
         instance.postObserver = postCursor.observe({
             added: function(post) {
-                if (isSetup) {
-                    //insert into partition
-                }
-                
                 instance.renderer.addPost(post);
             },
             removed: function(post) {
             }
         });
-        isSetup = true;
         
         let t0 = performance.now();
         
@@ -113,4 +107,25 @@ Template.webglView.onDestroyed(function() {
     this.postObserver.stop();
     this.isDestroyed = true;
     $(window).off('resize');
+});
+
+Template.webglReply.onCreated(function() {
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.webglReply.events({
+    'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
+        if (instance.parent.camera.isDragging()) {
+            //Prevents interaction while dragging.
+            event.preventDefault();
+        }
+        else {
+            //Prevent events from passing through posts into the WebGL canvas.
+            event.stopImmediatePropagation();
+        }
+    }
 });

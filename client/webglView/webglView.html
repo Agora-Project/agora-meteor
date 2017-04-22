@@ -10,5 +10,26 @@
         {{#each detailedPosts}}
             {{> webglDetailedPost}}
         {{/each}}
+        {{> webglReply}}
     </div>
+</template>
+
+<template name="webglReply">
+    <div class="gl-reply-centerer">
+        <div class="gl-reply">
+            <textarea></textarea>
+            <div class="gl-reply-button-container">
+                {{> webglReplySubmitButton}}
+                {{> webglReplyCancelButton}}
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="webglReplySubmitButton">
+    <button>Submit</button>
+</template>
+
+<template name="webglReplyCancelButton">
+    <button>Cancel</button>
 </template>
