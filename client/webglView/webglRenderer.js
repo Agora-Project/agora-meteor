@@ -81,7 +81,7 @@ WebGLRenderer = function(canvas, camera) {
     postShader.locSize = gl.getUniformLocation(postShader, 'u_point_size');
     
     //Set up post vertex buffer
-    let MAX_POSTS = 50000;
+    let MAX_POSTS = 65536;
     
     let vbo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
@@ -90,7 +90,7 @@ WebGLRenderer = function(canvas, camera) {
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     
     //Set up link index buffer
-    let MAX_LINKS = 50000;
+    let MAX_LINKS = 131072;
     
     let ebo = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);

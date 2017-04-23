@@ -5,51 +5,39 @@
 */
 
 Meteor.startup(function() {
-    let DEBUG_RESET = false; //Deletes all posts and adds a set of random fake posts.
-    
-    if (DEBUG_RESET) {
+    //Deletes all posts and adds a set of random fake posts.
+    if (false) {
         console.log('Deleting all posts');
         Posts.remove({});
-    }
-    
-    if (!Posts.findOne({$where : '!this.links || this.links.length < 1'})) {
-        console.log("Adding root post");
-        Posts.insert({
+        
+        console.log('Adding root post');
+        let rootID = Posts.insert({
             title: 'Forum Root',
             content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
             links: []
         });
-    }
-    
-    if (DEBUG_RESET) {
+        
         console.log("Adding fake posts");
+        let posts = [rootID];
         
-        let posts = [];
-        
-        let observer = Posts.find({}, {fields: {'_id': 1, 'postedOn': 1}}).observe({
-            added: function(post) {
-                posts.push(post);
-            }
-        });
-        
-        for (let i=0; i<500; i++) {
+        for (let i=0; i<50000; i++) {
             //Decrease exponent to more strongly prefer replying to newer posts.
-            let random = Math.pow(Math.random(), 0.1);
-            let post = posts[Math.floor(random*posts.length)];
+            let random = Math.pow(Math.random(), 0.01);
+            let target = posts[Math.floor(random*posts.length)];
             
             let reply = {
                 content: 'Fake content.',
-                links: [{target: post._id}]
+                links: [{target: target}]
             };
             
             if (Math.random() > 0.5) {
                 reply.title = 'Fake Title';
             }
-
-            Meteor.call('insertPost', reply);
+            
+            let id = Posts.insert(reply);
+            Posts.update({_id: target}, {$push: {replyIDs: id}});
+            posts.push(id);
         }
-        
-        observer.stop();
     }
     
     //Compute default layout of posts.
