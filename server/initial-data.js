@@ -13,21 +13,20 @@ Meteor.startup(function() {
         console.log('Adding root post');
         let rootID = Posts.insert({
             title: 'Forum Root',
-            content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
-            links: []
+            content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.'
         });
         
         console.log("Adding fake posts");
         let posts = [rootID];
         
-        for (let i=0; i<50000; i++) {
+        for (let i=0; i<500; i++) {
             //Decrease exponent to more strongly prefer replying to newer posts.
-            let random = Math.pow(Math.random(), 0.01);
+            let random = Math.pow(Math.random(), 0.1);
             let target = posts[Math.floor(random*posts.length)];
             
             let reply = {
                 content: 'Fake content.',
-                links: [{target: target}]
+                target: target
             };
             
             if (Math.random() > 0.5) {
@@ -35,7 +34,7 @@ Meteor.startup(function() {
             }
             
             let id = Posts.insert(reply);
-            Posts.update({_id: target}, {$push: {replyIDs: id}});
+            Posts.update({_id: target}, {$push: {replies: id}});
             posts.push(id);
         }
     }
@@ -43,7 +42,7 @@ Meteor.startup(function() {
     //Compute default layout of posts.
     console.log('Laying out posts');
     let posts = {};
-    Posts.find({}, {fields: {'_id': 1, 'links': 1}}).forEach(function(post) {
+    Posts.find({}, {fields: {'_id': 1, 'target': 1}}).forEach(function(post) {
         posts[post._id] = post;
     });
     
@@ -51,8 +50,7 @@ Meteor.startup(function() {
     
     for (let id in posts) {
         let post = posts[id];
-        Posts.update({_id: id},
-                    {$set: {defaultPosition: {x:post.x, y:post.y}}});
+        Posts.update({_id: id}, {$set: {defaultPosition: {x:post.x, y:post.y}}});
     }
     
     //Set up moderator account if it does not exist.

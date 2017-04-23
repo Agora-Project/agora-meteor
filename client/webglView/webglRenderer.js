@@ -144,14 +144,14 @@ WebGLRenderer = function(canvas, camera) {
         let pos = [post.defaultPosition.x, post.defaultPosition.y];
         gl.bufferSubData(gl.ARRAY_BUFFER, postCount*8, new Float32Array(pos));
         
-        for (let link of post.links) {
-            let target = postIndices[link.target];
+        if (post.target) {
+            let target = postIndices[post.target];
             if (target !== undefined) {
                 addLink(postCount, target);
             }
         }
         
-        for (let sourceID of post.replyIDs) {
+        for (let sourceID of post.replies) {
             let source = postIndices[sourceID];
             if (source !== undefined) {
                 addLink(source, postCount);

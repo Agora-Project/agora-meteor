@@ -43,17 +43,11 @@ Meteor.publish("post", function(id) {
     return Posts.find({_id: id});
 });
 
-Meteor.publish("postRange", function(beforeDate, endDate) {
-    return Posts.find({
-        "createdAt" : { $lte : beforeDate, $gte : endDate }
-    }, {limit: 1000});
-});
-
 Meteor.publish("newestPosts", function(beforeDate) {
     return Posts.find({}, {limit: 1000});
 });
 
 //Returns an abstract shell of posts, each only containing its id and links.
 Meteor.publish("abstractPosts", function() {
-    return Posts.find({}, {fields: {'links': 1, 'replyIDs': 1, 'defaultPosition': 1}});
+    return Posts.find({}, {fields: {'target': 1, 'replies': 1, 'defaultPosition': 1}});
 });

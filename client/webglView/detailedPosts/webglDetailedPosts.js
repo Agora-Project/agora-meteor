@@ -90,7 +90,6 @@ WebGLDetailedPosts = function(postCursor) {
             visiblePostsCursor.forEach(remove);
         }
         else {
-            
             //Remove posts which are no longer visible.
             visiblePostsCursor.forEach(function(post) {
                 if (!camera.isPointVisible(post.defaultPosition)) {

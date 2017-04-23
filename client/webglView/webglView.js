@@ -129,7 +129,7 @@ Template.webglReply.onRendered(function() {
     $('#gl-reply-submit-button').click(function(event) {
         let post = {
             content: $('#gl-reply-textarea').val(),
-            links: [{target: target._id}]
+            target: target._id
         };
         
         Meteor.call("insertPost", post);

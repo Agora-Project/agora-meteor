@@ -5,29 +5,8 @@
 */
 
 Meteor.methods({
-    removeWithLinks: function(postId) {
-        var post = Posts.findOne({_id: postId});
-
-        if (!Roles.userIsInRole(this.userId, ['moderator']))
-            return;
-
-        var results = [];
-        
-        post.links.forEach(function(link) {
-            results.push(Posts.update({_id: link.target},
-                        { $pull: { replyIDs: postId}}));
-        });
-
-        post.replyIDs.forEach(function(link) {
-            results.push(Posts.update({_id: link},
-                        { $pull: { links: {target: postId}}}));
-        });
-
-        results.push(Posts.remove(postId));
-        return results;
-    },
     insertPost: function(post) {
-        //Validate title and link count.
+        //Validate post.
         if (post.title) {
             if (post.title.length < 1) {
                 delete post.title;
@@ -38,61 +17,13 @@ Meteor.methods({
             }
         }
         
-        if (post.links.length < 1) {
+        if (!post.target) {
             return;
         }
         
         let postId = Posts.insert(post);
-        for (let i in post.links) {
-            Posts.update({_id: post.links[i].target},
-                        { $push: { replyIDs: postId}});
-        }
+        Posts.update({_id: post.target}, {$push: {replies: postId}});
         return postId;
-    },
-    editPost: function(post) {
-        if (post.title.length < 1 || post.title.length > 100 || post.links.length < 1 ||
-           (this.userId != Posts.findOne({_id: post._id}).ownerId &&
-            !Roles.userIsInRole(this.userId, ['moderator']))) return;
-
-        var linksToRemove = [], existingLinks = Posts.findOne({_id: post._id}).links;
-
-        //go through and add any new links...
-        for (let i in post.links) {
-            let linkTarget = post.links[i].target, linkNotPresent = true;
-            for (let j in existingLinks) {
-                let existingLink = existingLinks[j];
-                if (existingLink.target == linkTarget) {
-                    linkNotPresent = false;
-                    existingLinks.splice(j, 1);
-                    break;
-                }
-
-            }
-            if (linkNotPresent)
-                Posts.update({_id: linkTarget},
-                            { $push: { replyIDs: post._id}});
-        }
-
-        //and then remove any obsolete ones.
-        for (let j in existingLinks) {
-            let existingLink = existingLinks[j];
-            Posts.update({_id: existingLink.target},
-                        { $pull: { replyIDs: post._id}});
-        }
-
-        var ret = Posts.update({_id: post._id}, { $set: {
-            title: post.title,
-            content: post.content,
-            links: post.links,
-            lastEditedAt: Date.now()
-        }});
-
-        if (ret == 1)
-            return post._id;
-        else {
-            console.log("Oh no! Edited " + ret + " Posts!");
-            return post._id;
-        }
     },
     submitReport: function(report) {
         if (report.content.length >= 1)
