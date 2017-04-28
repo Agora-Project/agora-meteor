@@ -6,6 +6,18 @@
 
 Meteor.methods({
     insertPost: function(post) {
+        let user = Meteor.users.findOne({_id: this.userId});
+        
+        //Don't allow guests to post.
+        if (!user) {
+            throw new Meteor.Error('not-logged-in', 'The user must be logged in to post.');
+        }
+        
+        //Don't allow banned users to post.
+        if (user.isBanned) {
+            throw new Meteor.Error('banned', 'Banned users may not post.');
+        }
+        
         //Validate post.
         if (post.title) {
             if (post.title.length < 1) {
