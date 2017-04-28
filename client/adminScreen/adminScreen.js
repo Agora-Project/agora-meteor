@@ -1,4 +1,6 @@
-
+Template.adminScreen.onCreated(function() {
+    this.subscribe('reports');
+});
 
 Template.adminScreen.helpers({
     reports: function() {
