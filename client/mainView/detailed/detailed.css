@@ -1,4 +1,4 @@
-.gl-detailed-post {
+.main-detailed-post {
     position: absolute;
     display: none;
     min-height: 61px;
@@ -9,7 +9,7 @@
     overflow: hidden;
 }
 
-.gl-detailed-post-spinner {
+.main-detailed-post-spinner {
     position: absolute;
     font-size: 32px;
     left: 50%;
@@ -24,34 +24,34 @@
     to {transform: scale(1) rotate(360deg);}
 }
 
-.gl-detailed-post-flex {
+.main-detailed-post-flex {
     display: none;
     flex-direction: column;
 }
 
-.gl-detailed-post-title {
+.main-detailed-post-title {
     padding: 5px 10px 5px 10px;
     border-bottom: 1px solid #ccc;
 }
 
-.gl-detailed-post-info {
+.main-detailed-post-info {
     display: flex;
     flex-direction: row;
     padding: 5px 10px 5px 10px;
     border-bottom: 1px solid #ccc;
 }
 
-.gl-detailed-post-content {
+.main-detailed-post-content {
     padding: 5px 10px 5px 10px;
 }
 
-.gl-detailed-post-content p {
+.main-detailed-post-content p {
     margin: 0px;
     line-height: 130%;
     white-space: pre-wrap;
 }
 
-.gl-detailed-post-reply-button {
+.main-detailed-post-reply-button {
     float: right;
     padding: 2px 4px 2px 4px;
     color: #000;
@@ -59,10 +59,10 @@
     border: 1px solid #ccc;
 }
 
-.gl-detailed-post-reply-button:hover {
+.main-detailed-post-reply-button:hover {
     background-color: #eee;
 }
 
-.gl-detailed-post-reply-button:active {
+.main-detailed-post-reply-button:active {
     background-color: #ddd;
 }

@@ -4,25 +4,25 @@
     License: GPL, Check file LICENSE
 -->
 
-<template name="webglView">
-    <div id="gl-container">
-        <canvas id="gl-viewport"></canvas>
+<template name="mainView">
+    <div id="main-container">
+        <canvas id="main-viewport"></canvas>
         {{#each detailedPosts}}
-            {{> webglDetailedPost}}
+            {{> mainDetailedPost}}
         {{/each}}
         {{#if replyTarget}}
-            {{> webglReply}}
+            {{> mainReply}}
         {{/if}}
     </div>
 </template>
 
-<template name="webglReply">
-    <div id="gl-reply-centerer">
-        <div id="gl-reply">
-            <textarea id="gl-reply-textarea"></textarea>
-            <div id="gl-reply-button-container">
-                <button id="gl-reply-submit-button">Submit</button>
-                <button id="gl-reply-cancel-button">Cancel</button>
+<template name="mainReply">
+    <div id="main-reply-centerer">
+        <div id="main-reply">
+            <textarea id="main-reply-textarea"></textarea>
+            <div id="main-reply-button-container">
+                <button id="main-reply-submit-button">Submit</button>
+                <button id="main-reply-cancel-button">Cancel</button>
             </div>
         </div>
     </div>

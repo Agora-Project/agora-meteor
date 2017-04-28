@@ -9,7 +9,7 @@
  *
  *    * Main Module (main.js)
  *          This file; the main entry-point and handler for the other four modules.
- *          Callbacks are set up and destroyed exclusively in this module.
+ *          Callbacks are mostly set up and destroyed in this module.
  *
  *    * Partitioner (partitioner.js)
  *          An optimization module. Exposes a number of efficient spatial queries.
@@ -29,7 +29,7 @@
  *
  */
  
-Template.webglView.onCreated(function() {
+Template.mainView.onCreated(function() {
     let instance = this;
     
     this.onRendererReady = new Notifier();
@@ -92,10 +92,10 @@ Template.webglView.onCreated(function() {
     });
 });
 
-Template.webglView.onRendered(function() {
+Template.mainView.onRendered(function() {
     let instance = this;
     
-    let canvas = $('#gl-viewport');
+    let canvas = $('#main-viewport');
     
     this.getMousePos = function(event) {
         return {x:event.pageX, y:event.pageY - canvas.offset().top};
@@ -111,7 +111,7 @@ Template.webglView.onRendered(function() {
     });
 });
 
-Template.webglView.helpers({
+Template.mainView.helpers({
     detailedPosts: function() {
         return Template.instance().detailedPosts.find();
     },
@@ -120,7 +120,7 @@ Template.webglView.helpers({
     }
 });
 
-Template.webglView.events({
+Template.mainView.events({
     'mousedown, touchstart': function(event, instance) {
         if (instance.camera) {
             instance.camera.mouseDown(instance.getMousePos(event), event.button);
@@ -138,7 +138,7 @@ Template.webglView.events({
     },
     'mouseleave': function(event, instance) {
         //Stop dragging if we leave the canvas area. We can't see mouseup events if they are outside of the window.
-        if (instance.camera && $('#gl-container').is(event.target)) {
+        if (instance.camera && $('#main-container').is(event.target)) {
             instance.camera.mouseUp(instance.getMousePos(event), 0);
         }
     },
@@ -149,13 +149,13 @@ Template.webglView.events({
     }
 });
 
-Template.webglView.onDestroyed(function() {
+Template.mainView.onDestroyed(function() {
     this.postObserver.stop();
     this.isDestroyed = true;
     $(window).off('resize');
 });
 
-Template.webglReply.onCreated(function() {
+Template.mainReply.onCreated(function() {
     let parentView = this.view.parentView;
     while (parentView.templateInstance === undefined) {
         parentView = parentView.parentView;
@@ -163,14 +163,14 @@ Template.webglReply.onCreated(function() {
     this.parent = parentView.templateInstance();
 });
 
-Template.webglReply.onRendered(function() {
+Template.mainReply.onRendered(function() {
     let instance = this;
     //No idea why we need curValue here. get() should work on its own but it doesn't.
     let target = this.parent.replyTarget.get().curValue; 
     
-    $('#gl-reply-submit-button').click(function(event) {
+    $('#main-reply-submit-button').click(function(event) {
         let post = {
-            content: $('#gl-reply-textarea').val(),
+            content: $('#main-reply-textarea').val(),
             target: target._id
         };
         
@@ -178,12 +178,12 @@ Template.webglReply.onRendered(function() {
         instance.parent.replyTarget.set();
     });
     
-    $('#gl-reply-cancel-button').click(function(event) {
+    $('#main-reply-cancel-button').click(function(event) {
         instance.parent.replyTarget.set();
     });
 });
 
-Template.webglReply.events({
+Template.mainReply.events({
     'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
         if (instance.parent.camera.isDragging()) {
             //Prevents interaction while dragging.

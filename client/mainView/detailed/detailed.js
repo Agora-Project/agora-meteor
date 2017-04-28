@@ -1,7 +1,7 @@
 let POST_WIDTH = 0.75;
 let POST_HEIGHT = 0.875;
 
-Template.webglDetailedPost.onCreated(function() {
+Template.mainDetailedPost.onCreated(function() {
     let instance = this;
     
     let parentView = this.view.parentView;
@@ -22,21 +22,21 @@ Template.webglDetailedPost.onCreated(function() {
         instance.post.set(Posts.findOne({_id: instance.data._id}));
         
         //Fade out spinner and fade in actual post.
-        instance.div.children('.gl-detailed-post-spinner').fadeOut(100);
-        instance.div.children('.gl-detailed-post-flex')
+        instance.div.children('.main-detailed-post-spinner').fadeOut(100);
+        instance.div.children('.main-detailed-post-flex')
             .css('display', 'flex')
             .hide()
             .fadeIn(200);
     });
 });
 
-Template.webglDetailedPost.onRendered(function() {
-    this.div = $('#gl-detailed-post-' + this.data._id);
+Template.mainDetailedPost.onRendered(function() {
+    this.div = $('#main-detailed-post-' + this.data._id);
     this.div.fadeIn(200);
     setTimeout(this.onRendered.fulfill, 250);
 });
 
-Template.webglDetailedPost.helpers({
+Template.mainDetailedPost.helpers({
     post: function() {
         return Template.instance().post.get();
     },
@@ -51,7 +51,7 @@ Template.webglDetailedPost.helpers({
     }
 });
 
-Template.webglDetailedPost.events({
+Template.mainDetailedPost.events({
     'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
         if (instance.parent.camera.isDragging()) {
             //Prevents interaction while dragging.
@@ -78,7 +78,7 @@ WebGLDetailedPosts = function(postCursor) {
     };
     
     let remove = function(post) {
-        let div = $('#gl-detailed-post-' + post._id);
+        let div = $('#main-detailed-post-' + post._id);
         div.fadeOut(200, function() {
             visiblePosts.remove(post);
         });
@@ -108,7 +108,7 @@ WebGLDetailedPosts = function(postCursor) {
         
         //Update post positions.
         visiblePostsCursor.forEach(function(post) {
-            let div = $('#gl-detailed-post-' + post._id);
+            let div = $('#main-detailed-post-' + post._id);
             let pos = camera.toScreen(post.defaultPosition);
             div.width(POST_WIDTH*camera.getScale());
             div.css('max-height', POST_HEIGHT*camera.getScale());
@@ -122,7 +122,7 @@ WebGLDetailedPosts = function(postCursor) {
     };
 };
 
-Template.webglDetailedPostReplyButton.onCreated(function() {
+Template.mainDetailedPostReplyButton.onCreated(function() {
     let parentView = this.view.parentView;
     while (parentView.templateInstance === undefined) {
         parentView = parentView.parentView;
@@ -130,9 +130,9 @@ Template.webglDetailedPostReplyButton.onCreated(function() {
     this.parent = parentView.templateInstance();
 });
 
-Template.webglDetailedPostReplyButton.events({
+Template.mainDetailedPostReplyButton.events({
     'click': function(event, instance) {
-        //Our parent is a webglDetailedPost, and its parent is the webglView.
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
         instance.parent.parent.replyTarget.set(instance.parent.post);
     }
 });

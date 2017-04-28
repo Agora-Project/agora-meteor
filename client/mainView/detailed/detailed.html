@@ -1,26 +1,26 @@
-<template name="webglDetailedPost">
-    <div class="gl-detailed-post" id="gl-detailed-post-{{_id}}">
-        <div class="gl-detailed-post-flex">
+<template name="mainDetailedPost">
+    <div class="main-detailed-post" id="main-detailed-post-{{_id}}">
+        <div class="main-detailed-post-flex">
             {{#if post.title}}
-                <div class="gl-detailed-post-title">{{post.title}}</div>
+                <div class="main-detailed-post-title">{{post.title}}</div>
             {{/if}}
-            <div class="gl-detailed-post-info">
+            <div class="main-detailed-post-info">
                 {{#if post.user}}
                     <a href="/forum/user/{{user._id}}">{{post.user.username}}</a>
                 {{/if}}
                 <span>{{age}}</span>
             </div>
-            <div class="gl-detailed-post-content">
+            <div class="main-detailed-post-content">
                 <p>{{post.content}}</p>
                 {{#if hasReplyButton}}
-                    {{> webglDetailedPostReplyButton}}
+                    {{> mainDetailedPostReplyButton}}
                 {{/if}}
             </div>
         </div>
-        <i class="gl-detailed-post-spinner fa fa-refresh" aria-hidden="true"></i>
+        <i class="main-detailed-post-spinner fa fa-refresh" aria-hidden="true"></i>
     </div>
 </template>
 
-<template name="webglDetailedPostReplyButton">
-    <button class="gl-detailed-post-reply-button">Reply</button>
+<template name="mainDetailedPostReplyButton">
+    <button class="main-detailed-post-reply-button">Reply</button>
 </template>
