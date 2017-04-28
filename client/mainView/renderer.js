@@ -58,48 +58,51 @@ let linkShaderProgram = function(gl, vertShader, fragShader) {
     return shader;
 };
 
-MainViewRenderer = function(canvas, camera) {
+MainViewRenderer = function(camera) {
     let self = this;
+    let canvas, gl;
+    let postShader, linkShader;
     
-    let gl = canvas[0].getContext('experimental-webgl');
-    gl.clearColor(0.0, 0.192, 0.325, 1.0);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.getExtension('OES_standard_derivatives');
-    
-    //Set up resize callback
-    this.isDestroyed = false;
     let sizeDirty = true;
-    
-    //Set up shader program
-    let vertShader = loadShader(gl, VERT_SHADER_SOURCE, gl.VERTEX_SHADER);
-    let postFragShader = loadShader(gl, POST_FRAG_SHADER_SOURCE, gl.FRAGMENT_SHADER);
-    let linkFragShader = loadShader(gl, LINK_FRAG_SHADER_SOURCE, gl.FRAGMENT_SHADER);
-    let postShader = linkShaderProgram(gl, vertShader, postFragShader);
-    let linkShader = linkShaderProgram(gl, vertShader, linkFragShader);
-    
-    postShader.locSize = gl.getUniformLocation(postShader, 'u_point_size');
-    
-    //Set up post vertex buffer
-    let MAX_POSTS = 65536;
-    
-    let vbo = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, MAX_POSTS*8, gl.DYNAMIC_DRAW);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-    
-    //Set up link index buffer
-    let MAX_LINKS = 131072;
-    
-    let ebo = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, MAX_LINKS*4, gl.DYNAMIC_DRAW);
-    
     let postCount = 0;
     let postIndices = {};
     let linkCount = 0;
     let pointSize = 0.0;
+    
+    this.init = function(initCanvas) {
+        canvas = initCanvas;
+        gl = canvas[0].getContext('experimental-webgl');
+        
+        gl.clearColor(0.0, 0.192, 0.325, 1.0);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.getExtension('OES_standard_derivatives');
+        
+        //Set up shader program
+        let vertShader = loadShader(gl, VERT_SHADER_SOURCE, gl.VERTEX_SHADER);
+        let postFragShader = loadShader(gl, POST_FRAG_SHADER_SOURCE, gl.FRAGMENT_SHADER);
+        let linkFragShader = loadShader(gl, LINK_FRAG_SHADER_SOURCE, gl.FRAGMENT_SHADER);
+        postShader = linkShaderProgram(gl, vertShader, postFragShader);
+        linkShader = linkShaderProgram(gl, vertShader, linkFragShader);
+        
+        postShader.locSize = gl.getUniformLocation(postShader, 'u_point_size');
+        
+        //Set up post vertex buffer
+        let MAX_POSTS = 65536;
+        
+        let vbo = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.bufferData(gl.ARRAY_BUFFER, MAX_POSTS*8, gl.DYNAMIC_DRAW);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        
+        //Set up link index buffer
+        let MAX_LINKS = 131072;
+        
+        let ebo = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, MAX_LINKS*4, gl.DYNAMIC_DRAW);
+    }
     
     this.render = function() {
         if (sizeDirty) {

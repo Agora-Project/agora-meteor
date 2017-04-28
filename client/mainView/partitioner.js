@@ -110,10 +110,15 @@ let KDCell = function(posts, axis) {
     };
 };
 
-MainViewPartitioner = function(posts) {
-    let root = new KDCell(posts, 'X');
+MainViewPartitioner = function(camera) {
+    let root;
     
-    this.getVisible = function(camera) {
+    this.init = function() {
+        let posts = Posts.find({}).fetch();
+        root = new KDCell(posts, 'X');
+    };
+    
+    this.getVisible = function() {
         let out = [];
         root.getVisible(camera.getBounds(), out);
         return out;

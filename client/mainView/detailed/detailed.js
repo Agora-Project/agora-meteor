@@ -64,18 +64,12 @@ Template.mainDetailedPost.events({
     }
 });
 
-MainViewDetailedPosts = function(postCursor) {
+MainViewDetailedPosts = function(camera, partitioner) {
     let self = this;
     
     //Collection of currently visible detailed posts.
     let visiblePosts = new Mongo.Collection(null);
     let visiblePostsCursor = visiblePosts.find({});
-    let partition;
-    
-    this.setup = function() {
-        let posts = postCursor.fetch();
-        partition = new MainViewPartitioner(posts);
-    };
     
     let remove = function(post) {
         let div = $('#main-detailed-post-' + post._id);
@@ -84,7 +78,7 @@ MainViewDetailedPosts = function(postCursor) {
         });
     };
     
-    this.update = function(camera) {
+    this.update = function() {
         //Update visible posts.
         if (camera.getScale() < 256.0) {
             visiblePostsCursor.forEach(remove);
@@ -98,7 +92,7 @@ MainViewDetailedPosts = function(postCursor) {
             });
             
             //Add posts which are newly visible.
-            let visible = partition.getVisible(camera);
+            let visible = partitioner.getVisible();
             for (let post of visible) {
                 if (!visiblePosts.findOne(post)) {
                     visiblePosts.insert(post);

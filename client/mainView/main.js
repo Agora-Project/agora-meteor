@@ -5,19 +5,20 @@
 */
 
 /**
- * The WebGL view consists of five basic modules:
+ * The main view consists of five basic modules:
  *
  *    * Main Module (main.js)
- *          This file; the main entry-point and handler for the other four modules.
+ *          This file; the primary entry-point and handler for the other four modules.
  *          Callbacks are mostly set up and destroyed in this module.
- *
- *    * Partitioner (partitioner.js)
- *          An optimization module. Exposes a number of efficient spatial queries.
  *      
  *    * Camera (camera.js)
  *          Stores client view state (position, zoom, screen boundaries).
  *          Also handles camera input.
- *
+ *      
+ *    * Partitioner (partitioner.js)
+ *          An optimization module. Exposes a number of efficient spatial queries.
+ *          Depends on the camera.
+ *    
  *    * Renderer (renderer.js)
  *          Handles the WebGL context and performs canvas rendering.
  *          Depends on the camera.
@@ -25,28 +26,33 @@
  *    * Detailed Posts (detailed/detailed.js)
  *          Handles the creation of template-based HTML posts.
  *          These detailed posts appear when the camera is sufficiently zoomed.
- *          Depends on the partitioner and camera.
+ *          Depends on the camera and partitioner.
  *
  */
  
 Template.mainView.onCreated(function() {
     let instance = this;
     
-    this.onRendererReady = new Notifier();
+    //Declare modules.
+    this.camera = new MainViewCamera();
+    this.partitioner = new MainViewPartitioner(this.camera);
+    this.renderer = new MainViewRenderer(this.camera);
+    this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner);
+    
+    //Set up async notifiers.
+    this.onRendered = new Notifier();
     let onSubReady = new Notifier();
     
-    let postCursor = Posts.find({});
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
-    this.detailedPosts = new MainViewDetailedPosts(postCursor);
     this.replyTarget = new ReactiveVar();
     
-    Notifier.all(onSubReady, this.onRendererReady).onFulfilled(function() {
+    Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup
-        instance.detailedPosts.setup();
+        instance.partitioner.init();
         
         //Callback for added/removed posts
         let isLive = false;
-        instance.postObserver = postCursor.observe({
+        instance.postObserver = Posts.find({}).observe({
             added: function(post) {
                 instance.renderer.addPost(post);
                 
@@ -95,20 +101,21 @@ Template.mainView.onCreated(function() {
 Template.mainView.onRendered(function() {
     let instance = this;
     
+    //Initialize everything that depends on the canvas existing.
     let canvas = $('#main-viewport');
     
-    this.getMousePos = function(event) {
-        return {x:event.pageX, y:event.pageY - canvas.offset().top};
-    };
-    
-    this.camera = new MainViewCamera(canvas);
-    this.renderer = new MainViewRenderer(canvas, this.camera);
-    this.onRendererReady.fulfill();
+    this.camera.init(canvas);
+    this.renderer.init(canvas);
+    this.onRendered.fulfill();
     
     $(window).resize(function() {
         instance.camera.resize();
         instance.renderer.resize();
     });
+    
+    this.getMousePos = function(event) {
+        return {x:event.pageX, y:event.pageY - canvas.offset().top};
+    };
 });
 
 Template.mainView.helpers({

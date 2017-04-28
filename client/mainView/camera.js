@@ -1,10 +1,16 @@
-MainViewCamera = function(canvas) {
+MainViewCamera = function() {
     let self = this;
+    let canvas;
+    
     let p = {x:0.0, y:0.0};
     let scale = 16.0;
     
     let matrix = null;
     let matrixDirty = true;
+    
+    this.init = function(initCanvas) {
+        canvas = initCanvas;
+    };
     
     this.resize = function() {
         matrixDirty = true;
