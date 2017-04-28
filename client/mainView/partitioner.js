@@ -110,7 +110,7 @@ let KDCell = function(posts, axis) {
     };
 };
 
-WebGLPartition = function(posts) {
+MainViewPartitioner = function(posts) {
     let root = new KDCell(posts, 'X');
     
     this.getVisible = function(camera) {

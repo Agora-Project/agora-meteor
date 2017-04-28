@@ -58,7 +58,7 @@ let linkShaderProgram = function(gl, vertShader, fragShader) {
     return shader;
 };
 
-WebGLRenderer = function(canvas, camera) {
+MainViewRenderer = function(canvas, camera) {
     let self = this;
     
     let gl = canvas[0].getContext('experimental-webgl');

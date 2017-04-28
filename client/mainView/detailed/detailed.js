@@ -64,7 +64,7 @@ Template.mainDetailedPost.events({
     }
 });
 
-WebGLDetailedPosts = function(postCursor) {
+MainViewDetailedPosts = function(postCursor) {
     let self = this;
     
     //Collection of currently visible detailed posts.
@@ -74,7 +74,7 @@ WebGLDetailedPosts = function(postCursor) {
     
     this.setup = function() {
         let posts = postCursor.fetch();
-        partition = new WebGLPartition(posts);
+        partition = new MainViewPartitioner(posts);
     };
     
     let remove = function(post) {

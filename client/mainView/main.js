@@ -37,7 +37,7 @@ Template.mainView.onCreated(function() {
     
     let postCursor = Posts.find({});
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
-    this.detailedPosts = new WebGLDetailedPosts(postCursor);
+    this.detailedPosts = new MainViewDetailedPosts(postCursor);
     this.replyTarget = new ReactiveVar();
     
     Notifier.all(onSubReady, this.onRendererReady).onFulfilled(function() {
@@ -101,8 +101,8 @@ Template.mainView.onRendered(function() {
         return {x:event.pageX, y:event.pageY - canvas.offset().top};
     };
     
-    this.camera = new WebGLCamera(canvas);
-    this.renderer = new WebGLRenderer(canvas, this.camera);
+    this.camera = new MainViewCamera(canvas);
+    this.renderer = new MainViewRenderer(canvas, this.camera);
     this.onRendererReady.fulfill();
     
     $(window).resize(function() {

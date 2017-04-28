@@ -1,4 +1,4 @@
-WebGLCamera = function(canvas) {
+MainViewCamera = function(canvas) {
     let self = this;
     let p = {x:0.0, y:0.0};
     let scale = 16.0;
