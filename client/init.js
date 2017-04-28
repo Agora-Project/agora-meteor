@@ -9,10 +9,10 @@ Meteor.subscribe('myself');
 Meteor.subscribe('reports');
 
 Accounts.onLogin(function () {
-    user = Meteor.user(); //TODO: Axe this global.
-    if(user.isBanned) {
-        //Logout on login
-        Meteor.users.update({_id: user._id}, {$set : { "services.resume.loginTokens" : [] }});
+    let user = Meteor.user();
+    if (user.isBanned) {
+        //Log out user if banned.
+        Meteor.users.update({_id: user._id}, {$set : {"services.resume.loginTokens" : []}});
     }
 });
 
