@@ -19,7 +19,8 @@ Template.mainDetailedPost.onCreated(function() {
     
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Populate post data.
-        instance.post.set(Posts.findOne({_id: instance.data._id}));
+        let post = Posts.findOne({_id: instance.data._id});
+        instance.post.set(post);
         
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-detailed-post-spinner').fadeOut(100);
@@ -27,6 +28,9 @@ Template.mainDetailedPost.onCreated(function() {
             .css('display', 'flex')
             .hide()
             .fadeIn(200);
+        
+        //Update post position/size upon display.
+        instance.parent.detailedPosts.updatePostPosition(post);
     });
 });
 
@@ -78,37 +82,51 @@ MainViewDetailedPosts = function(camera, partitioner) {
         });
     };
     
+    let dirtyPosts = [];
+    this.updatePostPosition = function(post) {
+        dirtyPosts.push(post);
+    };
+    
     this.update = function() {
-        //Update visible posts.
-        if (camera.getScale() < 256.0) {
-            visiblePostsCursor.forEach(remove);
-        }
-        else {
-            //Remove posts which are no longer visible.
-            visiblePostsCursor.forEach(function(post) {
-                if (!camera.isPointVisible(post.defaultPosition)) {
-                    remove(post);
-                }
-            });
-            
-            //Add posts which are newly visible.
-            let visible = partitioner.getVisible();
-            for (let post of visible) {
-                if (!visiblePosts.findOne(post)) {
-                    visiblePosts.insert(post);
+        if (camera.hasChanged()) {
+            //Update visible posts.
+            if (camera.getScale() < 256.0) {
+                visiblePostsCursor.forEach(remove);
+            }
+            else {
+                //Remove posts which are no longer visible.
+                visiblePostsCursor.forEach(function(post) {
+                    if (!camera.isPointVisible(post.defaultPosition)) {
+                        remove(post);
+                    }
+                });
+                
+                //Add posts which are newly visible.
+                let visible = partitioner.getVisible();
+                for (let post of visible) {
+                    if (!visiblePosts.findOne({_id: post._id})) {
+                        visiblePosts.insert(post);
+                    }
                 }
             }
+            
+            //Mark all currently visible posts to be updated.
+            visiblePostsCursor.forEach(function(post) {
+                dirtyPosts.push(post);
+            });
         }
         
         //Update post positions.
-        visiblePostsCursor.forEach(function(post) {
+        for (let post of dirtyPosts) {
             let div = $('#main-detailed-post-' + post._id);
             let pos = camera.toScreen(post.defaultPosition);
             div.width(POST_WIDTH*camera.getScale());
             div.css('max-height', POST_HEIGHT*camera.getScale());
             div.css('left', pos.x - div.outerWidth()/2);
             div.css('top', pos.y - div.outerHeight()/2);
-        });
+        }
+        
+        dirtyPosts = [];
     };
     
     this.find = function() {

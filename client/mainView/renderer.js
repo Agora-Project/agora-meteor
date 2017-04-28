@@ -112,7 +112,7 @@ MainViewRenderer = function(camera) {
             sizeDirty = false;
         }
         
-        if (camera.isMatrixDirty()) {
+        if (camera.hasChanged()) {
             let matrix = camera.getMatrix();
             pointSize = camera.getScale()/6.0;
             

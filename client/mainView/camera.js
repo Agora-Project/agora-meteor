@@ -6,7 +6,8 @@ MainViewCamera = function() {
     let scale = 16.0;
     
     let matrix = null;
-    let matrixDirty = true;
+    let matrixDirty = true; //Whether the matrix needs to be updated.
+    let matrixChanged = true; //Whether matrix has changed since last frame.
     
     this.init = function(initCanvas) {
         canvas = initCanvas;
@@ -16,8 +17,8 @@ MainViewCamera = function() {
         matrixDirty = true;
     };
     
-    this.isMatrixDirty = function() {
-        return matrixDirty;
+    this.hasChanged = function() {
+        return matrixChanged;
     };
     
     this.getPos = function() {
@@ -43,14 +44,6 @@ MainViewCamera = function() {
     };
     
     this.getMatrix = function() {
-        if (matrixDirty) {
-            let w = 2.0*scale/canvas[0].width;
-            let h = 2.0*scale/canvas[0].height;
-            matrix = [w, 0.0, -w*p.x,
-                      0.0, h, -h*p.y,
-                      0.0, 0.0, 1.0];
-            matrixDirty = false;
-        }
         return matrix;
     };
     
@@ -155,6 +148,17 @@ MainViewCamera = function() {
         
         if (zooms.length === 0) {
             targetScale = scale;
+        }
+        
+        matrixChanged = matrixDirty;
+        matrixDirty = false;
+        
+        if (matrixChanged) {
+            let w = 2.0*scale/canvas[0].width;
+            let h = 2.0*scale/canvas[0].height;
+            matrix = [w, 0.0, -w*p.x,
+                      0.0, h, -h*p.y,
+                      0.0, 0.0, 1.0];
         }
     };
 };

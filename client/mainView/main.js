@@ -89,7 +89,7 @@ Template.mainView.onCreated(function() {
             
             instance.camera.step(dt);
             instance.renderer.render();
-            instance.detailedPosts.update(instance.camera);
+            instance.detailedPosts.update();
             window.requestAnimationFrame(render);
             t0 = t1;
         };
