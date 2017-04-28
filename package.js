@@ -18,10 +18,6 @@ Package.onUse(function(api) {
     api.versionsFrom('1.1.0.3');
     
     api.addFiles([
-        
-    ], both);
-
-    api.addFiles([
         'client/lib/XBBCode/xbbcode.js',
         'client/lib/XBBCode/xbbcode.css'
     ], 'client');
@@ -36,10 +32,9 @@ Package.onUse(function(api) {
     ], both);
 
     api.addFiles([
-        'client/subscribe.js',
-        'client/navigation.js',
+        'client/main.html',
         'client/main.css',
-        'client/main.js'
+        'client/init.js'
     ], 'client');
 
     api.addFiles([
@@ -62,7 +57,7 @@ Package.onUse(function(api) {
     ], 'client');
 
     api.addFiles([
-        'client/templates.html',
+        
     ], 'client');
 
     api.addFiles([
