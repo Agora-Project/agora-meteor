@@ -7,22 +7,22 @@
 /**
  * The WebGL view consists of five basic modules:
  *
- *    * Main Module (webglView.js)
+ *    * Main Module (main.js)
  *          This file; the main entry-point and handler for the other four modules.
  *          Callbacks are set up and destroyed exclusively in this module.
  *
- *    * Partitioner (webglParition.js)
+ *    * Partitioner (partitioner.js)
  *          An optimization module. Exposes a number of efficient spatial queries.
  *      
- *    * Camera (webglCamera.js)
+ *    * Camera (camera.js)
  *          Stores client view state (position, zoom, screen boundaries).
  *          Also handles camera input.
  *
- *    * Renderer (webglRenderer.js)
+ *    * Renderer (renderer.js)
  *          Handles the WebGL context and performs canvas rendering.
  *          Depends on the camera.
  *      
- *    * Detailed Posts (webglDetailedPosts.js)
+ *    * Detailed Posts (detailed/detailed.js)
  *          Handles the creation of template-based HTML posts.
  *          These detailed posts appear when the camera is sufficiently zoomed.
  *          Depends on the partitioner and camera.
