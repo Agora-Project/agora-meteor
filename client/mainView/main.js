@@ -91,6 +91,7 @@ Template.mainView.onCreated(function() {
             if (instance.isSizeDirty) {
                 instance.camera.resize();
                 instance.renderer.resize();
+                instance.isSizeDirty = false;
             }
             
             instance.camera.step(dt);

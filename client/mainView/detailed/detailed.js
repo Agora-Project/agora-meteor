@@ -28,9 +28,6 @@ Template.mainDetailedPost.onCreated(function() {
             .css('display', 'flex')
             .hide()
             .fadeIn(200);
-        
-        //Update post position/size upon display.
-        instance.parent.detailedPosts.updatePostPosition(post);
     });
 });
 
@@ -82,15 +79,10 @@ MainViewDetailedPosts = function(camera, partitioner) {
         });
     };
     
-    let dirtyPosts = [];
-    this.updatePostPosition = function(post) {
-        dirtyPosts.push(post);
-    };
-    
     this.update = function() {
         if (camera.hasChanged()) {
-            //Update visible posts.
             if (camera.getScale() < 256.0) {
+                //Remove all posts if zoomed too far out.
                 visiblePostsCursor.forEach(remove);
             }
             else {
@@ -109,24 +101,17 @@ MainViewDetailedPosts = function(camera, partitioner) {
                     }
                 }
             }
-            
-            //Mark all currently visible posts to be updated.
-            visiblePostsCursor.forEach(function(post) {
-                dirtyPosts.push(post);
-            });
         }
         
-        //Update post positions.
-        for (let post of dirtyPosts) {
+        //Update post positions/sizes.
+        visiblePostsCursor.forEach(function(post) {
             let div = $('#main-detailed-post-' + post._id);
             let pos = camera.toScreen(post.defaultPosition);
             div.width(POST_WIDTH*camera.getScale());
             div.css('max-height', POST_HEIGHT*camera.getScale());
             div.css('left', pos.x - div.outerWidth()/2);
             div.css('top', pos.y - div.outerHeight()/2);
-        }
-        
-        dirtyPosts = [];
+        });
     };
     
     this.find = function() {
