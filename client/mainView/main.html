@@ -10,8 +10,10 @@
         {{#each detailedPosts}}
             {{> mainDetailedPost}}
         {{/each}}
-        {{#if replyTarget}}
-            {{> mainReply}}
+        {{#if currentUser}}
+            {{#if replyTarget}}
+                {{> mainReply}}
+            {{/if}}
         {{/if}}
     </div>
 </template>

@@ -12,8 +12,10 @@
             </div>
             <div class="main-detailed-post-content">
                 <p>{{post.content}}</p>
-                {{#if hasReplyButton}}
-                    {{> mainDetailedPostReplyButton}}
+                {{#if currentUser}}
+                    {{#if hasReplyButton}}
+                        {{> mainDetailedPostReplyButton}}
+                    {{/if}}
                 {{/if}}
             </div>
         </div>
