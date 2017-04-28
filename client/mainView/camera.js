@@ -6,6 +6,7 @@ MainViewCamera = function() {
     let scale = 16.0;
     
     let matrix = null;
+    let sizeDirty = true;
     let matrixDirty = true; //Whether the matrix needs to be updated.
     let matrixChanged = true; //Whether matrix has changed since last frame.
     
@@ -14,6 +15,7 @@ MainViewCamera = function() {
     };
     
     this.resize = function() {
+        sizeDirty = true;
         matrixDirty = true;
     };
     
@@ -136,6 +138,12 @@ MainViewCamera = function() {
     };
     
     this.step = function(dt) {
+        if (sizeDirty) {
+            canvas[0].width = canvas.width();
+            canvas[0].height = canvas.height();
+            sizeDirty = false;
+        }
+        
         for (let i = zooms.length - 1; i >= 0; i--) {
             let zoom = zooms[i];
             

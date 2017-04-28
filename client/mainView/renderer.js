@@ -106,8 +106,6 @@ MainViewRenderer = function(camera) {
     
     this.render = function() {
         if (sizeDirty) {
-            canvas[0].width = canvas.width();
-            canvas[0].height = canvas.height();
             gl.viewport(0, 0, canvas[0].width, canvas[0].height);
             sizeDirty = false;
         }
@@ -121,17 +119,17 @@ MainViewRenderer = function(camera) {
             gl.uniform1f(postShader.locSize, pointSize);
             gl.useProgram(linkShader);
             gl.uniformMatrix3fv(linkShader.locMat, false, matrix);
+            
+            gl.clear(gl.COLOR_BUFFER_BIT);
+        
+            if (pointSize > 2.0) {
+                gl.useProgram(postShader);
+                gl.drawArrays(gl.POINTS, 0, postCount);
+            }
+            
+            gl.useProgram(linkShader);
+            gl.drawElements(gl.LINES, linkCount*2, gl.UNSIGNED_SHORT, 0);
         }
-        
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        
-        if (pointSize > 2.0) {
-            gl.useProgram(postShader);
-            gl.drawArrays(gl.POINTS, 0, postCount);
-        }
-        
-        gl.useProgram(linkShader);
-        gl.drawElements(gl.LINES, linkCount*2, gl.UNSIGNED_SHORT, 0);
     };
     
     let addLink = function(source, target) {

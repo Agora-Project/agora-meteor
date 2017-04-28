@@ -45,6 +45,7 @@ Template.mainView.onCreated(function() {
     
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
     this.replyTarget = new ReactiveVar();
+    this.isSizeDirty = true;
     
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup
@@ -87,6 +88,11 @@ Template.mainView.onCreated(function() {
             let t1 = performance.now();
             let dt = (t1 - t0)/1000.0;
             
+            if (instance.isSizeDirty) {
+                instance.camera.resize();
+                instance.renderer.resize();
+            }
+            
             instance.camera.step(dt);
             instance.renderer.render();
             instance.detailedPosts.update();
@@ -109,8 +115,7 @@ Template.mainView.onRendered(function() {
     this.onRendered.fulfill();
     
     $(window).resize(function() {
-        instance.camera.resize();
-        instance.renderer.resize();
+        instance.isSizeDirty = true;
     });
     
     this.getMousePos = function(event) {
