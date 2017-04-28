@@ -4,6 +4,31 @@
     License: GPL, Check file LICENSE
 */
 
+/**
+ * The WebGL view consists of five basic modules:
+ *
+ *    * Main Module (webglView.js)
+ *          This file; the main entry-point and handler for the other four modules.
+ *          Callbacks are set up and destroyed exclusively in this module.
+ *
+ *    * Partitioner (webglParition.js)
+ *          An optimization module. Exposes a number of efficient spatial queries.
+ *      
+ *    * Camera (webglCamera.js)
+ *          Stores client view state (position, zoom, screen boundaries).
+ *          Also handles camera input.
+ *
+ *    * Renderer (webglRenderer.js)
+ *          Handles the WebGL context and performs canvas rendering.
+ *          Depends on the camera.
+ *      
+ *    * Detailed Posts (webglDetailedPosts.js)
+ *          Handles the creation of template-based HTML posts.
+ *          These detailed posts appear when the camera is sufficiently zoomed.
+ *          Depends on the partitioner and camera.
+ *
+ */
+ 
 Template.webglView.onCreated(function() {
     let instance = this;
     
@@ -19,12 +44,29 @@ Template.webglView.onCreated(function() {
         //Perform initial setup
         instance.detailedPosts.setup();
         
-        //Make update callback
+        //Callback for added/removed posts
+        let isLive = false;
         instance.postObserver = postCursor.observe({
             added: function(post) {
                 instance.renderer.addPost(post);
+                
+                //For posts added during runtime
+                if (isLive) {
+                    console.log('new post: ' + post._id);
+                }
             },
             removed: function(post) {
+            }
+        });
+        isLive = true;
+        
+        //Callback for changed post positions
+        Posts.find({}, {fields: {'defaultPosition': 1}}).observeChanges({
+            changed: function(id, fields) {
+                let pos = fields.defaultPosition;
+                console.log('new position: ' + id + ' ' + pos);
+                
+                //Need to update position in webgl renderer, partition, and detailed posts.
             }
         });
         
