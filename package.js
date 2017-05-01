@@ -13,14 +13,16 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-    both = ['client', 'server']
+    both = ['client', 'server'];
 
     api.versionsFrom('1.1.0.3');
     
     api.addFiles([
-        'client/lib/XBBCode/xbbcode.js',
-        'client/lib/XBBCode/xbbcode.css'
-    ], 'client');
+        'server/initial-data.js',
+        'server/methods.js',
+        'server/publish.js',
+        'server/users.js'
+    ], 'server');
     
     api.addFiles([
         'lib/identity_collections/identity_collections.js',
@@ -30,6 +32,22 @@ Package.onUse(function(api) {
         'lib/schemas/vote.js',
         'routes.js'
     ], both);
+    
+    api.use([
+        'ecmascript@0.6.0',
+        'iron:router@1.0.0',
+        'aldeed:collection2@2.3.3',
+        'matb33:collection-hooks@0.7.13',
+        'accounts-base',
+        'alanning:roles@1.2.13'
+    ], both);
+    
+    api.addFiles([
+        'client/lib/XBBCode/xbbcode.js',
+        'client/lib/XBBCode/xbbcode.css',
+        'client/lib/notifier/notifier.js',
+        'client/lib/requestAnimationFrame/requestAnimationFrame.js'
+    ], 'client');
 
     api.addFiles([
         'client/main.html',
@@ -43,8 +61,6 @@ Package.onUse(function(api) {
     ], 'client');
     
     api.addFiles([
-        'client/lib/notifier/notifier.js',
-        'client/lib/requestAnimationFrame/requestAnimationFrame.js',
         'client/mainView/detailed/detailed.html',
         'client/mainView/detailed/detailed.css',
         'client/mainView/detailed/detailed.js',
@@ -57,15 +73,10 @@ Package.onUse(function(api) {
     ], 'client');
 
     api.addFiles([
-        
-    ], 'client');
-
-    api.addFiles([
         'client/userProfile/userProfile.html',
         'client/userProfile/userProfile.css',
         'client/userProfile/userProfile.js'
     ], 'client');
-
 
     api.addFiles([
         'client/adminScreen/adminScreen.html',
@@ -77,13 +88,6 @@ Package.onUse(function(api) {
         'public/agoraforum.png'
     ], 'client');
     
-    api.addFiles([
-        'server/initial-data.js',
-        'server/methods.js',
-        'server/publish.js',
-        'server/users.js'
-    ], 'server');
-
     api.use([
         'session',
         'templating',
@@ -93,15 +97,6 @@ Package.onUse(function(api) {
         'zodiase:mdl@1.0.2',
         'utilities:avatar@0.9.2'
     ], 'client');
-
-    api.use([
-        'ecmascript@0.6.0',
-        'iron:router@1.0.0',
-        'aldeed:collection2@2.3.3',
-        'matb33:collection-hooks@0.7.13',
-        'accounts-base',
-        'alanning:roles@1.2.13'
-    ], both);
 });
 
 Package.onTest(function(api) {
