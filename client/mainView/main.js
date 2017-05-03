@@ -48,38 +48,42 @@ Template.mainView.onCreated(function() {
     this.isSizeDirty = true;
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
-        //Perform initial setup
-        instance.partitioner.init();
+        //Perform initial setup.
+        let postCursor = Posts.find({});
+        let initPostArray = postCursor.fetch();
+        
+        instance.partitioner.init(initPostArray);
+        instance.renderer.init(initPostArray);
 
-        //Callback for added/removed posts
+        //Callback for added/removed posts.
         let isLive = false;
-        instance.postObserver = Posts.find({}).observe({
+        instance.postObserver = postCursor.observe({
             added: function(post) {
-                instance.renderer.addPost(post);
-
-                //For posts added during runtime
                 if (isLive) {
-                    console.log('new post: ' + post._id);
+                    instance.partitioner.addPost(post);
+                    instance.renderer.addPost(post);
                 }
             },
             removed: function(post) {
+                instance.partitioner.removePost(post);
+                instance.renderer.removePost(post);
             }
         });
         isLive = true;
 
-        //Callback for changed post positions
+        //Callback for changed post positions.
         Posts.find({}, {fields: {'defaultPosition': 1}}).observeChanges({
             changed: function(id, fields) {
                 let pos = fields.defaultPosition;
-                console.log('new position: ' + id + ' ' + pos);
-
-                //Need to update position in webgl renderer, partition, and detailed posts.
+                
+                instance.partitioner.updatePostPosition(id, pos);
+                instance.renderer.updatePostPosition(id, pos);
             }
         });
 
         let t0 = performance.now();
 
-        //Begin rendering
+        //Begin rendering.
         let render = function() {
             if (instance.isDestroyed) {
                 return;
@@ -111,8 +115,8 @@ Template.mainView.onRendered(function() {
     //Initialize everything that depends on the canvas existing.
     let canvas = $('#main-viewport');
 
-    this.camera.init(canvas);
-    this.renderer.init(canvas);
+    this.camera.construct(canvas);
+    this.renderer.construct(canvas);
     this.onRendered.fulfill();
 
     $(window).resize(function() {

@@ -113,9 +113,17 @@ let KDCell = function(posts, axis) {
 MainViewPartitioner = function(camera) {
     let root;
     
-    this.init = function() {
-        let posts = Posts.find({}).fetch();
-        root = new KDCell(posts, 'X');
+    this.init = function(postArray) {
+        root = new KDCell(postArray, 'X');
+    };
+    
+    this.addPost = function(post) {
+    };
+    
+    this.removePost = function(post) {
+    };
+    
+    this.updatePostPosition = function(id, pos) {
     };
     
     this.getVisible = function() {

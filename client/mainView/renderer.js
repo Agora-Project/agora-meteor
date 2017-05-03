@@ -69,7 +69,7 @@ MainViewRenderer = function(camera) {
     let linkCount = 0;
     let pointSize = 0.0;
     
-    this.init = function(initCanvas) {
+    this.construct = function(initCanvas) {
         canvas = initCanvas;
         gl = canvas[0].getContext('experimental-webgl');
         
@@ -141,6 +141,13 @@ MainViewRenderer = function(camera) {
         sizeDirty = true;
     };
     
+    this.init = function(postArray) {
+        //Could be optimized by uploading one big buffer to the GPU.
+        for (let post of postArray) {
+            self.addPost(post);
+        }
+    };
+    
     this.addPost = function(post) {
         let pos = [post.defaultPosition.x, post.defaultPosition.y];
         gl.bufferSubData(gl.ARRAY_BUFFER, postCount*8, new Float32Array(pos));
@@ -161,5 +168,11 @@ MainViewRenderer = function(camera) {
         
         postIndices[post._id] = postCount;
         postCount++;
+    };
+    
+    this.removePost = function(post) {
+    };
+    
+    this.updatePostPosition = function(id, pos) {
     };
 };

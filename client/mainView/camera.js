@@ -10,7 +10,7 @@ MainViewCamera = function() {
     let matrixDirty = true; //Whether the matrix needs to be updated.
     let matrixChanged = true; //Whether matrix has changed since last frame.
     
-    this.init = function(initCanvas) {
+    this.construct = function(initCanvas) {
         canvas = initCanvas;
     };
     
