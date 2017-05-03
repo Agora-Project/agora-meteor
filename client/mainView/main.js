@@ -10,53 +10,53 @@
  *    * Main Module (main.js)
  *          This file; the primary entry-point and handler for the other four modules.
  *          Callbacks are mostly set up and destroyed in this module.
- *      
+ *
  *    * Camera (camera.js)
  *          Stores client view state (position, zoom, screen boundaries).
  *          Also handles camera input.
- *      
+ *
  *    * Partitioner (partitioner.js)
  *          An optimization module. Exposes a number of efficient spatial queries.
  *          Depends on the camera.
- *    
+ *
  *    * Renderer (renderer.js)
  *          Handles the WebGL context and performs canvas rendering.
  *          Depends on the camera.
- *      
+ *
  *    * Detailed Posts (detailed/detailed.js)
  *          Handles the creation of template-based HTML posts.
  *          These detailed posts appear when the camera is sufficiently zoomed.
  *          Depends on the camera and partitioner.
  *
  */
- 
+
 Template.mainView.onCreated(function() {
     let instance = this;
-    
+
     //Declare modules.
     this.camera = new MainViewCamera();
     this.partitioner = new MainViewPartitioner(this.camera);
     this.renderer = new MainViewRenderer(this.camera);
     this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner);
-    
+
     //Set up async notifiers.
     this.onRendered = new Notifier();
     let onSubReady = new Notifier();
-    
+
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
     this.replyTarget = new ReactiveVar();
     this.isSizeDirty = true;
-    
+
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup
         instance.partitioner.init();
-        
+
         //Callback for added/removed posts
         let isLive = false;
         instance.postObserver = Posts.find({}).observe({
             added: function(post) {
                 instance.renderer.addPost(post);
-                
+
                 //For posts added during runtime
                 if (isLive) {
                     console.log('new post: ' + post._id);
@@ -66,59 +66,59 @@ Template.mainView.onCreated(function() {
             }
         });
         isLive = true;
-        
+
         //Callback for changed post positions
         Posts.find({}, {fields: {'defaultPosition': 1}}).observeChanges({
             changed: function(id, fields) {
                 let pos = fields.defaultPosition;
                 console.log('new position: ' + id + ' ' + pos);
-                
+
                 //Need to update position in webgl renderer, partition, and detailed posts.
             }
         });
-        
+
         let t0 = performance.now();
-        
+
         //Begin rendering
         let render = function() {
             if (instance.isDestroyed) {
                 return;
             }
-            
+
             let t1 = performance.now();
             let dt = (t1 - t0)/1000.0;
-            
+
             if (instance.isSizeDirty) {
                 instance.camera.resize();
                 instance.renderer.resize();
                 instance.isSizeDirty = false;
             }
-            
+
             instance.camera.step(dt);
             instance.renderer.render();
             instance.detailedPosts.update();
             window.requestAnimationFrame(render);
             t0 = t1;
         };
-        
+
         window.requestAnimationFrame(render);
     });
 });
 
 Template.mainView.onRendered(function() {
     let instance = this;
-    
+
     //Initialize everything that depends on the canvas existing.
     let canvas = $('#main-viewport');
-    
+
     this.camera.init(canvas);
     this.renderer.init(canvas);
     this.onRendered.fulfill();
-    
+
     $(window).resize(function() {
         instance.isSizeDirty = true;
     });
-    
+
     this.getMousePos = function(event) {
         return {x:event.pageX, y:event.pageY - canvas.offset().top};
     };
@@ -179,18 +179,19 @@ Template.mainReply.onCreated(function() {
 Template.mainReply.onRendered(function() {
     let instance = this;
     //No idea why we need curValue here. get() should work on its own but it doesn't.
-    let target = this.parent.replyTarget.get().curValue; 
-    
+    let target = this.parent.replyTarget.get().curValue;
+
     $('#main-reply-submit-button').click(function(event) {
         let post = {
+            title: $('#main-reply-title').val(),
             content: $('#main-reply-textarea').val(),
             target: target._id
         };
-        
+
         Meteor.call("insertPost", post);
         instance.parent.replyTarget.set();
     });
-    
+
     $('#main-reply-cancel-button').click(function(event) {
         instance.parent.replyTarget.set();
     });

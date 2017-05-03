@@ -42,6 +42,12 @@
     resize: none;
 }
 
+#main-reply input {
+    margin: 10px;
+    width: 512px;
+    resize: none;
+}
+
 #main-reply-button-container {
     display: flex;
     flex-direction: row;
