@@ -174,5 +174,7 @@ MainViewRenderer = function(camera) {
     };
     
     this.updatePostPosition = function(id, pos) {
+        let index = postIndices[id]*8;
+        gl.bufferSubData(gl.ARRAY_BUFFER, index, new Float32Array([pos.x, pos.y]));
     };
 };
