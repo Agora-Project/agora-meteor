@@ -63,7 +63,6 @@ MainViewRenderer = function(camera) {
     let canvas, gl;
     let postShader, linkShader;
     
-    let sizeDirty = true;
     let postCount = 0;
     let postIndices = {};
     let linkCount = 0;
@@ -105,40 +104,31 @@ MainViewRenderer = function(camera) {
     }
     
     this.render = function() {
-        if (sizeDirty) {
-            gl.viewport(0, 0, canvas[0].width, canvas[0].height);
-            sizeDirty = false;
-        }
+        gl.viewport(0, 0, canvas[0].width, canvas[0].height);
         
-        if (camera.hasChanged()) {
-            let matrix = camera.getMatrix();
-            pointSize = camera.getScale()/6.0;
-            
+        let matrix = camera.getMatrix();
+        pointSize = camera.getScale()/6.0;
+        
+        gl.useProgram(postShader);
+        gl.uniformMatrix3fv(postShader.locMat, false, matrix);
+        gl.uniform1f(postShader.locSize, pointSize);
+        gl.useProgram(linkShader);
+        gl.uniformMatrix3fv(linkShader.locMat, false, matrix);
+        
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    
+        if (pointSize > 2.0) {
             gl.useProgram(postShader);
-            gl.uniformMatrix3fv(postShader.locMat, false, matrix);
-            gl.uniform1f(postShader.locSize, pointSize);
-            gl.useProgram(linkShader);
-            gl.uniformMatrix3fv(linkShader.locMat, false, matrix);
-            
-            gl.clear(gl.COLOR_BUFFER_BIT);
-        
-            if (pointSize > 2.0) {
-                gl.useProgram(postShader);
-                gl.drawArrays(gl.POINTS, 0, postCount);
-            }
-            
-            gl.useProgram(linkShader);
-            gl.drawElements(gl.LINES, linkCount*2, gl.UNSIGNED_SHORT, 0);
+            gl.drawArrays(gl.POINTS, 0, postCount);
         }
+        
+        gl.useProgram(linkShader);
+        gl.drawElements(gl.LINES, linkCount*2, gl.UNSIGNED_SHORT, 0);
     };
     
     let addLink = function(source, target) {
         gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, linkCount*4, new Int16Array([source, target]));
         linkCount++;
-    };
-    
-    this.resize = function() {
-        sizeDirty = true;
     };
     
     this.init = function(postArray) {

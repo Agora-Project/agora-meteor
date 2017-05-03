@@ -72,16 +72,18 @@ Template.mainView.onCreated(function() {
         isLive = true;
 
         //Callback for changed post positions.
-        Posts.find({}, {fields: {'defaultPosition': 1}}).observeChanges({
+        instance.changeObserver = Posts.find({}, {fields: {'defaultPosition': 1}}).observeChanges({
             changed: function(id, fields) {
                 let pos = fields.defaultPosition;
                 
                 instance.partitioner.updatePostPosition(id, pos);
                 instance.renderer.updatePostPosition(id, pos);
+                instance.detailedPosts.updatePostPosition(id, pos);
             }
         });
 
         let t0 = performance.now();
+        
 
         //Begin rendering.
         let render = function() {
@@ -92,11 +94,8 @@ Template.mainView.onCreated(function() {
             let t1 = performance.now();
             let dt = (t1 - t0)/1000.0;
 
-            if (instance.isSizeDirty) {
-                instance.camera.resize();
-                instance.renderer.resize();
-                instance.isSizeDirty = false;
-            }
+            instance.canvas[0].width = instance.canvas.width();
+            instance.canvas[0].height = instance.canvas.height();
 
             instance.camera.step(dt);
             instance.renderer.render();
@@ -114,15 +113,12 @@ Template.mainView.onRendered(function() {
 
     //Initialize everything that depends on the canvas existing.
     let canvas = $('#main-viewport');
-
+    
+    this.canvas = canvas;
     this.camera.construct(canvas);
     this.renderer.construct(canvas);
     this.onRendered.fulfill();
-
-    $(window).resize(function() {
-        instance.isSizeDirty = true;
-    });
-
+    
     this.getMousePos = function(event) {
         return {x:event.pageX, y:event.pageY - canvas.offset().top};
     };
@@ -168,8 +164,8 @@ Template.mainView.events({
 
 Template.mainView.onDestroyed(function() {
     this.postObserver.stop();
+    this.changeObserver.stop();
     this.isDestroyed = true;
-    $(window).off('resize');
 });
 
 Template.mainReply.onCreated(function() {

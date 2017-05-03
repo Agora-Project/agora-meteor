@@ -79,26 +79,28 @@ MainViewDetailedPosts = function(camera, partitioner) {
         });
     };
     
+    this.updatePostPosition = function(id, pos) {
+        visiblePosts.update({_id: id}, {$set: {defaultPosition: pos}});
+    };
+    
     this.update = function() {
-        if (camera.hasChanged()) {
-            if (camera.getScale() < 256.0) {
-                //Remove all posts if zoomed too far out.
-                visiblePostsCursor.forEach(remove);
-            }
-            else {
-                //Remove posts which are no longer visible.
-                visiblePostsCursor.forEach(function(post) {
-                    if (!camera.isPointVisible(post.defaultPosition)) {
-                        remove(post);
-                    }
-                });
-                
-                //Add posts which are newly visible.
-                let visible = partitioner.getVisible();
-                for (let post of visible) {
-                    if (!visiblePosts.findOne({_id: post._id})) {
-                        visiblePosts.insert(post);
-                    }
+        if (camera.getScale() < 256.0) {
+            //Remove all posts if zoomed too far out.
+            visiblePostsCursor.forEach(remove);
+        }
+        else {
+            //Remove posts which are no longer visible.
+            visiblePostsCursor.forEach(function(post) {
+                if (!camera.isPointVisible(post.defaultPosition)) {
+                    remove(post);
+                }
+            });
+            
+            //Add posts which are newly visible.
+            let visible = partitioner.getVisible();
+            for (let post of visible) {
+                if (!visiblePosts.findOne({_id: post._id})) {
+                    visiblePosts.insert(post);
                 }
             }
         }

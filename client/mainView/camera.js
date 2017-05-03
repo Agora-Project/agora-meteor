@@ -5,22 +5,8 @@ MainViewCamera = function() {
     let p = {x:0.0, y:0.0};
     let scale = 16.0;
     
-    let matrix = null;
-    let sizeDirty = true;
-    let matrixDirty = true; //Whether the matrix needs to be updated.
-    let matrixChanged = true; //Whether matrix has changed since last frame.
-    
     this.construct = function(initCanvas) {
         canvas = initCanvas;
-    };
-    
-    this.resize = function() {
-        sizeDirty = true;
-        matrixDirty = true;
-    };
-    
-    this.hasChanged = function() {
-        return matrixChanged;
     };
     
     this.getPos = function() {
@@ -46,7 +32,11 @@ MainViewCamera = function() {
     };
     
     this.getMatrix = function() {
-        return matrix;
+        let w = 2.0*scale/canvas[0].width;
+        let h = 2.0*scale/canvas[0].height;
+        return [w, 0.0, -w*p.x,
+                0.0, h, -h*p.y,
+                0.0, 0.0, 1.0];
     };
     
     this.toWorld = function(v) {
@@ -73,7 +63,6 @@ MainViewCamera = function() {
         if (dragging) {
             p.x += (mp0.x - mp.x)/scale;
             p.y += (mp.y - mp0.y)/scale;
-            matrixDirty = true;
         }
         
         mp0 = mp;
@@ -124,7 +113,6 @@ MainViewCamera = function() {
             let newPos = self.toWorld(mp0);
             p.x += oldPos.x - newPos.x;
             p.y += oldPos.y - newPos.y;
-            matrixDirty = true;
         };
         
         this.isFinished = function() {
@@ -138,12 +126,6 @@ MainViewCamera = function() {
     };
     
     this.step = function(dt) {
-        if (sizeDirty) {
-            canvas[0].width = canvas.width();
-            canvas[0].height = canvas.height();
-            sizeDirty = false;
-        }
-        
         for (let i = zooms.length - 1; i >= 0; i--) {
             let zoom = zooms[i];
             
@@ -156,17 +138,6 @@ MainViewCamera = function() {
         
         if (zooms.length === 0) {
             targetScale = scale;
-        }
-        
-        matrixChanged = matrixDirty;
-        matrixDirty = false;
-        
-        if (matrixChanged) {
-            let w = 2.0*scale/canvas[0].width;
-            let h = 2.0*scale/canvas[0].height;
-            matrix = [w, 0.0, -w*p.x,
-                      0.0, h, -h*p.y,
-                      0.0, 0.0, 1.0];
         }
     };
 };
