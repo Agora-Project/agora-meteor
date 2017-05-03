@@ -3,6 +3,8 @@ let CELL_CAPACITY = 16;
 
 //K-d tree implementation
 let KDCell = function(posts, axis) {
+    let self = this;
+    
     //The given axis is normal to the splitting hyperplane. (Which is a line in this case.)
     let getValue, nextAxis;
     switch(axis) {
@@ -72,13 +74,25 @@ let KDCell = function(posts, axis) {
     }
     
     //Expose fields.
-    this.left = left;
-    this.right = right;
-    this.axis = axis;
-    this.median = median;
     this.isSplit = true;
     
     //Expose methods.
+    this.makeMap = function(map) {
+        if (left.isSplit) {
+            left.makeMap(map);
+        }
+        else for (let post of left) {
+            map[post._id] = left;
+        }
+        
+        if (right.isSplit) {
+            right.makeMap(map);
+        }
+        else for (let post of right) {
+            map[post._id] = right;
+        }
+    };
+    
     this.getVisible = function(bounds, out) {
         let min, max;
         switch(axis) {
@@ -108,22 +122,66 @@ let KDCell = function(posts, axis) {
             }
         }
     };
+    
+    let cellInsert = function(cell, map, post) {
+        if (cell.isSplit) {
+            cell.insert(map, post);
+        }
+        else {
+            cell.push(post);
+            map[post._id] = cell;
+            if (cell.length > CELL_CAPACITY) {
+                cell = new KDCell(cell, nextAxis);
+            }
+        }
+        
+        return cell;
+    };
+    
+    this.insert = function(map, post) {
+        if (getValue(post) < median) {
+            left = cellInsert(left, map, post);
+        }
+        else {
+            right = cellInsert(right, map, post);
+        }
+    };
 };
 
 MainViewPartitioner = function(camera) {
-    let root;
+    let self = this;
+    let root, map;
     
     this.init = function(postArray) {
         root = new KDCell(postArray, 'X');
+        root.makeMap(map = {});
     };
     
     this.addPost = function(post) {
+        root.insert(map, post);
     };
     
     this.removePost = function(post) {
+        let id = post._id;
+        let leaf = map[id];
+        if (leaf === undefined) {
+            return;
+        }
+        
+        for (let i = 0; i < leaf.length; i++) {
+            let p = leaf[i];
+            if (p._id == id) {
+                leaf.splice(i, 1);
+                delete map[id];
+                return p;
+            }
+        }
     };
     
     this.updatePostPosition = function(id, pos) {
+        let post = self.removePost({_id: id});
+        post.defaultPosition = pos;
+        self.addPost(post);
     };
     
     this.getVisible = function() {
