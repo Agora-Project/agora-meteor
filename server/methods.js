@@ -23,10 +23,6 @@ Meteor.methods({
             if (post.title.length < 1) {
                 delete post.title;
             }
-            
-            if (post.title.length > 100) {
-                return;
-            }
         }
         
         if (!post.target) {
@@ -37,6 +33,9 @@ Meteor.methods({
         if (!target) {
             return;
         }
+        
+        //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
+        Schema.Post.validate(post);
         
         //Will always insert directly underneath target, shifting existing posts to the right.
         let y = target.defaultPosition.y - 1;
