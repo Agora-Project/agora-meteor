@@ -178,8 +178,7 @@ Template.mainReply.onCreated(function() {
 
 Template.mainReply.onRendered(function() {
     let instance = this;
-    //No idea why we need curValue here. get() should work on its own but it doesn't.
-    let target = this.parent.replyTarget.get().curValue;
+    let target = this.parent.replyTarget.get();
     
     let div = $('#main-reply');
     div.css('top', -div.outerHeight());

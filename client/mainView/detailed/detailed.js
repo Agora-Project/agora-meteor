@@ -11,12 +11,18 @@ Template.mainDetailedPost.onCreated(function() {
     this.parent = parentView.templateInstance();
     
     //Automatically update data with content, title, user data, etc.
+    this.post = new ReactiveVar();
+    this.poster = new ReactiveVar();
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
     
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
     
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
+        //Populate post data.
+        instance.post.set(Posts.findOne({_id: instance.data._id}));
+        instance.poster.set(Meteor.users.findOne({_id: instance.data.poster}));
+        
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-detailed-post-spinner').fadeOut(100);
         instance.div.children('.main-detailed-post-flex')
@@ -34,13 +40,13 @@ Template.mainDetailedPost.onRendered(function() {
 
 Template.mainDetailedPost.helpers({
     post: function() {
-        return Posts.findOne({_id: Template.instance().data._id});
+        return Template.instance().post.get();
     },
     poster: function() {
-        return Meteor.users.findOne({_id: Template.instance().data.poster});
+        return Template.instance().poster.get();
     },
     age: function() {
-        let post = Posts.findOne({_id: Template.instance().data._id});
+        let post = Template.instance().post.get();
         if (post) {
             return new Date(post.postedOn).toDateString();
         }
@@ -130,6 +136,6 @@ Template.mainDetailedPostReplyButton.onCreated(function() {
 Template.mainDetailedPostReplyButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.replyTarget.set(instance.parent.post);
+        instance.parent.parent.replyTarget.set(instance.parent.post.get());
     }
 });
