@@ -39,6 +39,22 @@
     flex-direction: row;
     padding: 5px 10px 5px 10px;
     border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+
+.main-detailed-post-avatar {
+}
+
+.main-detailed-post-username {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+}
+
+.main-detailed-post-age {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
 }
 
 .main-detailed-post-content {

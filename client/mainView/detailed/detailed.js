@@ -11,17 +11,12 @@ Template.mainDetailedPost.onCreated(function() {
     this.parent = parentView.templateInstance();
     
     //Automatically update data with content, title, user data, etc.
-    this.post = new ReactiveVar();
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
     
-    this.subscribe('post', this.data._id, {onReady: onSubReady.fulfill});
+    this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
     
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
-        //Populate post data.
-        let post = Posts.findOne({_id: instance.data._id});
-        instance.post.set(post);
-        
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-detailed-post-spinner').fadeOut(100);
         instance.div.children('.main-detailed-post-flex')
@@ -39,10 +34,13 @@ Template.mainDetailedPost.onRendered(function() {
 
 Template.mainDetailedPost.helpers({
     post: function() {
-        return Template.instance().post.get();
+        return Posts.findOne({_id: Template.instance().data._id});
+    },
+    poster: function() {
+        return Meteor.users.findOne({_id: Template.instance().data.poster});
     },
     age: function() {
-        let post = Template.instance().post.get();
+        let post = Posts.findOne({_id: Template.instance().data._id});
         if (post) {
             return new Date(post.postedOn).toDateString();
         }

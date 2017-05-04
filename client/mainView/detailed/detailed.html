@@ -5,10 +5,15 @@
                 <div class="main-detailed-post-title">{{post.title}}</div>
             {{/if}}
             <div class="main-detailed-post-info">
-                {{#if post.user}}
-                    <a href="/forum/user/{{user._id}}">{{post.user.username}}</a>
+                {{#if poster}}
+                    <a class="main-detailed-post-avatar" href="/user/{{poster._id}}">
+                        {{> avatar user=(poster) size="small" shape="rounded"}}
+                    </a>
+                    <a class="main-detailed-post-username" href="/user/{{poster._id}}">
+                        {{poster.username}}
+                    </a>
                 {{/if}}
-                <span>{{age}}</span>
+                <span class="main-detailed-post-age">{{age}}</span>
             </div>
             <div class="main-detailed-post-content">
                 <p>{{post.content}}</p>
