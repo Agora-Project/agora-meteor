@@ -26,6 +26,9 @@
             <div id="main-reply-button-container">
                 <button id="main-reply-submit-button">Submit</button>
                 <button id="main-reply-cancel-button">Cancel</button>
+                {{#if errorMessage}}
+                    <span id="main-reply-error-message">{{errorMessage}}</span>
+                {{/if}}
             </div>
         </div>
     </div>

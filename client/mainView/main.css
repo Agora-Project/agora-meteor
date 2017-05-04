@@ -27,6 +27,8 @@
     flex-direction: column;
     position: relative;
     height: auto;
+    width: 640px;
+    max-width: 100vw;
     left: -50%;
     margin: auto;
     background-color: #fff;
@@ -36,13 +38,11 @@
 
 #main-reply input {
     margin: 10px 10px 0px 10px;
-    width: 512px;
     resize: none;
 }
 
 #main-reply textarea {
     margin: 10px 10px 0px 10px;
-    width: 512px;
     height: 192px;
     resize: none;
 }
@@ -51,4 +51,12 @@
     display: flex;
     flex-direction: row;
     padding: 10px;
+}
+
+#main-reply-error-message {
+    margin-left: 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #f33;
 }

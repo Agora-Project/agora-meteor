@@ -176,6 +176,8 @@ Template.mainReply.onCreated(function() {
         parentView = parentView.parentView;
     }
     this.parent = parentView.templateInstance();
+    
+    this.errorMessage = new ReactiveVar();
 });
 
 Template.mainReply.onRendered(function() {
@@ -184,7 +186,7 @@ Template.mainReply.onRendered(function() {
     
     let div = $('#main-reply');
     div.css('top', -div.outerHeight());
-
+    
     $('#main-reply-submit-button').click(function(event) {
         let post = {
             title: $('#main-reply-title').val(),
@@ -192,13 +194,27 @@ Template.mainReply.onRendered(function() {
             target: target._id
         };
 
-        Meteor.call("insertPost", post);
-        instance.parent.replyTarget.set();
+        Meteor.call("insertPost", post, function(error) {
+            if (error) {
+                //Display error message to user.
+                instance.errorMessage.set(error.reason);
+            }
+            else {
+                //Don't delete user's work unless it posts successfully.
+                instance.parent.replyTarget.set();
+            }
+        });
     });
 
     $('#main-reply-cancel-button').click(function(event) {
         instance.parent.replyTarget.set();
     });
+});
+
+Template.mainReply.helpers({
+    errorMessage: function() {
+        return Template.instance().errorMessage.get();
+    }
 });
 
 Template.mainReply.events({
