@@ -187,10 +187,17 @@ Template.mainReply.onRendered(function() {
     let div = $('#main-reply');
     div.css('top', -div.outerHeight());
     
+    let titleInput = $('#main-reply-title');
+    let contentInput = $('#main-reply-textarea');
+    
+    let hasContent = function() {
+        return titleInput.val().length > 0 || contentInput.val().length > 0;
+    };
+    
     $('#main-reply-submit-button').click(function(event) {
         let post = {
-            title: $('#main-reply-title').val(),
-            content: $('#main-reply-textarea').val(),
+            title: titleInput.val(),
+            content: contentInput.val(),
             target: target._id
         };
 
@@ -207,7 +214,15 @@ Template.mainReply.onRendered(function() {
     });
 
     $('#main-reply-cancel-button').click(function(event) {
-        instance.parent.replyTarget.set();
+        if (!hasContent() || confirm('You have an unfinished post. Are you sure you want to cancel?')) {
+            instance.parent.replyTarget.set();
+        }
+    });
+    
+    $(window).on('beforeunload', function(event) {
+        if (hasContent()) {
+            return 'You have an unfinished post. Are you sure you want to close Agora?';
+        }
     });
 });
 
@@ -228,4 +243,8 @@ Template.mainReply.events({
             event.stopImmediatePropagation();
         }
     }
+});
+
+Template.mainReply.onDestroyed(function() {
+    $(window).off('beforeunload');
 });
