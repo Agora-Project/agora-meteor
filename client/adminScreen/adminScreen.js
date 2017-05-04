@@ -1,4 +1,6 @@
-
+Template.adminScreen.onCreated(function() {
+    this.subscribe('reports');
+});
 
 Template.adminScreen.helpers({
     reports: function() {
@@ -13,7 +15,7 @@ Template.adminScreen.events({
 Template.report.helpers({
     post: function() {
         console.log(this);
-        let post = Post.findOne({_id: this.targetID});
+        let post = Posts.findOne({_id: this.targetID});
         return post;
     },
     user: function() {

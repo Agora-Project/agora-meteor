@@ -5,83 +5,75 @@
 */
 
 Meteor.methods({
-    removeWithLinks: function(postId) {
-        var post = Post.findOne({_id: postId});
-
-        if (!Roles.userIsInRole(this.userId, ['moderator']))
-            return;
-
-        var results = [];
-
-
-        post.links.forEach(function(link) {
-            results.push(Post.update({_id: link.target},
-                        { $pull: { replyIDs: postId}}));
-        });
-
-        post.replyIDs.forEach(function(link) {
-            results.push(Post.update({_id: link},
-                        { $pull: { links: {target: postId}}}));
-        });
-
-        results.push(Post.remove(postId));
-        return results;
-    },
     insertPost: function(post) {
-        if (post.title.length >= 1 && post.title.length <= 100 && post.links.length >= 1) {
-            let postId = Post.insert(post);
-            for (let i in post.links) {
-                Post.update({_id: post.links[i].target},
-                            { $push: { replyIDs: postId}});
-            }
-            return postId;
+        let user = Meteor.users.findOne({_id: this.userId});
+        
+        //Don't allow guests to post.
+        if (!user) {
+            throw new Meteor.Error('not-logged-in', 'The user must be logged in to post.');
         }
-
-    },
-    editPost: function(post) {
-        if (post.title.length < 1 || post.title.length > 100 || post.links.length < 1 ||
-           (this.userId != Post.findOne({_id: post._id}).ownerId &&
-            !Roles.userIsInRole(this.userId, ['moderator']))) return;
-
-        var linksToRemove = [], existingLinks = Post.findOne({_id: post._id}).links;
-
-        //go through and add any new links...
-        for (let i in post.links) {
-            let linkTarget = post.links[i].target, linkNotPresent = true;
-            for (let j in existingLinks) {
-                let existingLink = existingLinks[j];
-                if (existingLink.target == linkTarget) {
-                    linkNotPresent = false;
-                    existingLinks.splice(j, 1);
-                    break;
+        
+        //Don't allow banned users to post.
+        if (user.isBanned) {
+            throw new Meteor.Error('banned', 'Banned users may not post.');
+        }
+        
+        //Validate post.
+        if (post.title) {
+            if (post.title.length < 1) {
+                delete post.title;
+            }
+        }
+        
+        if (!post.target) {
+            return;
+        }
+        
+        let target = Posts.findOne({_id: post.target});
+        if (!target) {
+            return;
+        }
+        
+        //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
+        Schema.Post.validate(post);
+        
+        //Will always insert directly underneath target, shifting existing posts to the right.
+        let y = target.defaultPosition.y - 1;
+        let x = target.defaultPosition.x;
+        post.defaultPosition = {x: x, y: y};
+        
+        //Find the chain of adjacent posts which need to be shifted.
+        let shifting = false;
+        let postsToShift = [];
+        let prevColumn;
+        Posts.find({'defaultPosition.y': y}, {sort: {'defaultPosition.x': 1}}).forEach(function(post) {
+            if (shifting) {
+                if (post.defaultPosition.x > prevColumn + 1) {
+                    shifting = false;
                 }
-
             }
-            if (linkNotPresent)
-                Post.update({_id: linkTarget},
-                            { $push: { replyIDs: post._id}});
+            else if (post.defaultPosition.x === x) {
+                shifting = true;
+            }
+            
+            if (shifting) {
+                postsToShift.push(post);
+            }
+            
+            prevColumn = post.defaultPosition.x;
+        });
+        
+        //Shift found posts one column to the right.
+        for (let post of postsToShift) {
+            let newColumn = post.defaultPosition.x + 1;
+            Posts.update({_id: post._id}, {$set: {'defaultPosition.x': newColumn}});
         }
-
-        //and then remove any obsolete ones.
-        for (let j in existingLinks) {
-            let existingLink = existingLinks[j];
-            Post.update({_id: existingLink.target},
-                        { $pull: { replyIDs: post._id}});
-        }
-
-        var ret = Post.update({_id: post._id}, { $set: {
-            title: post.title,
-            content: post.content,
-            links: post.links,
-            lastEditedAt: Date.now()
-        }});
-
-        if (ret == 1)
-            return post._id;
-        else {
-            console.log("Oh no! Edited " + ret + " Posts!");
-            return post._id;
-        }
+        
+        //Insert new post into position.
+        let postId = Posts.insert(post);
+        Posts.update({_id: post.target}, {$push: {replies: postId}});
+        
+        return postId;
     },
     submitReport: function(report) {
         if (report.content.length >= 1)

@@ -1,0 +1,90 @@
+.main-detailed-post {
+    position: absolute;
+    display: none;
+    min-height: 61px;
+    margin: 0px;
+    padding: 0px;
+    background-color: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.main-detailed-post-spinner {
+    position: absolute;
+    font-size: 32px;
+    left: 50%;
+    top: 50%;
+    padding: 0px;
+    margin: -16px 0px 0px -16px;
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    from {transform: scale(1) rotate(0deg);}
+    to {transform: scale(1) rotate(360deg);}
+}
+
+.main-detailed-post-flex {
+    display: none;
+    flex-direction: column;
+}
+
+.main-detailed-post-title {
+    padding: 5px 10px 5px 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.main-detailed-post-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+    padding: 5px 10px 5px 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.main-detailed-post-avatar {
+    margin-right: 8px;
+}
+
+.avatar .avatar-initials {
+    z-index: auto;
+}
+
+.main-detailed-post-username {
+    margin-right: 8px;
+}
+
+.main-detailed-post-age {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.main-detailed-post-content {
+    padding: 5px 10px 5px 10px;
+}
+
+.main-detailed-post-content p {
+    margin: 0px;
+    line-height: 130%;
+    overflow: hidden;
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+}
+
+.main-detailed-post-reply-button {
+    float: right;
+    padding: 2px 4px 2px 4px;
+    color: #000;
+    background-color: #ddd;
+    border: 1px solid #ccc;
+}
+
+.main-detailed-post-reply-button:hover {
+    background-color: #eee;
+}
+
+.main-detailed-post-reply-button:active {
+    background-color: #ddd;
+}

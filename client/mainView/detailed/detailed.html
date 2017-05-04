@@ -1,0 +1,33 @@
+<template name="mainDetailedPost">
+    <div class="main-detailed-post" id="main-detailed-post-{{_id}}">
+        <div class="main-detailed-post-flex">
+            {{#if post.title}}
+                <div class="main-detailed-post-title">{{post.title}}</div>
+            {{/if}}
+            <div class="main-detailed-post-info">
+                {{#if poster}}
+                    <a class="main-detailed-post-avatar" href="/user/{{poster._id}}">
+                        {{> avatar user=(poster) size="small" shape="rounded"}}
+                    </a>
+                    <a class="main-detailed-post-username" href="/user/{{poster._id}}">
+                        {{poster.username}}
+                    </a>
+                {{/if}}
+                <span class="main-detailed-post-age">{{age}}</span>
+            </div>
+            <div class="main-detailed-post-content">
+                <p>{{post.content}}</p>
+                {{#if currentUser}}
+                    {{#if hasReplyButton}}
+                        {{> mainDetailedPostReplyButton}}
+                    {{/if}}
+                {{/if}}
+            </div>
+        </div>
+        <i class="main-detailed-post-spinner fa fa-refresh" aria-hidden="true"></i>
+    </div>
+</template>
+
+<template name="mainDetailedPostReplyButton">
+    <button class="main-detailed-post-reply-button">Reply</button>
+</template>

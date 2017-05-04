@@ -13,63 +13,73 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-    both = ['client', 'server']
+    both = ['client', 'server'];
 
     api.versionsFrom('1.1.0.3');
-
+    
     api.addFiles([
-        'lib/XBBCode/xbbcode.js',
-        'lib/XBBCode/xbbcode.css'
+        'server/initial-data.js',
+        'server/methods.js',
+        'server/publish.js',
+        'server/users.js'
+    ], 'server');
+    
+    api.addFiles([
+        'lib/identity_collections/identity_collections.js',
+        'lib/grapher/layered_grapher.js',
+        'lib/schemas/post.js',
+        'lib/schemas/report.js',
+        'lib/schemas/vote.js',
+        'routes.js'
+    ], both);
+    
+    api.use([
+        'ecmascript@0.6.0',
+        'iron:router@1.0.0',
+        'aldeed:collection2@2.3.3',
+        'matb33:collection-hooks@0.7.13',
+        'accounts-base',
+        'alanning:roles@1.2.13'
+    ], both);
+    
+    api.addFiles([
+        'client/lib/XBBCode/xbbcode.js',
+        'client/lib/XBBCode/xbbcode.css',
+        'client/lib/notifier/notifier.js',
+        'client/lib/requestAnimationFrame/requestAnimationFrame.js'
     ], 'client');
 
     api.addFiles([
-        'client/subscribe.js',
-        'client/navigation.js',
+        'client/main.html',
         'client/main.css',
-        'client/main.js'
+        'client/init.js'
     ], 'client');
 
     api.addFiles([
         'client/userList/userList.html',
         'client/userList/userList.js'
     ], 'client');
-
+    
     api.addFiles([
-        'lib/layered_grapher/layered_grapher.js',
-        'client/graphLayoutMethods.js',
-        'lib/overviewGraphMaker/overviewGraphMaker.css',
-        'lib/overviewGraphMaker/overviewGraphMaker.js'
+        'client/mainView/detailed/detailed.html',
+        'client/mainView/detailed/detailed.css',
+        'client/mainView/detailed/detailed.js',
+        'client/mainView/reply/reply.html',
+        'client/mainView/reply/reply.css',
+        'client/mainView/reply/reply.js',
+        'client/mainView/main.html',
+        'client/mainView/main.css',
+        'client/mainView/partitioner.js',
+        'client/mainView/camera.js',
+        'client/mainView/renderer.js',
+        'client/mainView/main.js'
     ], 'client');
 
     api.addFiles([
-        'client/expandedPost/expandedPost.html',
-        'client/expandedPost/expandedPost.css',
-        'client/expandedPost/expandedPost.js'
+        'client/userProfile/userProfile.html',
+        'client/userProfile/userProfile.css',
+        'client/userProfile/userProfile.js'
     ], 'client');
-
-    api.addFiles([
-        'client/detailedView/detailedViewData.js',
-        'client/detailedView/detailedViewGraph.js',
-        'client/detailedView/detailedView.html',
-        'client/detailedView/detailedView.css',
-        'client/detailedView/detailedView.js'
-    ], 'client');
-
-    api.addFiles([
-        'client/overview/overview.html',
-        'client/overview/overview.js'
-    ], 'client');
-
-    api.addFiles([
-        'client/templates.html',
-    ], 'client');
-
-    api.addFiles([
-        'client/profile/profile.html',
-        'client/profile/profile.css',
-        'client/profile/profile.js'
-    ], 'client');
-
 
     api.addFiles([
         'client/adminScreen/adminScreen.html',
@@ -80,21 +90,7 @@ Package.onUse(function(api) {
     api.addAssets([
         'public/agoraforum.png'
     ], 'client');
-
-    api.addFiles([
-        'lib/schemas/post.js',
-        'lib/schemas/report.js',
-        'lib/schemas/vote.js',
-        'routes.js'
-    ], both);
-
-    api.addFiles([
-        'server/initial-data.js',
-        'server/methods.js',
-        'server/publish.js',
-        'server/users.js'
-    ], 'server');
-
+    
     api.use([
         'session',
         'templating',
@@ -104,15 +100,6 @@ Package.onUse(function(api) {
         'zodiase:mdl@1.0.2',
         'utilities:avatar@0.9.2'
     ], 'client');
-
-    api.use([
-        'ecmascript@0.6.0',
-        'iron:router@1.0.0',
-        'aldeed:collection2@2.3.3',
-        'matb33:collection-hooks@0.7.13',
-        'accounts-base',
-        'alanning:roles@1.2.13'
-    ], both);
 });
 
 Package.onTest(function(api) {

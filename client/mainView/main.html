@@ -1,0 +1,19 @@
+<!--
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+-->
+
+<template name="mainView">
+    <div id="main-container">
+        <canvas id="main-viewport"></canvas>
+        {{#each detailedPosts}}
+            {{> mainDetailedPost}}
+        {{/each}}
+        {{#if currentUser}}
+            {{#if replyTarget}}
+                {{> mainReply}}
+            {{/if}}
+        {{/if}}
+    </div>
+</template>

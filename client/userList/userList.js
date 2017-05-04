@@ -4,6 +4,10 @@
     License: GPL, Check file LICENSE
 */
 
+Template.userList.onCreated(function() {
+    this.subscribe('users');
+});
+
 Template.userList.helpers({
     users: Meteor.users.find({})
 });

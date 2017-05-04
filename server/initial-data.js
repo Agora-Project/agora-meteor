@@ -5,49 +5,61 @@
 */
 
 Meteor.startup(function() {
-    var moderatorEmail, moderatorId;
-    if (!Post.findOne({$where : '!this.links || this.links.length < 1'})) {
-        console.log("Adding root post");
-        Post.insert({
+    //Deletes all posts and adds a set of random fake posts.
+    if (false) {
+        console.log('Deleting all posts');
+        Posts.remove({});
+        
+        console.log('Adding root post');
+        let rootID = Posts.insert({
             title: 'Forum Root',
-            links: []
+            content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.'
         });
-
+        
+        console.log("Adding fake posts");
+        let posts = [rootID];
+        
+        for (let i=0; i<500; i++) {
+            //Decrease exponent to more strongly prefer replying to newer posts.
+            let random = Math.pow(Math.random(), 0.1);
+            let target = posts[Math.floor(random*posts.length)];
+            
+            let reply = {
+                content: 'Fake content.',
+                target: target
+            };
+            
+            if (Math.random() > 0.5) {
+                reply.title = 'Fake Title';
+            }
+            
+            let id = Posts.insert(reply);
+            Posts.update({_id: target}, {$push: {replies: id}});
+            posts.push(id);
+        }
     }
-
-    /*
-    console.log("Adding fake posts");
-    for (let i=0; i<128; i++) {
-        let posts = [];
-        Post.find().forEach(function(post) {
-            posts.push(post);
-        });
-
-        //Sort by date.
-        posts.sort(function(a, b) {
-            return b.postedOn - a.postedOn;
-        });
-
-        //Increase exponent to more strongly prefer replying to newer posts.
-        let random = Math.pow(Math.random(), 3.0);
-        let post = posts[Math.floor(random*posts.length)];
-
-        let reply = {
-            title: 'Fake Post',
-            links: [{target: post._id}]
-        };
-
-        Meteor.call('insertPost', reply);
+    
+    //Compute default layout of posts.
+    console.log('Laying out posts');
+    let posts = {};
+    Posts.find({}, {fields: {'_id': 1, 'target': 1}}).forEach(function(post) {
+        posts[post._id] = post;
+    });
+    
+    let grapher = new LayeredGrapher(posts);
+    
+    for (let id in posts) {
+        let post = posts[id];
+        Posts.update({_id: id}, {$set: {defaultPosition: {x:post.x, y:post.y}}});
     }
-
-*/
-
-    moderatorEmail = "moderator@example.com";
+    
+    //Set up moderator account if it does not exist.
+    let moderatorEmail = "moderator@example.com";
     if (!Meteor.users.findOne({
         "emails.address": moderatorEmail
     })) {
         console.log("Adding default moderator");
-        moderatorId = Accounts.createUser({
+        let moderatorId = Accounts.createUser({
             email: moderatorEmail,
             password: "mod1pass",
             username: "Moderator"
