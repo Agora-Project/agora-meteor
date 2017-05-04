@@ -47,6 +47,10 @@
     margin-right: 8px;
 }
 
+.avatar .avatar-initials {
+    z-index: auto;
+}
+
 .main-detailed-post-username {
     margin-right: 8px;
 }
