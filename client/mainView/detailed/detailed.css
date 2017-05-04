@@ -37,24 +37,24 @@
 .main-detailed-post-info {
     display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: left;
     padding: 5px 10px 5px 10px;
     border-bottom: 1px solid #ccc;
-    text-align: center;
 }
 
 .main-detailed-post-avatar {
+    margin-right: 8px;
 }
 
 .main-detailed-post-username {
-    display: inline-block;
-    vertical-align: middle;
-    line-height: normal;
+    margin-right: 8px;
 }
 
 .main-detailed-post-age {
-    display: inline-block;
-    vertical-align: middle;
-    line-height: normal;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .main-detailed-post-content {
@@ -64,7 +64,9 @@
 .main-detailed-post-content p {
     margin: 0px;
     line-height: 130%;
+    overflow: hidden;
     white-space: pre-wrap;
+    text-overflow: ellipsis;
 }
 
 .main-detailed-post-reply-button {
