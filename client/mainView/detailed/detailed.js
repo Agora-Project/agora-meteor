@@ -83,6 +83,15 @@ MainViewDetailedPosts = function(camera, partitioner) {
         });
     };
     
+    this.init = function(postArray) {
+    };
+    
+    this.addPost = function(post) {
+    };
+    
+    this.removePost = function(post) {
+    };
+    
     this.updatePostPosition = function(id, pos) {
         visiblePosts.update({_id: id}, {$set: {defaultPosition: pos}});
     };

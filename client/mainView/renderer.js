@@ -107,7 +107,7 @@ MainViewRenderer = function(camera) {
         gl.viewport(0, 0, canvas[0].width, canvas[0].height);
         
         let matrix = camera.getMatrix();
-        pointSize = camera.getScale()/6.0;
+        pointSize = camera.getScale()/8.0;
         
         gl.useProgram(postShader);
         gl.uniformMatrix3fv(postShader.locMat, false, matrix);

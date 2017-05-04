@@ -38,6 +38,7 @@ Template.mainView.onCreated(function() {
     this.partitioner = new MainViewPartitioner(this.camera);
     this.renderer = new MainViewRenderer(this.camera);
     this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner);
+    let modules = [this.camera, this.partitioner, this.renderer, this.detailedPosts];
 
     //Set up async notifiers.
     this.onRendered = new Notifier();
@@ -52,21 +53,24 @@ Template.mainView.onCreated(function() {
         let postCursor = Posts.find({});
         let initPostArray = postCursor.fetch();
         
-        instance.partitioner.init(initPostArray);
-        instance.renderer.init(initPostArray);
+        for (let module of modules) {
+            module.init(initPostArray);
+        }
 
         //Callback for added/removed posts.
         let isLive = false;
         instance.postObserver = postCursor.observe({
             added: function(post) {
                 if (isLive) {
-                    instance.partitioner.addPost(post);
-                    instance.renderer.addPost(post);
+                    for (let module of modules) {
+                        module.addPost(post);
+                    }
                 }
             },
             removed: function(post) {
-                instance.partitioner.removePost(post);
-                instance.renderer.removePost(post);
+                for (let module of modules) {
+                    module.removePost(post);
+                }
             }
         });
         isLive = true;
@@ -75,16 +79,14 @@ Template.mainView.onCreated(function() {
         instance.changeObserver = Posts.find({}, {fields: {'defaultPosition': 1}}).observeChanges({
             changed: function(id, fields) {
                 let pos = fields.defaultPosition;
-                
-                instance.partitioner.updatePostPosition(id, pos);
-                instance.renderer.updatePostPosition(id, pos);
-                instance.detailedPosts.updatePostPosition(id, pos);
+                for (let module of modules) {
+                    module.updatePostPosition(id, pos);
+                }
             }
         });
 
         let t0 = performance.now();
         
-
         //Begin rendering.
         let render = function() {
             if (instance.isDestroyed) {

@@ -2,11 +2,49 @@ MainViewCamera = function() {
     let self = this;
     let canvas;
     
-    let p = {x:0.0, y:0.0};
-    let scale = 16.0;
+    let p, scale;
+    let postBounds = {left: 0.0, right: 0.0, bottom: 0.0, top: 0.0};
+    let MAX_ZOOM = 768.0, minZoom = 0.0;
     
     this.construct = function(initCanvas) {
         canvas = initCanvas;
+    };
+    
+    this.init = function(postArray) {
+        //Calculate post bounds.
+        for (let post of postArray) {
+            self.addPost(post);
+        }
+        
+        //Grab session camera state if it exists.
+        let state = Session.get('camera');
+        if (state) {
+            p = state.p;
+            scale = state.scale;
+        }
+        else {
+            p = {
+                x: (postBounds.left + postBounds.right)*0.5,
+                y: (postBounds.bottom + postBounds.top)*0.5
+            };
+            scale = minZoom;
+        }
+    };
+    
+    this.addPost = function(post) {
+        let pos = post.defaultPosition;
+        postBounds.left = Math.min(postBounds.left, pos.x);
+        postBounds.right = Math.max(postBounds.right, pos.x);
+        postBounds.bottom = Math.min(postBounds.bottom, pos.y);
+        postBounds.top = Math.max(postBounds.top, pos.y);
+    };
+    
+    this.removePost = function(post) {
+        //Don't need to do anything here; it's okay if bounds never shrink.
+    };
+    
+    this.updatePostPosition = function(id, pos) {
+        self.addPost({defaultPosition: pos});
     };
     
     this.getPos = function() {
@@ -89,10 +127,8 @@ MainViewCamera = function() {
         let t = 0.0, st = 0.0;
         let finished = false;
         
-        let MAX_ZOOM = 768.0, MIN_ZOOM = 0.25;
-        
         if (targetScale*factor >= MAX_ZOOM) factor = MAX_ZOOM/targetScale;
-        else if (targetScale*factor <= MIN_ZOOM) factor = MIN_ZOOM/targetScale;
+        else if (targetScale*factor <= minZoom) factor = minZoom/targetScale;
         
         if (factor == 1.0) finished = true;
         targetScale *= factor;
@@ -126,6 +162,18 @@ MainViewCamera = function() {
     };
     
     this.step = function(dt) {
+        //Calculate min zoom to ensure all posts fit.
+        let mzx = canvas[0].width*0.75/(postBounds.right - postBounds.left);
+        let mzy = canvas[0].height*0.75/(postBounds.top - postBounds.bottom);
+        minZoom = Math.min(mzx, mzy);
+        if (!isFinite(minZoom) || minZoom > 128.0) {
+            minZoom = 128.0;
+        }
+        
+        //Clamp camera zoom.
+        scale = Math.max(minZoom, Math.min(scale, MAX_ZOOM));
+        
+        //Perform zooming.
         for (let i = zooms.length - 1; i >= 0; i--) {
             let zoom = zooms[i];
             
@@ -139,5 +187,17 @@ MainViewCamera = function() {
         if (zooms.length === 0) {
             targetScale = scale;
         }
+        
+        //Clamp camera to post bounds.
+        let w = 0.375*canvas[0].width/scale;
+        let h = 0.375*canvas[0].height/scale;
+        
+        p.x = Math.max(p.x, postBounds.left - w);
+        p.x = Math.min(p.x, postBounds.right + w);
+        p.y = Math.max(p.y, postBounds.bottom - h);
+        p.y = Math.min(p.y, postBounds.top + h);
+        
+        //Set camera session state.
+        Session.set('camera', {p: p, scale: scale});
     };
 };
