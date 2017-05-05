@@ -81,6 +81,30 @@
     border: 1px solid #ccc;
 }
 
+.main-detailed-post-delete-button {
+    float: left;
+    padding: 2px 4px 2px 4px;
+    color: #000;
+    background-color: #ddd;
+    border: 1px solid #ccc;
+}
+
+.main-detailed-post-report-button {
+    float: left;
+    padding: 2px 4px 2px 4px;
+    color: #000;
+    background-color: #ddd;
+    border: 1px solid #ccc;
+}
+
+.main-detailed-post-edit-button {
+    float: right;
+    padding: 2px 4px 2px 4px;
+    color: #000;
+    background-color: #ddd;
+    border: 1px solid #ccc;
+}
+
 .main-detailed-post-reply-button:hover {
     background-color: #eee;
 }

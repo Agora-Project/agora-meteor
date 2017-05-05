@@ -18,8 +18,15 @@
             <div class="main-detailed-post-content">
                 <p>{{post.content}}</p>
                 {{#if currentUser}}
+                    {{#if editAccess}}
+                        <button class="main-detailed-post-edit-button">Edit</button>
+                    {{/if}}
+                    {{#if moderator}}
+                        {{> mainDetailedPostDeleteButton}}
+                    {{/if}}
                     {{#if hasReplyButton}}
                         {{> mainDetailedPostReplyButton}}
+                        <button class="main-detailed-post-report-button">Report</button>
                     {{/if}}
                 {{/if}}
             </div>
@@ -30,4 +37,8 @@
 
 <template name="mainDetailedPostReplyButton">
     <button class="main-detailed-post-reply-button">Reply</button>
+</template>
+
+<template name="mainDetailedPostDeleteButton">
+    <button class="main-detailed-post-delete-button">Delete</button>
 </template>
