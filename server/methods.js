@@ -19,10 +19,8 @@ Meteor.methods({
         }
 
         //Validate post.
-        if (post.title) {
-            if (post.title.length < 1) {
-                delete post.title;
-            }
+        if (post.title && post.title.length < 1) {
+            delete post.title;
         }
 
         if (!post.target) {
@@ -75,64 +73,55 @@ Meteor.methods({
 
         return postId;
     },
-    editPost: function(_id, post) {
+    editPost: function(postId) {
         let user = Meteor.users.findOne({_id: this.userId});
 
         //Don't allow guests to post.
         if (!user) {
-            throw new Meteor.Error('not-logged-in', 'The user must be logged in to post.');
+            throw new Meteor.Error('not-logged-in', 'The user must be logged in to edit posts.');
         }
 
         //Don't allow banned users to post.
         if (user.isBanned) {
-            throw new Meteor.Error('banned', 'Banned users may not post.');
+            throw new Meteor.Error('banned', 'Banned users may not edit posts.');
+        }
+        
+        let post = Posts.findOne({_id: postId});
+        
+        //Don't allow banned users to post.
+        if (post.poster !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {
+            throw new Meteor.Error('post-not-owned', 'Only moderators may edit posts they don\'t own.');
         }
 
         //Validate post.
-        if (post.title) {
-            if (post.title.length < 1) {
-                delete post.title;
-            }
+        if (post.title && post.title.length < 1) {
+            delete post.title;
         }
-
-        //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
-        Schema.Post.validate(post);
-
-        var ret = Posts.update({_id: _id}, { $set: {
+        
+        //Edit post.
+        Posts.update({_id: _id}, {$set: {
             title: post.title,
             content: post.content,
             lastEditedAt: Date.now()
         }});
-
-        if (ret == 1)
-            return post._id;
-        else {
-            console.log("Oh no! Edited " + ret + " Posts!");
-            return post._id;
-        }
     },
-    removeWithLinks: function(postId) {
-        var post = Posts.findOne({_id: postId});
+    deletePost: function(postId) {
+        let post = Posts.findOne({_id: postId});
 
-        if (!post) {
-          console.log("Can't find post:" + postId);
-          return;
+        if (!Roles.userIsInRole(this.userId, ['moderator'])) {
+            throw new Meteor.Error('not-logged-in', 'Only moderators may delete posts.');
         }
-
-        if (!Roles.userIsInRole(this.userId, ['moderator']))
-            return;
-
-        var results = [];
-
+        
+        if (!post) {
+            throw new Meteor.Error('post-not-found', 'No such post was found.');
+        }
+        
         post.replies.forEach(function(reply) {
-            results.push(Meteor.call('removeWithLinks', reply));
+            Meteor.call('removeWithLinks', reply);
         });
 
-        results.push(Posts.update({_id: post.target},
-                        { $pull: { replies: {target: postId}}}));
-
-        results.push(Posts.remove(postId));
-        return results;
+        Posts.update({_id: post.target}, {$pull: {replies: {target: postId}}});
+        Posts.remove(postId);
     },
     submitReport: function(report) {
         if (report.content.length >= 1)

@@ -181,7 +181,8 @@ Template.mainDetailedPostDeleteButton.onCreated(function() {
 Template.mainDetailedPostDeleteButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        if (confirm("Are you sure you want to delete this post?"))
-            Meteor.call('removeWithLinks', instance.parent.data._id);
+        if (confirm("Are you sure you want to delete this post?")) {
+            Meteor.call('deletePost', instance.parent.data._id);
+        }
     }
 });
