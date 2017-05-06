@@ -156,6 +156,21 @@ Template.mainDetailedPostReplyButton.events({
     }
 });
 
+Template.mainDetailedPostEditButton.onCreated(function() {
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.mainDetailedPostEditButton.events({
+    'click': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        instance.parent.parent.editTarget.set(instance.parent.post.get());
+    }
+});
+
 Template.mainDetailedPostDeleteButton.onCreated(function() {
     let parentView = this.view.parentView;
     while (parentView.templateInstance === undefined) {

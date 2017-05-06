@@ -75,7 +75,7 @@ Meteor.methods({
 
         return postId;
     },
-    editPost: function(post) {
+    editPost: function(_id, post) {
         let user = Meteor.users.findOne({_id: this.userId});
 
         //Don't allow guests to post.
@@ -95,19 +95,10 @@ Meteor.methods({
             }
         }
 
-        if (!post.target) {
-            return;
-        }
-
-        let target = Posts.findOne({_id: post.target});
-        if (!target) {
-            return;
-        }
-
         //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
         Schema.Post.validate(post);
 
-        var ret = Posts.update({_id: post._id}, { $set: {
+        var ret = Posts.update({_id: _id}, { $set: {
             title: post.title,
             content: post.content,
             lastEditedAt: Date.now()

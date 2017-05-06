@@ -31,6 +31,9 @@
  *    * Reply (reply/reply.js)
  *          Handles the reply box and related code.
  *
+ *    * Edit (edit/edit.js)
+ *          Handles the edit box and related code.
+ *
  */
 
 Template.mainView.onCreated(function() {
@@ -49,13 +52,14 @@ Template.mainView.onCreated(function() {
 
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
     this.replyTarget = new ReactiveVar();
+    this.editTarget = new ReactiveVar();
     this.isSizeDirty = true;
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup.
         let postCursor = Posts.find({});
         let initPostArray = postCursor.fetch();
-        
+
         for (let module of modules) {
             module.init(initPostArray);
         }
@@ -89,7 +93,7 @@ Template.mainView.onCreated(function() {
         });
 
         let t0 = performance.now();
-        
+
         //Begin rendering.
         let render = function() {
             if (instance.isDestroyed) {
@@ -118,12 +122,12 @@ Template.mainView.onRendered(function() {
 
     //Initialize everything that depends on the canvas existing.
     let canvas = $('#main-viewport');
-    
+
     this.canvas = canvas;
     this.camera.construct(canvas);
     this.renderer.construct(canvas);
     this.onRendered.fulfill();
-    
+
     this.getMousePos = function(event) {
         return {x:event.pageX, y:event.pageY - canvas.offset().top};
     };
@@ -135,6 +139,9 @@ Template.mainView.helpers({
     },
     replyTarget: function() {
         return Template.instance().replyTarget.get();
+    },
+    editTarget: function() {
+        return Template.instance().editTarget.get();
     }
 });
 

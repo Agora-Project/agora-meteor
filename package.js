@@ -16,14 +16,14 @@ Package.onUse(function(api) {
     both = ['client', 'server'];
 
     api.versionsFrom('1.1.0.3');
-    
+
     api.addFiles([
         'server/initial-data.js',
         'server/methods.js',
         'server/publish.js',
         'server/users.js'
     ], 'server');
-    
+
     api.addFiles([
         'lib/identity_collections/identity_collections.js',
         'lib/grapher/layered_grapher.js',
@@ -32,7 +32,7 @@ Package.onUse(function(api) {
         'lib/schemas/vote.js',
         'routes.js'
     ], both);
-    
+
     api.use([
         'ecmascript@0.6.0',
         'iron:router@1.0.0',
@@ -41,7 +41,7 @@ Package.onUse(function(api) {
         'accounts-base',
         'alanning:roles@1.2.13'
     ], both);
-    
+
     api.addFiles([
         'client/lib/XBBCode/xbbcode.js',
         'client/lib/XBBCode/xbbcode.css',
@@ -59,7 +59,7 @@ Package.onUse(function(api) {
         'client/userList/userList.html',
         'client/userList/userList.js'
     ], 'client');
-    
+
     api.addFiles([
         'client/mainView/detailed/detailed.html',
         'client/mainView/detailed/detailed.css',
@@ -67,6 +67,9 @@ Package.onUse(function(api) {
         'client/mainView/reply/reply.html',
         'client/mainView/reply/reply.css',
         'client/mainView/reply/reply.js',
+        'client/mainView/edit/edit.html',
+        'client/mainView/edit/edit.css',
+        'client/mainView/edit/edit.js',
         'client/mainView/main.html',
         'client/mainView/main.css',
         'client/mainView/partitioner.js',
@@ -90,7 +93,7 @@ Package.onUse(function(api) {
     api.addAssets([
         'public/agoraforum.png'
     ], 'client');
-    
+
     api.use([
         'session',
         'templating',
