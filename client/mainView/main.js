@@ -5,7 +5,7 @@
 */
 
 /**
- * The main view consists of six basic modules:
+ * The main view consists of the following basic modules:
  *
  *    * Main Module (main.js)
  *          This file; the primary entry-point and handler for the other four modules.

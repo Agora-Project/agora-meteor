@@ -17,14 +17,10 @@ Template.mainEdit.onRendered(function() {
 
     let titleInput = $('#main-edit-title');
     let contentInput = $('#main-edit-textarea');
-
+    
     titleInput.val(target.title);
     contentInput.val(target.content);
-
-    let hasContent = function() {
-        return titleInput.val().length > 0 || contentInput.val().length > 0;
-    };
-
+    
     $('#main-edit-submit-button').click(function(event) {
         let post = {
             title: titleInput.val(),
@@ -43,15 +39,19 @@ Template.mainEdit.onRendered(function() {
         });
     });
 
+    let hasEdit = function() {
+        let title = target.title === undefined ? "" : target.title;
+        return titleInput.val() != title || contentInput.val() != target.content;
+    };
+    
     $('#main-edit-cancel-button').click(function(event) {
-        if ((titleInput.val() == target.title && contentInput.val() == target.content) ||
-             confirm('You have an unfinished edit. Are you sure you want to cancel?')) {
+        if (!hasEdit() || confirm('You have an unfinished edit. Are you sure you want to cancel?')) {
             instance.parent.editTarget.set();
         }
     });
 
     $(window).on('beforeunload', function(event) {
-        if (hasContent()) {
+        if (hasEdit()) {
             return 'You have an unfinished edit. Are you sure you want to close Agora?';
         }
     });
