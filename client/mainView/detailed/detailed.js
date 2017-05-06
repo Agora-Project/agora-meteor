@@ -52,14 +52,13 @@ Template.mainDetailedPost.helpers({
         }
     },
     editAccess: function() {
-        return ((this.poster && this.poster === Meteor.userId()) ||
-        Roles.userIsInRole(Meteor.userId(), ['moderator']));
+        return this.poster === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
     moderator: function() {
-        return (Roles.userIsInRole(Meteor.userId(), ['moderator']));
+        return Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
-    hasReplyButton: function() {
-        return Template.instance().parent.replyTarget.get() === undefined;
+    hasReplyButtons: function() {
+        return !Template.instance().parent.isReplyBoxOpen();
     }
 });
 

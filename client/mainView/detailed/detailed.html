@@ -17,16 +17,18 @@
             </div>
             <div class="main-detailed-post-content">
                 <p>{{post.content}}</p>
+            </div>
+            <div class="main-detailed-post-footer">
                 {{#if currentUser}}
-                    {{#if editAccess}}
-                        {{> mainDetailedPostEditButton}}
-                    {{/if}}
                     {{#if moderator}}
                         {{> mainDetailedPostDeleteButton}}
                     {{/if}}
-                    {{#if hasReplyButton}}
+                    {{> mainDetailedPostReportButton}}
+                    {{#if hasReplyButtons}}
+                        {{#if editAccess}}
+                            {{> mainDetailedPostEditButton}}
+                        {{/if}}
                         {{> mainDetailedPostReplyButton}}
-                        {{> mainDetailedPostReportButton}}
                     {{/if}}
                 {{/if}}
             </div>

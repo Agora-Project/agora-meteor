@@ -73,42 +73,36 @@
     text-overflow: ellipsis;
 }
 
-.main-detailed-post-reply-button {
-    float: right;
+.main-detailed-post-footer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: right;
+}
+
+.main-detailed-post-footer button {
     padding: 2px 4px 2px 4px;
     color: #000;
     background-color: #ddd;
     border: 1px solid #ccc;
 }
 
-.main-detailed-post-delete-button {
-    float: left;
-    padding: 2px 4px 2px 4px;
-    color: #000;
-    background-color: #ddd;
-    border: 1px solid #ccc;
-}
-
-.main-detailed-post-report-button {
-    float: left;
-    padding: 2px 4px 2px 4px;
-    color: #000;
-    background-color: #ddd;
-    border: 1px solid #ccc;
-}
-
-.main-detailed-post-edit-button {
-    float: right;
-    padding: 2px 4px 2px 4px;
-    color: #000;
-    background-color: #ddd;
-    border: 1px solid #ccc;
-}
-
-.main-detailed-post-reply-button:hover {
+.main-detailed-post-footer button:hover {
     background-color: #eee;
 }
 
-.main-detailed-post-reply-button:active {
+.main-detailed-post-footer button:active {
     background-color: #ddd;
+}
+
+.main-detailed-post-reply-button {
+}
+
+.main-detailed-post-delete-button {
+}
+
+.main-detailed-post-report-button {
+}
+
+.main-detailed-post-edit-button {
 }

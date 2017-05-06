@@ -54,6 +54,10 @@ Template.mainView.onCreated(function() {
     this.replyTarget = new ReactiveVar();
     this.editTarget = new ReactiveVar();
     this.isSizeDirty = true;
+    
+    this.isReplyBoxOpen = function() {
+        return instance.replyTarget.get() !== undefined || instance.editTarget.get() !== undefined;
+    };
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup.
