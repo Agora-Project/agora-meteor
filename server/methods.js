@@ -111,13 +111,13 @@ Meteor.methods({
         if (!Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('not-logged-in', 'Only moderators may delete posts.');
         }
-        
+
         if (!post) {
             throw new Meteor.Error('post-not-found', 'No such post was found.');
         }
-        
+
         post.replies.forEach(function(reply) {
-            Meteor.call('removeWithLinks', reply);
+            Meteor.call('deletePost', reply);
         });
 
         Posts.update({_id: post.target}, {$pull: {replies: {target: postId}}});
