@@ -23,7 +23,9 @@
                     {{#if moderator}}
                         {{> mainDetailedPostDeleteButton}}
                     {{/if}}
-                    {{> mainDetailedPostReportButton}}
+                    {{#if hasReportButton}}
+                        {{> mainDetailedPostReportButton}}
+                    {{/if}}
                     {{#if hasReplyButtons}}
                         {{#if editAccess}}
                             {{> mainDetailedPostEditButton}}

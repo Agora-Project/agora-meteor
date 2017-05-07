@@ -59,6 +59,9 @@ Template.mainDetailedPost.helpers({
     },
     hasReplyButtons: function() {
         return !Template.instance().parent.isReplyBoxOpen();
+    },
+    hasReportButton: function() {
+        return Template.instance().parent.reportTarget.get() == undefined;
     }
 });
 
@@ -167,6 +170,21 @@ Template.mainDetailedPostEditButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
         instance.parent.parent.editTarget.set(instance.parent.post.get());
+    }
+});
+
+Template.mainDetailedPostReportButton.onCreated(function() {
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.mainDetailedPostReportButton.events({
+    'click': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        instance.parent.parent.reportTarget.set(instance.parent.post.get());
     }
 });
 

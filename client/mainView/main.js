@@ -34,6 +34,9 @@
  *    * Edit (edit/edit.js)
  *          Handles the edit box and related code.
  *
+ *    * Report (report/report.js)
+ *          Handles the report box and related code.
+ *
  */
 
 Template.mainView.onCreated(function() {
@@ -53,8 +56,9 @@ Template.mainView.onCreated(function() {
     this.subscribe('abstractPosts', {onReady: onSubReady.fulfill});
     this.replyTarget = new ReactiveVar();
     this.editTarget = new ReactiveVar();
+    this.reportTarget = new ReactiveVar();
     this.isSizeDirty = true;
-    
+
     this.isReplyBoxOpen = function() {
         return instance.replyTarget.get() !== undefined || instance.editTarget.get() !== undefined;
     };
@@ -146,6 +150,9 @@ Template.mainView.helpers({
     },
     editTarget: function() {
         return Template.instance().editTarget.get();
+    },
+    reportTarget: function() {
+        return Template.instance().reportTarget.get();
     }
 });
 
