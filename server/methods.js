@@ -73,7 +73,7 @@ Meteor.methods({
 
         return postId;
     },
-    editPost: function(postId) {
+    editPost: function(postId, update) {
         let user = Meteor.users.findOne({_id: this.userId});
 
         //Don't allow guests to post.
@@ -85,9 +85,9 @@ Meteor.methods({
         if (user.isBanned) {
             throw new Meteor.Error('banned', 'Banned users may not edit posts.');
         }
-        
+
         let post = Posts.findOne({_id: postId});
-        
+
         //Don't allow banned users to post.
         if (post.poster !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('post-not-owned', 'Only moderators may edit posts they don\'t own.');
@@ -97,11 +97,11 @@ Meteor.methods({
         if (post.title && post.title.length < 1) {
             delete post.title;
         }
-        
+
         //Edit post.
-        Posts.update({_id: _id}, {$set: {
-            title: post.title,
-            content: post.content,
+        Posts.update({_id: postId}, {$set: {
+            title: update.title,
+            content: update.content,
             lastEditedAt: Date.now()
         }});
     },
