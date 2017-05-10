@@ -76,24 +76,24 @@ Meteor.methods({
     editPost: function(postId, update) {
         let user = Meteor.users.findOne({_id: this.userId});
 
-        //Don't allow guests to post.
+        //Don't allow guests to edit posts.
         if (!user) {
             throw new Meteor.Error('not-logged-in', 'The user must be logged in to edit posts.');
         }
 
-        //Don't allow banned users to post.
+        //Don't allow banned users to edit posts.
         if (user.isBanned) {
             throw new Meteor.Error('banned', 'Banned users may not edit posts.');
         }
 
         let post = Posts.findOne({_id: postId});
 
-        //Don't allow banned users to post.
+        //Don't allow non-moderators to edit other peoples posts.
         if (post.poster !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('post-not-owned', 'Only moderators may edit posts they don\'t own.');
         }
 
-        //Validate post.
+        //Validate edit.
         if (post.title && post.title.length < 1) {
             delete post.title;
         }
@@ -108,18 +108,22 @@ Meteor.methods({
     deletePost: function(postId) {
         let post = Posts.findOne({_id: postId});
 
+        //Don't allow non-moderators to delete posts.
         if (!Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('not-logged-in', 'Only moderators may delete posts.');
         }
 
+        //check to make sure the post exists before attempting to delete it.
         if (!post) {
             throw new Meteor.Error('post-not-found', 'No such post was found.');
         }
 
+        //recursively delete all replies to the post.
         post.replies.forEach(function(reply) {
             Meteor.call('deletePost', reply);
         });
 
+        //delete the post and all references to it.
         Posts.update({_id: post.target}, {$pull: {replies: {target: postId}}});
         Posts.remove(postId);
     },
