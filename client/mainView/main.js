@@ -207,3 +207,16 @@ Template.zoomSlider.onRendered(function() {
         console.log(instance.slider);
     });
 });
+
+Template.zoomSlider.events({
+    'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
+        if (instance.parent.camera.isDragging()) {
+            //Prevents interaction while dragging.
+            event.preventDefault();
+        }
+        else {
+            //Prevent events from passing through posts into the WebGL canvas.
+            event.stopImmediatePropagation();
+        }
+    }
+});
