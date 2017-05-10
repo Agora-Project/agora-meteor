@@ -112,9 +112,9 @@ Meteor.methods({
         if (!Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('not-logged-in', 'Only moderators may delete posts.');
         }
-
+        
         //check to make sure the post exists before attempting to delete it.
-        if (!post) {
+        if (post === undefined) {
             throw new Meteor.Error('post-not-found', 'No such post was found.');
         }
 
@@ -124,7 +124,7 @@ Meteor.methods({
         });
 
         //delete the post and all references to it.
-        Posts.update({_id: post.target}, {$pull: {replies: {target: postId}}});
+        Posts.update({_id: post.target}, {$pull: {replies: postId}});
         Posts.remove(postId);
     },
     submitReport: function(report) {

@@ -11,10 +11,7 @@ Template.mainReport.onCreated(function() {
 Template.mainReport.onRendered(function() {
     let instance = this;
     let target = this.parent.reportTarget.get();
-
-    let div = $('#main-report');
-    div.css('top', -div.outerHeight());
-
+    
     let contentInput = $('#main-report-textarea');
 
     let hasContent = function() {
