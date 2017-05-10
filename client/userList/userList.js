@@ -1,8 +1,18 @@
-Template.forumUsers.helpers({
-    userList: Meteor.users.find({})
+/*
+    Agora Forum Software
+    Copyright (C) 2016 Gregory Sartucci
+    License: GPL, Check file LICENSE
+*/
+
+Template.userList.onCreated(function() {
+    this.subscribe('users');
 });
 
-Template.userItem.events({
+Template.userList.helpers({
+    users: Meteor.users.find({})
+});
+
+Template.userListItem.events({
     'change .change-moderator': function () {
         Meteor.call('switchModerator', this._id, !Roles.userIsInRole(this._id, ['moderator']));
     },
@@ -11,7 +21,7 @@ Template.userItem.events({
     }
 });
 
-Template.userItem.helpers({
+Template.userListItem.helpers({
     disabledIfMe: function() {
         if (this._id === Meteor.userId()) {
             return 'disabled';
