@@ -33,6 +33,17 @@ MainViewCamera = function() {
         }
     };
     
+    this.setScale = function(newScale) {
+        if (scale === newScale) return;
+        else {
+            scale = newScale;
+            for (callback of onZoomCallbacks) {
+                console.log(callback);
+                callback(this);
+            }
+        }
+    };
+
     this.addPost = function(post) {
         let pos = post.defaultPosition;
         postBounds.left = Math.min(postBounds.left, pos.x);
@@ -70,14 +81,6 @@ MainViewCamera = function() {
     this.isPointVisible = function(v) {
         return self.getBounds().contains(v);
     };
-    
-    this.setScale = function(newScale) {
-        if (scale === newScale) return;
-        else scale = newScale;
-        for (callback in onZoomCallbacks) {
-            callback(this);
-        }
-    }
 
     this.getMatrix = function() {
         let w = 2.0*scale/canvas[0].width;
@@ -155,7 +158,7 @@ MainViewCamera = function() {
             let sdt = st - st0;
             
             let oldPos = self.toWorld(mp0);
-            scale *= Math.pow(factor, sdt/time);
+            self.setScale(scale * Math.pow(factor, sdt/time));
             let newPos = self.toWorld(mp0);
             p.x += oldPos.x - newPos.x;
             p.y += oldPos.y - newPos.y;
@@ -181,8 +184,8 @@ MainViewCamera = function() {
         }
         
         //Clamp camera zoom.
-        scale = Math.max(minZoom, Math.min(scale, MAX_ZOOM));
-        
+        this.setScale(Math.max(minZoom, Math.min(scale, MAX_ZOOM)));
+
         //Perform zooming.
         for (let i = zooms.length - 1; i >= 0; i--) {
             let zoom = zooms[i];

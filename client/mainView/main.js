@@ -190,3 +190,21 @@ Template.mainView.onDestroyed(function() {
     this.changeObserver.stop();
     this.isDestroyed = true;
 });
+
+Template.zoomSlider.onCreated(function() {
+    let instance = this;
+
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.zoomSlider.onRendered(function() {
+    this.slider = $('#main-zoom-range');
+    let instance = this;
+    this.parent.camera.onZoom(function(camera) {
+        console.log(instance.slider);
+    });
+});
