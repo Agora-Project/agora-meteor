@@ -71,6 +71,14 @@ MainViewCamera = function() {
         return self.getBounds().contains(v);
     };
     
+    this.setScale = function(newScale) {
+        if (scale === newScale) return;
+        else scale = newScale;
+        for (callback in onZoomCallbacks) {
+            callback(this);
+        }
+    }
+
     this.getMatrix = function() {
         let w = 2.0*scale/canvas[0].width;
         let h = 2.0*scale/canvas[0].height;
@@ -203,7 +211,7 @@ MainViewCamera = function() {
         Session.set('camera', {p: p, scale: scale});
     };
 
-    this.onzoom = function(callback) {
+    this.onZoom = function(callback) {
         onZoomCallbacks.push(callback);
     }
 };
