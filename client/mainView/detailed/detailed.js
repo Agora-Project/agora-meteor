@@ -76,13 +76,6 @@ MainViewDetailedPosts = function(camera, partitioner) {
     let visiblePosts = new Mongo.Collection(null);
     let visiblePostsCursor = visiblePosts.find({});
 
-    let remove = function(post) {
-        let div = $('#main-detailed-post-' + post._id);
-        div.fadeOut(200, function() {
-            visiblePosts.remove(post);
-        });
-    };
-
     this.init = function(postArray) {
     };
 
@@ -90,6 +83,10 @@ MainViewDetailedPosts = function(camera, partitioner) {
     };
 
     this.removePost = function(post) {
+        let div = $('#main-detailed-post-' + post._id);
+        div.fadeOut(200, function() {
+            visiblePosts.remove({_id: post._id});
+        });
     };
 
     this.updatePost = function(id, fields) {
@@ -99,13 +96,13 @@ MainViewDetailedPosts = function(camera, partitioner) {
     this.update = function() {
         if (camera.getScale() < 256.0) {
             //Remove all posts if zoomed too far out.
-            visiblePostsCursor.forEach(remove);
+            visiblePostsCursor.forEach(self.removePost);
         }
         else {
             //Remove posts which are no longer visible.
             visiblePostsCursor.forEach(function(post) {
                 if (!camera.isPointVisible(post.defaultPosition)) {
-                    remove(post);
+                    self.removePost(post);
                 }
             });
 
