@@ -14,7 +14,6 @@ Template.adminScreen.events({
 
 Template.report.helpers({
     post: function() {
-        console.log(this);
         let post = Posts.findOne({_id: this.targetID});
         return post;
     },
@@ -24,7 +23,7 @@ Template.report.helpers({
 });
 
 Template.report.onCreated(function() {
-    handlers.addHandler(this.targetID);
+    this.subscribe('post', this.data.targetID, this.data.userID);
 });
 
 Template.report.events({

@@ -3,26 +3,26 @@ let POST_HEIGHT = 0.875;
 
 Template.mainDetailedPost.onCreated(function() {
     let instance = this;
-    
+
     let parentView = this.view.parentView;
     while (parentView.templateInstance === undefined) {
         parentView = parentView.parentView;
     }
     this.parent = parentView.templateInstance();
-    
+
     //Automatically update data with content, title, user data, etc.
     this.post = new ReactiveVar();
     this.poster = new ReactiveVar();
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
-    
+
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
-    
+
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Populate post data.
         instance.post.set(Posts.findOne({_id: instance.data._id}));
         instance.poster.set(Meteor.users.findOne({_id: instance.data.poster}));
-        
+
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-detailed-post-spinner').fadeOut(100);
         instance.div.children('.main-detailed-post-flex')
@@ -51,8 +51,17 @@ Template.mainDetailedPost.helpers({
             return new Date(post.postedOn).toDateString();
         }
     },
-    hasReplyButton: function() {
-        return Template.instance().parent.replyTarget.get() === undefined;
+    editAccess: function() {
+        return this.poster === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
+    },
+    moderator: function() {
+        return Roles.userIsInRole(Meteor.userId(), ['moderator']);
+    },
+    hasReplyButtons: function() {
+        return !Template.instance().parent.isReplyBoxOpen();
+    },
+    hasReportButton: function() {
+        return Template.instance().parent.reportTarget.get() == undefined;
     }
 });
 
@@ -71,31 +80,31 @@ Template.mainDetailedPost.events({
 
 MainViewDetailedPosts = function(camera, partitioner) {
     let self = this;
-    
+
     //Collection of currently visible detailed posts.
     let visiblePosts = new Mongo.Collection(null);
     let visiblePostsCursor = visiblePosts.find({});
-    
+
     let remove = function(post) {
         let div = $('#main-detailed-post-' + post._id);
         div.fadeOut(200, function() {
             visiblePosts.remove(post);
         });
     };
-    
+
     this.init = function(postArray) {
     };
-    
+
     this.addPost = function(post) {
     };
-    
+
     this.removePost = function(post) {
     };
-    
+
     this.updatePostPosition = function(id, pos) {
         visiblePosts.update({_id: id}, {$set: {defaultPosition: pos}});
     };
-    
+
     this.update = function() {
         if (camera.getScale() < 256.0) {
             //Remove all posts if zoomed too far out.
@@ -108,7 +117,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
                     remove(post);
                 }
             });
-            
+
             //Add posts which are newly visible.
             let visible = partitioner.getVisible();
             for (let post of visible) {
@@ -117,7 +126,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
                 }
             }
         }
-        
+
         //Update post positions/sizes.
         visiblePostsCursor.forEach(function(post) {
             let div = $('#main-detailed-post-' + post._id);
@@ -128,7 +137,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
             div.css('top', pos.y - div.outerHeight()/2);
         });
     };
-    
+
     this.find = function() {
         return visiblePostsCursor;
     };
@@ -146,5 +155,52 @@ Template.mainDetailedPostReplyButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
         instance.parent.parent.replyTarget.set(instance.parent.post.get());
+    }
+});
+
+Template.mainDetailedPostEditButton.onCreated(function() {
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.mainDetailedPostEditButton.events({
+    'click': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        instance.parent.parent.editTarget.set(instance.parent.post.get());
+    }
+});
+
+Template.mainDetailedPostReportButton.onCreated(function() {
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.mainDetailedPostReportButton.events({
+    'click': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        instance.parent.parent.reportTarget.set(instance.parent.post.get());
+    }
+});
+
+Template.mainDetailedPostDeleteButton.onCreated(function() {
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.mainDetailedPostDeleteButton.events({
+    'click': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        if (confirm("Are you sure you want to delete this post?")) {
+            Meteor.call('deletePost', instance.parent.data._id);
+        }
     }
 });
