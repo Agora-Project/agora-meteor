@@ -73,7 +73,7 @@ Meteor.methods({
 
         return postId;
     },
-    editPost: function(update) {
+    editPost: function(postId, update) {
         let user = Meteor.users.findOne({_id: this.userId});
 
         //Don't allow guests to edit posts.
@@ -86,7 +86,7 @@ Meteor.methods({
             throw new Meteor.Error('banned', 'Banned users may not edit posts.');
         }
 
-        let post = Posts.findOne({_id: update._id});
+        let post = Posts.findOne({_id: postId});
 
         //Don't allow non-moderators to edit other peoples posts.
         if (post.poster !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {

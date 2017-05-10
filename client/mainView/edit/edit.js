@@ -23,12 +23,11 @@ Template.mainEdit.onRendered(function() {
     
     $('#main-edit-submit-button').click(function(event) {
         let post = {
-            _id: target._id,
             title: titleInput.val(),
             content: contentInput.val()
         };
 
-        Meteor.call("editPost", post, function(error) {
+        Meteor.call("editPost", target._id, post, function(error) {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);
