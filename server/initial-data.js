@@ -68,5 +68,5 @@ Meteor.startup(function() {
     }
 
 
-    console.log('Startup Finished');
+    console.log('Startup finished');
 });
