@@ -9,20 +9,13 @@ Template.mainDetailedPost.onCreated(function() {
         parentView = parentView.parentView;
     }
     this.parent = parentView.templateInstance();
-
-    //Automatically update data with content, title, user data, etc.
-    this.post = new ReactiveVar();
-    this.poster = new ReactiveVar();
+    
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
-        //Populate post data.
-        instance.post.set(Posts.findOne({_id: instance.data._id}));
-        instance.poster.set(Meteor.users.findOne({_id: instance.data.poster}));
-
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-detailed-post-spinner').fadeOut(100);
         instance.div.children('.main-detailed-post-flex')
@@ -39,15 +32,13 @@ Template.mainDetailedPost.onRendered(function() {
 });
 
 Template.mainDetailedPost.helpers({
-    post: function() {
-        return Template.instance().post.get();
-    },
     poster: function() {
-        return Template.instance().poster.get();
+        let post = Template.currentData();
+        return Meteor.users.findOne({_id: post.poster});
     },
     age: function() {
-        let post = Template.instance().post.get();
-        if (post) {
+        let post = Template.currentData();
+        if (post.postedOn) {
             return new Date(post.postedOn).toDateString();
         }
     },
@@ -61,7 +52,7 @@ Template.mainDetailedPost.helpers({
         return !Template.instance().parent.isReplyBoxOpen();
     },
     hasReportButton: function() {
-        return Template.instance().parent.reportTarget.get() == undefined;
+        return Template.instance().parent.reportTarget.get() === undefined;
     }
 });
 
@@ -101,8 +92,8 @@ MainViewDetailedPosts = function(camera, partitioner) {
     this.removePost = function(post) {
     };
 
-    this.updatePostPosition = function(id, pos) {
-        visiblePosts.update({_id: id}, {$set: {defaultPosition: pos}});
+    this.updatePost = function(id, fields) {
+        visiblePosts.update({_id: id}, {$set: fields});
     };
 
     this.update = function() {
@@ -154,7 +145,7 @@ Template.mainDetailedPostReplyButton.onCreated(function() {
 Template.mainDetailedPostReplyButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.replyTarget.set(instance.parent.post.get());
+        instance.parent.parent.replyTarget.set(instance.parent.data);
     }
 });
 
@@ -169,7 +160,7 @@ Template.mainDetailedPostEditButton.onCreated(function() {
 Template.mainDetailedPostEditButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.editTarget.set(instance.parent.post.get());
+        instance.parent.parent.editTarget.set(instance.parent.data);
     }
 });
 
@@ -184,7 +175,7 @@ Template.mainDetailedPostReportButton.onCreated(function() {
 Template.mainDetailedPostReportButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.reportTarget.set(instance.parent.post.get());
+        instance.parent.parent.reportTarget.set(instance.parent.data);
     }
 });
 

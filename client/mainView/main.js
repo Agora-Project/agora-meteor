@@ -91,11 +91,10 @@ Template.mainView.onCreated(function() {
         isLive = true;
 
         //Callback for changed post positions.
-        instance.changeObserver = Posts.find({}, {fields: {'defaultPosition': 1}}).observeChanges({
+        instance.changeObserver = postCursor.observeChanges({
             changed: function(id, fields) {
-                let pos = fields.defaultPosition;
                 for (let module of modules) {
-                    module.updatePostPosition(id, pos);
+                    module.updatePost(id, fields);
                 }
             }
         });
