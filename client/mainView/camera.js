@@ -6,6 +6,8 @@ MainViewCamera = function() {
     let postBounds = {left: 0.0, right: 0.0, bottom: 0.0, top: 0.0};
     let MAX_ZOOM = 768.0, minZoom = 0.0;
     
+    let onZoomCallbacks = [];
+
     this.construct = function(initCanvas) {
         canvas = initCanvas;
     };
@@ -200,4 +202,8 @@ MainViewCamera = function() {
         //Set camera session state.
         Session.set('camera', {p: p, scale: scale});
     };
+
+    this.onzoom = function(callback) {
+        onZoomCallbacks.push(callback);
+    }
 };
