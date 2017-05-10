@@ -66,4 +66,7 @@ Meteor.startup(function() {
         });
         return Roles.addUsersToRoles(moderatorId, ['moderator']);
     }
+
+
+    console.log('Startup Finished');
 });
