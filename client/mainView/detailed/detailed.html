@@ -1,8 +1,8 @@
 <template name="mainDetailedPost">
     <div class="main-detailed-post" id="main-detailed-post-{{_id}}">
         <div class="main-detailed-post-flex">
-            {{#if post.title}}
-                <div class="main-detailed-post-title">{{post.title}}</div>
+            {{#if title}}
+                <div class="main-detailed-post-title">{{title}}</div>
             {{/if}}
             <div class="main-detailed-post-info">
                 {{#if poster}}
@@ -16,7 +16,7 @@
                 <span class="main-detailed-post-age">{{age}}</span>
             </div>
             <div class="main-detailed-post-content">
-                <p>{{post.content}}</p>
+                <p>{{content}}</p>
             </div>
             <div class="main-detailed-post-footer">
                 {{#if currentUser}}

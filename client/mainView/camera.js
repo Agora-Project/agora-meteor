@@ -43,8 +43,10 @@ MainViewCamera = function() {
         //Don't need to do anything here; it's okay if bounds never shrink.
     };
     
-    this.updatePostPosition = function(id, pos) {
-        self.addPost({defaultPosition: pos});
+    this.updatePost = function(id, fields) {
+        if (fields.defaultPosition) {
+            self.addPost(fields);
+        }
     };
     
     this.getPos = function() {

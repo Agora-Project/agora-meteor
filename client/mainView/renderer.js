@@ -163,8 +163,11 @@ MainViewRenderer = function(camera) {
     this.removePost = function(post) {
     };
     
-    this.updatePostPosition = function(id, pos) {
-        let index = postIndices[id]*8;
-        gl.bufferSubData(gl.ARRAY_BUFFER, index, new Float32Array([pos.x, pos.y]));
+    this.updatePost = function(id, fields) {
+        if (fields.defaultPosition) {
+            let index = postIndices[id]*8;
+            let pos = fields.defaultPosition;
+            gl.bufferSubData(gl.ARRAY_BUFFER, index, new Float32Array([pos.x, pos.y]));
+        }
     };
 };

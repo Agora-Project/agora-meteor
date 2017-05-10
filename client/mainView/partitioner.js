@@ -178,10 +178,12 @@ MainViewPartitioner = function(camera) {
         }
     };
     
-    this.updatePostPosition = function(id, pos) {
-        let post = self.removePost({_id: id});
-        post.defaultPosition = pos;
-        self.addPost(post);
+    this.updatePost = function(id, fields) {
+        if (fields.defaultPosition) {
+            let post = self.removePost({_id: id});
+            post.defaultPosition = fields.defaultPosition;
+            self.addPost(post);
+        }
     };
     
     this.getVisible = function() {
