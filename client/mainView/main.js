@@ -204,7 +204,7 @@ Template.zoomSlider.onRendered(function() {
     this.slider = $('#main-zoom-range');
     let instance = this;
     this.parent.camera.onZoom(function(camera) {
-        console.log(instance.slider);
+        instance.slider.val(camera.zoomPercentage()*100);
     });
 });
 
