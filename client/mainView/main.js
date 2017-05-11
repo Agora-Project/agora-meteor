@@ -218,5 +218,9 @@ Template.zoomSlider.events({
             //Prevent events from passing through posts into the WebGL canvas.
             event.stopImmediatePropagation();
         }
+    },
+    'input': function() {
+        let instance = Template.instance();
+        instance.parent.camera.zoomToPercentage(instance.slider.val()/100);
     }
 });

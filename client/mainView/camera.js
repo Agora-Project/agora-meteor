@@ -16,6 +16,10 @@ MainViewCamera = function() {
         return (scale - minZoom)/(MAX_ZOOM - minZoom);
     };
 
+    this.zoomToPercentage = function(percentage) {
+        this.setScale(percentage * (MAX_ZOOM - minZoom) + minZoom);
+    };
+
     this.init = function(postArray) {
         //Calculate post bounds.
         for (let post of postArray) {
@@ -42,7 +46,6 @@ MainViewCamera = function() {
         else {
             scale = newScale;
             for (callback of onZoomCallbacks) {
-                console.log(callback);
                 callback(this);
             }
         }
