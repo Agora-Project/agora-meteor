@@ -179,7 +179,9 @@ Template.mainView.events({
     },
     'wheel': function(event, instance) {
         if (instance.camera) {
-            instance.camera.mouseWheel(event.originalEvent.deltaY);
+            //Normalize across browsers.
+            //Will not respond properly to very fast scrolling, but whatever.
+            instance.camera.mouseWheel(event.originalEvent.deltaY > 0 ? 1.0 : -1.0);
         }
     }
 });
