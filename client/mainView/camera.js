@@ -11,15 +11,7 @@ MainViewCamera = function() {
     this.construct = function(initCanvas) {
         canvas = initCanvas;
     };
-
-    this.zoomPercentage = function() {
-        return (scale - minZoom)/(MAX_ZOOM - minZoom);
-    };
-
-    this.zoomToPercentage = function(percentage) {
-        this.setScale(percentage * (MAX_ZOOM - minZoom) + minZoom);
-    };
-
+    
     this.init = function(postArray) {
         //Calculate post bounds.
         for (let post of postArray) {
@@ -75,6 +67,14 @@ MainViewCamera = function() {
 
     this.getScale = function() {
         return scale;
+    };
+    
+    this.getZoomFraction = function() {
+        return Math.log(scale/minZoom)/Math.log(MAX_ZOOM/minZoom);
+    };
+
+    this.setZoomFraction = function(fraction) {
+        this.setScale(minZoom*Math.pow(MAX_ZOOM/minZoom, fraction));
     };
 
     this.getBounds = function() {
