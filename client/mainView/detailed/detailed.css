@@ -1,5 +1,6 @@
 .main-detailed-post {
     position: absolute;
+    flex-direction: column;
     display: none;
     min-height: 61px;
     margin: 0px;
@@ -27,6 +28,7 @@
 .main-detailed-post-flex {
     display: none;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .main-detailed-post-title {
@@ -63,6 +65,7 @@
 
 .main-detailed-post-content {
     padding: 5px 10px 5px 10px;
+    overflow-y: auto;
 }
 
 .main-detailed-post-content p {
@@ -78,6 +81,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: right;
+    border-top: 1px solid #ccc;
 }
 
 .main-detailed-post-footer button {
