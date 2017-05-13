@@ -189,3 +189,38 @@ Template.mainView.onDestroyed(function() {
     this.changeObserver.stop();
     this.isDestroyed = true;
 });
+
+Template.zoomSlider.onCreated(function() {
+    let instance = this;
+
+    let parentView = this.view.parentView;
+    while (parentView.templateInstance === undefined) {
+        parentView = parentView.parentView;
+    }
+    this.parent = parentView.templateInstance();
+});
+
+Template.zoomSlider.onRendered(function() {
+    this.slider = $('#main-zoom-range');
+    let instance = this;
+    this.parent.camera.onZoom(function(camera) {
+        instance.slider.val(camera.zoomPercentage()*100);
+    });
+});
+
+Template.zoomSlider.events({
+    'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
+        if (instance.parent.camera.isDragging()) {
+            //Prevents interaction while dragging.
+            event.preventDefault();
+        }
+        else {
+            //Prevent events from passing through posts into the WebGL canvas.
+            event.stopImmediatePropagation();
+        }
+    },
+    'input': function() {
+        let instance = Template.instance();
+        instance.parent.camera.zoomToPercentage(instance.slider.val()/100);
+    }
+});
