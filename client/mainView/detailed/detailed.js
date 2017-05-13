@@ -22,6 +22,14 @@ Template.mainDetailedPost.onCreated(function() {
             .css('display', 'flex')
             .hide()
             .fadeIn(200);
+
+        if(instance.data.content)
+            instance.$('.main-detailed-post-content').html(XBBCODE.process({
+                text: instance.data.content,
+                removeMisalignedTags: false,
+                addInLineBreaks: true
+            }).html);
+        else console.log(instance.data);
     });
 });
 
