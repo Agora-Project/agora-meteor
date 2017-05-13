@@ -12,9 +12,6 @@ Template.mainReply.onRendered(function() {
     let instance = this;
     let target = this.parent.replyTarget.get();
     
-    let div = $('#main-reply');
-    div.css('top', -div.outerHeight());
-    
     let titleInput = $('#main-reply-title');
     let contentInput = $('#main-reply-textarea');
     

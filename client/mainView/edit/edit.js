@@ -11,10 +11,7 @@ Template.mainEdit.onCreated(function() {
 Template.mainEdit.onRendered(function() {
     let instance = this;
     let target = this.parent.editTarget.get();
-
-    let div = $('#main-edit');
-    div.css('top', -div.outerHeight());
-
+    
     let titleInput = $('#main-edit-title');
     let contentInput = $('#main-edit-textarea');
     
