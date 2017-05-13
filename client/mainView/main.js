@@ -206,7 +206,7 @@ Template.mainZoomSlider.onRendered(function() {
     this.slider = $('#main-zoom-slider');
     let instance = this;
     this.parent.camera.onZoom(function(camera) {
-        instance.slider.val(camera.zoomPercentage()*100);
+        instance.slider.val(camera.getZoomFraction()*100.0);
     });
 });
 
@@ -223,6 +223,6 @@ Template.mainZoomSlider.events({
     },
     'input': function() {
         let instance = Template.instance();
-        instance.parent.camera.zoomToPercentage(instance.slider.val()/100);
+        instance.parent.camera.setZoomFraction(instance.slider.val()/100.0);
     }
 });
