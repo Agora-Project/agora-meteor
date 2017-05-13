@@ -9,7 +9,7 @@ Template.mainDetailedPost.onCreated(function() {
         parentView = parentView.parentView;
     }
     this.parent = parentView.templateInstance();
-    
+
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
@@ -23,13 +23,11 @@ Template.mainDetailedPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        if(instance.data.content)
-            instance.$('.main-detailed-post-content').html(XBBCODE.process({
-                text: instance.data.content,
-                removeMisalignedTags: false,
-                addInLineBreaks: true
-            }).html);
-        else console.log(instance.data);
+        instance.$('.main-detailed-post-content').html(XBBCODE.process({
+            text: instance.data.content,
+            removeMisalignedTags: false,
+            addInLineBreaks: true
+        }).html);
     });
 });
 
