@@ -35,7 +35,7 @@ Template.mainDetailedPost.onCreated(function() {
 
 Template.mainDetailedPost.onRendered(function() {
     this.div = $('#main-detailed-post-' + this.data._id);
-    this.div.fadeIn(200);
+    this.div.css('display', 'flex').hide().fadeIn(200);
     setTimeout(this.onRendered.fulfill, 250);
 });
 
