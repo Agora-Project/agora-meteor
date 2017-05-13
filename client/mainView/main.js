@@ -179,7 +179,9 @@ Template.mainView.events({
     },
     'wheel': function(event, instance) {
         if (instance.camera) {
-            instance.camera.mouseWheel(event.originalEvent.deltaY);
+            //Normalize across browsers.
+            //Will not respond properly to very fast scrolling, but whatever.
+            instance.camera.mouseWheel(event.originalEvent.deltaY > 0 ? 1.0 : -1.0);
         }
     }
 });
@@ -190,7 +192,7 @@ Template.mainView.onDestroyed(function() {
     this.isDestroyed = true;
 });
 
-Template.zoomSlider.onCreated(function() {
+Template.mainZoomSlider.onCreated(function() {
     let instance = this;
 
     let parentView = this.view.parentView;
@@ -200,15 +202,15 @@ Template.zoomSlider.onCreated(function() {
     this.parent = parentView.templateInstance();
 });
 
-Template.zoomSlider.onRendered(function() {
-    this.slider = $('#main-zoom-range');
+Template.mainZoomSlider.onRendered(function() {
+    this.slider = $('#main-zoom-slider');
     let instance = this;
     this.parent.camera.onZoom(function(camera) {
         instance.slider.val(camera.zoomPercentage()*100);
     });
 });
 
-Template.zoomSlider.events({
+Template.mainZoomSlider.events({
     'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
         if (instance.parent.camera.isDragging()) {
             //Prevents interaction while dragging.

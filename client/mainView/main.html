@@ -7,7 +7,6 @@
 <template name="mainView">
     <div id="main-container">
         <canvas id="main-viewport"></canvas>
-        {{> zoomSlider}}
         {{#each detailedPosts}}
             {{> mainDetailedPost}}
         {{/each}}
@@ -22,9 +21,12 @@
                 {{> mainReport}}
             {{/if}}
         {{/if}}
+        {{> mainZoomSlider}}
     </div>
 </template>
 
-<template name="zoomSlider">
-    <input type="range" id="main-zoom-range" orient="vertical" value="90">
+<template name="mainZoomSlider">
+    <div id="main-zoom-slider-centerer">
+        <input type="range" id="main-zoom-slider" orient="vertical" value="90">
+    </div>
 </template>

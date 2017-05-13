@@ -179,7 +179,7 @@ MainViewCamera = function() {
     };
 
     this.mouseWheel = function(deltaY) {
-        let factor = Math.pow(0.9, deltaY);
+        let factor = Math.pow(0.675, deltaY);
         zooms.push(new SmoothZoom(factor, 0.25));
     };
 

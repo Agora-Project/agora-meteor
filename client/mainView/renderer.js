@@ -64,7 +64,7 @@ MainViewRenderer = function(camera) {
     let postShader, linkShader;
     
     let postCount = 0;
-    let postIndices = {};
+    let postIndices = {}; //Map of post IDs to their data indices.
     let linkCount = 0;
     let pointSize = 0.0;
     
@@ -126,16 +126,16 @@ MainViewRenderer = function(camera) {
         gl.drawElements(gl.LINES, linkCount*2, gl.UNSIGNED_SHORT, 0);
     };
     
-    let addLink = function(source, target) {
-        gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, linkCount*4, new Int16Array([source, target]));
-        linkCount++;
-    };
-    
     this.init = function(postArray) {
         //Could be optimized by uploading one big buffer to the GPU.
         for (let post of postArray) {
             self.addPost(post);
         }
+    };
+    
+    let addLink = function(source, target) {
+        gl.bufferSubData(gl.ELEMENT_ARRAY_BUFFER, linkCount*4, new Int16Array([source, target]));
+        linkCount++;
     };
     
     this.addPost = function(post) {
@@ -161,6 +161,23 @@ MainViewRenderer = function(camera) {
     };
     
     this.removePost = function(post) {
+        let index = postIndices[post._id];
+        
+        if (index === undefined) {
+            return;
+        }
+        
+        //Very simple hack to delete posts. Set post position to NaN so it doesn't draw.
+        //Also affects links because they use the same post vertex data.
+        //Much easier than shuffling around posts to maintain buffer density.
+        gl.bufferSubData(gl.ARRAY_BUFFER, index*8, new Float32Array([NaN, NaN]));
+        
+        //Make sure to forget the old index.
+        delete postIndices[post._id];
+        
+        //TODO: Make this more sophisticated (stop using this hack).
+        //Idea: Could count number of post deletions, and remake graph from scratch if there are too many.
+        //Probably too slow for large graphs (>10000 posts)
     };
     
     this.updatePost = function(id, fields) {
