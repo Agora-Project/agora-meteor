@@ -22,12 +22,6 @@ Template.mainDetailedPost.onCreated(function() {
             .css('display', 'flex')
             .hide()
             .fadeIn(200);
-
-        instance.$('.main-detailed-post-content').html(XBBCODE.process({
-            text: instance.data.content,
-            removeMisalignedTags: false,
-            addInLineBreaks: true
-        }).html);
     });
 });
 
@@ -46,6 +40,16 @@ Template.mainDetailedPost.helpers({
         let post = Template.currentData();
         if (post.postedOn) {
             return new Date(post.postedOn).toDateString();
+        }
+    },
+    content: function() {
+        let rawContent = Template.currentData().content;
+        if (rawContent) {
+            return XBBCODE.process({
+                text: rawContent,
+                removeMisalignedTags: false,
+                addInLineBreaks: true
+            }).html;
         }
     },
     editAccess: function() {
