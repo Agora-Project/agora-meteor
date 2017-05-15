@@ -29,6 +29,7 @@ Package.onUse(function(api) {
         'lib/grapher/layered_grapher.js',
         'lib/schemas/post.js',
         'lib/schemas/report.js',
+        'lib/schemas/tag.js',
         'lib/schemas/vote.js',
         'routes.js'
     ], both);
