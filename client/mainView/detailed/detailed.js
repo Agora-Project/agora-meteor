@@ -1,15 +1,10 @@
 let POST_WIDTH = 0.75;
 let POST_HEIGHT = 0.875;
 
+Template.mainDetailedPost.getParents();
+
 Template.mainDetailedPost.onCreated(function() {
     let instance = this;
-
-    let parentView = this.view.parentView;
-    while (parentView.templateInstance === undefined) {
-        parentView = parentView.parentView;
-    }
-    this.parent = parentView.templateInstance();
-    
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
@@ -141,13 +136,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
     };
 };
 
-Template.mainDetailedPostReplyButton.onCreated(function() {
-    let parentView = this.view.parentView;
-    while (parentView.templateInstance === undefined) {
-        parentView = parentView.parentView;
-    }
-    this.parent = parentView.templateInstance();
-});
+Template.mainDetailedPostReplyButton.getParents();
 
 Template.mainDetailedPostReplyButton.events({
     'click': function(event, instance) {
@@ -156,13 +145,7 @@ Template.mainDetailedPostReplyButton.events({
     }
 });
 
-Template.mainDetailedPostEditButton.onCreated(function() {
-    let parentView = this.view.parentView;
-    while (parentView.templateInstance === undefined) {
-        parentView = parentView.parentView;
-    }
-    this.parent = parentView.templateInstance();
-});
+Template.mainDetailedPostEditButton.getParents();
 
 Template.mainDetailedPostEditButton.events({
     'click': function(event, instance) {
@@ -171,13 +154,7 @@ Template.mainDetailedPostEditButton.events({
     }
 });
 
-Template.mainDetailedPostReportButton.onCreated(function() {
-    let parentView = this.view.parentView;
-    while (parentView.templateInstance === undefined) {
-        parentView = parentView.parentView;
-    }
-    this.parent = parentView.templateInstance();
-});
+Template.mainDetailedPostReportButton.getParents();
 
 Template.mainDetailedPostReportButton.events({
     'click': function(event, instance) {
@@ -186,13 +163,7 @@ Template.mainDetailedPostReportButton.events({
     }
 });
 
-Template.mainDetailedPostDeleteButton.onCreated(function() {
-    let parentView = this.view.parentView;
-    while (parentView.templateInstance === undefined) {
-        parentView = parentView.parentView;
-    }
-    this.parent = parentView.templateInstance();
-});
+Template.mainDetailedPostDeleteButton.getParents();
 
 Template.mainDetailedPostDeleteButton.events({
     'click': function(event, instance) {
