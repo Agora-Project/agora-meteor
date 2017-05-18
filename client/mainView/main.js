@@ -192,15 +192,7 @@ Template.mainView.onDestroyed(function() {
     this.isDestroyed = true;
 });
 
-Template.mainZoomSlider.onCreated(function() {
-    let instance = this;
-
-    let parentView = this.view.parentView;
-    while (parentView.templateInstance === undefined) {
-        parentView = parentView.parentView;
-    }
-    this.parent = parentView.templateInstance();
-});
+Template.mainZoomSlider.getParents();
 
 Template.mainZoomSlider.onRendered(function() {
     this.slider = $('#main-zoom-slider');

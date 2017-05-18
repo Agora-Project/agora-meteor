@@ -45,8 +45,9 @@ Package.onUse(function(api) {
     api.addFiles([
         'client/lib/XBBCode/xbbcode.js',
         'client/lib/XBBCode/xbbcode.css',
-        'client/lib/notifier/notifier.js',
-        'client/lib/requestAnimationFrame/requestAnimationFrame.js'
+        'client/lib/notifier.js',
+        'client/lib/requestAnimationFrame.js',
+        'client/lib/templateParents.js'
     ], 'client');
 
     api.addFiles([
