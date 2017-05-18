@@ -32,9 +32,6 @@ Meteor.methods({
             return;
         }
 
-        //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
-        Schema.Post.validate(post);
-
         //check post for new hashtags and if any are found process them.
         //The regex here describes a hashtag as anything that starts with either
         //the start of a string or any kind of whitespace, then has a # symbol,
@@ -46,22 +43,21 @@ Meteor.methods({
         if (postTags) {
 
             for (let newTag of postTags) {
-                newTag = newTag.trim();
-                console.log(newTag);
+                newTag = newTag.trim().toLowerCase();
 
                 //check for any new tags not already present on the post.
                 if (post.tags.find(function(tag) {
                     return tag === newTag;
-                }) === -1) {
+                }) === undefined) {
                     //if any are found, add them to the list of new tags on the
                     //post.
-                    newTags.push(newTag);
-                    console.log(newTag);
+                    post.tags.push(newTag);
                 }
             }
         }
 
-        post.tags = post.tags.concat(newTags);
+        //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
+        Schema.Post.validate(post);
 
         //Will always insert directly underneath target, shifting existing posts to the right.
         let y = target.defaultPosition.y - 1;
