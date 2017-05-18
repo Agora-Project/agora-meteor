@@ -1,10 +1,6 @@
-Template.mainEdit.onCreated(function() {
-    let parentView = this.view.parentView;
-    while (parentView.templateInstance === undefined) {
-        parentView = parentView.parentView;
-    }
-    this.parent = parentView.templateInstance();
+Template.mainEdit.getParents();
 
+Template.mainEdit.onCreated(function() {
     this.errorMessage = new ReactiveVar();
 });
 
