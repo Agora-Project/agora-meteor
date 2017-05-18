@@ -35,6 +35,34 @@ Meteor.methods({
         //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
         Schema.Post.validate(post);
 
+        //check post for new hashtags and if any are found process them.
+        //The regex here describes a hashtag as anything that starts with either
+        //the start of a string or any kind of whitespace, then has a # symbol,
+        //and then any  number of letters.
+        let postTags = post.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi), newTags = [];
+
+        if(!post.tags) post.tags = [];
+
+        if (postTags) {
+
+            for (let newTag of postTags) {
+                newTag = newTag.trim();
+                console.log(newTag);
+
+                //check for any new tags not already present on the post.
+                if (post.tags.find(function(tag) {
+                    return tag === newTag;
+                }) === -1) {
+                    //if any are found, add them to the list of new tags on the
+                    //post.
+                    newTags.push(newTag);
+                    console.log(newTag);
+                }
+            }
+        }
+
+        post.tags = post.tags.concat(newTags);
+
         //Will always insert directly underneath target, shifting existing posts to the right.
         let y = target.defaultPosition.y - 1;
         let x = target.defaultPosition.x;
@@ -112,7 +140,7 @@ Meteor.methods({
         if (!Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('not-logged-in', 'Only moderators may delete posts.');
         }
-        
+
         //check to make sure the post exists before attempting to delete it.
         if (post === undefined) {
             throw new Meteor.Error('post-not-found', 'No such post was found.');
