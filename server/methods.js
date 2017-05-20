@@ -95,6 +95,19 @@ Meteor.methods({
         let postId = Posts.insert(post);
         Posts.update({_id: post.target}, {$push: {replies: postId}});
 
+        //add any new tags to the database, and adjust the info for existing tags accordingly.
+        for (let tag of post.tags) {
+            let tagDocument = Tags.findOne({_id: tag});
+            if (!tagDocument) {
+                Tags.insert({_id: tag, postNumber: 1, posts: [postId]});
+                tagDocument = Tags.findOne({_id: tag});
+            } else {
+                Tags.update({_id: tag}, { $inc: {postNumber: 1}, $push: {posts: postId} });
+                tagDocument = Tags.findOne({_id: tag});
+                console.log(tagDocument);
+            }
+        }
+
         return postId;
     },
     editPost: function(postId, update) {
