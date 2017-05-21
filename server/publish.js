@@ -22,6 +22,11 @@ Meteor.publish(null, function() {
     return Meteor.roles.find({});
 });
 
+//Universal subscription for tags.
+Meteor.publish(null, function() {
+    return Tags.find({});
+});
+
 //Returns info about the client user.
 Meteor.publish('myself', function() {
     if (this.userId) {

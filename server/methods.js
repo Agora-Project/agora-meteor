@@ -104,7 +104,6 @@ Meteor.methods({
             } else {
                 Tags.update({_id: tag}, { $inc: {postNumber: 1}, $push: {posts: postId} });
                 tagDocument = Tags.findOne({_id: tag});
-                console.log(tagDocument);
             }
         }
 
