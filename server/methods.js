@@ -36,7 +36,7 @@ Meteor.methods({
         //The regex here describes a hashtag as anything that starts with either
         //the start of a string or any kind of whitespace, then has a # symbol,
         //and then any  number of letters.
-        let postTags = post.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi), newTags = [];
+        let postTags = post.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
 
         if(!post.tags) post.tags = [];
 
@@ -132,6 +132,39 @@ Meteor.methods({
         //Validate edit.
         if (post.title && post.title.length < 1) {
             delete post.title;
+        }
+
+        //check post for new tags and process them if found.
+        let postTags = update.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
+
+        if(!update.tags) update.tags = [];
+
+        if (postTags) {
+
+            for (let newTag of postTags) {
+                newTag = newTag.trim().toLowerCase();
+
+                //check for any new tags not already present on the post.
+                if (update.tags.find(function(tag) {
+                    return tag === newTag;
+                }) === undefined) {
+                    //if any are found, add them to the list of new tags on the
+                    //post.
+                    update.tags.push(newTag);
+
+                    console.log(newTag);
+
+                    let tagDocument = Tags.findOne({_id: newTag});
+                    if (!tagDocument) {
+                        Tags.insert({_id: newTag, postNumber: 1, posts: [postId]});
+                        tagDocument = Tags.findOne({_id: newTag});
+                    } else {
+                        Tags.update({_id: newTag}, { $inc: {postNumber: 1}, $push: {posts: postId} });
+                        tagDocument = Tags.findOne({_id: newTag});
+                    }
+
+                }
+            }
         }
 
         //Edit post.
