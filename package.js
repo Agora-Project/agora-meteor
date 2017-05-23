@@ -52,10 +52,6 @@ Package.onUse(function(api) {
     ], 'client');
 
     api.addFiles([
-        'client/errorPage/errorPage.html'
-    ], 'client');
-
-    api.addFiles([
         'client/main.html',
         'client/main.css',
         'client/init.js'
@@ -64,6 +60,10 @@ Package.onUse(function(api) {
     api.addFiles([
         'client/userList/userList.html',
         'client/userList/userList.js'
+    ], 'client');
+
+    api.addFiles([
+        'client/errorPage/errorPage.html'
     ], 'client');
 
     api.addFiles([
