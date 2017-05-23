@@ -152,8 +152,6 @@ Meteor.methods({
                     //post.
                     update.tags.push(newTag);
 
-                    console.log(newTag);
-
                     let tagDocument = Tags.findOne({_id: newTag});
                     if (!tagDocument) {
                         Tags.insert({_id: newTag, postNumber: 1, posts: [postId]});
