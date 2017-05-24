@@ -18,18 +18,28 @@ Router.route('/admin', {
 });
 
 Router.route('/user/:_id', function() {
-    var routerThis = this;
     var id = this.params._id;
 
     if (this.ready()) {
         var user = Meteor.users.findOne({_id: id});
-        if (user) routerThis.render('userProfile', {data: user});
-        else routerThis.render('expandedPostNotFound', {data: {_id: id}});
+        if (user) this.render('userProfile', {data: user});
+        else this.render('errorPage', {data: {_id: id}});
     }
-    else routerThis.render('expandedPostLoading');
+    //else this.render('expandedPostLoading');
 });
 
 Router.route('/users', {
     name: 'userList',
     template: 'userList'
+});
+
+Router.route('/search/:_id', function() {
+    var id = this.params._id;
+
+    if (this.ready()) {
+        var tag = Tags.findOne({_id: id});
+        if (tag) this.render('search', {data: tag});
+        else this.render('errorPage', {data: {_id: id}});
+    }
+    //else this.render('expandedPostLoading');
 });

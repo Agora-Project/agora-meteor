@@ -34,3 +34,7 @@ Meteor.methods({
         }
     }
 })
+
+Meteor.users.before.insert(function(userId, user) {
+    user.email_hash = Avatar.hash(user.emails[0].address);
+});

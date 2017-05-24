@@ -8,7 +8,7 @@
 Meteor.publish('post', function(postID, posterID) {
     return [
         Posts.find({_id: postID}),
-        Meteor.users.find({_id: posterID}, {fields: {username: 1, avatar: 1}})
+        Meteor.users.find({_id: posterID}, {fields: {username: 1, avatar: 1, email_hash: 1}})
     ];
 });
 
@@ -17,9 +17,19 @@ Meteor.publish('abstractPosts', function() {
     return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1}});
 });
 
+//Returns an abstract shell of all posts, each only containing its id and links.
+Meteor.publish('abstractPostsByTag', function(tag) {
+    return Posts.find({tags: tag}, {fields: {poster: 1, target: 1, replies: 1}});
+});
+
 //Universal subscription for roles.
 Meteor.publish(null, function() {
     return Meteor.roles.find({});
+});
+
+//Universal subscription for tags.
+Meteor.publish(null, function() {
+    return Tags.find({});
 });
 
 //Returns info about the client user.
@@ -39,7 +49,7 @@ Meteor.publish('users', function() {
         return Meteor.users.find({});
     } else {
         return Meteor.users.find({}, {
-            fields: {username: 1, avatar: 1}
+            fields: {username: 1, avatar: 1, email_hash: 1}
         });
     }
 });
