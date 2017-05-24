@@ -8,6 +8,7 @@ Meteor.subscribe('myself');
 
 Avatar.setOptions({
     fallbackType: "initials",
+    emailHashProperty: "email_hash",
     customImageProperty: function() {
         var user = this;
         // calculate the image URL here

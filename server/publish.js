@@ -8,7 +8,7 @@
 Meteor.publish('post', function(postID, posterID) {
     return [
         Posts.find({_id: postID}),
-        Meteor.users.find({_id: posterID}, {fields: {username: 1, avatar: 1}})
+        Meteor.users.find({_id: posterID}, {fields: {username: 1, avatar: 1, email_hash: 1}})
     ];
 });
 
@@ -49,7 +49,7 @@ Meteor.publish('users', function() {
         return Meteor.users.find({});
     } else {
         return Meteor.users.find({}, {
-            fields: {username: 1, avatar: 1}
+            fields: {username: 1, avatar: 1, email_hash: 1}
         });
     }
 });
