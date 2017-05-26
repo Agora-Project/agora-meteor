@@ -32,6 +32,30 @@ Meteor.methods({
             return;
         }
 
+        //check post for new hashtags and if any are found process them.
+        //The regex here describes a hashtag as anything that starts with either
+        //the start of a string or any kind of whitespace, then has a # symbol,
+        //and then any  number of letters.
+        let postTags = post.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
+
+        if(!post.tags) post.tags = [];
+
+        if (postTags) {
+
+            for (let newTag of postTags) {
+                newTag = newTag.trim().toLowerCase();
+
+                //check for any new tags not already present on the post.
+                if (post.tags.find(function(tag) {
+                    return tag === newTag;
+                }) === undefined) {
+                    //if any are found, add them to the list of new tags on the
+                    //post.
+                    post.tags.push(newTag);
+                }
+            }
+        }
+
         //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
         Schema.Post.validate(post);
 
@@ -71,6 +95,18 @@ Meteor.methods({
         let postId = Posts.insert(post);
         Posts.update({_id: post.target}, {$push: {replies: postId}});
 
+        //add any new tags to the database, and adjust the info for existing tags accordingly.
+        for (let tag of post.tags) {
+            let tagDocument = Tags.findOne({_id: tag});
+            if (!tagDocument) {
+                Tags.insert({_id: tag, postNumber: 1, posts: [postId]});
+                tagDocument = Tags.findOne({_id: tag});
+            } else {
+                Tags.update({_id: tag}, { $inc: {postNumber: 1}, $push: {posts: postId} });
+                tagDocument = Tags.findOne({_id: tag});
+            }
+        }
+
         return postId;
     },
     editPost: function(postId, update) {
@@ -98,6 +134,37 @@ Meteor.methods({
             delete post.title;
         }
 
+        //check post for new tags and process them if found.
+        let postTags = update.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
+
+        if(!update.tags) update.tags = [];
+
+        if (postTags) {
+
+            for (let newTag of postTags) {
+                newTag = newTag.trim().toLowerCase();
+
+                //check for any new tags not already present on the post.
+                if (update.tags.find(function(tag) {
+                    return tag === newTag;
+                }) === undefined) {
+                    //if any are found, add them to the list of new tags on the
+                    //post.
+                    update.tags.push(newTag);
+
+                    let tagDocument = Tags.findOne({_id: newTag});
+                    if (!tagDocument) {
+                        Tags.insert({_id: newTag, postNumber: 1, posts: [postId]});
+                        tagDocument = Tags.findOne({_id: newTag});
+                    } else {
+                        Tags.update({_id: newTag}, { $inc: {postNumber: 1}, $push: {posts: postId} });
+                        tagDocument = Tags.findOne({_id: newTag});
+                    }
+
+                }
+            }
+        }
+
         //Edit post.
         Posts.update({_id: postId}, {$set: {
             title: update.title,
@@ -112,7 +179,7 @@ Meteor.methods({
         if (!Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('not-logged-in', 'Only moderators may delete posts.');
         }
-        
+
         //check to make sure the post exists before attempting to delete it.
         if (post === undefined) {
             throw new Meteor.Error('post-not-found', 'No such post was found.');
