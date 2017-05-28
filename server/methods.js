@@ -44,6 +44,9 @@ Meteor.methods({
 
             for (let newTag of postTags) {
                 newTag = newTag.trim().toLowerCase();
+                newTag = newTag.replace("#", "");
+
+                console.log(newTag);
 
                 //check for any new tags not already present on the post.
                 if (post.tags.find(function(tag) {
