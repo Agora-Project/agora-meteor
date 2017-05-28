@@ -156,22 +156,52 @@ Template.mainView.helpers({
 });
 
 Template.mainView.events({
-    'mousedown, touchstart': function(event, instance) {
+    'mousedown': function(event, instance) {
         if (instance.camera) {
             instance.camera.mouseDown(instance.getMousePos(event), event.button);
         }
     },
-    'mousemove, touchmove': function(event, instance) {
+    'touchstart': function(event, instance) {
+        var touch = event.originalEvent.touches[0];
+        var mousepos = {
+            x: touch.clientX,
+            y: touch.clientY
+        };
+        if (instance.camera) {
+            instance.camera.mouseDown(mousepos, 0);
+        }
+    },
+    'mousemove': function(event, instance) {
         if (instance.camera) {
             instance.camera.mouseMove(instance.getMousePos(event));
         }
     },
-    'mouseup, touchend': function(event, instance) {
+    'touchmove': function(event, instance) {
+        var touch = event.originalEvent.touches[0];
+        var mousepos = {
+            x: touch.clientX,
+            y: touch.clientY
+        };
+        if (instance.camera) {
+            instance.camera.mouseMove(mousepos);
+        }
+    },
+    'mouseup': function(event, instance) {
         if (instance.camera) {
             instance.camera.mouseUp(instance.getMousePos(event), event.button);
         }
     },
-    'mouseleave': function(event, instance) {
+    'touchend': function(event, instance) {
+        var touch = event.originalEvent.touches[0];
+        var mousepos = {
+            x: touch.clientX,
+            y: touch.clientY
+        };
+        if (instance.camera) {
+            instance.camera.mouseUp(mousepos, 0);
+        }
+    },
+    'mouseleave, touchleave': function(event, instance) {
         //Stop dragging if we leave the canvas area. We can't see mouseup events if they are outside of the window.
         if (instance.camera && $('#main-container').is(event.target)) {
             instance.camera.mouseUp(instance.getMousePos(event), 0);
