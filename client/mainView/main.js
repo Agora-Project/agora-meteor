@@ -162,13 +162,17 @@ Template.mainView.events({
         }
     },
     'touchstart': function(event, instance) {
-        var touch = event.originalEvent.touches[0];
-        var mousepos = {
-            x: touch.clientX,
-            y: touch.clientY
-        };
-        if (instance.camera) {
-            instance.camera.mouseDown(mousepos, 0);
+        var touches = event.originalEvent.touches;
+        if (touches.length > 1) {
+
+        } else if (touches.length == 1) {
+            var mousepos = {
+                x: touches[0].clientX,
+                y: touches[0].clientY
+            };
+            if (instance.camera) {
+                instance.camera.mouseDown(mousepos, 0);
+            }
         }
     },
     'mousemove': function(event, instance) {
@@ -177,13 +181,19 @@ Template.mainView.events({
         }
     },
     'touchmove': function(event, instance) {
-        var touch = event.originalEvent.touches[0];
-        var mousepos = {
-            x: touch.clientX,
-            y: touch.clientY
-        };
-        if (instance.camera) {
-            instance.camera.mouseMove(mousepos);
+        var touches = event.originalEvent.touches;
+        if (touches.length > 1) {
+            console.log(touches);
+            console.log(touches[0]);
+
+        } else if (touches.length == 1) {
+            var mousepos = {
+                x: touches[0].clientX,
+                y: touches[0].clientY
+            };
+            if (instance.camera) {
+                instance.camera.mouseMove(mousepos);
+            }
         }
     },
     'mouseup': function(event, instance) {
@@ -192,19 +202,33 @@ Template.mainView.events({
         }
     },
     'touchend': function(event, instance) {
-        var touch = event.originalEvent.touches[0];
-        var mousepos = {
-            x: touch.clientX,
-            y: touch.clientY
-        };
-        if (instance.camera) {
-            instance.camera.mouseUp(mousepos, 0);
+        var touches = event.originalEvent.touches;
+        if (touches.length > 1) {
+
+        } else if (touches.length == 1) {
+            var mousepos = {
+                x: touches[0].clientX,
+                y: touches[0].clientY
+            };
+            if (instance.camera) {
+                instance.camera.mouseUp(mousepos, 0);
+            }
         }
     },
-    'mouseleave, touchleave': function(event, instance) {
+    'mouseleave': function(event, instance) {
         //Stop dragging if we leave the canvas area. We can't see mouseup events if they are outside of the window.
         if (instance.camera && $('#main-container').is(event.target)) {
             instance.camera.mouseUp(instance.getMousePos(event), 0);
+        }
+    },
+    'touchleave': function(event, instance) {
+        var touches = event.originalEvent.touches;
+        var mousepos = {
+            x: touches[0].clientX,
+            y: touches[0].clientY
+        };
+        if (instance.camera) {
+            instance.camera.mouseUp(mousepos, 0);
         }
     },
     'wheel': function(event, instance) {
