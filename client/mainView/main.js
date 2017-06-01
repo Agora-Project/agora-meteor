@@ -162,13 +162,9 @@ Template.mainView.events({
         }
     },
     'touchstart': function(event, instance) {
-        var touch = event.originalEvent.touches[0];
-        var mousepos = {
-            x: touch.clientX,
-            y: touch.clientY
-        };
+        var touches = event.originalEvent.touches;
         if (instance.camera) {
-            instance.camera.mouseDown(mousepos, 0);
+            instance.camera.touchStart(touches);
         }
     },
     'mousemove': function(event, instance) {
@@ -177,13 +173,9 @@ Template.mainView.events({
         }
     },
     'touchmove': function(event, instance) {
-        var touch = event.originalEvent.touches[0];
-        var mousepos = {
-            x: touch.clientX,
-            y: touch.clientY
-        };
+        var touches = event.originalEvent.touches;
         if (instance.camera) {
-            instance.camera.mouseMove(mousepos);
+            instance.camera.touchMove(touches);
         }
     },
     'mouseup': function(event, instance) {
@@ -192,19 +184,21 @@ Template.mainView.events({
         }
     },
     'touchend': function(event, instance) {
-        var touch = event.originalEvent.touches[0];
-        var mousepos = {
-            x: touch.clientX,
-            y: touch.clientY
-        };
+        var touches = event.originalEvent.touches;
         if (instance.camera) {
-            instance.camera.mouseUp(mousepos, 0);
+            instance.camera.touchEnd(touches);
         }
     },
-    'mouseleave, touchleave': function(event, instance) {
+    'mouseleave': function(event, instance) {
         //Stop dragging if we leave the canvas area. We can't see mouseup events if they are outside of the window.
         if (instance.camera && $('#main-container').is(event.target)) {
             instance.camera.mouseUp(instance.getMousePos(event), 0);
+        }
+    },
+    'touchleave': function(event, instance) {
+        var touches = event.originalEvent.touches;
+        if (instance.camera && $('#main-container').is(event.target)) {
+            instance.camera.touchEnd(touches);
         }
     },
     'wheel': function(event, instance) {
