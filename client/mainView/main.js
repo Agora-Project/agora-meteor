@@ -164,7 +164,9 @@ Template.mainView.events({
     'touchstart': function(event, instance) {
         var touches = event.originalEvent.touches;
         if (touches.length > 1) {
-
+            if (instance.camera) {
+                instance.camera.touchStart(touches);
+            }
         } else if (touches.length == 1) {
             var mousepos = {
                 x: touches[0].clientX,
@@ -183,9 +185,9 @@ Template.mainView.events({
     'touchmove': function(event, instance) {
         var touches = event.originalEvent.touches;
         if (touches.length > 1) {
-            console.log(touches);
-            console.log(touches[0]);
-
+            if (instance.camera) {
+                instance.camera.touchMove(touches);
+            }
         } else if (touches.length == 1) {
             var mousepos = {
                 x: touches[0].clientX,
@@ -204,7 +206,9 @@ Template.mainView.events({
     'touchend': function(event, instance) {
         var touches = event.originalEvent.touches;
         if (touches.length > 1) {
-
+            if (instance.camera) {
+                instance.camera.touchEnd(touches);
+            }
         } else if (touches.length == 1) {
             var mousepos = {
                 x: touches[0].clientX,

@@ -11,7 +11,7 @@ MainViewCamera = function() {
     this.construct = function(initCanvas) {
         canvas = initCanvas;
     };
-    
+
     this.init = function(postArray) {
         //Calculate post bounds.
         for (let post of postArray) {
@@ -68,7 +68,7 @@ MainViewCamera = function() {
     this.getScale = function() {
         return scale;
     };
-    
+
     this.getZoomFraction = function() {
         return Math.log(scale/minZoom)/Math.log(MAX_ZOOM/minZoom);
     };
@@ -136,6 +136,15 @@ MainViewCamera = function() {
             this.mouseMove(mp);
             dragging = false;
         }
+    };
+
+    this.touchStart = function(touches) {
+    };
+
+    this.touchMove = function(touches) {
+    };
+
+    this.touchEnd = function(touches) {
     };
 
     this.isDragging = function() {
