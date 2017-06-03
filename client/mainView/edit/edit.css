@@ -31,6 +31,12 @@
     resize: none;
 }
 
+@media only screen and (max-height: 513px) {
+    #main-edit textarea {
+        height: 56px;
+    }
+}
+
 #main-edit-button-container {
     display: flex;
     flex-direction: row;
