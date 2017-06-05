@@ -54,6 +54,17 @@ Meteor.publish('users', function() {
     }
 });
 
+//Users; for the user management page. Should restrict fields even to moderators--shouldn't send user tokens and password hashes over network--ever.
+Meteor.publish('user', function(userId) {
+    if (Roles.userIsInRole(this.userId, ['moderator'])) {
+        return Meteor.users.find({_id: userId});
+    } else {
+        return Meteor.users.find({_id: userId}, {
+            fields: {username: 1, avatar: 1, email_hash: 1}
+        });
+    }
+});
+
 //Reports; for the report management page.
 Meteor.publish('reports', function() {
     if (Roles.userIsInRole(this.userId, ['moderator'])) {
