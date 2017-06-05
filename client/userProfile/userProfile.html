@@ -7,8 +7,8 @@
 <template name="userProfile">
     <div class="profile-div">
         <div class=profile-header>
-            {{> avatar user=this shape="rounded" size="large" class="profile-avatar"}}
-            {{username}}
+            {{> avatar user=user shape="rounded" size="large" class="profile-avatar"}}
+            {{user.username}}
         </div>
         <div class=profile-body>
             <div class=profile-sidebar>

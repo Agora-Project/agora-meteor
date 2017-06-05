@@ -31,6 +31,12 @@
     resize: none;
 }
 
+@media only screen and (max-height: 513px) {
+    #main-reply textarea {
+        height: 56px;
+    }
+}
+
 #main-reply-button-container {
     display: flex;
     flex-direction: row;
