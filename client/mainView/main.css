@@ -31,6 +31,12 @@
     -webkit-appearance: slider-vertical;
 }
 
+@media only screen and (max-width: 1026px) {
+    #main-zoom-slider {
+        display: none;
+    }
+}
+
 #main-zoom-slider::-webkit-slider-thumb {
     height: 16px;
     width: 16px;

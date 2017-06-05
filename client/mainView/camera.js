@@ -11,7 +11,7 @@ MainViewCamera = function() {
     this.construct = function(initCanvas) {
         canvas = initCanvas;
     };
-    
+
     this.init = function(postArray) {
         //Calculate post bounds.
         for (let post of postArray) {
@@ -68,7 +68,7 @@ MainViewCamera = function() {
     this.getScale = function() {
         return scale;
     };
-    
+
     this.getZoomFraction = function() {
         return Math.log(scale/minZoom)/Math.log(MAX_ZOOM/minZoom);
     };
@@ -135,6 +135,61 @@ MainViewCamera = function() {
             mp.y = Math.max(0, Math.min(mp.y, canvas[0].height));
             this.mouseMove(mp);
             dragging = false;
+        }
+    };
+
+    let touchDistance = null;
+    let pinchZooming = false;
+
+    this.touchStart = function(touches) {
+        if (touches.length == 1) {
+            var mousepos = {
+                x: touches[0].clientX,
+                y: touches[0].clientY
+            };
+            this.mouseDown(mousepos, 0);
+        } else if (touches.length > 1) {
+            let t1 = touches[0], t2 = touches[1];
+            let xDist = t2.clientX - t1.clientX, yDist = t2.clientY - t1.clientY;
+            touchDistance = Math.sqrt((xDist*xDist) + (yDist*yDist));
+            pinchZooming = true;
+        }
+    };
+
+    this.touchMove = function(touches) {
+        if (touches.length == 1) {
+            var mousepos = {
+                x: touches[0].clientX,
+                y: touches[0].clientY
+            };
+            this.mouseMove(mousepos);
+        } else if (touches.length > 1) {
+            let t1 = touches[0], t2 = touches[1];
+            let xDist = t2.clientX - t1.clientX, yDist = t2.clientY - t1.clientY;
+            let newTouchDistance = Math.sqrt((xDist*xDist) + (yDist*yDist));
+
+            let factor = Math.pow(newTouchDistance / touchDistance, 2);
+            zooms.push(new SmoothZoom(factor, 0.25));
+            touchDistance = newTouchDistance;
+        }
+    };
+
+    this.touchEnd = function(touches) {
+        if (touches.length == 1) {
+            var mousepos = {
+                x: touches[0].clientX,
+                y: touches[0].clientY
+            };
+            this.mouseUp(mousepos, 0);
+        } else if (touches.length > 1) {
+            let t1 = touches[0], t2 = touches[1];
+            let xDist = t2.clientX - t1.clientX, yDist = t2.clientY - t1.clientY;
+            let finalTouchDistance = Math.sqrt((xDist*xDist) + (yDist*yDist));
+
+            let factor = Math.pow(finalTouchDistance / touchDistance, 2);
+            zooms.push(new SmoothZoom(factor, 0.25));
+            touchDistance = null;
+            pinchZooming = false;
         }
     };
 
