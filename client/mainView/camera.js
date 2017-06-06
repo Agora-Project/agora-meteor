@@ -139,7 +139,19 @@ MainViewCamera = function() {
     };
 
     let touchDistance = null;
-
+    
+    /**
+     * Bugs to fix with the mobile touch code:
+     *
+     * * While pinching, does not always zoom towards center of pinch.
+     * * Cannot drag while pinching.
+     * * If you release one finger while pinching, the camera will snap to a new position.
+     *
+     *   On Android 7.1.2, Chrome:
+     *      * Zooming causes the entire page to zoom in at the same time as the camera, including the MDL header.
+     *      * Dragging down (panning up) too much causes Chrome to refresh.
+     * 
+     */
     this.touchStart = function(touches) {
         if (touches.length == 1) {
             var mousepos = {
