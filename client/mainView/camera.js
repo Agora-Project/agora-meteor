@@ -139,7 +139,6 @@ MainViewCamera = function() {
     };
 
     let touchDistance = null;
-    let pinchZooming = false;
 
     this.touchStart = function(touches) {
         if (touches.length == 1) {
@@ -152,7 +151,6 @@ MainViewCamera = function() {
             let t1 = touches[0], t2 = touches[1];
             let xDist = t2.clientX - t1.clientX, yDist = t2.clientY - t1.clientY;
             touchDistance = Math.sqrt((xDist*xDist) + (yDist*yDist));
-            pinchZooming = true;
         }
     };
 
@@ -189,7 +187,6 @@ MainViewCamera = function() {
             let factor = Math.pow(finalTouchDistance / touchDistance, 2);
             zooms.push(new SmoothZoom(factor, 0.25));
             touchDistance = null;
-            pinchZooming = false;
         }
     };
 
