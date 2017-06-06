@@ -7,13 +7,18 @@ Template.mainEdit.onCreated(function() {
 Template.mainEdit.onRendered(function() {
     let instance = this;
     let target = this.parent.editTarget.get();
-    
+
     let titleInput = $('#main-edit-title');
     let contentInput = $('#main-edit-textarea');
-    
+
     titleInput.val(target.title);
     contentInput.val(target.content);
-    
+
+    let hasEdit = function() {
+        let title = target.title === undefined ? "" : target.title;
+        return titleInput.val() != title || contentInput.val() != target.content;
+    };
+
     $('#main-edit-submit-button').click(function(event) {
         let post = {
             title: titleInput.val(),
@@ -32,11 +37,6 @@ Template.mainEdit.onRendered(function() {
         });
     });
 
-    let hasEdit = function() {
-        let title = target.title === undefined ? "" : target.title;
-        return titleInput.val() != title || contentInput.val() != target.content;
-    };
-    
     $('#main-edit-cancel-button').click(function(event) {
         if (!hasEdit() || confirm('You have an unfinished edit. Are you sure you want to cancel?')) {
             instance.parent.editTarget.set();
