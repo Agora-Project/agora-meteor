@@ -21,8 +21,7 @@ Router.route('/user/:_id', function() {
     var id = this.params._id;
 
     if (this.ready()) {
-        var user = Meteor.users.findOne({_id: id});
-        if (user) this.render('userProfile', {data: user});
+        if (id) this.render('userProfile', {data: {id: id}});
         else this.render('errorPage', {data: {_id: id}});
     }
     //else this.render('expandedPostLoading');
