@@ -6,22 +6,10 @@ Template.mainReply.onCreated(function() {
 
 Template.mainReply.onRendered(function() {
     let instance = this;
-    let reply;
     let target;
 
     let titleInput = $('#main-reply-title');
     let contentInput = $('#main-reply-textarea');
-
-    if (this.parent.replyTarget.get()) {
-        target = this.parent.replyTarget.get();
-        reply = true;
-    } else if (this.parent.editTarget.get()) {
-        target = this.parent.editTarget.get();
-        reply = false;
-
-        titleInput.val(target.title);
-        contentInput.val(target.content);
-    }
 
     let hasContent = function() {
         return titleInput.val().length > 0 || contentInput.val().length > 0;
@@ -81,11 +69,18 @@ Template.mainReply.onRendered(function() {
         }
     };
 
-    if (reply) {
+    if (this.parent.replyTarget.get()) {
+        target = this.parent.replyTarget.get();
+
         $('#main-reply-submit-button').click(submitReply);
         $('#main-reply-cancel-button').click(cancelReply);
         $(window).on('beforeunload', cancelReply);
-    } else {
+    } else if (this.parent.editTarget.get()) {
+        target = this.parent.editTarget.get();
+
+        titleInput.val(target.title);
+        contentInput.val(target.content);
+
         $('#main-reply-submit-button').click(submitEdit);
         $('#main-reply-cancel-button').click(cancelEdit);
         $(window).on('beforeunload', cancelEdit);
