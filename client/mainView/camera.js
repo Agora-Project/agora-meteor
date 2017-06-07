@@ -139,7 +139,7 @@ MainViewCamera = function() {
     };
 
     let touchDistance = null;
-    
+
     /**
      * Bugs to fix with the mobile touch code:
      *
@@ -150,18 +150,18 @@ MainViewCamera = function() {
      *   On Android 7.1.2, Chrome:
      *      * Zooming causes the entire page to zoom in at the same time as the camera, including the MDL header.
      *      * Dragging down (panning up) too much causes Chrome to refresh.
-     * 
+     *
      */
     this.touchStart = function(touches) {
         if (touches.length == 1) {
             var mousepos = {
-                x: touches[0].clientX,
-                y: touches[0].clientY
+                x: touches[0].x,
+                y: touches[0].y
             };
             this.mouseDown(mousepos, 0);
         } else if (touches.length > 1) {
             let t1 = touches[0], t2 = touches[1];
-            let xDist = t2.clientX - t1.clientX, yDist = t2.clientY - t1.clientY;
+            let xDist = t2.x - t1.x, yDist = t2.y - t1.y;
             touchDistance = Math.sqrt((xDist*xDist) + (yDist*yDist));
         }
     };
@@ -169,14 +169,21 @@ MainViewCamera = function() {
     this.touchMove = function(touches) {
         if (touches.length == 1) {
             var mousepos = {
-                x: touches[0].clientX,
-                y: touches[0].clientY
+                x: touches[0].x,
+                y: touches[0].y
             };
             this.mouseMove(mousepos);
         } else if (touches.length > 1) {
             let t1 = touches[0], t2 = touches[1];
-            let xDist = t2.clientX - t1.clientX, yDist = t2.clientY - t1.clientY;
+            let xDist = t2.x - t1.x, yDist = t2.y - t1.y;
             let newTouchDistance = Math.sqrt((xDist*xDist) + (yDist*yDist));
+
+            let zoomX, zoomY;
+
+            zoomX = t1.x + (t2.x - t1.x)/2;
+            zoomY = t1.y + (t2.y - t1.y)/2;
+
+            mp0 = {x: zoomX, y: zoomY};
 
             let factor = Math.pow(newTouchDistance / touchDistance, 2);
             zooms.push(new SmoothZoom(factor, 0.25));
@@ -187,13 +194,13 @@ MainViewCamera = function() {
     this.touchEnd = function(touches) {
         if (touches.length == 1) {
             var mousepos = {
-                x: touches[0].clientX,
-                y: touches[0].clientY
+                x: touches[0].x,
+                y: touches[0].y
             };
             this.mouseUp(mousepos, 0);
         } else if (touches.length > 1) {
             let t1 = touches[0], t2 = touches[1];
-            let xDist = t2.clientX - t1.clientX, yDist = t2.clientY - t1.clientY;
+            let xDist = t2.x - t1.x, yDist = t2.y - t1.y;
             let finalTouchDistance = Math.sqrt((xDist*xDist) + (yDist*yDist));
 
             let factor = Math.pow(finalTouchDistance / touchDistance, 2);
