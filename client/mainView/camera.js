@@ -139,13 +139,10 @@ MainViewCamera = function() {
     };
 
     let touchDistance = null;
+    let prevTouches = 0;
 
     /**
      * Bugs to fix with the mobile touch code:
-     *
-     * * While pinching, does not always zoom towards center of pinch.
-     * * Cannot drag while pinching.
-     * * If you release one finger while pinching, the camera will snap to a new position.
      *
      *   On Android 7.1.2, Chrome:
      *      * Zooming causes the entire page to zoom in at the same time as the camera, including the MDL header.
@@ -163,7 +160,19 @@ MainViewCamera = function() {
             let t1 = touches[0], t2 = touches[1];
             let xDist = t2.x - t1.x, yDist = t2.y - t1.y;
             touchDistance = Math.sqrt((xDist*xDist) + (yDist*yDist));
+
+            let zoomX, zoomY;
+
+            zoomX = t1.x + (t2.x - t1.x)/2;
+            zoomY = t1.y + (t2.y - t1.y)/2;
+
+            var mousepos = {
+                x: zoomX,
+                y: zoomY
+            };
+            this.mouseDown(mousepos, 0);
         }
+        prevTouches = touches.length;
     };
 
     this.touchMove = function(touches) {
@@ -173,6 +182,7 @@ MainViewCamera = function() {
                 y: touches[0].y
             };
             this.mouseMove(mousepos);
+
         } else if (touches.length > 1) {
             let t1 = touches[0], t2 = touches[1];
             let xDist = t2.x - t1.x, yDist = t2.y - t1.y;
@@ -183,30 +193,55 @@ MainViewCamera = function() {
             zoomX = t1.x + (t2.x - t1.x)/2;
             zoomY = t1.y + (t2.y - t1.y)/2;
 
-            mp0 = {x: zoomX, y: zoomY};
+            var mousepos = {
+                x: zoomX,
+                y: zoomY
+            };
+            this.mouseMove(mousepos);
 
             let factor = Math.pow(newTouchDistance / touchDistance, 2);
             zooms.push(new SmoothZoom(factor, 0.25));
             touchDistance = newTouchDistance;
         }
+        prevTouches = touches.length;
     };
 
     this.touchEnd = function(touches) {
         if (touches.length == 1) {
-            var mousepos = {
-                x: touches[0].x,
-                y: touches[0].y
-            };
-            this.mouseUp(mousepos, 0);
+            if (touches.length < prevTouches) {
+                var mousepos = {
+                    x: touches[0].x,
+                    y: touches[0].y
+                };
+                this.mouseDown(mousepos, 0);
+            } else {
+                var mousepos = {
+                    x: touches[0].x,
+                    y: touches[0].y
+                };
+                this.mouseUp(mousepos, 0);
+            }
         } else if (touches.length > 1) {
             let t1 = touches[0], t2 = touches[1];
             let xDist = t2.x - t1.x, yDist = t2.y - t1.y;
             let finalTouchDistance = Math.sqrt((xDist*xDist) + (yDist*yDist));
 
+            let zoomX, zoomY;
+
+            zoomX = t1.x + (t2.x - t1.x)/2;
+            zoomY = t1.y + (t2.y - t1.y)/2;
+
+            var mousepos = {
+                x: zoomX,
+                y: zoomY
+            };
+            this.mouseUp(mousepos, 0);
+
             let factor = Math.pow(finalTouchDistance / touchDistance, 2);
             zooms.push(new SmoothZoom(factor, 0.25));
             touchDistance = null;
         }
+        prevTouches = touches.length;
     };
 
     this.isDragging = function() {
