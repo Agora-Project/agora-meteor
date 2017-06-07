@@ -6,16 +6,33 @@ Template.mainReply.onCreated(function() {
 
 Template.mainReply.onRendered(function() {
     let instance = this;
-    let target = this.parent.replyTarget.get();
-    
+    let reply;
+    let target;
+
     let titleInput = $('#main-reply-title');
     let contentInput = $('#main-reply-textarea');
-    
+
+    if (this.parent.replyTarget.get()) {
+        target = this.parent.replyTarget.get();
+        reply = true;
+    } else if (this.parent.editTarget.get()) {
+        target = this.parent.editTarget.get();
+        reply = false;
+
+        titleInput.val(target.title);
+        contentInput.val(target.content);
+    }
+
     let hasContent = function() {
         return titleInput.val().length > 0 || contentInput.val().length > 0;
     };
-    
-    $('#main-reply-submit-button').click(function(event) {
+
+    let hasEdit = function() {
+        let title = target.title === undefined ? "" : target.title;
+        return titleInput.val() != title || contentInput.val() != target.content;
+    };
+
+    let submitReply = function(event) {
         let post = {
             title: titleInput.val(),
             content: contentInput.val(),
@@ -32,19 +49,47 @@ Template.mainReply.onRendered(function() {
                 instance.parent.replyTarget.set();
             }
         });
-    });
+    };
 
-    $('#main-reply-cancel-button').click(function(event) {
-        if (!hasContent() || confirm('You have an unfinished post. Are you sure you want to cancel?')) {
+    let submitEdit = function(event) {
+        let post = {
+            title: titleInput.val(),
+            content: contentInput.val()
+        };
+
+        Meteor.call("editPost", target._id, post, function(error) {
+            if (error) {
+                //Display error message to user.
+                instance.errorMessage.set(error.reason);
+            }
+            else {
+                //Don't delete user's work unless it posts successfully.
+                instance.parent.editTarget.set();
+            }
+        });
+    };
+
+    let cancelReply = function(event) {
+        if (!hasContent() || confirm('You have an unfinished post. Are you sure you want to lose it?')) {
             instance.parent.replyTarget.set();
         }
-    });
-    
-    $(window).on('beforeunload', function(event) {
-        if (hasContent()) {
-            return 'You have an unfinished post. Are you sure you want to close Agora?';
+    };
+
+    let cancelEdit = function(event) {
+        if (!hasEdit() || confirm('You have an unfinished edit. Are you sure you want to lose it?')) {
+            instance.parent.editTarget.set();
         }
-    });
+    };
+
+    if (reply) {
+        $('#main-reply-submit-button').click(submitReply);
+        $('#main-reply-cancel-button').click(cancelReply);
+        $(window).on('beforeunload', cancelReply);
+    } else {
+        $('#main-reply-submit-button').click(submitEdit);
+        $('#main-reply-cancel-button').click(cancelEdit);
+        $(window).on('beforeunload', cancelEdit);
+    }
 });
 
 Template.mainReply.helpers({

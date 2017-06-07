@@ -145,10 +145,7 @@ Template.mainView.helpers({
         return Template.instance().detailedPosts.find();
     },
     replyTarget: function() {
-        return Template.instance().replyTarget.get();
-    },
-    editTarget: function() {
-        return Template.instance().editTarget.get();
+        return (Template.instance().replyTarget.get() || Template.instance().editTarget.get());
     },
     reportTarget: function() {
         return Template.instance().reportTarget.get();
