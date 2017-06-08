@@ -146,7 +146,6 @@ MainViewCamera = function() {
      *
      *   On Android 7.1.2, Chrome:
      *      * Zooming causes the entire page to zoom in at the same time as the camera, including the MDL header.
-     *      * Dragging down (panning up) too much causes Chrome to refresh.
      *
      */
     this.touchStart = function(touches) {
