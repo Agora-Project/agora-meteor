@@ -58,15 +58,25 @@ Template.mainReply.onRendered(function() {
     };
 
     let cancelReply = function(event) {
-        if (!hasContent() || confirm('You have an unfinished post. Are you sure you want to lose it?')) {
+        if (!hasContent() || confirm('You have an unfinished post. Are you sure you want to cancel?')) {
             instance.parent.replyTarget.set();
         }
     };
 
     let cancelEdit = function(event) {
-        if (!hasEdit() || confirm('You have an unfinished edit. Are you sure you want to lose it?')) {
+        if (!hasEdit() || confirm('You have an unfinished edit. Are you sure you want to cancel?')) {
             instance.parent.editTarget.set();
         }
+    };
+
+    let exitReply = function(event) {
+        if (hasContent())
+            return "You have an unfinished post. Are you sure you want to close the page?";
+    };
+
+    let exitEdit = function(event) {
+        if (hasEdit())
+            return "You have an unfinished edit. Are you sure you want to close the page?";
     };
 
     if (this.parent.replyTarget.get()) {
@@ -74,7 +84,7 @@ Template.mainReply.onRendered(function() {
 
         $('#main-reply-submit-button').click(submitReply);
         $('#main-reply-cancel-button').click(cancelReply);
-        $(window).on('beforeunload', cancelReply);
+        $(window).on('beforeunload', exitReply);
     } else if (this.parent.editTarget.get()) {
         target = this.parent.editTarget.get();
 
@@ -83,7 +93,7 @@ Template.mainReply.onRendered(function() {
 
         $('#main-reply-submit-button').click(submitEdit);
         $('#main-reply-cancel-button').click(cancelEdit);
-        $(window).on('beforeunload', cancelEdit);
+        $(window).on('beforeunload', exitEdit);
     }
 });
 
