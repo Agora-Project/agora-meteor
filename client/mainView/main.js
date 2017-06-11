@@ -138,6 +138,14 @@ Template.mainView.onRendered(function() {
     this.getMousePos = function(event) {
         return {x:event.pageX, y:event.pageY - canvas.offset().top};
     };
+
+    this.getTouchPos = function(event) {
+        let ret = [];
+        for (touch of event.touches) {
+            ret.push({x: touch.pageX, y: touch.pageY - canvas.offset().top})
+        }
+        return ret;
+    }
 });
 
 Template.mainView.helpers({
@@ -145,10 +153,7 @@ Template.mainView.helpers({
         return Template.instance().detailedPosts.find();
     },
     replyTarget: function() {
-        return Template.instance().replyTarget.get();
-    },
-    editTarget: function() {
-        return Template.instance().editTarget.get();
+        return (Template.instance().replyTarget.get() || Template.instance().editTarget.get());
     },
     reportTarget: function() {
         return Template.instance().reportTarget.get();
@@ -162,7 +167,8 @@ Template.mainView.events({
         }
     },
     'touchstart': function(event, instance) {
-        var touches = event.originalEvent.touches;
+        event.preventDefault();
+        var touches = instance.getTouchPos(event.originalEvent);
         if (instance.camera) {
             instance.camera.touchStart(touches);
         }
@@ -173,7 +179,8 @@ Template.mainView.events({
         }
     },
     'touchmove': function(event, instance) {
-        var touches = event.originalEvent.touches;
+        event.preventDefault();
+        var touches = instance.getTouchPos(event.originalEvent);
         if (instance.camera) {
             instance.camera.touchMove(touches);
         }
@@ -184,7 +191,8 @@ Template.mainView.events({
         }
     },
     'touchend': function(event, instance) {
-        var touches = event.originalEvent.touches;
+        event.preventDefault();
+        var touches = instance.getTouchPos(event.originalEvent);
         if (instance.camera) {
             instance.camera.touchEnd(touches);
         }
@@ -196,7 +204,8 @@ Template.mainView.events({
         }
     },
     'touchleave': function(event, instance) {
-        var touches = event.originalEvent.touches;
+        event.preventDefault();
+        var touches = instance.getTouchPos(event.originalEvent);
         if (instance.camera && $('#main-container').is(event.target)) {
             instance.camera.touchEnd(touches);
         }
