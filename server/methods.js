@@ -62,36 +62,54 @@ Meteor.methods({
         //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
         Schema.Post.validate(post);
 
-        //Will always insert directly underneath target, shifting existing posts to the right.
+        //Will always insert after the targets rightmost reply, shifting existing posts to the right.
         let y = target.defaultPosition.y - 1;
-        let x = target.defaultPosition.x;
+        let x = target.defaultPosition.x + target.replies.length;
         post.defaultPosition = {x: x, y: y};
 
-        //Find the chain of adjacent posts which need to be shifted.
-        let shifting = false;
-        let postsToShift = [];
-        let prevColumn;
-        Posts.find({'defaultPosition.y': y}, {sort: {'defaultPosition.x': 1}}).forEach(function(post) {
-            if (shifting) {
-                if (post.defaultPosition.x > prevColumn + 1) {
-                    shifting = false;
-                }
-            }
-            else if (post.defaultPosition.x === x) {
-                shifting = true;
+        /**add the post to the end of the line under the post it's replying to.
+            *find every sibling post of it's parent that's to the right of it, and of their parents, and move them all \
+            to the right.
+
+            while
+            	find parent of current target
+            	check if any of it's siblings are to the right of the inserted post
+            	if so add them to the list to move further right.*/
+
+        //Find the chain of overhead posts which need to be shifted.
+        if (target.replies.length > 0) {
+            let shifting = false;
+            let postsToShift = [];
+            let targetId = target.target;
+
+            while (targetId) {
+                Posts.find({target: targetId}, {sort: {'defaultPosition.x': 1}}).forEach(function(post) {
+                    if (shifting) {
+                        if (post.defaultPosition.x < x) {
+                            shifting = false;
+                        }
+                    }
+                    else if (post.defaultPosition.x >= x) {
+                        shifting = true;
+                    }
+
+                    if (shifting) {
+                        postsToShift.push(post);
+                    }
+                });
+                
+                targetId = Posts.findOne({_id: targetId}).target;
             }
 
-            if (shifting) {
-                postsToShift.push(post);
+            //Shift found posts one column to the right, and all of their children, too.
+            for (let post of postsToShift) {
+                let newColumn = post.defaultPosition.x + 1;
+                Posts.update({_id: post._id}, {$set: {'defaultPosition.x': newColumn}});
+                Posts.find({target: post._id}).forEach(function(child) {
+                    postsToShift.push(child);
+                });
             }
 
-            prevColumn = post.defaultPosition.x;
-        });
-
-        //Shift found posts one column to the right.
-        for (let post of postsToShift) {
-            let newColumn = post.defaultPosition.x + 1;
-            Posts.update({_id: post._id}, {$set: {'defaultPosition.x': newColumn}});
         }
 
         //Insert new post into position.
