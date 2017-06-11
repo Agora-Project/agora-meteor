@@ -139,7 +139,7 @@ MainViewCamera = function() {
     };
 
     let touchDistance = null;
-    let prevTouches = 0;
+    let prevTouches = [];
 
     /**
      * Bugs to fix with the mobile touch code:
@@ -171,7 +171,7 @@ MainViewCamera = function() {
             };
             this.mouseDown(mousepos, 0);
         }
-        prevTouches = touches.length;
+        prevTouches = touches;
     };
 
     this.touchMove = function(touches) {
@@ -202,12 +202,12 @@ MainViewCamera = function() {
             zooms.push(new SmoothZoom(factor, 0.25));
             touchDistance = newTouchDistance;
         }
-        prevTouches = touches.length;
+        prevTouches = touches;
     };
 
     this.touchEnd = function(touches) {
         if (touches.length == 1) {
-            if (touches.length < prevTouches) {
+            if (touches.length < prevTouches.length) {
                 var mousepos = {
                     x: touches[0].x,
                     y: touches[0].y
@@ -234,13 +234,20 @@ MainViewCamera = function() {
                 x: zoomX,
                 y: zoomY
             };
-            this.mouseUp(mousepos, 0);
 
             let factor = Math.pow(finalTouchDistance / touchDistance, 2);
             zooms.push(new SmoothZoom(factor, 0.25));
             touchDistance = null;
+
+            this.mouseUp(mousepos, 0);
+        } else if (prevTouches.length > 0){
+            var mousepos = {
+                x: prevTouches[0].x,
+                y: prevTouches[0].y
+            };
+            this.mouseUp(mousepos, 0);
         }
-        prevTouches = touches.length;
+        prevTouches = touches;
     };
 
     this.isDragging = function() {
