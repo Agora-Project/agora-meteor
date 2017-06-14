@@ -76,7 +76,7 @@ Meteor.methods({
             	check if any of it's siblings are to the right of the inserted post
             	if so add them to the list to move further right.*/
 
-        //Find the chain of overhead posts which need to be shifted.
+        //Find the chain of overhead posts which need to be adjusted.
         if (target.replies.length > 0) {
             let shifting = false;
             let postsToShift = [];
@@ -84,6 +84,11 @@ Meteor.methods({
 
             while (targetId) {
                 Posts.find({target: targetId}, {sort: {'defaultPosition.x': 1}}).forEach(function(post) {
+
+                    //first, increase the size of their subtree variables by 1.
+                    Posts.update({_id: post._id}, {$inc: {subtreeWidth: 1}});
+
+                    //Then check if we need to add it to the list of posts to shift.
                     if (shifting) {
                         if (post.defaultPosition.x < x) {
                             shifting = false;
@@ -97,7 +102,7 @@ Meteor.methods({
                         postsToShift.push(post);
                     }
                 });
-                
+
                 targetId = Posts.findOne({_id: targetId}).target;
             }
 
