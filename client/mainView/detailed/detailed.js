@@ -85,6 +85,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
     };
 
     this.addPost = function(post) {
+        visiblePosts.insert(post);
     };
 
     this.removePost = function(post) {
@@ -115,7 +116,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
             let visible = partitioner.getVisible();
             for (let post of visible) {
                 if (!visiblePosts.findOne({_id: post._id})) {
-                    visiblePosts.insert(post);
+                    self.addPost(post);
                 }
             }
         }
