@@ -99,7 +99,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
     };
 
     this.update = function() {
-        if (camera.getScale() < 256.0) {
+        if (camera.getScale() < 128.0) {
             //Remove all posts if zoomed too far out.
             visiblePostsCursor.forEach(self.removePost);
         }
@@ -128,6 +128,16 @@ MainViewDetailedPosts = function(camera, partitioner) {
             div.css('max-height', POST_HEIGHT*camera.getScale());
             div.css('left', pos.x - div.outerWidth()/2);
             div.css('top', pos.y - div.outerHeight()/2);
+
+            /*if (camera.getScale() < 128.0 && camera.getScale() < Math.log(128.0, post.replies.length)) {
+                self.removePost(post);
+            } else*/ if (camera.getScale() < 256.0) {
+                div.find(".main-detailed-post-info").hide();
+                div.find(".main-detailed-post-footer").hide();
+            } else {
+                div.find(".main-detailed-post-info").show();
+                div.find(".main-detailed-post-footer").show();
+            }
         });
     };
 
