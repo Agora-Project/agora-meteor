@@ -49,6 +49,8 @@ Template.mainView.onCreated(function() {
     this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner);
     let modules = [this.camera, this.partitioner, this.renderer, this.detailedPosts];
 
+    Template.body.camera = this.camera;
+
     //Set up async notifiers.
     this.onRendered = new Notifier();
     let onSubReady = new Notifier();
@@ -251,3 +253,25 @@ Template.mainZoomSlider.events({
         instance.parent.camera.setZoomFraction(instance.slider.val()/100.0);
     }
 });
+
+//code for catching key events globally.
+Template.body.events({
+    "keydown": function(e, data, tpl) {
+        // e -> jquery event
+        // data -> Blaze data context of the DOM element triggering the event handler
+        // tpl -> the parent template instance for the target element
+
+        if (e.key.startsWith("Arrow")) {
+            Template.body.camera.arrowKeyPressed(e.key);
+        }
+    },
+    "keyup": function(e, data, tpl) {
+        // e -> jquery event
+        // data -> Blaze data context of the DOM element triggering the event handler
+        // tpl -> the parent template instance for the target element
+
+        if (e.key.startsWith("Arrow")) {
+            Template.body.camera.arrowKeyReleased(e.key);
+        }
+    }
+})

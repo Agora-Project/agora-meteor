@@ -254,6 +254,47 @@ MainViewCamera = function() {
         return dragging;
     };
 
+    let arrowsDown = {
+        left: false,
+        right: false,
+        up: false,
+        down: false
+    }
+
+    this.arrowKeyPressed = function(key) {
+        switch(key) {
+            case "ArrowLeft":
+                arrowsDown.left = true;
+                break;
+            case "ArrowRight":
+                arrowsDown.right = true;
+                break;
+            case "ArrowUp":
+                arrowsDown.up = true;
+                break;
+            case "ArrowDown":
+                arrowsDown.down = true;
+                break;
+        }
+    };
+
+    this.arrowKeyReleased = function(key) {
+        switch(key) {
+            case "ArrowLeft":
+                arrowsDown.left = false;
+                break;
+            case "ArrowRight":
+                arrowsDown.right = false;
+                break;
+            case "ArrowUp":
+                arrowsDown.up = false;
+                break;
+            case "ArrowDown":
+                arrowsDown.down = false;
+                break;
+        }
+    };
+
     let zooms = [];
     let targetScale = scale;
 
@@ -330,6 +371,26 @@ MainViewCamera = function() {
         p.x = Math.min(p.x, postBounds.right + w);
         p.y = Math.max(p.y, postBounds.bottom - h);
         p.y = Math.min(p.y, postBounds.top + h);
+
+        //perform panning for keyboard events
+        let dir = {x: 0, y: 0};
+
+        if (arrowsDown.left) dir.x -= 1;
+        if (arrowsDown.right) dir.x += 1;
+        if (arrowsDown.up) dir.y += 1;
+        if (arrowsDown.down) dir.y -= 1;
+
+        //normalize
+        dir.length = Math.sqrt(dir.x*dir.x + dir.y*dir.y);
+
+        if (dir.length > 0) dir.x /= dir.length;
+        if (dir.length > 0) dir.y /= dir.length;
+
+        //move the position accordingly.
+        p.x += 10 * dir.x/scale;
+        p.y += 10 * dir.y/scale;
+
+        console.log(dir);
 
         //Set camera session state.
         Session.set('camera', {p: p, scale: scale});
