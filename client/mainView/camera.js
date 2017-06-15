@@ -390,8 +390,6 @@ MainViewCamera = function() {
         p.x += 10 * dir.x/scale;
         p.y += 10 * dir.y/scale;
 
-        console.log(dir);
-
         //Set camera session state.
         Session.set('camera', {p: p, scale: scale});
     };
