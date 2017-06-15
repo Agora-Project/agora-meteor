@@ -261,8 +261,8 @@ Template.body.events({
         // data -> Blaze data context of the DOM element triggering the event handler
         // tpl -> the parent template instance for the target element
 
-        if (e.key.startsWith("Arrow")) {
-            Template.body.camera.arrowKeyPressed(e.key);
+        if (e.key.startsWith("Arrow") || e.key == "-" || e.key == "+") {
+            Template.body.camera.keyPressed(e.key);
         }
     },
     "keyup": function(e, data, tpl) {
@@ -270,8 +270,8 @@ Template.body.events({
         // data -> Blaze data context of the DOM element triggering the event handler
         // tpl -> the parent template instance for the target element
 
-        if (e.key.startsWith("Arrow")) {
-            Template.body.camera.arrowKeyReleased(e.key);
+        if (e.key.startsWith("Arrow") || e.key == "-" || e.key == "+") {
+            Template.body.camera.keyReleased(e.key);
         }
     }
 })

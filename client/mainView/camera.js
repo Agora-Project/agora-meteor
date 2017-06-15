@@ -254,43 +254,57 @@ MainViewCamera = function() {
         return dragging;
     };
 
-    let arrowsDown = {
+    let keysDown = {
         left: false,
         right: false,
         up: false,
-        down: false
+        down: false,
+        minus: false,
+        plus: false
     }
 
-    this.arrowKeyPressed = function(key) {
+    this.keyPressed = function(key) {
         switch(key) {
             case "ArrowLeft":
-                arrowsDown.left = true;
+                keysDown.left = true;
                 break;
             case "ArrowRight":
-                arrowsDown.right = true;
+                keysDown.right = true;
                 break;
             case "ArrowUp":
-                arrowsDown.up = true;
+                keysDown.up = true;
                 break;
             case "ArrowDown":
-                arrowsDown.down = true;
+                keysDown.down = true;
+                break;
+            case "-":
+                keysDown.minus = true;
+                break;
+            case "+":
+                keysDown.plus = true;
                 break;
         }
     };
 
-    this.arrowKeyReleased = function(key) {
+    this.keyReleased = function(key) {
         switch(key) {
             case "ArrowLeft":
-                arrowsDown.left = false;
+                keysDown.left = false;
                 break;
             case "ArrowRight":
-                arrowsDown.right = false;
+                keysDown.right = false;
                 break;
             case "ArrowUp":
-                arrowsDown.up = false;
+                keysDown.up = false;
                 break;
             case "ArrowDown":
-                arrowsDown.down = false;
+                keysDown.down = false;
+                break;
+            case "-":
+                keysDown.minus = false;
+                break;
+            case "+":
+                keysDown.plus = false;
                 break;
         }
     };
@@ -348,6 +362,12 @@ MainViewCamera = function() {
         //Clamp camera zoom.
         this.setScale(Math.max(minZoom, Math.min(scale, MAX_ZOOM)));
 
+        if (keysDown.plus) {
+            this.setZoomFraction(this.getZoomFraction() + 0.01);
+        } else if (keysDown.minus) {
+            this.setZoomFraction(this.getZoomFraction() - 0.01);
+        }
+
         //Perform zooming.
         for (let i = zooms.length - 1; i >= 0; i--) {
             let zoom = zooms[i];
@@ -375,10 +395,10 @@ MainViewCamera = function() {
         //perform panning for keyboard events
         let dir = {x: 0, y: 0};
 
-        if (arrowsDown.left) dir.x -= 1;
-        if (arrowsDown.right) dir.x += 1;
-        if (arrowsDown.up) dir.y += 1;
-        if (arrowsDown.down) dir.y -= 1;
+        if (keysDown.left) dir.x -= 1;
+        if (keysDown.right) dir.x += 1;
+        if (keysDown.up) dir.y += 1;
+        if (keysDown.down) dir.y -= 1;
 
         //normalize
         dir.length = Math.sqrt(dir.x*dir.x + dir.y*dir.y);
