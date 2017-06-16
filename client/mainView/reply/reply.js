@@ -113,6 +113,9 @@ Template.mainReply.events({
             //Prevent events from passing through posts into the WebGL canvas.
             event.stopImmediatePropagation();
         }
+    },
+    'keydown, keyup': function(event) {
+        event.stopImmediatePropagation();
     }
 });
 
