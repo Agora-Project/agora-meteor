@@ -64,7 +64,7 @@ Meteor.methods({
 
         //Will always insert after the targets rightmost reply, shifting existing posts to the right.
         let y = target.defaultPosition.y - 1;
-        let x = target.defaultPosition.x + target.subtreeWidth;
+        let x = target.defaultPosition.x;
         post.defaultPosition = {x: x, y: y};
 
         /**add the post to the end of the line under the post it's replying to.
@@ -76,12 +76,13 @@ Meteor.methods({
             	check if any of it's siblings are to the right of the inserted post
             	if so add them to the list to move further right.*/
 
-        //Find the chain of overhead posts which need to be adjusted.
+        //Find the chain of posts which need to be adjusted.
         if (target.replies.length > 0) {
             let shifting = false;
             let postsToShift = [];
             let targetId = target.target;
 
+            //posts above...
             while (targetId) {
                 Posts.find({target: targetId}, {sort: {'defaultPosition.x': 1}}).forEach(function(post) {
 
@@ -90,11 +91,11 @@ Meteor.methods({
 
                     //Then check if we need to add it to the list of posts to shift.
                     if (shifting) {
-                        if (post.defaultPosition.x < x) {
+                        if (post.defaultPosition.x <= x) {
                             shifting = false;
                         }
                     }
-                    else if (post.defaultPosition.x >= x) {
+                    else if (post.defaultPosition.x > x) {
                         shifting = true;
                     }
 
@@ -104,6 +105,11 @@ Meteor.methods({
                 });
 
                 targetId = Posts.findOne({_id: targetId}).target;
+            };
+
+            //and all of a posts siblings.
+            for (let id of target.replies) {
+                postsToShift.push(Posts.findOne({_id: id}));
             }
 
             //Shift found posts one column to the right, and all of their children, too.
