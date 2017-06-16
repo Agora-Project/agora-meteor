@@ -64,7 +64,7 @@ Meteor.methods({
 
         //Will always insert after the targets rightmost reply, shifting existing posts to the right.
         let y = target.defaultPosition.y - 1;
-        let x = target.defaultPosition.x + target.replies.length;
+        let x = target.defaultPosition.x + target.subtreeWidth;
         post.defaultPosition = {x: x, y: y};
 
         /**add the post to the end of the line under the post it's replying to.
