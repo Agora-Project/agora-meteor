@@ -12,14 +12,14 @@ Meteor.publish('post', function(postID, posterID) {
     ];
 });
 
-//Returns an abstract shell of all posts, each only containing its id and links.
+//Returns an abstract shell of all posts, each only containing its id, links, and subtree width.
 Meteor.publish('abstractPosts', function() {
-    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1}});
+    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1}});
 });
 
-//Returns an abstract shell of all posts, each only containing its id and links.
+//Returns an abstract shell of all posts with a given tag, each only containing its id, links, and subtree width.
 Meteor.publish('abstractPostsByTag', function(tag) {
-    return Posts.find({tags: tag}, {fields: {poster: 1, target: 1, replies: 1}});
+    return Posts.find({tags: tag}, {fields: {poster: 1, target: 1, replies: 1, subtreeWidth: 1}});
 });
 
 //Universal subscription for roles.

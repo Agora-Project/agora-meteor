@@ -32,6 +32,8 @@ Meteor.methods({
             return;
         }
 
+        post.subtreeWidth = 0;
+
         //check post for new hashtags and if any are found process them.
         //The regex here describes a hashtag as anything that starts with either
         //the start of a string or any kind of whitespace, then has a # symbol,
@@ -107,7 +109,7 @@ Meteor.methods({
                 targetId = Posts.findOne({_id: targetId}).target;
             };
 
-            //and all of a posts siblings.
+            //...and all of a posts siblings.
             for (let id of target.replies) {
                 postsToShift.push(Posts.findOne({_id: id}));
             }
