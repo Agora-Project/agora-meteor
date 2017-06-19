@@ -37,6 +37,10 @@ MainViewCamera = function() {
         if (scale === newScale) return;
         else {
             scale = newScale;
+
+            if (scale > MAX_ZOOM) scale = MAX_ZOOM;
+            else if (scale < minZoom) scale = minZoom;
+
             for (callback of onZoomCallbacks) {
                 callback(this);
             }
@@ -70,7 +74,10 @@ MainViewCamera = function() {
     };
 
     this.getZoomFraction = function() {
-        return Math.log(scale/minZoom)/Math.log(MAX_ZOOM/minZoom);
+        let ret = Math.log(scale/minZoom)/Math.log(MAX_ZOOM/minZoom);
+        if (ret > 1) ret = 1;
+        if (ret < 0) ret = 0;
+        return ret;
     };
 
     this.setZoomFraction = function(fraction) {
