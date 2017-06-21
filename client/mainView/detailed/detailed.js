@@ -80,6 +80,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
     //Collection of currently visible detailed posts.
     let visiblePosts = new Mongo.Collection(null);
     let visiblePostsCursor = visiblePosts.find({});
+    this.showFullPosts = new ReactiveVar(false);
 
     this.init = function(postArray) {
     };
@@ -89,7 +90,14 @@ MainViewDetailedPosts = function(camera, partitioner) {
     };
 
     this.removePost = function(post) {
-        let div = $('#main-detailed-post-' + post._id);
+        let div;
+
+        if (self.showFullPosts.get()) {
+            div = $('#main-detailed-post-' + post._id);
+        } else {
+            div = $('#main-basic-post-' + post._id);
+        }
+
         div.fadeOut(200, function() {
             visiblePosts.remove({_id: post._id});
         });
@@ -100,45 +108,46 @@ MainViewDetailedPosts = function(camera, partitioner) {
     };
 
     this.update = function() {
-        if (camera.getScale() < 128.0) {
-            //Remove all posts if zoomed too far out.
-            visiblePostsCursor.forEach(self.removePost);
+        //Remove posts which are no longer visible.
+        if (self.showFullPosts.get()) {
+            if (camera.getScale() < 160)
+                self.showFullPosts.set(false);
+        } else {
+            if (camera.getScale() > 160)
+                self.showFullPosts.set(true);
         }
-        else {
-            //Remove posts which are no longer visible.
-            visiblePostsCursor.forEach(function(post) {
-                if (!camera.isPointVisible(post.defaultPosition)) {
-                    self.removePost(post);
-                }
-            });
+        visiblePostsCursor.forEach(function(post) {
+            if (!camera.isPointVisible(post.defaultPosition) || ((2 + post.replies.length) <=
+               camera.maxReplies * (1-camera.getZoomFraction()))) {
+                console.log(((2 + post.replies.length) <
+                   camera.maxReplies * (1-camera.getZoomFraction())));
+                self.removePost(post);
+            }
+        });
 
-            //Add posts which are newly visible.
-            let visible = partitioner.getVisible();
-            for (let post of visible) {
-                if (!visiblePosts.findOne({_id: post._id})) {
-                    self.addPost(post);
-                }
+        //Add posts which are newly visible.
+        let visible = partitioner.getVisible();
+        for (let post of visible) {
+            if (!visiblePosts.findOne({_id: post._id}) && ((2 + post.replies.length) >
+                camera.maxReplies * (1-camera.getZoomFraction()))) {
+                self.addPost(post);
             }
         }
 
         //Update post positions/sizes.
         visiblePostsCursor.forEach(function(post) {
-            let div = $('#main-detailed-post-' + post._id);
+            let div;
+
+            if (self.showFullPosts.get()) {
+                div = $('#main-detailed-post-' + post._id);
+                div.width(POST_WIDTH*camera.getScale());
+                div.css('max-height', POST_HEIGHT*camera.getScale());
+            } else {
+                div = $('#main-basic-post-' + post._id);
+            }
             let pos = camera.toScreen(post.defaultPosition);
-            div.width(POST_WIDTH*camera.getScale());
-            div.css('max-height', POST_HEIGHT*camera.getScale());
             div.css('left', pos.x - div.outerWidth()/2);
             div.css('top', pos.y - div.outerHeight()/2);
-
-            /*if (camera.getScale() < 128.0 && camera.getScale() < Math.log(128.0, post.replies.length)) {
-                self.removePost(post);
-            } else*/ if (camera.getScale() < 256.0) {
-                div.find(".main-detailed-post-info").hide();
-                div.find(".main-detailed-post-footer").hide();
-            } else {
-                div.find(".main-detailed-post-info").show();
-                div.find(".main-detailed-post-footer").show();
-            }
         });
     };
 
@@ -183,4 +192,28 @@ Template.mainDetailedPostDeleteButton.events({
             Meteor.call('deletePost', instance.parent.data._id);
         }
     }
+});
+
+Template.mainBasicPost.onCreated(function() {
+    let instance = this;
+    let onSubReady = new Notifier();
+    this.onRendered = new Notifier();
+
+    this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
+
+    Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
+        //Fade out spinner and fade in actual post.
+        instance.div.children('.main-basic-post-spinner').fadeOut(100);
+        instance.div.children('.main-basic-post-flex')
+            .css('display', 'flex')
+            .hide()
+            .fadeIn(200);
+    });
+});
+
+
+Template.mainBasicPost.onRendered(function() {
+    this.div = $('#main-basic-post-' + this.data._id);
+    this.div.css('display', 'flex').hide().fadeIn(200);
+    setTimeout(this.onRendered.fulfill, 250);
 });

@@ -154,6 +154,9 @@ Template.mainView.helpers({
     detailedPosts: function() {
         return Template.instance().detailedPosts.find();
     },
+    showFullPosts: function() {
+        return Template.instance().detailedPosts.showFullPosts.get();
+    },
     replyTarget: function() {
         return (Template.instance().replyTarget.get() || Template.instance().editTarget.get());
     },

@@ -6,6 +6,9 @@ MainViewCamera = function() {
     let postBounds = {left: 0.0, right: 0.0, bottom: 0.0, top: 0.0};
     let MAX_ZOOM = 768.0, minZoom = 0.0;
 
+    this.maxReplies = 0;
+    this.maxSubtreeWidth = 0;
+
     let onZoomCallbacks = [];
 
     this.construct = function(initCanvas) {
@@ -16,6 +19,10 @@ MainViewCamera = function() {
         //Calculate post bounds.
         for (let post of postArray) {
             self.addPost(post);
+            if (post.replies.length > this.maxReplies)
+                this.maxReplies = post.replies.length;
+            if (post.subtreeWidth > this.maxSubtreeWidth)
+                this.maxSubtreeWidth = post.subtreeWidth;
         }
 
         //Grab session camera state if it exists.
@@ -53,6 +60,11 @@ MainViewCamera = function() {
         postBounds.right = Math.max(postBounds.right, pos.x);
         postBounds.bottom = Math.min(postBounds.bottom, pos.y);
         postBounds.top = Math.max(postBounds.top, pos.y);
+
+        if (post.replies.length > this.maxReplies)
+            this.maxReplies = post.replies.length;
+        if (post.subtreeWidth > this.maxSubtreeWidth)
+            this.maxSubtreeWidth = post.subtreeWidth;
     };
 
     this.removePost = function(post) {
