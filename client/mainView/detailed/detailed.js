@@ -110,7 +110,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
     this.update = function() {
         //Remove posts which are no longer visible.
         if (self.showFullPosts.get()) {
-            if (camera.getScale() < 160)
+            if (camera.getScale() <= 160)
                 self.showFullPosts.set(false);
         } else {
             if (camera.getScale() > 160)
@@ -118,9 +118,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         }
         visiblePostsCursor.forEach(function(post) {
             if (!camera.isPointVisible(post.defaultPosition) || ((2 + post.replies.length) <=
-               camera.maxReplies * (1-camera.getZoomFraction()))) {
-                console.log(((2 + post.replies.length) <
-                   camera.maxReplies * (1-camera.getZoomFraction())));
+                camera.maxReplies * (1-camera.getZoomFraction()))) {
                 self.removePost(post);
             }
         });
@@ -216,4 +214,31 @@ Template.mainBasicPost.onRendered(function() {
     this.div = $('#main-basic-post-' + this.data._id);
     this.div.css('display', 'flex').hide().fadeIn(200);
     setTimeout(this.onRendered.fulfill, 250);
+});
+
+Template.mainBasicPost.helpers({
+    poster: function() {
+        let post = Template.currentData();
+        return Meteor.users.findOne({_id: post.poster});
+    },
+    preview: function() {
+        if (Template.currentData().title) return Template.currentData().title.slice(0, 10);
+        else {
+            let rawContent = Template.currentData().content;
+            let bbcontent;
+            if (rawContent) {
+                bbcontent = XBBCODE.process({
+                    text: rawContent,
+                    removeMisalignedTags: false,
+                    addInLineBreaks: true
+                }).html;
+
+                //console.log(rawContent);
+
+                return rawContent;
+
+
+            }
+        }
+    }
 });
