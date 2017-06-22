@@ -110,11 +110,21 @@ MainViewDetailedPosts = function(camera, partitioner) {
     this.update = function() {
         //Remove posts which are no longer visible.
         if (self.showFullPosts.get()) {
-            if (camera.getScale() <= 160)
-                self.showFullPosts.set(false);
+            if (camera.getScale() <= 160) {
+                let div = $('.main-detailed-post');
+
+                div.fadeOut(200, function() {
+                    self.showFullPosts.set(false);
+                });
+            }
         } else {
-            if (camera.getScale() > 160)
-                self.showFullPosts.set(true);
+            if (camera.getScale() > 160) {
+                let div = $('.main-basic-post');
+
+                div.fadeOut(200, function() {
+                    self.showFullPosts.set(true);
+                });
+            }
         }
         visiblePostsCursor.forEach(function(post) {
             if (!camera.isPointVisible(post.defaultPosition) || ((2 + post.replies.length) <=
