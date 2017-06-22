@@ -6,8 +6,8 @@ MainViewCamera = function() {
     let postBounds = {left: 0.0, right: 0.0, bottom: 0.0, top: 0.0};
     let MAX_ZOOM = 768.0, minZoom = 0.0;
 
-    this.maxReplies = 0;
-    this.maxSubtreeWidth = 0;
+    let maxReplies = 0;
+    let maxSubtreeWidth = 0;
 
     let onZoomCallbacks = [];
 
@@ -19,10 +19,10 @@ MainViewCamera = function() {
         //Calculate post bounds.
         for (let post of postArray) {
             self.addPost(post);
-            if (post.replies.length > this.maxReplies)
-                this.maxReplies = post.replies.length;
-            if (post.subtreeWidth > this.maxSubtreeWidth)
-                this.maxSubtreeWidth = post.subtreeWidth;
+            if (post.replies.length > maxReplies)
+                maxReplies = post.replies.length;
+            if (post.subtreeWidth > maxSubtreeWidth)
+                maxSubtreeWidth = post.subtreeWidth;
         }
 
         //Grab session camera state if it exists.
@@ -61,10 +61,10 @@ MainViewCamera = function() {
         postBounds.bottom = Math.min(postBounds.bottom, pos.y);
         postBounds.top = Math.max(postBounds.top, pos.y);
 
-        if (post.replies.length > this.maxReplies)
-            this.maxReplies = post.replies.length;
-        if (post.subtreeWidth > this.maxSubtreeWidth)
-            this.maxSubtreeWidth = post.subtreeWidth;
+        if (post.replies && post.replies.length > maxReplies)
+            maxReplies = post.replies.length;
+        if (post.subtreeWidth > maxSubtreeWidth)
+            maxSubtreeWidth = post.subtreeWidth;
     };
 
     this.removePost = function(post) {
@@ -75,6 +75,14 @@ MainViewCamera = function() {
         if (fields.defaultPosition) {
             self.addPost(fields);
         }
+    };
+
+    this.getMaxReplies = function() {
+        return maxReplies;
+    };
+
+    this.getMaxSubtreeWidth = function() {
+        return maxSubtreeWidth;
     };
 
     this.getPos = function() {

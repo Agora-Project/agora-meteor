@@ -128,7 +128,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         }
         visiblePostsCursor.forEach(function(post) {
             if (!camera.isPointVisible(post.defaultPosition) || ((2 + post.replies.length) <=
-                camera.maxReplies * (1-camera.getZoomFraction()))) {
+                camera.getMaxReplies() * (1-camera.getZoomFraction()))) {
                 self.removePost(post);
             }
         });
@@ -137,7 +137,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         let visible = partitioner.getVisible();
         for (let post of visible) {
             if (!visiblePosts.findOne({_id: post._id}) && ((2 + post.replies.length) >
-                camera.maxReplies * (1-camera.getZoomFraction()))) {
+                camera.getMaxReplies() * (1-camera.getZoomFraction()))) {
                 self.addPost(post);
             }
         }
