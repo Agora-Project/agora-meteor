@@ -32,10 +32,6 @@ Meteor.methods({
             return;
         }
 
-        //Set empty values that aren't used yet.
-        post.subtreeWidth = 0;
-        post.replies = [];
-
         //check post for new hashtags and if any are found process them.
         //The regex here describes a hashtag as anything that starts with either
         //the start of a string or any kind of whitespace, then has a # symbol,

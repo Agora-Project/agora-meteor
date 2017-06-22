@@ -6,16 +6,14 @@
 
 Meteor.startup(function() {
     //Deletes all posts and adds a set of random fake posts.
-    if (false) {
+    if (true) {
         console.log('Deleting all posts');
         Posts.remove({});
 
         console.log('Adding root post');
         let rootID = Posts.insert({
             title: 'Forum Root',
-            content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
-            replies: [],
-            subtreeWidth: 0
+            content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.'
         });
 
         console.log("Adding fake posts");
@@ -28,9 +26,7 @@ Meteor.startup(function() {
 
             let reply = {
                 content: 'Fake content.',
-                target: target,
-                replies: [],
-                subtreeWidth: 0
+                target: target
             };
 
             if (Math.random() > 0.5) {

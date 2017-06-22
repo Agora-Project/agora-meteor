@@ -108,7 +108,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
     };
 
     this.update = function() {
-        //Remove posts which are no longer visible.
+        //switch between showing basic posts and detailed posts.
         if (self.showFullPosts.get()) {
             if (camera.getScale() <= 160) {
                 let div = $('.main-detailed-post');
