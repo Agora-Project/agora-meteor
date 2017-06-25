@@ -17,7 +17,7 @@ Template.mainReport.onRendered(function() {
     $('#main-report-submit-button').click(function(event) {
         let report = {
             content: contentInput.val(),
-            target: target._id
+            targetID: target._id
         };
 
         Meteor.call("submitReport", report, function(error) {
