@@ -128,7 +128,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         }
         visiblePostsCursor.forEach(function(post) {
             if (!camera.isPointVisible(post.defaultPosition) || ((2 + post.replies.length) <=
-                camera.getMaxReplies() * (1-camera.getZoomFraction()))) {
+                5 * (1-camera.getZoomFraction()))) {
                 self.removePost(post);
             }
         });
@@ -137,7 +137,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         let visible = partitioner.getVisible();
         for (let post of visible) {
             if (!visiblePosts.findOne({_id: post._id}) && ((2 + post.replies.length) >
-                camera.getMaxReplies() * (1-camera.getZoomFraction()))) {
+                5 * (1-camera.getZoomFraction()))) {
                 self.addPost(post);
             }
         }
@@ -234,7 +234,7 @@ Template.mainBasicPost.helpers({
         return Meteor.users.findOne({_id: post.poster});
     },
     preview: function() {
-        if (Template.currentData().title) return Template.currentData().title.slice(0, 10);
+        if (Template.currentData().title) return Template.currentData().title.slice(0, 20);
         else {
             let rawContent = Template.currentData().content;
             let bbcontent, finalContent = "";
@@ -245,7 +245,7 @@ Template.mainBasicPost.helpers({
                     addInLineBreaks: true
                 }).html;
 
-                let insideTags = 0, characters = 10
+                let insideTags = 0, characters = 20
 
                 while (bbcontent.length > 0 && (characters > 0 || insideTags > 0)) {
 
