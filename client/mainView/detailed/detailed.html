@@ -54,3 +54,19 @@
 <template name="mainDetailedPostDeleteButton">
     <button>Delete</button>
 </template>
+
+<template name="mainBasicPost">
+    <div class="main-basic-post" id="main-basic-post-{{_id}}">
+        <div class="main-basic-post-flex">
+            {{#if poster}}
+                <div class="main-basic-post-info">
+                        <a class="main-basic-post-avatar" href="/user/{{poster._id}}">
+                            {{> avatar user=(poster) size="extra-small" shape="rounded"}}
+                        </a>
+                </div>
+            {{/if}}
+            {{{preview}}}
+        </div>
+        <i class="main-basic-post-spinner fa fa-refresh" aria-hidden="true"></i>
+    </div>
+</template>

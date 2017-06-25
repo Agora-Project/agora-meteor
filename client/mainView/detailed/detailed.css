@@ -111,3 +111,54 @@
 
 .main-detailed-post-edit-button {
 }
+
+.main-basic-post {
+    position: absolute;
+    flex-direction: column;
+    display: none;
+    background-color: #fff;
+    border-radius: 0px;
+    overflow: hidden;
+}
+
+.main-basic-post-spinner {
+    position: absolute;
+    font-size: 32px;
+    left: 50%;
+    top: 50%;
+    margin: -16px 0px 0px -16px;
+    animation: spin 1s infinite linear;
+}
+
+.main-basic-post-flex {
+    display: none;
+    flex-direction: row;
+    overflow: hidden;
+}
+
+.main-basic-post-title {
+    border-bottom: 0px solid #ccc;
+}
+
+.main-basic-post-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: left;
+    border-bottom: 1px solid #ccc;
+}
+
+.main-basic-post-avatar {
+    margin-right: 8px;
+}
+
+.main-basic-post-content {
+    overflow-y: auto;
+}
+
+.main-basic-post-content p {
+    line-height: 130%;
+    overflow: hidden;
+    white-space: pre-wrap;
+    text-overflow: ellipsis;
+}

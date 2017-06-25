@@ -8,18 +8,18 @@
 Meteor.publish('post', function(postID, posterID) {
     return [
         Posts.find({_id: postID}),
-        Meteor.users.find({_id: posterID}, {fields: {username: 1, avatar: 1, email_hash: 1}})
+        Meteor.users.find({_id: posterID}, {fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, email_hash: 1}})
     ];
 });
 
-//Returns an abstract shell of all posts, each only containing its id and links.
+//Returns an abstract shell of all posts, each only containing its id, links, and subtree width.
 Meteor.publish('abstractPosts', function() {
-    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1}});
+    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1}});
 });
 
-//Returns an abstract shell of all posts, each only containing its id and links.
+//Returns an abstract shell of all posts with a given tag, each only containing its id, links, and subtree width.
 Meteor.publish('abstractPostsByTag', function(tag) {
-    return Posts.find({tags: tag}, {fields: {poster: 1, target: 1, replies: 1}});
+    return Posts.find({tags: tag}, {fields: {poster: 1, target: 1, replies: 1, subtreeWidth: 1}});
 });
 
 //Universal subscription for roles.
@@ -46,21 +46,25 @@ Meteor.publish('myself', function() {
 //Users; for the user management page. Should restrict fields even to moderators--shouldn't send user tokens and password hashes over network--ever.
 Meteor.publish('users', function() {
     if (Roles.userIsInRole(this.userId, ['moderator'])) {
-        return Meteor.users.find({});
+        return Meteor.users.find({}, {
+            fields: {isBanned: 1, createdAt: 1, roles: 1, emails: 1, username: 1, avatar: 1, email_hash: 1}
+        });
     } else {
         return Meteor.users.find({}, {
-            fields: {username: 1, avatar: 1, email_hash: 1}
+            fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, avatar: 1, email_hash: 1}
         });
     }
 });
 
-//Users; for the user management page. Should restrict fields even to moderators--shouldn't send user tokens and password hashes over network--ever.
+//User data, for the profile page.
 Meteor.publish('user', function(userId) {
     if (Roles.userIsInRole(this.userId, ['moderator'])) {
-        return Meteor.users.find({_id: userId});
+        return Meteor.users.find({_id: userId}, {
+            fields: {isBanned: 1, createdAt: 1, roles: 1, emails: 1, username: 1, email_hash: 1}
+        });
     } else {
         return Meteor.users.find({_id: userId}, {
-            fields: {username: 1, avatar: 1, email_hash: 1}
+            fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, email_hash: 1}
         });
     }
 });

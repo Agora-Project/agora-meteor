@@ -7,9 +7,15 @@
 <template name="mainView">
     <div id="main-container">
         <canvas id="main-viewport"></canvas>
-        {{#each detailedPosts}}
-            {{> mainDetailedPost}}
-        {{/each}}
+        {{#if showFullPosts}}
+            {{#each detailedPosts}}
+                {{> mainDetailedPost}}
+            {{/each}}
+        {{else}}
+            {{#each detailedPosts}}
+                {{> mainBasicPost}}
+            {{/each}}
+        {{/if}}
         {{#if currentUser}}
             {{#if replyTarget}}
                 {{> mainReply}}

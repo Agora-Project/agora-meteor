@@ -6,6 +6,9 @@ MainViewCamera = function() {
     let postBounds = {left: 0.0, right: 0.0, bottom: 0.0, top: 0.0};
     let MAX_ZOOM = 768.0, minZoom = 0.0;
 
+    let maxReplies = 0;
+    let maxSubtreeWidth = 0;
+
     let onZoomCallbacks = [];
 
     this.construct = function(initCanvas) {
@@ -16,6 +19,10 @@ MainViewCamera = function() {
         //Calculate post bounds.
         for (let post of postArray) {
             self.addPost(post);
+            if (post.replies.length > maxReplies)
+                maxReplies = post.replies.length;
+            if (post.subtreeWidth > maxSubtreeWidth)
+                maxSubtreeWidth = post.subtreeWidth;
         }
 
         //Grab session camera state if it exists.
@@ -37,6 +44,10 @@ MainViewCamera = function() {
         if (scale === newScale) return;
         else {
             scale = newScale;
+
+            if (scale > MAX_ZOOM) scale = MAX_ZOOM;
+            else if (scale < minZoom) scale = minZoom;
+
             for (callback of onZoomCallbacks) {
                 callback(this);
             }
@@ -49,6 +60,11 @@ MainViewCamera = function() {
         postBounds.right = Math.max(postBounds.right, pos.x);
         postBounds.bottom = Math.min(postBounds.bottom, pos.y);
         postBounds.top = Math.max(postBounds.top, pos.y);
+
+        if (post.replies && post.replies.length > maxReplies)
+            maxReplies = post.replies.length;
+        if (post.subtreeWidth > maxSubtreeWidth)
+            maxSubtreeWidth = post.subtreeWidth;
     };
 
     this.removePost = function(post) {
@@ -61,6 +77,14 @@ MainViewCamera = function() {
         }
     };
 
+    this.getMaxReplies = function() {
+        return maxReplies;
+    };
+
+    this.getMaxSubtreeWidth = function() {
+        return maxSubtreeWidth;
+    };
+
     this.getPos = function() {
         return {x:p.x, y:p.y};
     };
@@ -70,7 +94,10 @@ MainViewCamera = function() {
     };
 
     this.getZoomFraction = function() {
-        return Math.log(scale/minZoom)/Math.log(MAX_ZOOM/minZoom);
+        let ret = Math.log(scale/minZoom)/Math.log(MAX_ZOOM/minZoom);
+        if (ret > 1) ret = 1;
+        if (ret < 0) ret = 0;
+        return ret;
     };
 
     this.setZoomFraction = function(fraction) {
@@ -254,6 +281,61 @@ MainViewCamera = function() {
         return dragging;
     };
 
+    let keysDown = {
+        left: false,
+        right: false,
+        up: false,
+        down: false,
+        minus: false,
+        plus: false
+    }
+
+    this.keyPressed = function(key) {
+        switch(key) {
+            case "ArrowLeft":
+                keysDown.left = true;
+                break;
+            case "ArrowRight":
+                keysDown.right = true;
+                break;
+            case "ArrowUp":
+                keysDown.up = true;
+                break;
+            case "ArrowDown":
+                keysDown.down = true;
+                break;
+            case "-":
+                keysDown.minus = true;
+                break;
+            case "+":
+                keysDown.plus = true;
+                break;
+        }
+    };
+
+    this.keyReleased = function(key) {
+        switch(key) {
+            case "ArrowLeft":
+                keysDown.left = false;
+                break;
+            case "ArrowRight":
+                keysDown.right = false;
+                break;
+            case "ArrowUp":
+                keysDown.up = false;
+                break;
+            case "ArrowDown":
+                keysDown.down = false;
+                break;
+            case "-":
+                keysDown.minus = false;
+                break;
+            case "+":
+                keysDown.plus = false;
+                break;
+        }
+    };
+
     let zooms = [];
     let targetScale = scale;
 
@@ -307,6 +389,12 @@ MainViewCamera = function() {
         //Clamp camera zoom.
         this.setScale(Math.max(minZoom, Math.min(scale, MAX_ZOOM)));
 
+        if (keysDown.plus) {
+            this.setZoomFraction(this.getZoomFraction() + 0.01);
+        } else if (keysDown.minus) {
+            this.setZoomFraction(this.getZoomFraction() - 0.01);
+        }
+
         //Perform zooming.
         for (let i = zooms.length - 1; i >= 0; i--) {
             let zoom = zooms[i];
@@ -330,6 +418,24 @@ MainViewCamera = function() {
         p.x = Math.min(p.x, postBounds.right + w);
         p.y = Math.max(p.y, postBounds.bottom - h);
         p.y = Math.min(p.y, postBounds.top + h);
+
+        //perform panning for keyboard events
+        let dir = {x: 0, y: 0};
+
+        if (keysDown.left) dir.x -= 1;
+        if (keysDown.right) dir.x += 1;
+        if (keysDown.up) dir.y += 1;
+        if (keysDown.down) dir.y -= 1;
+
+        //normalize
+        dir.length = Math.sqrt(dir.x*dir.x + dir.y*dir.y);
+
+        if (dir.length > 0) dir.x /= dir.length;
+        if (dir.length > 0) dir.y /= dir.length;
+
+        //move the position accordingly.
+        p.x += 10 * dir.x/scale;
+        p.y += 10 * dir.y/scale;
 
         //Set camera session state.
         Session.set('camera', {p: p, scale: scale});
