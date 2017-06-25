@@ -123,8 +123,6 @@ Template.mainReply.events({
     'keydown, keyup': function(event) {
         event.stopImmediatePropagation();
 
-        console.log(event);
-
         if (event.ctrlKey && event.key == "Enter")
             Template.instance().submitButton();
 
