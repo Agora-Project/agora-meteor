@@ -202,6 +202,8 @@ Template.mainDetailedPostDeleteButton.events({
     }
 });
 
+Template.mainBasicPost.getParents();
+
 Template.mainBasicPost.onCreated(function() {
     let instance = this;
     let onSubReady = new Notifier();
@@ -235,7 +237,7 @@ Template.mainBasicPost.helpers({
         if (Template.currentData().title) return Template.currentData().title.slice(0, 10);
         else {
             let rawContent = Template.currentData().content;
-            let bbcontent;
+            let bbcontent, finalContent = "";
             if (rawContent) {
                 bbcontent = XBBCODE.process({
                     text: rawContent,
@@ -243,9 +245,23 @@ Template.mainBasicPost.helpers({
                     addInLineBreaks: true
                 }).html;
 
-                //console.log(rawContent);
+                let insideTags = 0, characters = 10
 
-                return rawContent;
+                while (bbcontent.length > 0 && (characters > 0 || insideTags > 0)) {
+
+                    if (bbcontent[0] == '<') insideTags++;
+
+                    if (characters > 0 || insideTags > 0) finalContent = finalContent + bbcontent[0];
+
+                    if (insideTags <= 0) characters--;
+
+                    if (bbcontent[0] == '>') insideTags--;
+
+                    bbcontent = bbcontent.substr(1, bbcontent.length - 1);
+
+                }
+
+                return finalContent;
 
 
             }
