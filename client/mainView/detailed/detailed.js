@@ -251,7 +251,11 @@ Template.mainBasicPost.helpers({
 
                     if (bbcontent[0] == '<') insideTags++;
 
-                    if (characters > 0 || insideTags > 0) finalContent = finalContent + bbcontent[0];
+                    if (characters > 0 || insideTags > 0) {
+                        if (bbcontent[0] != '\n')
+                            finalContent = finalContent + bbcontent[0];
+                        else finalContent = finalContent + ' ';
+                    }
 
                     if (insideTags <= 0) characters--;
 
