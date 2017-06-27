@@ -32,7 +32,16 @@ Router.route('/users', {
     template: 'userList'
 });
 
-Router.route('/search/:_id', function() {
+Router.route('/post/:_id', function() {
+    var id = this.params._id;
+
+    if (this.ready()) {
+        if (id) this.render('mainView', {data: {id: id}});
+        else this.render('errorPage', {data: {_id: id}});
+    }
+});
+
+/*Router.route('/search/:_id', function() {
     var id = this.params._id;
 
     if (this.ready()) {
@@ -40,5 +49,4 @@ Router.route('/search/:_id', function() {
         if (tag) this.render('search', {data: tag});
         else this.render('errorPage', {data: {_id: id}});
     }
-    //else this.render('expandedPostLoading');
-});
+});*/

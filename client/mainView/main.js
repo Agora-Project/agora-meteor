@@ -123,6 +123,10 @@ Template.mainView.onCreated(function() {
         };
 
         window.requestAnimationFrame(render);
+        if(instance.data && instance.data.id) {
+            let vec = Posts.findOne(instance.data.id).defaultPosition;
+            instance.camera.goToPos(vec);
+        }
     });
 });
 
@@ -225,8 +229,8 @@ Template.mainView.events({
 });
 
 Template.mainView.onDestroyed(function() {
-    this.postObserver.stop();
-    this.changeObserver.stop();
+    if (this.postObserver) this.postObserver.stop();
+    if(this.changeObserver) this.changeObserver.stop();
     this.isDestroyed = true;
 });
 
