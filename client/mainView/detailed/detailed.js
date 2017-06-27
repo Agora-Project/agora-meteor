@@ -247,13 +247,12 @@ Template.mainBasicPost.helpers({
 
                 let insideTags = 0, characters = 20
 
-                while (bbcontent.length > 0 && (characters > 0 || insideTags > 0)) {
+                while (bbcontent.length > 0) {
 
                     if (bbcontent[0] == '<') insideTags++;
 
                     if (characters > 0 || insideTags > 0) {
-                        if (bbcontent[0] != '\n')
-                            finalContent = finalContent + bbcontent[0];
+                        if (bbcontent[0] != '\n') finalContent = finalContent + bbcontent[0];
                         else finalContent = finalContent + ' ';
                     }
 
