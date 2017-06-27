@@ -11,6 +11,8 @@ Template.mainReply.onRendered(function() {
     let titleInput = $('#main-reply-title');
     let contentInput = $('#main-reply-textarea');
 
+    this.submitButton = null;
+
     let hasContent = function() {
         return titleInput.val().length > 0 || contentInput.val().length > 0;
     };
@@ -82,7 +84,9 @@ Template.mainReply.onRendered(function() {
     if (this.parent.replyTarget.get()) {
         target = this.parent.replyTarget.get();
 
-        $('#main-reply-submit-button').click(submitReply);
+        this.submitButton = submitReply;
+
+        $('#main-reply-submit-button').click(this.submitButton);
         $('#main-reply-cancel-button').click(cancelReply);
         $(window).on('beforeunload', exitReply);
     } else if (this.parent.editTarget.get()) {
@@ -91,7 +95,9 @@ Template.mainReply.onRendered(function() {
         titleInput.val(target.title);
         contentInput.val(target.content);
 
-        $('#main-reply-submit-button').click(submitEdit);
+        this.submitButton = submitEdit;
+
+        $('#main-reply-submit-button').click(this.submitButton);
         $('#main-reply-cancel-button').click(cancelEdit);
         $(window).on('beforeunload', exitEdit);
     }
@@ -116,6 +122,10 @@ Template.mainReply.events({
     },
     'keydown, keyup': function(event) {
         event.stopImmediatePropagation();
+
+        if (event.ctrlKey && event.key == "Enter")
+            Template.instance().submitButton();
+
     }
 });
 

@@ -136,6 +136,11 @@ MainViewCamera = function() {
                 y:(p.y - v.y)*scale + canvas[0].height/2.0};
     };
 
+    this.goToPos = function(v) {
+        this.setScale(MAX_ZOOM);
+        p = v;
+    }
+
     let mp0 = null;
     let dragging = false;
 
