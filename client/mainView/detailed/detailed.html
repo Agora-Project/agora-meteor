@@ -13,7 +13,11 @@
                         {{poster.username}}
                     </a>
                 {{/if}}
-                <span class="main-detailed-post-age">{{age}}</span>
+                <span class="main-detailed-post-age">
+                    <a href="/post/{{_id}}">
+                        {{age}}
+                    </a>
+                </span>
             </div>
             <div class="main-detailed-post-content">
                 {{{content}}}
