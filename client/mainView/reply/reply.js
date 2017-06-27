@@ -13,6 +13,8 @@ Template.mainReply.onRendered(function() {
 
     this.submitButton = null;
 
+    this.submitted = false;
+
     let hasContent = function() {
         return titleInput.val().length > 0 || contentInput.val().length > 0;
     };
@@ -23,6 +25,7 @@ Template.mainReply.onRendered(function() {
     };
 
     let submitReply = function(event) {
+        if (instance.submitted) return;
         let post = {
             title: titleInput.val(),
             content: contentInput.val(),
@@ -39,9 +42,12 @@ Template.mainReply.onRendered(function() {
                 instance.parent.replyTarget.set();
             }
         });
+        instance.submitted = true;
     };
 
     let submitEdit = function(event) {
+        if (instance.submitted) return;
+
         let post = {
             title: titleInput.val(),
             content: contentInput.val()
@@ -57,6 +63,7 @@ Template.mainReply.onRendered(function() {
                 instance.parent.editTarget.set();
             }
         });
+        instance.submitted = true;
     };
 
     let cancelReply = function(event) {
