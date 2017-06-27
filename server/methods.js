@@ -109,11 +109,19 @@ Meteor.methods({
 
             //...and all of a posts siblings.
             for (let id of target.replies) {
-                postsToShift.push(Posts.findOne({_id: id}));
+                let post = Posts.findOne({_id: id});
+                if (post)
+                    postsToShift.push(post);
+                else {
+                    console.log("Error! Undefined post!")
+                    console.log(post);
+                }
             }
 
             //Shift found posts one column to the right, and all of their children, too.
             for (let post of postsToShift) {
+                if (!post)
+                    continue;
                 let newColumn = post.defaultPosition.x + 1;
                 Posts.update({_id: post._id}, {$set: {'defaultPosition.x': newColumn}});
                 Posts.find({target: post._id}).forEach(function(child) {
