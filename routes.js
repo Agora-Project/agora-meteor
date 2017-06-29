@@ -36,7 +36,10 @@ Router.route('/post/:_id', function() {
     var id = this.params._id;
 
     if (this.ready()) {
-        if (id) this.render('mainView', {data: {id: id}});
+        if (id) {
+            this.state.set("id", id);
+            this.render('mainView', {data: {id: id}});
+        }
         else this.render('errorPage', {data: {_id: id}});
     }
 });
