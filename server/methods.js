@@ -114,7 +114,7 @@ Meteor.methods({
                     postsToShift.push(post);
                 else {
                     console.log("Error! Undefined post!")
-                    console.log(post);
+                    console.log(target);
                 }
             }
 

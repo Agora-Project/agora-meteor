@@ -123,10 +123,16 @@ Template.mainView.onCreated(function() {
         };
 
         window.requestAnimationFrame(render);
-        if(instance.data && instance.data.id) {
-            let vec = Posts.findOne(instance.data.id).defaultPosition;
-            instance.camera.goToPos(vec);
-        }
+
+        instance.autorun(
+            function() {
+                if (Iron.controller().state.get('id')) {
+                    let vec = Posts.findOne(Iron.controller().state.get('id'), {fields: {'defaultPosition':1}}).defaultPosition;
+                    instance.camera.goToPos(vec);
+                    Iron.controller().state.set('id', null);
+                }
+            }
+        );
     });
 });
 
