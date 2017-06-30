@@ -126,11 +126,11 @@ Template.mainView.onCreated(function() {
 
         instance.autorun(
             function() {
-                if (Iron.controller().state.get('id')) {
-                    let vec = Posts.findOne(Iron.controller().state.get('id'), {fields: {'defaultPosition':1}}).defaultPosition;
-                    instance.camera.goToPos(vec);
-                    Iron.controller().state.set('id', null);
+                let post = Posts.findOne(Iron.controller().state.get('postID'), {fields: {'defaultPosition':1}});
+                if (post) {
+                    instance.camera.goToPos(post.defaultPosition);
                 }
+                return;
             }
         );
     });

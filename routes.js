@@ -32,15 +32,22 @@ Router.route('/users', {
     template: 'userList'
 });
 
-Router.route('/post/:_id', function() {
-    var id = this.params._id;
+Router.route('/forum', {
 
-    if (this.ready()) {
-        if (id) {
-            this.state.set("id", id);
-            this.render('mainView', {data: {id: id}});
+    onRun: function() {
+        var id = this.params.query.post;
+
+        if (this.ready()) {
+            if (id) {
+                this.state.set("postID", id);
+            }
         }
-        else this.render('errorPage', {data: {_id: id}});
+        this.next();
+    },
+    action: function() {
+        if (this.ready()) {
+            this.render('mainView');
+        } else this.render('errorPage', {data: {_id: id}});
     }
 });
 
