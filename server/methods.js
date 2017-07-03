@@ -82,6 +82,8 @@ Meteor.methods({
             let postsToShift = [];
             let targetId = target.target;
 
+            redoLayout = true; //This variable is checked by the code in periodicLayout.js
+
             //posts above...
             while (targetId) {
                 Posts.find({target: targetId}, {sort: {'defaultPosition.x': 1}}).forEach(function(post) {
@@ -233,10 +235,14 @@ Meteor.methods({
         let target = Posts.findOne({_id: post.target});
         let x = post.defaultPosition.x;
 
+
+        //Adjust positioning of other posts in graph appropriately, if necessary.
         if (target && target.replies.length > 0) {
             let shifting = false;
             let postsToShift = [];
             let targetId = target.target;
+
+            redoLayout = true; //This variable is checked by the code in periodicLayout.js
 
             //posts above...
             while (targetId) {
