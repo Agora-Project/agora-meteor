@@ -245,11 +245,16 @@ Template.mainBasicPost.helpers({
                     addInLineBreaks: true
                 }).html;
 
-                let insideTags = 0, characters = 20
+                let insideTags = 0, openTags = 0, characters = 20
 
-                while (bbcontent.length > 0) {
+                while (bbcontent.length > 0 || insideTags > 0 || openTags > 0) {
 
-                    if (bbcontent[0] == '<') insideTags++;
+                    if (bbcontent[0] == '<') {
+                        insideTags++;
+                        if (bbcontent[1] != '/')
+                            openTags++;
+                        else openTags--;
+                    }
 
                     if (characters > 0 && insideTags < 1) {
                         if (bbcontent[0] != '\n') finalContent = finalContent + bbcontent[0];
