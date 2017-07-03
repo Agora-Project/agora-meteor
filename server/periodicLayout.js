@@ -1,9 +1,7 @@
 redoLayout = false;
 
 Meteor.setInterval(function() {
-    console.log('Checking for new posts');
     if (redoLayout) {
-        console.log('Laying out posts');
         let posts = {};
         Posts.find({}, {fields: {'_id': 1, 'target': 1}}).forEach(function(post) {
             posts[post._id] = post;
