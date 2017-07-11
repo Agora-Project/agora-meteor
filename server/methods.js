@@ -5,6 +5,12 @@
 */
 
 Meteor.methods({
+    sendVerificationLink: function() {
+        let userId = Meteor.userId();
+        if ( userId ) {
+            return Accounts.sendVerificationEmail( userId );
+        }
+    },
     insertPost: function(post) {
         let user = Meteor.users.findOne({_id: this.userId});
 

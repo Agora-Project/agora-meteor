@@ -69,6 +69,16 @@ Template.mainDetailedPost.helpers({
 });
 
 Template.mainDetailedPost.events({
+    'click .resend-verification-link' ( event, template ) {
+        Meteor.call( 'sendVerificationLink', ( error, response ) => {
+        if ( error ) {
+            window.alert( error.reason, 'danger' );
+        } else {
+            let email = Meteor.user().emails[ 0 ].address;
+            window.alert( `Verification sent to ${ email }!`, 'success' );
+        }
+        });
+    },
     'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
         if (instance.parent.camera.isDragging()) {
             //Prevents interaction while dragging.
