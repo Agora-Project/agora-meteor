@@ -24,17 +24,21 @@
             </div>
             <div class="main-detailed-post-footer">
                 {{#if currentUser}}
-                    {{#if moderator}}
-                        {{> mainDetailedPostDeleteButton}}
-                    {{/if}}
-                    {{#if hasReportButton}}
-                        {{> mainDetailedPostReportButton}}
-                    {{/if}}
-                    {{#if hasReplyButtons}}
-                        {{#if editAccess}}
-                            {{> mainDetailedPostEditButton}}
+                    {{#if verifiedUser}}
+                        {{#if moderator}}
+                            {{> mainDetailedPostDeleteButton}}
                         {{/if}}
-                        {{> mainDetailedPostReplyButton}}
+                        {{#if hasReportButton}}
+                            {{> mainDetailedPostReportButton}}
+                        {{/if}}
+                        {{#if hasReplyButtons}}
+                            {{#if editAccess}}
+                                {{> mainDetailedPostEditButton}}
+                            {{/if}}
+                            {{> mainDetailedPostReplyButton}}
+                        {{/if}}
+                    {{else}}
+                        Cannot reply: User not verified!
                     {{/if}}
                 {{/if}}
             </div>

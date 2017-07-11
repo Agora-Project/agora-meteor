@@ -37,6 +37,13 @@ Template.mainDetailedPost.helpers({
             return new Date(post.postedOn).toDateString();
         }
     },
+    currentUser: function() {
+        return (Meteor.user());
+    },
+    verifiedUser:function() {
+        let user = Meteor.user();
+        return (user.emails && user.emails.length > 0 && user.emails[0].verified);
+    },
     content: function() {
         let rawContent = Template.currentData().content;
         if (rawContent) {

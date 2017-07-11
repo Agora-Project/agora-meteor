@@ -41,7 +41,8 @@ Package.onUse(function(api) {
         'aldeed:collection2@2.3.3',
         'matb33:collection-hooks@0.7.13',
         'accounts-base',
-        'alanning:roles@1.2.13'
+        'alanning:roles@1.2.13',
+        'email'
     ], both);
 
     api.addFiles([
