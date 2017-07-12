@@ -24,17 +24,21 @@
             </div>
             <div class="main-detailed-post-footer">
                 {{#if currentUser}}
-                    {{#if moderator}}
-                        {{> mainDetailedPostDeleteButton}}
-                    {{/if}}
-                    {{#if hasReportButton}}
-                        {{> mainDetailedPostReportButton}}
-                    {{/if}}
-                    {{#if hasReplyButtons}}
-                        {{#if editAccess}}
-                            {{> mainDetailedPostEditButton}}
+                    {{#if verifiedUser}}
+                        {{#if moderator}}
+                            {{> mainDetailedPostDeleteButton}}
                         {{/if}}
-                        {{> mainDetailedPostReplyButton}}
+                        {{#if hasReportButton}}
+                            {{> mainDetailedPostReportButton}}
+                        {{/if}}
+                        {{#if hasReplyButtons}}
+                            {{#if editAccess}}
+                                {{> mainDetailedPostEditButton}}
+                            {{/if}}
+                            {{> mainDetailedPostReplyButton}}
+                        {{/if}}
+                    {{else}}
+                        <p class="alert alert-warning">Please verify your account before using Agora! <a href="#" class="resend-verification-link">Resend verification link</a>.</p>
                     {{/if}}
                 {{/if}}
             </div>

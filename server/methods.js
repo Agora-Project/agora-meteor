@@ -5,6 +5,12 @@
 */
 
 Meteor.methods({
+    sendVerificationLink: function() {
+        let userId = Meteor.userId();
+        if ( userId ) {
+            return Accounts.sendVerificationEmail( userId );
+        }
+    },
     insertPost: function(post) {
         let user = Meteor.users.findOne({_id: this.userId});
 
@@ -16,6 +22,11 @@ Meteor.methods({
         //Don't allow banned users to post.
         if (user.isBanned) {
             throw new Meteor.Error('banned', 'Banned users may not post.');
+        }
+
+        //Don't allow unverified users to post.
+        if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
+            throw new Meteor.Error('unverified', 'Unverified users may not post.');
         }
 
         //Validate post.
@@ -162,6 +173,11 @@ Meteor.methods({
         //Don't allow banned users to edit posts.
         if (user.isBanned) {
             throw new Meteor.Error('banned', 'Banned users may not edit posts.');
+        }
+
+        //Don't allow unverified users to edit posts.
+        if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
+            throw new Meteor.Error('unverified', 'Unverified users may not edit posts.');
         }
 
         let post = Posts.findOne({_id: postId});
@@ -311,6 +327,23 @@ Meteor.methods({
         Posts.remove(postId);
     },
     submitReport: function(report) {
+        let user = Meteor.users.findOne({_id: this.userId});
+
+        //Don't allow guests to submit reports.
+        if (!user) {
+            throw new Meteor.Error('not-logged-in', 'The user must be logged in to submit reports.');
+        }
+
+        //Don't allow banned users to submit reports.
+        if (user.isBanned) {
+            throw new Meteor.Error('banned', 'Banned users may not submit reports.');
+        }
+
+        //Don't allow unverified users to submit reports.
+        if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
+            throw new Meteor.Error('unverified', 'Unverified users may not submit reports.');
+        }
+
         if (report.content.length >= 1)
             return Reports.insert(report);
     },
