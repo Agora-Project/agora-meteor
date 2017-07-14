@@ -341,6 +341,35 @@ MainViewCamera = function() {
         }
     };
 
+    this.buttonPressed = function(button) {
+
+        //perform panning for button events
+        let dir = {x: 0, y: 0};
+
+        switch(button) {
+            case "ButtonLeft":
+                dir.x -= 1;
+                break;
+            case "ButtonRight":
+                dir.x += 1;
+                break;
+            case "ButtonUp":
+                dir.y += 1;
+                break;
+            case "ButtonDown":
+                dir.y -= 1;
+                break;
+        }
+
+        //move the position accordingly.
+        p.x += 100 * dir.x/scale;
+        p.y += 100 * dir.y/scale;
+
+        //Set camera session state.
+        Session.set('camera', {p: p, scale: scale});
+
+    };
+
     let zooms = [];
     let targetScale = scale;
 

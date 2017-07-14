@@ -273,6 +273,22 @@ Template.mainZoomControl.events({
         let instance = Template.instance();
         instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() - 0.01);
     },
+    "click #main-zoom-up-button": function() {
+        let instance = Template.instance();
+        instance.parent.camera.buttonPressed("ButtonUp");
+    },
+    "click #main-zoom-down-button": function() {
+        let instance = Template.instance();
+        instance.parent.camera.buttonPressed("ButtonDown");
+    },
+    "click #main-zoom-left-button": function() {
+        let instance = Template.instance();
+        instance.parent.camera.buttonPressed("ButtonLeft");
+    },
+    "click #main-zoom-right-button": function() {
+        let instance = Template.instance();
+        instance.parent.camera.buttonPressed("ButtonRight");
+    },
     "keydown #main-zoom-control-slider": function(e, data, tpl) {
         // e -> jquery event
         // data -> Blaze data context of the DOM element triggering the event handler
