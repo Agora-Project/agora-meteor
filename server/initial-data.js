@@ -64,6 +64,11 @@ Meteor.startup(function() {
             password: "mod1pass",
             username: "Moderator"
         });
+
+        Meteor.users.update({
+            "emails.address": moderatorEmail
+        }, {$set: {"emails.$.verified": true}});
+
         return Roles.addUsersToRoles(moderatorId, ['moderator']);
     }
 
