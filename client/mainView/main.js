@@ -240,17 +240,17 @@ Template.mainView.onDestroyed(function() {
     this.isDestroyed = true;
 });
 
-Template.mainZoomSlider.getParents();
+Template.mainZoomControl.getParents();
 
-Template.mainZoomSlider.onRendered(function() {
-    this.slider = $('#main-zoom-slider');
+Template.mainZoomControl.onRendered(function() {
+    this.slider = $('#main-zoom-control-slider');
     let instance = this;
     this.parent.camera.onZoom(function(camera) {
         instance.slider.val(camera.getZoomFraction()*100.0);
     });
 });
 
-Template.mainZoomSlider.events({
+Template.mainZoomControl.events({
     'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
         if (instance.parent.camera.isDragging()) {
             //Prevents interaction while dragging.
@@ -264,6 +264,40 @@ Template.mainZoomSlider.events({
     'input': function() {
         let instance = Template.instance();
         instance.parent.camera.setZoomFraction(instance.slider.val()/100.0);
+    },
+    "click #main-zoom-plus-button": function() {
+        let instance = Template.instance();
+        instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() + 0.01);
+    },
+    "click #main-zoom-minus-button": function() {
+        let instance = Template.instance();
+        instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() - 0.01);
+    },
+    "keydown #main-zoom-control-slider": function(e, data, tpl) {
+        // e -> jquery event
+        // data -> Blaze data context of the DOM element triggering the event handler
+        // tpl -> the parent template instance for the target element
+
+        if (e.key.startsWith("Arrow")) {
+            e.stopImmediatePropagation();
+        } else if (e.key == "-") {
+            let instance = Template.instance();
+            instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() - 0.01);
+        } else if (e.key == "+") {
+            let instance = Template.instance();
+            instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() + 0.01);
+        }
+    },
+    "keyup #main-zoom-control-slider": function(e, data, tpl) {
+        // e -> jquery event
+        // data -> Blaze data context of the DOM element triggering the event handler
+        // tpl -> the parent template instance for the target element
+
+        if (e.key.startsWith("Arrow")) {
+            e.stopImmediatePropagation();
+        } else if (e.key == "-" || e.key == "+") {
+            Template.body.camera.keyReleased(e.key);
+        }
     }
 });
 

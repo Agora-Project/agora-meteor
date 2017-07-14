@@ -24,12 +24,16 @@
                 {{> mainReport}}
             {{/if}}
         {{/if}}
-        {{> mainZoomSlider}}
+        {{> mainZoomControl}}
     </div>
 </template>
 
-<template name="mainZoomSlider">
-    <div id="main-zoom-slider-centerer">
-        <input type="range" id="main-zoom-slider" orient="vertical" value="90">
+<template name="mainZoomControl">
+    <div id="main-zoom-control-centerer">
+        <div id="main-zoom-control-input">
+            <button type="button" id="main-zoom-plus-button">+</button>
+            <input type="range" id="main-zoom-control-slider" orient="vertical" value="90">
+            <button type="button" id="main-zoom-minus-button">-</button>
+        </div>
     </div>
 </template>
