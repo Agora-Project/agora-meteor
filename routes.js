@@ -20,11 +20,21 @@ Router.route('/admin', {
 Router.route('/user/:_id', function() {
     var id = this.params._id;
 
+    if (!id) id = Meteor.userId();
+
     if (this.ready()) {
         if (id) this.render('userProfile', {data: {id: id}});
         else this.render('errorPage', {data: {_id: id}});
     }
-    //else this.render('expandedPostLoading');
+});
+
+Router.route('/user', function() {
+    var id = Meteor.userId();
+
+    if (this.ready()) {
+        if (id) this.render('userProfile', {data: {id: id}});
+        else this.render('errorPage', {data: {_id: id}});
+    }
 });
 
 Router.route('/users', {
