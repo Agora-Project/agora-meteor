@@ -6,14 +6,19 @@
 
 <template name="userProfile">
     <div class="profile-div">
-        <div class=profile-header>
-            {{> avatar user=user shape="rounded" size="large" class="profile-avatar"}}
-            {{user.username}}
-        </div>
-        <div class=profile-body>
-            <div class=profile-sidebar>
+        <div class="profile-header">
+            <div class="profile-face">
+                {{user.username}}
+                {{> avatar user=user shape="rounded" size="large" class="profile-avatar"}}
             </div>
-            <div class=profile-wall>
+            <div class="profile-info">
+                {{user.bio}}
+            </div>
+        </div>
+        <div class="profile-body">
+            <div class="profile-sidebar">
+            </div>
+            <div class="profile-wall">
             </div>
         </div>
     </div>

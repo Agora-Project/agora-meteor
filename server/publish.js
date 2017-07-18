@@ -60,11 +60,11 @@ Meteor.publish('users', function() {
 Meteor.publish('user', function(userId) {
     if (Roles.userIsInRole(this.userId, ['moderator'])) {
         return Meteor.users.find({_id: userId}, {
-            fields: {isBanned: 1, createdAt: 1, roles: 1, emails: 1, username: 1, email_hash: 1}
+            fields: {isBanned: 1, createdAt: 1, roles: 1, emails: 1, username: 1, email_hash: 1, bio: 1}
         });
     } else {
         return Meteor.users.find({_id: userId}, {
-            fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, email_hash: 1}
+            fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, email_hash: 1, bio: 1}
         });
     }
 });
