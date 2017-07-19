@@ -351,5 +351,21 @@ Meteor.methods({
         if (Roles.userIsInRole(this.userId, ['moderator']))
         return Reports.update({_id: report._id},
             {$set: {resolved: true} });
+    },
+    updateUserBio: function(newBio) {
+        let user = Meteor.users.findOne({_id: this.userId});
+
+        //Don't allow guests to try and edit profiles.
+        if (!user) {
+            throw new Meteor.Error('not-logged-in', 'The user must be logged in to edit posts.');
+        }
+
+        //Don't allow banned users to edit profiles.
+        if (user.isBanned) {
+            throw new Meteor.Error('banned', 'Banned users may not edit posts.');
+        }
+
+        //Update field.
+        Meteor.users.update({_id: this.userId}, {$set: {bio: newBio}});
     }
 });
