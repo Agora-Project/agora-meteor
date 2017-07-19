@@ -6,14 +6,29 @@
 
 <template name="userProfile">
     <div class="profile-div">
-        <div class=profile-header>
-            {{> avatar user=user shape="rounded" size="large" class="profile-avatar"}}
-            {{user.username}}
-        </div>
-        <div class=profile-body>
-            <div class=profile-sidebar>
+        <div class="profile-header">
+            <div class="profile-face">
+                {{user.username}}
+                {{> avatar user=user shape="rounded" size="large" class="profile-avatar"}}
             </div>
-            <div class=profile-wall>
+            <div class="profile-info">
+                {{#if editing}}
+                    <textarea id="profile-bio-textarea" value={{user.bio}}></textarea>
+                    <button id="profile-bio-submit-button">Submit</button>
+                    <button id="profile-bio-cancel-button">Cancel</button>
+                    {{#if errorMessage}}
+                        <span id="profile-bio-error-message">{{errorMessage}}</span>
+                    {{/if}}
+                {{else}}
+                    {{user.bio}}
+                    <a href="#" class="profile-bio-edit">Edit</a>
+                {{/if}}
+            </div>
+        </div>
+        <div class="profile-body">
+            <div class="profile-sidebar">
+            </div>
+            <div class="profile-wall">
             </div>
         </div>
     </div>
