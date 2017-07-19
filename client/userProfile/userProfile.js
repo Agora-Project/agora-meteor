@@ -13,6 +13,16 @@ Template.userProfile.helpers({
     },
     errorMessage: function() {
         return Template.instance().errorMessage.get();
+    },
+    bio: function() {
+        let rawBio = Meteor.users.findOne({_id: this.id}).bio;
+        if (rawBio) {
+            return XBBCODE.process({
+                text: rawBio,
+                removeMisalignedTags: false,
+                addInLineBreaks: true
+            }).html;
+        }
     }
 });
 
