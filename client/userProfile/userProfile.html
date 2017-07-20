@@ -21,7 +21,9 @@
                     {{/if}}
                 {{else}}
                     {{{bio}}}
-                    <a href="#" id="profile-bio-edit">Edit</a>
+                    {{#if ownProfile}}
+                        <a href="#" id="profile-bio-edit">Edit</a>
+                    {{/if}}
                 {{/if}}
             </div>
         </div>

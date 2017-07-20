@@ -14,6 +14,9 @@ Template.userProfile.helpers({
     errorMessage: function() {
         return Template.instance().errorMessage.get();
     },
+    ownProfile: function() {
+        return Meteor.userId() == this.id;
+    },
     bio: function() {
         let rawBio = Meteor.users.findOne({_id: this.id}).bio;
         if (rawBio) {
