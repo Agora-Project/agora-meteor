@@ -5,13 +5,13 @@
 -->
 
 <template name="userProfile">
-    <div class="profile-div">
-        <div class="profile-header">
-            <div class="profile-face">
+    <div id="profile-div">
+        <div id="profile-header">
+            <div id="profile-face">
                 {{user.username}}
-                {{> avatar user=user shape="rounded" size="large" class="profile-avatar"}}
+                {{> avatar user=user shape="rounded" size="large" id="profile-avatar"}}
             </div>
-            <div class="profile-info">
+            <div id="profile-info">
                 {{#if editing}}
                     <textarea id="profile-bio-textarea" value={{user.bio}}></textarea>
                     <button id="profile-bio-submit-button">Submit</button>
@@ -20,15 +20,17 @@
                         <span id="profile-bio-error-message">{{errorMessage}}</span>
                     {{/if}}
                 {{else}}
-                    {{user.bio}}
-                    <a href="#" class="profile-bio-edit">Edit</a>
+                    {{{bio}}}
+                    {{#if ownProfile}}
+                        <a href="#" id="profile-bio-edit">Edit</a>
+                    {{/if}}
                 {{/if}}
             </div>
         </div>
-        <div class="profile-body">
-            <div class="profile-sidebar">
+        <div id="profile-body">
+            <div id="profile-sidebar">
             </div>
-            <div class="profile-wall">
+            <div id="profile-wall">
             </div>
         </div>
     </div>

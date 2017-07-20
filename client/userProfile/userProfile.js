@@ -13,6 +13,19 @@ Template.userProfile.helpers({
     },
     errorMessage: function() {
         return Template.instance().errorMessage.get();
+    },
+    ownProfile: function() {
+        return Meteor.userId() == this.id;
+    },
+    bio: function() {
+        let rawBio = Meteor.users.findOne({_id: this.id}).bio;
+        if (rawBio) {
+            return XBBCODE.process({
+                text: rawBio,
+                removeMisalignedTags: false,
+                addInLineBreaks: true
+            }).html;
+        }
     }
 });
 
@@ -24,7 +37,7 @@ Template.userProfile.onCreated(function() {
 });
 
 Template.userProfile.events({
-    "click .profile-bio-edit": function() {
+    "click #profile-bio-edit": function() {
         Template.instance().editing.set(true);
     },
     'keydown, keyup': function(event) {
