@@ -4,7 +4,7 @@
     License: GPL, Check file LICENSE
 */
 
-.profile-div {
+#profile-div {
     position: absolute;
     left: 2%;
     right: 2%;
@@ -18,13 +18,13 @@
     overflow: hidden;
 }
 
-.profile-avatar {
+#profile-avatar {
     display: block;
     border-radius: 4px;
     margin: 1vh;
 }
 
-.profile-sidebar {
+#profile-sidebar {
     position: absolute;
     left: 2%;
     top: 25%;
@@ -38,7 +38,7 @@
     overflow: hidden;
 }
 
-.profile-header {
+#profile-header {
     position: absolute;
     left: 2%;
     right: 2%;
@@ -52,7 +52,7 @@
     display: flex;
 }
 
-.profile-face {
+#profile-face {
     position: absolute;
     left: 0.5%;
     top: 5%;
@@ -65,19 +65,19 @@
     text-align: center;
 }
 
-.profile-info {
+#profile-info {
     position: absolute;
     left: 7%;
 }
 
-.profile-info textarea {
+#profile-bio-textarea {
     margin: 10px 10px 0px 10px;
     height: 120px;
     width: 84vw;
     resize: none;
 }
 
-.profile-wall {
+#profile-wall {
     position: absolute;
     left: 13%;
     right: 2%;

@@ -34,7 +34,7 @@ Template.userProfile.onCreated(function() {
 });
 
 Template.userProfile.events({
-    "click .profile-bio-edit": function() {
+    "click #profile-bio-edit": function() {
         Template.instance().editing.set(true);
     },
     'keydown, keyup': function(event) {

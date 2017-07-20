@@ -95,7 +95,6 @@
     width: 3em;
     height: 3em;
     padding: 1.4em;
-    /*2.8em = 2em*1.4 (2em = half the width of a link with img, 1.4 = sqrt(2))*/
     border: dashed 1px;
     border-radius: 25%;
     margin: 0.75em auto 0;
@@ -109,7 +108,7 @@
     margin: -1em;
 }
 
-.deg0 { transform: translate(1.5em); } /* 12em = half the width of the wrapper */
+.deg0 { transform: translate(1.5em); }
 .deg90 { transform: rotate(90deg) translate(1.5em) rotate(-90deg); }
 .deg180 { transform: translate(-1.5em); }
 .deg270 { transform: rotate(270deg) translate(1.5em) rotate(-270deg); }
