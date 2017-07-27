@@ -83,6 +83,16 @@
                 </div>
             {{/if}}
             {{{preview}}}
+
+            <div class="main-basic-post-seen tooltip">
+                {{#if seen}}
+                    &#128065;
+                    <span class="tooltiptext">Seen</span>
+                {{else}}
+                    &#128269;
+                    <span class="tooltiptext">Unseen</span>
+                {{/if}}
+            </div>
         </div>
         <i class="main-basic-post-spinner fa fa-refresh" aria-hidden="true"></i>
     </div>

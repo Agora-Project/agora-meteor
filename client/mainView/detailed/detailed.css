@@ -7,7 +7,6 @@
     padding: 0px;
     background-color: #fff;
     border-radius: 4px;
-    overflow: hidden;
 }
 
 .main-detailed-post-spinner {
@@ -28,7 +27,6 @@
 .main-detailed-post-flex {
     display: none;
     flex-direction: column;
-    overflow: hidden;
 }
 
 .main-detailed-post-title {
@@ -81,6 +79,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: right;
+    overflow: hidden;
     border-top: 1px solid #ccc;
 }
 
@@ -133,7 +132,6 @@
 .main-basic-post-flex {
     display: none;
     flex-direction: row;
-    overflow: hidden;
 }
 
 .main-basic-post-title {
@@ -150,17 +148,6 @@
 
 .main-basic-post-avatar {
     margin-right: 8px;
-}
-
-.main-basic-post-content {
-    overflow-y: auto;
-}
-
-.main-basic-post-content p {
-    line-height: 130%;
-    overflow: hidden;
-    white-space: pre-wrap;
-    text-overflow: ellipsis;
 }
 
 .tooltip {
