@@ -18,6 +18,15 @@
                         {{age}}
                     </a>
                 </span>
+                <div class="main-detailed-post-seen tooltip">
+                    {{#if seen}}
+                        &#128065;
+                        <span class="tooltiptext">Seen</span>
+                    {{else}}
+                        &#128269;
+                        <span class="tooltiptext">Unseen</span>
+                    {{/if}}
+                </div>
             </div>
             <div class="main-detailed-post-content">
                 {{{content}}}

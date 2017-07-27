@@ -8,6 +8,8 @@ Template.mainDetailedPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
+    instance.seen = new ReactiveVar(Cookie.get("Seen Post: " + instance.data._id));
+
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
@@ -17,6 +19,11 @@ Template.mainDetailedPost.onCreated(function() {
             .css('display', 'flex')
             .hide()
             .fadeIn(200);
+
+        if (!instance.seen.get()) {
+            instance.div.addClass('unseen');
+            Cookie.set("Seen Post: " + instance.data._id, true);
+        }
     });
 });
 
@@ -65,6 +72,9 @@ Template.mainDetailedPost.helpers({
     },
     hasReportButton: function() {
         return Template.instance().parent.reportTarget.get() === undefined;
+    },
+    seen: function() {
+        return Template.instance().seen.get();
     }
 });
 
