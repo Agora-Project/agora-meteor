@@ -41,6 +41,7 @@
     justify-content: left;
     padding: 5px 10px 5px 10px;
     border-bottom: 1px solid #ccc;
+    min-height: 41px;
 }
 
 .main-detailed-post-avatar {
@@ -63,6 +64,7 @@
 
 .main-detailed-post-content {
     padding: 5px 10px 5px 10px;
+    overflow: hidden;
     overflow-y: auto;
 }
 
@@ -81,6 +83,7 @@
     justify-content: right;
     overflow: hidden;
     border-top: 1px solid #ccc;
+    min-height: 26px;
 }
 
 .main-detailed-post-footer button {
