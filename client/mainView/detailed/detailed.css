@@ -27,6 +27,7 @@
 .main-detailed-post-flex {
     display: none;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .main-detailed-post-title {
@@ -42,6 +43,7 @@
     padding: 5px 10px 5px 10px;
     border-bottom: 1px solid #ccc;
     min-height: 41px;
+    overflow: visible;
 }
 
 .main-detailed-post-avatar {
@@ -57,21 +59,18 @@
 }
 
 .main-detailed-post-age {
-    overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
 .main-detailed-post-content {
     padding: 5px 10px 5px 10px;
-    overflow: hidden;
     overflow-y: auto;
 }
 
 .main-detailed-post-content p {
     margin: 0px;
     line-height: 130%;
-    overflow: hidden;
     white-space: pre-wrap;
     text-overflow: ellipsis;
 }
@@ -81,7 +80,6 @@
     flex-direction: row;
     align-items: center;
     justify-content: right;
-    overflow: hidden;
     border-top: 1px solid #ccc;
     min-height: 26px;
 }

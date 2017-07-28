@@ -15,6 +15,7 @@ Template.mainDetailedPost.onCreated(function() {
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-detailed-post-spinner').fadeOut(100);
+        //instance.div.children('.main-detailed-post-info').css('overflow', 'visible');
         instance.div.children('.main-detailed-post-flex')
             .css('display', 'flex')
             .hide()
