@@ -43,8 +43,19 @@ Template.userProfile.events({
     'keydown, keyup': function(event) {
         event.stopImmediatePropagation();
 
-        if (Template.instance().editing.get() && event.ctrlKey && event.key == "Enter")
-            Template.instance().submitButton();
+        if (Template.instance().editing.get() && event.ctrlKey && event.key == "Enter") {
+            let instance = Template.instance();
+            Meteor.call("updateUserBio", $('#profile-bio-textarea').val(), function(error) {
+                if (error) {
+                    //Display error message to user.
+                    instance.errorMessage.set(error.reason);
+                }
+                else {
+                    //Don't delete user's work unless it posts successfully.
+                    instance.editing.set(false);
+                }
+            });
+        }
 
     },
     "click #profile-bio-submit-button": function() {

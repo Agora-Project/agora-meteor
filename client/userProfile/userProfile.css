@@ -68,6 +68,12 @@
 #profile-info {
     position: absolute;
     left: 7%;
+    overflow-y: auto;
+    width: 86vw;
+    height: 16vh;
+}
+
+#profile-info p {
 }
 
 #profile-bio-textarea {

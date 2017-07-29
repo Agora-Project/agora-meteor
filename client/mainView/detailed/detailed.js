@@ -8,15 +8,23 @@ Template.mainDetailedPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
+    instance.seen = new ReactiveVar(Cookie.get("Seen Post: " + instance.data._id));
+
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-detailed-post-spinner').fadeOut(100);
+        //instance.div.children('.main-detailed-post-info').css('overflow', 'visible');
         instance.div.children('.main-detailed-post-flex')
             .css('display', 'flex')
             .hide()
             .fadeIn(200);
+
+        if (!instance.seen.get()) {
+            instance.div.addClass('unseen');
+            Cookie.set("Seen Post: " + instance.data._id, true);
+        }
     });
 });
 
@@ -65,6 +73,9 @@ Template.mainDetailedPost.helpers({
     },
     hasReportButton: function() {
         return Template.instance().parent.reportTarget.get() === undefined;
+    },
+    seen: function() {
+        return Template.instance().seen.get();
     }
 });
 
@@ -226,15 +237,21 @@ Template.mainBasicPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
+    instance.seen = new ReactiveVar(Cookie.get("Seen Post: " + instance.data._id));
+
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-basic-post-spinner').fadeOut(100);
+        instance.div.css('overflow', 'visible');
         instance.div.children('.main-basic-post-flex')
             .css('display', 'flex')
             .hide()
             .fadeIn(200);
+
+        if (!instance.seen.get())
+            instance.div.addClass('unseen');
     });
 });
 
@@ -291,5 +308,8 @@ Template.mainBasicPost.helpers({
 
             }
         }
+    },
+    seen: function() {
+        return Template.instance().seen.get();
     }
 });

@@ -7,7 +7,6 @@
     padding: 0px;
     background-color: #fff;
     border-radius: 4px;
-    overflow: hidden;
 }
 
 .main-detailed-post-spinner {
@@ -43,6 +42,8 @@
     justify-content: left;
     padding: 5px 10px 5px 10px;
     border-bottom: 1px solid #ccc;
+    min-height: 41px;
+    overflow: visible;
 }
 
 .main-detailed-post-avatar {
@@ -58,7 +59,6 @@
 }
 
 .main-detailed-post-age {
-    overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
@@ -71,7 +71,6 @@
 .main-detailed-post-content p {
     margin: 0px;
     line-height: 130%;
-    overflow: hidden;
     white-space: pre-wrap;
     text-overflow: ellipsis;
 }
@@ -82,6 +81,7 @@
     align-items: center;
     justify-content: right;
     border-top: 1px solid #ccc;
+    min-height: 26px;
 }
 
 .main-detailed-post-footer button {
@@ -133,7 +133,6 @@
 .main-basic-post-flex {
     display: none;
     flex-direction: row;
-    overflow: hidden;
 }
 
 .main-basic-post-title {
@@ -152,13 +151,34 @@
     margin-right: 8px;
 }
 
-.main-basic-post-content {
-    overflow-y: auto;
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
 }
 
-.main-basic-post-content p {
-    line-height: 130%;
-    overflow: hidden;
-    white-space: pre-wrap;
-    text-overflow: ellipsis;
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    left: 105%;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+.unseen {
+    border-style: solid;
+    border-radius: 8px;
+    border-color: #FFD700;
 }
