@@ -21,7 +21,9 @@ Template.mainDetailedPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        if (!instance.seen.get()) {
+        let postDate = instance.data.postedOn;
+        let currentDate = Date.now();
+        if (postDate && currentDate - postDate < (1000*60*60*24*30) && !instance.seen.get()) {
             instance.div.addClass('unseen');
             Cookie.set("Seen Post: " + instance.data._id, true);
         }
@@ -75,7 +77,9 @@ Template.mainDetailedPost.helpers({
         return Template.instance().parent.reportTarget.get() === undefined;
     },
     seen: function() {
-        return Template.instance().seen.get();
+        let postDate = this.postedOn;
+        let currentDate = Date.now();
+        return (!postDate || currentDate - postDate >= (1000*60*60*24*30) || Template.instance().seen.get());
     }
 });
 
@@ -250,7 +254,9 @@ Template.mainBasicPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        if (!instance.seen.get())
+        let postDate = instance.data.postedOn;
+        let currentDate = Date.now();
+        if (postDate && currentDate - postDate < (1000*60*60*24*30) && !instance.seen.get())
             instance.div.addClass('unseen');
     });
 });
@@ -310,6 +316,8 @@ Template.mainBasicPost.helpers({
         }
     },
     seen: function() {
-        return Template.instance().seen.get();
+        let postDate = this.postedOn;
+        let currentDate = Date.now();
+        return (!postDate || currentDate - postDate >= (1000*60*60*24*30) || Template.instance().seen.get());
     }
 });
