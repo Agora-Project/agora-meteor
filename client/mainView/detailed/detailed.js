@@ -8,7 +8,10 @@ Template.mainDetailedPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
-    instance.seen = new ReactiveVar(Cookie.get("Seen Post: " + instance.data._id));
+    if (this.parent.seenPosts.find(function(postID) {
+        return postID == instance.data._id;
+    }))
+        instance.seen = true;
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
@@ -24,9 +27,10 @@ Template.mainDetailedPost.onCreated(function() {
         let postDate = instance.data.postedOn;
         let currentDate = Date.now();
         let poster = instance.data.poster;
-        if (postDate && poster != Meteor.userId() && currentDate - postDate < (1000*60*60*24*30) && !instance.seen.get()) {
+        if (postDate && poster != Meteor.userId() && currentDate - postDate < (1000*60*60*24*30) && !instance.seen) {
             instance.div.addClass('unseen');
-            Cookie.set("Seen Post: " + instance.data._id, true);
+            instance.parent.seenPosts.push(instance.data._id);
+            Cookie.set("Seen Posts", JSON.stringify(instance.parent.seenPosts));
         }
     });
 });
@@ -81,7 +85,7 @@ Template.mainDetailedPost.helpers({
         let postDate = this.postedOn;
         let currentDate = Date.now();
         let poster = this.poster;
-        return (!postDate || poster == Meteor.userId() || currentDate - postDate >= (1000*60*60*24*30) || Template.instance().seen.get());
+        return (!postDate || poster == Meteor.userId() || currentDate - postDate >= (1000*60*60*24*30) || Template.instance().seen);
     }
 });
 
@@ -243,7 +247,10 @@ Template.mainBasicPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
-    instance.seen = new ReactiveVar(Cookie.get("Seen Post: " + instance.data._id));
+    if (this.parent.seenPosts.find(function(postID) {
+        return postID == instance.data._id;
+    }))
+        instance.seen = true;
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
@@ -259,7 +266,7 @@ Template.mainBasicPost.onCreated(function() {
         let postDate = instance.data.postedOn;
         let currentDate = Date.now();
         let poster = instance.data.poster;
-        if (postDate && poster != Meteor.userId() && currentDate - postDate < (1000*60*60*24*30) && !instance.seen.get())
+        if (postDate && poster != Meteor.userId() && currentDate - postDate < (1000*60*60*24*30) && !instance.seen)
             instance.div.addClass('unseen');
     });
 });
@@ -322,6 +329,6 @@ Template.mainBasicPost.helpers({
         let postDate = this.postedOn;
         let currentDate = Date.now();
         let poster = this.poster;
-        return (!postDate || poster == Meteor.userId() || currentDate - postDate >= (1000*60*60*24*30) || Template.instance().seen.get());
+        return (!postDate || poster == Meteor.userId() || currentDate - postDate >= (1000*60*60*24*30) || Template.instance().seen);
     }
 });
