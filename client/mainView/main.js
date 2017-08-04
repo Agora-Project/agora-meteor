@@ -61,10 +61,6 @@ Template.mainView.onCreated(function() {
     this.reportTarget = new ReactiveVar();
     this.isSizeDirty = true;
 
-    if (Cookie.get("Seen Posts"))
-        this.seenPosts = JSON.parse(Cookie.get("Seen Posts"));
-    else this.seenPosts = [];
-
     this.isReplyBoxOpen = function() {
         return instance.replyTarget.get() !== undefined || instance.editTarget.get() !== undefined;
     };

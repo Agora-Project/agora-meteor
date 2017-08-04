@@ -8,7 +8,9 @@ Template.mainDetailedPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
-    if (this.parent.seenPosts.find(function(postID) {
+    let user = Meteor.users.findOne({_id: Meteor.userId()});
+
+    if (user.seenPosts && user.seenPosts.find(function(postID) {
         return postID == instance.data._id;
     }))
         instance.seen = true;
@@ -24,13 +26,9 @@ Template.mainDetailedPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        let postDate = instance.data.postedOn;
-        let currentDate = Date.now();
-        let poster = instance.data.poster;
-        if (postDate && poster != Meteor.userId() && currentDate - postDate < (1000*60*60*24*30) && !instance.seen) {
+        if (instance.data.postedOn && instance.data.poster != Meteor.userId() && Date.now() - instance.data.postedOn < (1000*60*60*24*30) && !instance.seen) {
             instance.div.addClass('unseen');
-            instance.parent.seenPosts.push(instance.data._id);
-            Cookie.set("Seen Posts", JSON.stringify(instance.parent.seenPosts));
+            Meteor.call('addSeenPost', instance.data._id);
         }
     });
 });
@@ -82,10 +80,7 @@ Template.mainDetailedPost.helpers({
         return Template.instance().parent.reportTarget.get() === undefined;
     },
     seen: function() {
-        let postDate = this.postedOn;
-        let currentDate = Date.now();
-        let poster = this.poster;
-        return (!postDate || poster == Meteor.userId() || currentDate - postDate >= (1000*60*60*24*30) || Template.instance().seen);
+        return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
     }
 });
 
@@ -247,7 +242,9 @@ Template.mainBasicPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
-    if (this.parent.seenPosts.find(function(postID) {
+    let user = Meteor.users.findOne({_id: Meteor.userId()});
+
+    if (user.seenPosts && user.seenPosts.find(function(postID) {
         return postID == instance.data._id;
     }))
         instance.seen = true;
@@ -263,10 +260,7 @@ Template.mainBasicPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        let postDate = instance.data.postedOn;
-        let currentDate = Date.now();
-        let poster = instance.data.poster;
-        if (postDate && poster != Meteor.userId() && currentDate - postDate < (1000*60*60*24*30) && !instance.seen)
+        if (instance.data.postedOn && instance.data.poster != Meteor.userId() && Date.now() - instance.data.postedOn < (1000*60*60*24*30) && !instance.seen)
             instance.div.addClass('unseen');
     });
 });
@@ -326,9 +320,6 @@ Template.mainBasicPost.helpers({
         }
     },
     seen: function() {
-        let postDate = this.postedOn;
-        let currentDate = Date.now();
-        let poster = this.poster;
-        return (!postDate || poster == Meteor.userId() || currentDate - postDate >= (1000*60*60*24*30) || Template.instance().seen);
+        return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
     }
 });
