@@ -10,7 +10,7 @@ Template.mainDetailedPost.onCreated(function() {
 
     let user = Meteor.users.findOne({_id: Meteor.userId()});
 
-    if (user.seenPosts && user.seenPosts.find(function(postID) {
+    if (!user || user.seenPosts && user.seenPosts.find(function(postID) {
         return postID == instance.data._id;
     }))
         instance.seen = true;
@@ -244,7 +244,7 @@ Template.mainBasicPost.onCreated(function() {
 
     let user = Meteor.users.findOne({_id: Meteor.userId()});
 
-    if (user.seenPosts && user.seenPosts.find(function(postID) {
+    if (!user || user.seenPosts && user.seenPosts.find(function(postID) {
         return postID == instance.data._id;
     }))
         instance.seen = true;
