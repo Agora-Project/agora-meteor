@@ -6,7 +6,7 @@
 
 Package.describe({
     name: 'agoraforum:core',
-    version: '0.1.0',
+    version: '0.1.1',
     summary: 'Graph-based forum',
     git: 'https://github.com/Agora-Project/agora-meteor',
     documentation: 'README.md'
