@@ -1,5 +1,5 @@
 accounts-base@1.3.1
-agoraforum:core@0.1.0
+agoraforum:core@0.1.1
 alanning:roles@1.2.13
 aldeed:collection2@2.3.3
 aldeed:simple-schema@1.3.3
@@ -15,7 +15,6 @@ caching-compiler@1.1.9
 caching-html-compiler@1.0.2
 callback-hook@1.0.10
 check@1.2.5
-d3js:d3@3.5.5
 ddp@1.3.0
 ddp-client@2.0.0
 ddp-common@1.2.9
@@ -46,7 +45,7 @@ jparker:crypto-core@0.1.0
 jparker:crypto-md5@0.1.1
 jparker:gravatar@0.3.1
 jquery@1.11.10
-local-test:agoraforum:core@0.1.0
+local-test:agoraforum:core@0.1.1
 localstorage@1.1.0
 logging@1.1.17
 matb33:collection-hooks@0.7.15
