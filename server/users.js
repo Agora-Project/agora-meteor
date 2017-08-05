@@ -40,3 +40,17 @@ Meteor.users.before.insert(function(userId, user) {
     user.bio = "Empty user bio";
     user.seenPosts = [];
 });
+
+Meteor.setInterval(function() {
+
+    Meteor.users.find({}).fetch().forEach(function(user) {
+        if (user.seenPosts) {
+            user.seenPosts.forEach(function(postID) {
+                let post = Posts.findOne({_id: postID});
+                if (Date.now() - post.postedOn >= (1000*60*60*24*30))
+                    Meteor.users.update({_id: user._id}, {$pull: {seenPosts: postID}});
+            })
+        }
+    })
+
+}, 1000*60*60*24); //run function every day.
