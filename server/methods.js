@@ -367,5 +367,36 @@ Meteor.methods({
 
         //Update field.
         Meteor.users.update({_id: this.userId}, {$set: {bio: newBio}});
+    },
+    addSeenPost: function(postID) {
+        let user = Meteor.users.findOne({_id: this.userId});
+
+        //Guests can't record seen posts.
+        if (!user) {
+            throw new Meteor.Error('not-logged-in', 'The user must be logged in to record seen posts.');
+        }
+
+        let post = Posts.findOne({_id: postID});
+
+        if (!post.postedOn) {
+            throw new Meteor.Error('undated-post', 'That post does not have a date and is thus assumed to be to old to be worth recording as seen.');
+        }
+
+        if (post.poster == this.userId) {
+            throw new Meteor.Error('own-post', 'A user is assumed to have always seen their own posts.');
+        }
+
+        if (Date.now() - post.postedOn >= (1000*60*60*24*30)) {
+            throw new Meteor.Error('old-post', 'Posts older than a month are assumed to have always been seen.');
+        }
+
+        if (user.seenPosts && user.seenPosts.find(function(p) {
+            return postID == p._id;
+        })) {
+            throw new Meteor.Error('already-seen', 'The user has already seen that post.');
+        }
+
+        //Update field.
+        Meteor.users.update({_id: this.userId}, {$push: {seenPosts: postID}});
     }
 });

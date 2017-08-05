@@ -8,7 +8,12 @@ Template.mainDetailedPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
-    instance.seen = new ReactiveVar(Cookie.get("Seen Post: " + instance.data._id));
+    let user = Meteor.users.findOne({_id: Meteor.userId()});
+
+    if (user.seenPosts && user.seenPosts.find(function(postID) {
+        return postID == instance.data._id;
+    }))
+        instance.seen = true;
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
@@ -21,9 +26,9 @@ Template.mainDetailedPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        if (!instance.seen.get()) {
+        if (instance.data.postedOn && instance.data.poster != Meteor.userId() && Date.now() - instance.data.postedOn < (1000*60*60*24*30) && !instance.seen) {
             instance.div.addClass('unseen');
-            Cookie.set("Seen Post: " + instance.data._id, true);
+            Meteor.call('addSeenPost', instance.data._id);
         }
     });
 });
@@ -75,7 +80,7 @@ Template.mainDetailedPost.helpers({
         return Template.instance().parent.reportTarget.get() === undefined;
     },
     seen: function() {
-        return Template.instance().seen.get();
+        return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
     }
 });
 
@@ -237,7 +242,12 @@ Template.mainBasicPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
-    instance.seen = new ReactiveVar(Cookie.get("Seen Post: " + instance.data._id));
+    let user = Meteor.users.findOne({_id: Meteor.userId()});
+
+    if (user.seenPosts && user.seenPosts.find(function(postID) {
+        return postID == instance.data._id;
+    }))
+        instance.seen = true;
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
@@ -250,7 +260,7 @@ Template.mainBasicPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        if (!instance.seen.get())
+        if (instance.data.postedOn && instance.data.poster != Meteor.userId() && Date.now() - instance.data.postedOn < (1000*60*60*24*30) && !instance.seen)
             instance.div.addClass('unseen');
     });
 });
@@ -310,6 +320,6 @@ Template.mainBasicPost.helpers({
         }
     },
     seen: function() {
-        return Template.instance().seen.get();
+        return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
     }
 });
