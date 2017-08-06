@@ -16,4 +16,4 @@ Meteor.setInterval(function() {
 
         redoLayout = false;
     }
-}, 360000);
+}, 1000*60*60); //Run every hour
