@@ -50,7 +50,8 @@ Package.onUse(function(api) {
         'client/lib/XBBCode/xbbcode.css',
         'client/lib/notifier.js',
         'client/lib/requestAnimationFrame.js',
-        'client/lib/templateParents.js'
+        'client/lib/templateParents.js',
+        'client/lib/seenPosts.js'
     ], 'client');
 
     api.addFiles([

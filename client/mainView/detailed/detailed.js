@@ -10,9 +10,7 @@ Template.mainDetailedPost.onCreated(function() {
 
     let user = Meteor.users.findOne({_id: Meteor.userId()});
 
-    if (!user || user.seenPosts && user.seenPosts.find(function(postID) {
-        return postID == instance.data._id;
-    }))
+    if (postIsSeen(instance.data))
         instance.seen = true;
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
@@ -244,9 +242,7 @@ Template.mainBasicPost.onCreated(function() {
 
     let user = Meteor.users.findOne({_id: Meteor.userId()});
 
-    if (!user || user.seenPosts && user.seenPosts.find(function(postID) {
-        return postID == instance.data._id;
-    }))
+    if (postIsSeen(instance.data))
         instance.seen = true;
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
