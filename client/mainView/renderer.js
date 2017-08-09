@@ -198,4 +198,8 @@ MainViewRenderer = function(camera) {
             gl.bufferSubData(gl.ARRAY_BUFFER, index, new Float32Array([pos.x, pos.y]));
         }
     };
+    this.seePost = function(id) {
+        let index = postIndices[id]*20 + 8;
+        gl.bufferSubData(gl.ARRAY_BUFFER, index, new Float32Array([1, 1, 1]));
+    }
 };
