@@ -101,6 +101,14 @@ Template.mainView.onCreated(function() {
             }
         });
 
+        instance.userObserver = Meteor.users.find({_id: Meteor.userId()}).observeChanges({
+            changed: function(id, fields) {
+                if (!fields.seenPosts) return;
+                for (let postID of fields.seenPosts)
+                    instance.renderer.seePost(postID);
+            }
+        });
+
         let t0 = performance.now();
 
         //Begin rendering.

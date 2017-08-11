@@ -6,7 +6,7 @@
 
 Package.describe({
     name: 'agoraforum:core',
-    version: '0.1.1',
+    version: '0.1.2',
     summary: 'Graph-based forum',
     git: 'https://github.com/Agora-Project/agora-meteor',
     documentation: 'README.md'
@@ -50,7 +50,8 @@ Package.onUse(function(api) {
         'client/lib/XBBCode/xbbcode.css',
         'client/lib/notifier.js',
         'client/lib/requestAnimationFrame.js',
-        'client/lib/templateParents.js'
+        'client/lib/templateParents.js',
+        'client/lib/seenPosts.js'
     ], 'client');
 
     api.addFiles([
