@@ -42,12 +42,15 @@
 Template.mainView.onCreated(function() {
     let instance = this;
 
-    //Declare modules.
-    this.camera = new MainViewCamera();
-    this.partitioner = new MainViewPartitioner(this.camera);
-    this.renderer = new MainViewRenderer(this.camera);
-    this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner);
-    let modules = [this.camera, this.partitioner, this.renderer, this.detailedPosts];
+    let localPostPositions = new Mongo.Collection(null);
+
+    //Declare modules
+    this.layout = new MainViewLayout(localPostPositions);
+    this.camera = new MainViewCamera(localPostPositions);
+    this.partitioner = new MainViewPartitioner(this.camera, localPostPositions);
+    this.renderer = new MainViewRenderer(this.camera, localPostPositions);
+    this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner, localPostPositions);
+    let modules = [this.layout, this.camera, this.partitioner, this.renderer, this.detailedPosts];
 
     Template.body.camera = this.camera;
 

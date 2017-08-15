@@ -62,7 +62,7 @@ let linkShaderProgram = function(gl, vertShader, fragShader) {
     return shader;
 };
 
-MainViewRenderer = function(camera) {
+MainViewRenderer = function(camera, localPostPositions) {
     let self = this;
     let canvas, gl;
     let postShader, linkShader;
