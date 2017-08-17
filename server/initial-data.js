@@ -46,7 +46,7 @@ Meteor.startup(function() {
         posts[post._id] = post;
     });
 
-    let grapher = new LayeredGrapher(posts);
+    let grapher = new LayeredGrapher.layoutGraph(posts);
 
     for (let id in posts) {
         let post = posts[id];

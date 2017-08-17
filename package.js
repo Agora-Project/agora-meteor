@@ -81,6 +81,7 @@ Package.onUse(function(api) {
         'client/mainView/report/report.js',
         'client/mainView/main.html',
         'client/mainView/main.css',
+        'client/mainView/layout.js',
         'client/mainView/partitioner.js',
         'client/mainView/camera.js',
         'client/mainView/renderer.js',

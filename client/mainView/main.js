@@ -50,7 +50,7 @@ Template.mainView.onCreated(function() {
     this.partitioner = new MainViewPartitioner(this.camera, localPostPositions);
     this.renderer = new MainViewRenderer(this.camera, localPostPositions);
     this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner, localPostPositions);
-    let modules = [this.layout, this.camera, this.partitioner, this.renderer, this.detailedPosts];
+    let modules = [this.camera, this.partitioner, this.renderer, this.detailedPosts];
 
     Template.body.camera = this.camera;
 
@@ -72,6 +72,8 @@ Template.mainView.onCreated(function() {
         //Perform initial setup.
         let postCursor = Posts.find({});
         let initPostArray = postCursor.fetch();
+
+        instance.layout.init(initPostArray);
 
         for (let module of modules) {
             module.init(initPostArray);

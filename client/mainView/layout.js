@@ -6,7 +6,7 @@ MainViewLayout = function(localPostPositions) {
         Posts.find({}, {fields: {'_id': 1, 'target': 1}}).forEach(function(post) {
             posts[post._id] = post;
         });
-        layeredGrapher = new LayeredGrapher(posts);
+        layeredGrapher = new LayeredGrapher.layoutGraph(posts);
         for (let id in posts) {
             let post = posts[id];
             localPostPositions.insert({_id: id, position: {x:post.x, y:post.y}, subtreeWidth: post.subtreeWidth});
