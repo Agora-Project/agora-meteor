@@ -50,7 +50,7 @@ Meteor.startup(function() {
 
     for (let id in posts) {
         let post = posts[id];
-        Posts.update({_id: id}, {$set: {defaultPosition: {x:post.x, y:post.y}, subtreeWidth: post.subtreeWidth}});
+        Posts.update({_id: id}, {$set: {defaultPosition: {x: post.position.x, y: post.position.y}, subtreeWidth: post.subtreeWidth}});
     }
 
     //Set up moderator account if it does not exist.
