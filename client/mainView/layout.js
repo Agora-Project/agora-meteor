@@ -1,16 +1,12 @@
 MainViewLayout = function(localPostPositions) {
-    let layeredGrapher;
 
     this.init = function(postArray) {
-        let posts = {};
-        Posts.find({}, {fields: {'_id': 1, 'target': 1}}).forEach(function(post) {
-            posts[post._id] = post;
-        });
-        layeredGrapher = new LayeredGrapher.layoutGraph(posts);
-        for (let id in posts) {
-            let post = posts[id];
+        let graph = new LayeredGrapher.layoutGraph(postArray);
+        for (let id in graph) {
+            let post = graph[id];
             localPostPositions.insert({_id: id, position: {x:post.x, y:post.y}, subtreeWidth: post.subtreeWidth});
         }
+        return graph;
     };
 
     this.addPost = function(post) {

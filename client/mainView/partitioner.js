@@ -10,13 +10,13 @@ let KDCell = function(posts, axis) {
     switch(axis) {
         case 'X':
             getValue = function(post) {
-                return post.defaultPosition.x;
+                return post.position.x;
             };
             nextAxis = 'Y';
             break;
         case 'Y':
             getValue = function(post) {
-                return post.defaultPosition.y;
+                return post.position.y;
             };
             nextAxis = 'X';
             break;
@@ -105,7 +105,7 @@ let KDCell = function(posts, axis) {
                 left.getVisible(bounds, out);
             }
             else for (let post of left) {
-                if (bounds.contains(post.defaultPosition)) {
+                if (bounds.contains(post.position)) {
                     out.push(post);
                 }
             }
@@ -116,7 +116,7 @@ let KDCell = function(posts, axis) {
                 right.getVisible(bounds, out);
             }
             else for (let post of right) {
-                if (bounds.contains(post.defaultPosition)) {
+                if (bounds.contains(post.position)) {
                     out.push(post);
                 }
             }
@@ -179,11 +179,11 @@ MainViewPartitioner = function(camera, localPostPositions) {
     };
 
     this.updatePost = function(id, fields) {
-        if (fields.defaultPosition) {
+        /*if (fields.defaultPosition) {
             let post = self.removePost({_id: id});
             post.defaultPosition = fields.defaultPosition;
             self.addPost(post);
-        }
+        }*/
     };
 
     this.getVisible = function() {

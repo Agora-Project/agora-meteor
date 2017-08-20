@@ -55,7 +55,7 @@ MainViewCamera = function(localPostPositions) {
     };
 
     this.addPost = function(post) {
-        let pos = post.defaultPosition;
+        let pos = post.position;
         postBounds.left = Math.min(postBounds.left, pos.x);
         postBounds.right = Math.max(postBounds.right, pos.x);
         postBounds.bottom = Math.min(postBounds.bottom, pos.y);
@@ -72,9 +72,9 @@ MainViewCamera = function(localPostPositions) {
     };
 
     this.updatePost = function(id, fields) {
-        if (fields.defaultPosition) {
+        /*if (fields.defaultPosition) {
             self.addPost(fields);
-        }
+        }*/
     };
 
     this.getMaxReplies = function() {

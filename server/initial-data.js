@@ -41,15 +41,12 @@ Meteor.startup(function() {
 
     //Compute default layout of posts.
     console.log('Laying out posts');
-    let posts = {};
-    Posts.find({}, {fields: {'_id': 1, 'target': 1}}).forEach(function(post) {
-        posts[post._id] = post;
-    });
+    let postArray = Posts.find({}, {fields: {'_id': 1, 'target': 1}}).fetch();
 
-    let grapher = new LayeredGrapher.layoutGraph(posts);
+    let graph = new LayeredGrapher.layoutGraph(postArray);
 
-    for (let id in posts) {
-        let post = posts[id];
+    for (let id in graph) {
+        let post = graph[id];
         Posts.update({_id: id}, {$set: {defaultPosition: {x: post.position.x, y: post.position.y}, subtreeWidth: post.subtreeWidth}});
     }
 
