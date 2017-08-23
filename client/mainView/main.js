@@ -88,12 +88,14 @@ Template.mainView.onCreated(function() {
         instance.postObserver = postCursor.observe({
             added: function(post) {
                 if (isLive) {
+                    post = instance.layout.addPost(post);
                     for (let module of modules) {
                         module.addPost(post);
                     }
                 }
             },
             removed: function(post) {
+                post = instance.layout.removePost(post);
                 for (let module of modules) {
                     module.removePost(post);
                 }
