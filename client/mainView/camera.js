@@ -72,9 +72,9 @@ MainViewCamera = function(localPostPositions) {
     };
 
     this.updatePost = function(id, fields) {
-        /*if (fields.defaultPosition) {
+        if (fields.position) {
             self.addPost(fields);
-        }*/
+        }
     };
 
     this.getMaxReplies = function() {

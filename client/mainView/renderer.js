@@ -192,11 +192,11 @@ MainViewRenderer = function(camera, localPostPositions) {
     };
 
     this.updatePost = function(id, fields) {
-        /*if (fields.defaultPosition) {
+        if (fields.position && postIndices[id]) {
             let index = postIndices[id]*20;
-            let pos = fields.defaultPosition;
-            //gl.bufferSubData(gl.ARRAY_BUFFER, index, new Float32Array([pos.x, pos.y]));
-        }*/
+            let pos = fields.position;
+            gl.bufferSubData(gl.ARRAY_BUFFER, index, new Float32Array([pos.x, pos.y]));
+        }
     };
     this.seePost = function(id) {
         let index = postIndices[id]*20 + 8;

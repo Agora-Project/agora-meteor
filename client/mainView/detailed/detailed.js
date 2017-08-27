@@ -117,7 +117,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
     };
 
     this.addPost = function(post) {
-        visiblePosts.insert(post);
+
     };
 
     this.removePost = function(post) {
@@ -135,7 +135,8 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
     };
 
     this.updatePost = function(id, fields) {
-        visiblePosts.update({_id: id}, {$set: fields});
+        if (visiblePosts.findOne({_id: id}))
+            visiblePosts.update({_id: id}, {$set: fields});
     };
 
     this.update = function() {
@@ -158,7 +159,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             }
         }
         visiblePostsCursor.forEach(function(post) {
-            if (!camera.isPointVisible(post.defaultPosition) || ((2 + post.replies.length) <=
+            if (!camera.isPointVisible(post.position) || ((2 + post.replies.length) <=
                 5 * (1-camera.getZoomFraction()))) {
                 self.removePost(post);
             }
@@ -169,7 +170,9 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
         for (let post of visible) {
             if (!visiblePosts.findOne({_id: post._id}) && ((2 + post.replies.length) >
                 5 * (1-camera.getZoomFraction()))) {
-                self.addPost(post);
+
+                if (!post.replies || post.replies == undefined) post.replies = [];
+                visiblePosts.insert(post);
             }
         }
 
@@ -184,7 +187,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             } else {
                 div = $('#main-basic-post-' + post._id);
             }
-            let pos = camera.toScreen(post.defaultPosition);
+            let pos = camera.toScreen(post.position);
             div.css('left', pos.x - div.outerWidth()/2);
             div.css('top', pos.y - div.outerHeight()/2);
         });

@@ -70,7 +70,7 @@ Template.mainView.onCreated(function() {
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup.
-        let postCursor = Posts.find({});
+        let postCursor = Posts.find({}), localPostCursor = localPostPositions.find({});
         let initPostArray = postCursor.fetch();
 
         let graph = instance.layout.init(initPostArray);
@@ -105,6 +105,15 @@ Template.mainView.onCreated(function() {
 
         //Callback for changed post positions.
         instance.changeObserver = postCursor.observeChanges({
+            changed: function(id, fields) {
+                for (let module of modules) {
+                    module.updatePost(id, fields);
+                }
+            }
+        });
+
+        //Callback for changed post positions.
+        instance.localChangeObserver = localPostCursor.observeChanges({
             changed: function(id, fields) {
                 for (let module of modules) {
                     module.updatePost(id, fields);
