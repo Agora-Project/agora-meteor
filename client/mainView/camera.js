@@ -1,4 +1,4 @@
-MainViewCamera = function() {
+MainViewCamera = function(localPostPositions) {
     let self = this;
     let canvas;
 
@@ -55,7 +55,7 @@ MainViewCamera = function() {
     };
 
     this.addPost = function(post) {
-        let pos = post.defaultPosition;
+        let pos = post.position;
         postBounds.left = Math.min(postBounds.left, pos.x);
         postBounds.right = Math.max(postBounds.right, pos.x);
         postBounds.bottom = Math.min(postBounds.bottom, pos.y);
@@ -72,7 +72,7 @@ MainViewCamera = function() {
     };
 
     this.updatePost = function(id, fields) {
-        if (fields.defaultPosition) {
+        if (fields.position) {
             self.addPost(fields);
         }
     };

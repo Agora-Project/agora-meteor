@@ -7,11 +7,11 @@ Meteor.setInterval(function() {
             posts[post._id] = post;
         });
 
-        let grapher = new LayeredGrapher(posts);
+        let grapher = new LayeredGrapher.layoutGraph(posts);
 
         for (let id in posts) {
             let post = posts[id];
-            Posts.update({_id: id}, {$set: {defaultPosition: {x:post.x, y:post.y}, subtreeWidth: post.subtreeWidth}});
+            Posts.update({_id: id}, {$set: {defaultPosition: {x: post.position.x, y: post.position.y}, subtreeWidth: post.subtreeWidth}});
         }
 
         redoLayout = false;

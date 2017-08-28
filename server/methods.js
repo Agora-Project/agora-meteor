@@ -253,7 +253,7 @@ Meteor.methods({
 
 
         //Adjust positioning of other posts in graph appropriately, if necessary.
-        if (target && target.replies.length > 0) {
+        if (target && target.replies.length > 1) {
             let shifting = false;
             let postsToShift = [];
             let targetId = target.target;

@@ -62,7 +62,7 @@ let linkShaderProgram = function(gl, vertShader, fragShader) {
     return shader;
 };
 
-MainViewRenderer = function(camera) {
+MainViewRenderer = function(camera, localPostPositions) {
     let self = this;
     let canvas, gl;
     let postShader, linkShader;
@@ -149,8 +149,8 @@ MainViewRenderer = function(camera) {
         let buffer;
         if (postIsSeen(post)) {
 
-            buffer = [post.defaultPosition.x, post.defaultPosition.y, 1.0, 1.0, 1.0];
-        } else buffer = [post.defaultPosition.x, post.defaultPosition.y, 1.0, 0.843, 0];
+            buffer = [post.position.x, post.position.y, 1.0, 1.0, 1.0];
+        } else buffer = [post.position.x, post.position.y, 1.0, 0.843, 0];
         gl.bufferSubData(gl.ARRAY_BUFFER, postCount*20, new Float32Array(buffer));
 
         if (post.target) {
@@ -192,9 +192,9 @@ MainViewRenderer = function(camera) {
     };
 
     this.updatePost = function(id, fields) {
-        if (fields.defaultPosition) {
+        if (fields.position && postIndices[id]) {
             let index = postIndices[id]*20;
-            let pos = fields.defaultPosition;
+            let pos = fields.position;
             gl.bufferSubData(gl.ARRAY_BUFFER, index, new Float32Array([pos.x, pos.y]));
         }
     };

@@ -42,11 +42,14 @@
 Template.mainView.onCreated(function() {
     let instance = this;
 
-    //Declare modules.
-    this.camera = new MainViewCamera();
-    this.partitioner = new MainViewPartitioner(this.camera);
-    this.renderer = new MainViewRenderer(this.camera);
-    this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner);
+    let localPostPositions = new Mongo.Collection(null);
+
+    //Declare modules
+    this.layout = new MainViewLayout(localPostPositions);
+    this.camera = new MainViewCamera(localPostPositions);
+    this.partitioner = new MainViewPartitioner(this.camera, localPostPositions);
+    this.renderer = new MainViewRenderer(this.camera, localPostPositions);
+    this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner, localPostPositions);
     let modules = [this.camera, this.partitioner, this.renderer, this.detailedPosts];
 
     Template.body.camera = this.camera;
@@ -67,8 +70,14 @@ Template.mainView.onCreated(function() {
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup.
-        let postCursor = Posts.find({});
+        let postCursor = Posts.find({}), localPostCursor = localPostPositions.find({});
         let initPostArray = postCursor.fetch();
+
+        let graph = instance.layout.init(initPostArray);
+
+        for (post of initPostArray) {
+            post.position = graph[post._id].position;
+        }
 
         for (let module of modules) {
             module.init(initPostArray);
@@ -79,12 +88,14 @@ Template.mainView.onCreated(function() {
         instance.postObserver = postCursor.observe({
             added: function(post) {
                 if (isLive) {
+                    post = instance.layout.addPost(post);
                     for (let module of modules) {
                         module.addPost(post);
                     }
                 }
             },
             removed: function(post) {
+                post = instance.layout.removePost(post);
                 for (let module of modules) {
                     module.removePost(post);
                 }
@@ -94,6 +105,15 @@ Template.mainView.onCreated(function() {
 
         //Callback for changed post positions.
         instance.changeObserver = postCursor.observeChanges({
+            changed: function(id, fields) {
+                for (let module of modules) {
+                    module.updatePost(id, fields);
+                }
+            }
+        });
+
+        //Callback for changed post positions.
+        instance.localChangeObserver = localPostCursor.observeChanges({
             changed: function(id, fields) {
                 for (let module of modules) {
                     module.updatePost(id, fields);

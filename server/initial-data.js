@@ -41,16 +41,13 @@ Meteor.startup(function() {
 
     //Compute default layout of posts.
     console.log('Laying out posts');
-    let posts = {};
-    Posts.find({}, {fields: {'_id': 1, 'target': 1}}).forEach(function(post) {
-        posts[post._id] = post;
-    });
+    let postArray = Posts.find({}, {fields: {'_id': 1, 'target': 1}}).fetch();
 
-    let grapher = new LayeredGrapher(posts);
+    let graph = new LayeredGrapher.layoutGraph(postArray);
 
-    for (let id in posts) {
-        let post = posts[id];
-        Posts.update({_id: id}, {$set: {defaultPosition: {x:post.x, y:post.y}, subtreeWidth: post.subtreeWidth}});
+    for (let id in graph) {
+        let post = graph[id];
+        Posts.update({_id: id}, {$set: {defaultPosition: {x: post.position.x, y: post.position.y}, subtreeWidth: post.subtreeWidth}});
     }
 
     //Set up moderator account if it does not exist.
