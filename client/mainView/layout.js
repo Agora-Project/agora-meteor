@@ -25,7 +25,12 @@ MainViewLayout = function(localPostPositions) {
     };
 
     this.removePost = function(post) {
-
+        localPostPositions.remove({_id: post._id});
+        let removePostResults = LayeredGrapher.removePost(posts, post._id);
+        for (let updatedPost of removePostResults.changedPosts) {
+            localPostPositions.update({_id: updatedPost._id}, {$set: {position: {x: updatedPost.position.x, y: updatedPost.position.y}, subtreeWidth: updatedPost.subtreeWidth}});
+        }
+        return removePostResults.post;
     };
 
     this.updatePost = function(id, fields) {
