@@ -19,7 +19,7 @@ Meteor.startup(function() {
         console.log("Adding fake posts");
         let posts = [rootID];
 
-        for (let i=0; i<500; i++) {
+        for (let i=0; i<1000; i++) {
             //Decrease exponent to more strongly prefer replying to newer posts.
             let random = Math.pow(Math.random(), 0.1);
             let target = posts[Math.floor(random*posts.length)];

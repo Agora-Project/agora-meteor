@@ -47,10 +47,8 @@ Router.route('/forum', {
     onRun: function() {
         var id = this.params.query.post;
 
-        if (this.ready()) {
-            if (id) {
-                this.state.set("postID", id);
-            }
+        if (id && this.ready()) {
+            this.state.set("postID", id);
         }
         this.next();
     },
