@@ -6,6 +6,13 @@
 
 Meteor.startup(function() {
     //Deletes all posts and adds a set of random fake posts.
+    if (!Posts.findOne({})) {
+        console.log('Adding root post');
+        let rootID = Posts.insert({
+            title: 'Forum Root',
+            content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.'
+        });
+    }
     if (false) {
         console.log('Deleting all posts');
         Posts.remove({});
