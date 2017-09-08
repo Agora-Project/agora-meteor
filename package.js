@@ -38,6 +38,8 @@ Package.onUse(function(api) {
     api.use([
         'ecmascript@0.6.0',
         'iron:router@1.0.0',
+	'matb33:collection-hooks@0.7.13',
+	'aldeed:simple-schema@1.5.3',
         'aldeed:collection2@2.3.3',
         'matb33:collection-hooks@0.7.13',
         'accounts-base',
