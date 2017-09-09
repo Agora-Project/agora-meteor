@@ -7,7 +7,7 @@ before_install:
   - export PATH="$HOME/.meteor:$PATH"
 
 install:
-  - meteor npm install
+  - meteor npm install --save babel-runtime
 
 script:
   - meteor test --once --driver-package dispatch:mocha
