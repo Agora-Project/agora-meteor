@@ -6,6 +6,9 @@ before_install:
   - curl https://install.meteor.com | /bin/sh
   - export PATH="$HOME/.meteor:$PATH"
 
+install:
+  - meteor npm install
+
 script:
   - meteor test --once --driver-package dispatch:mocha
   - meteor test --once --full-app --driver-package dispatch:mocha
