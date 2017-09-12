@@ -46,17 +46,6 @@ Meteor.startup(function() {
         }
     }
 
-    //Compute default layout of posts.
-    console.log('Laying out posts');
-    let postArray = Posts.find({}, {fields: {'_id': 1, 'target': 1}}).fetch();
-
-    let graph = new LayeredGrapher.layoutGraph(postArray);
-
-    for (let id in graph) {
-        let post = graph[id];
-        Posts.update({_id: id}, {$set: {defaultPosition: {x: post.position.x, y: post.position.y}, subtreeWidth: post.subtreeWidth}});
-    }
-
     //Set up moderator account if it does not exist.
     let moderatorEmail = "moderator@example.com";
     if (!Meteor.users.findOne({
