@@ -1,0 +1,15 @@
+sudo: false
+
+language: node_js
+
+before_install:
+  - curl https://install.meteor.com | /bin/sh
+  - export PATH="$HOME/.meteor:$PATH"
+
+install:
+  - meteor npm install --save babel-runtime
+
+script:
+  - meteor test --once --driver-package dispatch:mocha
+  # TODO fix app tests
+  # - meteor test --once --full-app --driver-package dispatch:mocha
