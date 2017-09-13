@@ -19,7 +19,6 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'server/initial-data.js',
-        'server/periodicLayout.js',
         'server/methods.js',
         'server/publish.js',
         'server/users.js'
