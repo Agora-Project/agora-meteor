@@ -73,11 +73,13 @@ Template.mainView.onCreated(function() {
         let postCursor = Posts.find({}), localPostCursor = localPostPositions.find({});
         let initPostArray = postCursor.fetch();
 
-        let graph = instance.layout.init(initPostArray);
-
-        for (post of initPostArray) {
-            post.position = graph[post._id].position;
+        for (let post of initPostArray) {
+            localPostPositions.insert(post);
         }
+
+        instance.layout.init();
+
+        initPostArray = localPostCursor.fetch();
 
         for (let module of modules) {
             module.init(initPostArray);
