@@ -77,7 +77,7 @@ Template.mainView.onCreated(function() {
             localPostPositions.insert(post);
         }
 
-        let graph = instance.layout.init();
+        instance.layout.init();
 
         initPostArray = localPostCursor.fetch();
 
