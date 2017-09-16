@@ -5,14 +5,7 @@ MainViewLayout = function(localPostPositions) {
     };
 
     this.addPost = function(post) {
-        let posts = localPostPositions.find({});
-        let insertPostResults = LayeredGrapher.insertPost(posts, post);
-        post = insertPostResults.post;
-        localPostPositions.insert(post);
-        for (let updatedPost of insertPostResults.changedPosts) {
-            localPostPositions.update({_id: updatedPost._id}, {$set: {position: {x: updatedPost.position.x, y: updatedPost.position.y}, subtreeWidth: updatedPost.subtreeWidth}});
-        }
-        return post;
+        return LayeredGrapher.insertPost(localPostPositions, post);
     };
 
     this.removePost = function(post) {
