@@ -1,7 +1,13 @@
-MainViewLayout = function(localPostPositions) {
+MainViewLayout = function() {
 
-    this.init = function() {
-        let graph = new LayeredGrapher.layoutGraph(localPostPositions);
+    let localPostPositions = new Mongo.Collection(null);
+
+    this.init = function(initPostArray) {
+        for (let post of initPostArray) {
+            localPostPositions.insert(post);
+        }
+        LayeredGrapher.layoutGraph(localPostPositions);
+        return localPostPositions.find({}).fetch();
     };
 
     this.addPost = function(post) {
@@ -20,7 +26,7 @@ MainViewLayout = function(localPostPositions) {
     };
 
     this.updatePost = function(id, fields) {
-
+        localPostPositions.update({_id: id},{$set: fields});
     };
 
 }

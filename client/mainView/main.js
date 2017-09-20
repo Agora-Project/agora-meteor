@@ -42,14 +42,12 @@
 Template.mainView.onCreated(function() {
     let instance = this;
 
-    let localPostPositions = new Mongo.Collection(null);
-
     //Declare modules
-    this.layout = new MainViewLayout(localPostPositions);
-    this.camera = new MainViewCamera(localPostPositions);
-    this.partitioner = new MainViewPartitioner(this.camera, localPostPositions);
-    this.renderer = new MainViewRenderer(this.camera, localPostPositions);
-    this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner, localPostPositions);
+    this.layout = new MainViewLayout();
+    this.camera = new MainViewCamera();
+    this.partitioner = new MainViewPartitioner(this.camera, this.layout);
+    this.renderer = new MainViewRenderer(this.camera, this.layout);
+    this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner);
     let modules = [this.camera, this.partitioner, this.renderer, this.detailedPosts];
 
     Template.body.camera = this.camera;
@@ -70,16 +68,9 @@ Template.mainView.onCreated(function() {
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup.
-        let postCursor = Posts.find({}), localPostCursor = localPostPositions.find({});
-        let initPostArray = postCursor.fetch();
+        let postCursor = Posts.find({});
 
-        for (let post of initPostArray) {
-            localPostPositions.insert(post);
-        }
-
-        instance.layout.init();
-
-        initPostArray = localPostCursor.fetch();
+        let initPostArray = instance.layout.init(postCursor.fetch());
 
         for (let module of modules) {
             module.init(initPostArray);
@@ -90,16 +81,22 @@ Template.mainView.onCreated(function() {
         instance.postObserver = postCursor.observe({
             added: function(post) {
                 if (isLive) {
-                    post = instance.layout.addPost(post);
+                    let results = instance.layout.addPost(post);
                     for (let module of modules) {
-                        module.addPost(post);
+                        for (let updatedPost of results.changedPosts) {
+                            module.updatePost(updatedPost._id, updatedPost);
+                        }
+                        module.addPost(results.post);
                     }
                 }
             },
             removed: function(post) {
-                post = instance.layout.removePost(post);
+                let results = instance.layout.removePost(post);
                 for (let module of modules) {
-                    module.removePost(post);
+                    for (let updatedPost of results.changedPosts) {
+                        module.updatePost(updatedPost._id, updatedPost);
+                    }
+                    module.removePost(results.post);
                 }
             }
         });
@@ -108,20 +105,14 @@ Template.mainView.onCreated(function() {
         //Callback for changed post positions.
         instance.changeObserver = postCursor.observeChanges({
             changed: function(id, fields) {
+                instance.layout.updatePost(id, fields);
                 for (let module of modules) {
                     module.updatePost(id, fields);
                 }
             }
         });
 
-        //Callback for changed post positions.
-        instance.localChangeObserver = localPostCursor.observeChanges({
-            changed: function(id, fields) {
-                for (let module of modules) {
-                    module.updatePost(id, fields);
-                }
-            }
-        });
+
 
         instance.userObserver = Meteor.users.find({_id: Meteor.userId()}).observeChanges({
             changed: function(id, fields) {
