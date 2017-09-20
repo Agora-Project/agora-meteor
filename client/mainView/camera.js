@@ -1,4 +1,4 @@
-MainViewCamera = function(localPostPositions) {
+MainViewCamera = function() {
     let self = this;
     let canvas;
 
