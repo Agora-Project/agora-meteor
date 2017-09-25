@@ -66,6 +66,16 @@ Template.mainView.onCreated(function() {
         return instance.replyTarget.get() !== undefined || instance.editTarget.get() !== undefined;
     };
 
+    this.removePost = function(post) {
+        let results = instance.layout.removePost(post);
+        for (let module of modules) {
+            for (let updatedPost of results.changedPosts) {
+                module.updatePost(updatedPost._id, updatedPost);
+            }
+            module.removePost(results.post);
+        }
+    }
+
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup.
         let postCursor = Posts.find({});
@@ -91,13 +101,7 @@ Template.mainView.onCreated(function() {
                 }
             },
             removed: function(post) {
-                let results = instance.layout.removePost(post);
-                for (let module of modules) {
-                    for (let updatedPost of results.changedPosts) {
-                        module.updatePost(updatedPost._id, updatedPost);
-                    }
-                    module.removePost(results.post);
-                }
+                instance.removePost(post);
             }
         });
         isLive = true;
