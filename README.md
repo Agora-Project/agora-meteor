@@ -15,7 +15,13 @@ Your app will now include the Agora forum software, exposing its routes and meth
 
 ## Usage
 
-TODO
+Including agoraforum:core in your application adds the following routes:
+
+* `/admin`: Renders the admin panel, with tools for administrators and moderators.
+* `/user`: Renders the profile for the current user.
+* `/user/:_id`: Renders the profile for a user by ID.
+* `/users`: Renders a list of users.
+* `/forum`: Renders the Agora discussion graph.
 
 ## Development
 
