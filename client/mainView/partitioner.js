@@ -148,7 +148,7 @@ let KDCell = function(posts, axis) {
     };
 };
 
-MainViewPartitioner = function(camera, localPostPositions) {
+MainViewPartitioner = function(camera) {
     let self = this;
     let root, map;
 
