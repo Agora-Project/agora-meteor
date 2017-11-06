@@ -114,7 +114,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
     //Collection of currently visible detailed posts.
     let visiblePosts = new Mongo.Collection(null);
     // Sort by position, left to right and then top to bottom
-    let visiblePostsCursor = visiblePosts.find({}, {sort: {position, 1}});
+    let visiblePostsCursor = visiblePosts.find({}, {sort: {position: 1}});
     this.showFullPosts = new ReactiveVar(false);
 
     this.init = function(postArray) {
