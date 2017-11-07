@@ -196,9 +196,9 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             let pos = camera.toScreen(post.position);
             let pleft = pos.x - div.outerWidth()/2;
             let ptop = pos.y - div.outerHeight()/2;
-            postMemo.foreach(function(tgtPosition, tgtPost) {
-              let tgtx = tgtPos[0];
-              let tgty = tgtPos[1];
+            postMemo.forEach(function(tgtPosition, tgtPost) {
+              let tgtx = tgtPosition[0];
+              let tgty = tgtPosition[1];
               if (pleft <= tgtx) {
                 pleft += (tgtx - pleft) + 10;
               }
