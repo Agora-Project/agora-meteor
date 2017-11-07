@@ -199,10 +199,8 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             postMemo.forEach(function(tgtPosition, tgtPost) {
               let tgtx = tgtPosition[0];
               let tgty = tgtPosition[1];
-              if (pleft <= tgtx) {
+              if (pleft <= tgtx && ptop <= tgty) {
                 pleft += (tgtx - pleft) + 10;
-              }
-              if (ptop <= tgty) {
                 ptop += (tgty - ptop) + 10;
               }
             });
