@@ -205,12 +205,12 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                 div.css('max-width',1);
                 div.css('max-height',1);
                 tgl = false;
-                //pleft += (tgtx - pleft) + 10;
-                //ptop += (tgty - ptop) + 10;
+                pleft += (tgtx - pleft) + 10;
+                ptop += (tgty - ptop) + 10;
               }
             });
-            //div.css('left', pleft);
-            //div.css('top', ptop);
+            div.css('left', pleft);
+            div.css('top', ptop);
             postMemo.set(post._id, [pleft + div.outerWidth(), ptop + div.outerHeight()]);
         });
     };
