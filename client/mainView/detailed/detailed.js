@@ -196,16 +196,21 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             let pos = camera.toScreen(post.position);
             let pleft = pos.x - div.outerWidth()/2;
             let ptop = pos.y - div.outerHeight()/2;
+            let tgl = true;
             postMemo.forEach(function(tgtPosition, tgtPost) {
               let tgtx = tgtPosition[0];
               let tgty = tgtPosition[1];
-              if (pleft <= tgtx && ptop <= tgty) {
-                pleft += (tgtx - pleft) + 10;
-                ptop += (tgty - ptop) + 10;
+              if (pleft <= tgtx && ptop <= tgty && tgl) {
+                div.css('display','none');
+                div.css('max-width',1);
+                div.css('max-height',1);
+                tgl = false;
+                //pleft += (tgtx - pleft) + 10;
+                //ptop += (tgty - ptop) + 10;
               }
             });
-            div.css('left', pleft);
-            div.css('top', ptop);
+            //div.css('left', pleft);
+            //div.css('top', ptop);
             postMemo.set(post._id, [pleft + div.outerWidth(), ptop + div.outerHeight()]);
         });
     };
