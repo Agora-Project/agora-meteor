@@ -1,7 +1,7 @@
 /*
     Agora Forum Software
     Copyright (C) 2016 Gregory Sartucci
-    License: GPL, Check file LICENSE
+    License: AGPL-3.0, Check file LICENSE
 */
 
 Template.userList.onCreated(function() {

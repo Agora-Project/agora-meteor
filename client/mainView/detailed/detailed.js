@@ -113,7 +113,8 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
 
     //Collection of currently visible detailed posts.
     let visiblePosts = new Mongo.Collection(null);
-    let visiblePostsCursor = visiblePosts.find({});
+    // Sort by position, left to right and then top to bottom
+    let visiblePostsCursor = visiblePosts.find({}, {sort: {position: -1}});
     this.showFullPosts = new ReactiveVar(false);
 
     this.init = function(postArray) {
@@ -162,8 +163,8 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             }
         }
         visiblePostsCursor.forEach(function(post) {
-            if (!camera.isPointVisible(post.position) || ((2 + post.replies.length) <=
-                5 * (1-camera.getZoomFraction()))) {
+            if (!camera.isPointVisible(post.position) ||
+                ((2 + post.replies.length) <= 5 * (1-camera.getZoomFraction()))) {
                 self.removePost(post);
             }
         });
@@ -171,8 +172,8 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
         //Add posts which are newly visible.
         let visible = partitioner.getVisible();
         for (let post of visible) {
-            if (!visiblePosts.findOne({_id: post._id}) && ((2 + post.replies.length) >
-                5 * (1-camera.getZoomFraction()))) {
+            if (!visiblePosts.findOne({_id: post._id}) &&
+                ((2 + post.replies.length) > 5 * (1-camera.getZoomFraction()))) {
 
                 if (!post.replies || post.replies == undefined) post.replies = [];
                 visiblePosts.insert(post);
@@ -180,6 +181,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
         }
 
         //Update post positions/sizes.
+        var postMemo = new Map(); // Keep track of the position of each post
         visiblePostsCursor.forEach(function(post) {
             let div;
 
@@ -190,9 +192,26 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             } else {
                 div = $('#main-basic-post-' + post._id);
             }
+
             let pos = camera.toScreen(post.position);
-            div.css('left', pos.x - div.outerWidth()/2);
-            div.css('top', pos.y - div.outerHeight()/2);
+            let pleft = pos.x - div.outerWidth()/2;
+            let ptop = pos.y - div.outerHeight()/2;
+            let tgl = true;
+            postMemo.forEach(function(tgtPosition, tgtPost) {
+              let tgtx = tgtPosition[0];
+              let tgty = tgtPosition[1];
+              if (pleft <= tgtx && ptop <= tgty && tgl) {
+                div.css('display','none');
+                div.css('max-width',1);
+                div.css('max-height',1);
+                tgl = false;
+                //pleft += (tgtx - pleft) + 10;
+                //ptop += (tgty - ptop) + 10;
+              }
+            });
+            div.css('left', pleft);
+            div.css('top', ptop);
+            postMemo.set(post._id, [pleft + div.outerWidth(), ptop + div.outerHeight()]);
         });
     };
 
