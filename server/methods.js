@@ -75,7 +75,7 @@ Meteor.methods({
 
         //Insert new post into position.
         let postId = Posts.insert(post);
-        Posts.update({_id: post.target}, {$push: {replies: postId}});
+        Posts.update({_id: post.target}, {$push: {replies: postId}, $inc: {recentActivity: 1}});
 
         //add any new tags to the database, and adjust the info for existing tags accordingly.
         for (let tag of post.tags) {
