@@ -21,7 +21,8 @@ Package.onUse(function(api) {
         'server/initial-data.js',
         'server/methods.js',
         'server/publish.js',
-        'server/users.js'
+        'server/users.js',
+        'server/recentActivityCountdown.js'
     ], 'server');
 
     api.addFiles([
