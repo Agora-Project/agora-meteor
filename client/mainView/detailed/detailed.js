@@ -172,16 +172,67 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
         //Add posts which are newly visible.
         let visible = partitioner.getVisible();
         for (let post of visible) {
-            if (!visiblePosts.findOne({_id: post._id}) &&
-                ((2 + post.replies.length) > 5 * (1-camera.getZoomFraction()))) {
-
+            if (!visiblePosts.findOne({_id: post._id})) {
                 if (!post.replies || post.replies == undefined) post.replies = [];
                 visiblePosts.insert(post);
             }
         }
 
+        //If we're zoomed out far enough to show labels
+        if (!self.showFullPosts.get()) {
+
+            //sort posts by priority.
+            let visiblePostsByPriority = visiblePosts.find({}, {sort: {recentActivity: -1}}).fetch();
+
+            //go through the sorted posts and hide the ones with less priority whenever theres a conflict.
+            visiblePostsByPriority.forEach(function(post, i) {
+                if (post.hidden) return;
+
+                let div = $('#main-basic-post-' + post._id);
+
+                let pos = camera.toScreen(post.position);
+                console.log(pos);
+
+                div.css('left', pos.x - div.outerWidth()/2);
+                div.css('top', pos.y - div.outerHeight()/2);
+
+                for (i++; i < visiblePostsByPriority.length; i++) {
+                    let post2 = visiblePostsByPriority[i];
+                    if (post2.hidden) continue;
+
+                    let div2 = $('#main-basic-post-' + post2._id);
+
+                    let pos2 = camera.toScreen(post2.position);
+
+                    if (pos.x + div.outerWidth()/2 >= pos2.x - div2.outerWidth()/2 &&
+                        pos.x - div.outerWidth()/2 <= pos2.x + div2.outerWidth()/2 &&
+                        pos.y + div.outerHeight()/2 >= pos2.y - div2.outerHeight()/2 &&
+                        pos.y - div.outerHeight()/2 <= pos2.y + div2.outerHeight()/2) {
+
+                        post2.hidden = true;
+                        div2.css('display','none');
+                        div2.css('max-width',1);
+                        div2.css('max-height',1);
+                    }
+                }
+
+            });
+
+        } else {
+            visiblePostsCursor.forEach(function(post, i) {
+                let div = $('#main-detailed-post-' + post._id);
+
+                let pos = camera.toScreen(post.position);
+
+                div.width(POST_WIDTH*camera.getScale());
+                div.css('max-height', POST_HEIGHT*camera.getScale());
+                div.css('left', pos.x - div.outerWidth()/2);
+                div.css('top', pos.y - div.outerHeight()/2);
+            });
+        }
+
         //Update post positions/sizes.
-        var postMemo = new Map(); // Keep track of the position of each post
+        /*var postMemo = new Map(); // Keep track of the position of each post
         visiblePostsCursor.forEach(function(post) {
             let div;
 
@@ -196,7 +247,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             let pos = camera.toScreen(post.position);
             let pleft = pos.x - div.outerWidth()/2;
             let ptop = pos.y - div.outerHeight()/2;
-            let tgl = true;/*
+            let tgl = true;
             postMemo.forEach(function(tgtPosition, tgtPost) {
               let tgtx = tgtPosition[0];
               let tgty = tgtPosition[1];
@@ -208,11 +259,11 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                 //pleft += (tgtx - pleft) + 10;
                 //ptop += (tgty - ptop) + 10;
               }
-          });*/
+          });
             div.css('left', pleft);
             div.css('top', ptop);
             postMemo.set(post._id, [pleft + div.outerWidth(), ptop + div.outerHeight()]);
-        });
+        });*/
     };
 
     this.find = function() {
