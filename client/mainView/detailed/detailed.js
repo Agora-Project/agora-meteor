@@ -210,9 +210,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                         pos.y - div.outerHeight()/2 <= pos2.y + div2.outerHeight()/2) {
 
                         post2.hidden = true;
-                        div2.css('display','none');
-                        div2.css('max-width',1);
-                        div2.css('max-height',1);
+                        div2.css('visibility','hidden');
                     }
                 }
 
