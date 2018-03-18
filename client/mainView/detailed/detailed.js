@@ -163,8 +163,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             }
         }
         visiblePostsCursor.forEach(function(post) {
-            if (!camera.isPointVisible(post.position) ||
-                ((2 + post.replies.length) <= 5 * (1-camera.getZoomFraction()))) {
+            if (!camera.isPointVisible(post.position)) {
                 self.removePost(post);
             }
         });
