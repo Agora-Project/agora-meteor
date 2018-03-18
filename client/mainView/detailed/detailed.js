@@ -162,9 +162,14 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                 });
             }
         }
+
+        let showPost = function(post) {
+            return (4 + post.replies.length) <= 11 * (1-camera.getZoomFraction())
+        }
+
         visiblePostsCursor.forEach(function(post) {
             if (!camera.isPointVisible(post.position) ||
-                ((2 + post.replies.length) <= 5 * (1-camera.getZoomFraction()))) {
+                showPost(post)) {
                 self.removePost(post);
             }
         });
@@ -173,7 +178,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
         let visible = partitioner.getVisible();
         for (let post of visible) {
             if (!visiblePosts.findOne({_id: post._id}) &&
-                ((2 + post.replies.length) > 5 * (1-camera.getZoomFraction()))) {
+                !showPost(post)) {
 
                 if (!post.replies || post.replies == undefined) post.replies = [];
                 visiblePosts.insert(post);
@@ -198,17 +203,17 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             let ptop = pos.y - div.outerHeight()/2;
             let tgl = true;/*
             postMemo.forEach(function(tgtPosition, tgtPost) {
-              let tgtx = tgtPosition[0];
-              let tgty = tgtPosition[1];
-              if (pleft <= tgtx && ptop <= tgty && tgl) {
-                //div.css('display','none');
-                //div.css('max-width',1);
-                //div.css('max-height',1);
-                tgl = false;
-                //pleft += (tgtx - pleft) + 10;
-                //ptop += (tgty - ptop) + 10;
-              }
-          });*/
+                let tgtx = tgtPosition[0];
+                let tgty = tgtPosition[1];
+                if (pleft <= tgtx && ptop <= tgty && tgl) {
+                    //div.css('display','none');
+                    //div.css('max-width',1);
+                    //div.css('max-height',1);
+                    tgl = false;
+                    //pleft += (tgtx - pleft) + 10;
+                    //ptop += (tgty - ptop) + 10;
+                }
+            });*/
             div.css('left', pleft);
             div.css('top', ptop);
             postMemo.set(post._id, [pleft + div.outerWidth(), ptop + div.outerHeight()]);
