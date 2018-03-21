@@ -203,7 +203,9 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             });
             //go through the sorted posts and hide the ones with less priority whenever theres a conflict.
             visiblePostsByPriority.forEach(function(post, i) {
+
                 post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
+
                 let div = $('#main-basic-post-' + post._id);
 
                 let pos = camera.toScreen(post.position);
@@ -212,11 +214,11 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                 div.css('top', pos.y - div.outerHeight()/2);
 
                 if (!post.hidden) {
-                    let width = 1 + Math.floor(div.outerWidth()/(camera.getScale()/4)), height = 1 + Math.floor(div.outerHeight()/(camera.getScale()/4));
+                    let width = 1 + Math.floor(div.outerWidth()/camera.getScale()), height = 1 + Math.floor(div.outerHeight()/camera.getScale());
 
-                    for (let x = -width; x < width; x++) {
-                        for (let y = -height; y < height; y++) {
-                            if (y == 0 && y == 0) continue;
+                    for (let x = -width; (x < width && !post.hidden); x++) {
+                        for (let y = -height; (y < height && !post.hidden); y++) {
+                            if (x === 0 && y === 0) continue;
                             let post2 = postPositionHashMap["" + (x + post.position.x) + ", " + (y + post.position.y)];
                             if (!post2 || post2.hidden) continue;
 
@@ -224,14 +226,12 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
 
                             let div2 = $('#main-basic-post-' + post2._id);
 
-                            if (pos.x + div.outerWidth()/2 > pos2.x - div2.outerWidth()/2 &&
-                                pos.x - div.outerWidth()/2 < pos2.x + div2.outerWidth()/2 &&
-                                pos.y + div.outerHeight()/2 > pos2.y - div2.outerHeight()/2 &&
-                                pos.y - div.outerHeight()/2 < pos2.y + div2.outerHeight()/2) {
+                            if (pos.x + div.outerWidth(true) > pos2.x - div2.outerWidth(true) &&
+                                pos.x - div.outerWidth(true) < pos2.x + div2.outerWidth(true) &&
+                                pos.y + div.outerHeight(true) > pos2.y - div2.outerHeight(true) &&
+                                pos.y - div.outerHeight(true) < pos2.y + div2.outerHeight(true)) {
 
-                                    console.log(post.position);
-
-                                if (post.recentActivity > post2.recentActivity)
+                                if (post.recentActivity >= post2.recentActivity)
                                     post2.hidden = true;
                                 else post.hidden = true;
                             }
