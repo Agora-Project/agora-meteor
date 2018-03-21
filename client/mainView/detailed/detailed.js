@@ -214,7 +214,9 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                 div.css('top', pos.y - div.outerHeight()/2);
 
                 if (!post.hidden) {
-                    let width = 1 + Math.floor(div.outerWidth()/camera.getScale()), height = 1 + Math.floor(div.outerHeight()/camera.getScale());
+
+                    //This is for deciding how many adjacent posts to look for and check collisions against. Magic numbers are for max width and height of a preview.
+                    let width = 1 + Math.floor(150/camera.getScale()), height = 1 + Math.floor(30/camera.getScale());
 
                     for (let x = -width; (x < width && !post.hidden); x++) {
                         for (let y = -height; (y < height && !post.hidden); y++) {
@@ -226,10 +228,17 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
 
                             let div2 = $('#main-basic-post-' + post2._id);
 
-                            if (pos.x + div.outerWidth(true) > pos2.x - div2.outerWidth(true) &&
-                                pos.x - div.outerWidth(true) < pos2.x + div2.outerWidth(true) &&
-                                pos.y + div.outerHeight(true) > pos2.y - div2.outerHeight(true) &&
-                                pos.y - div.outerHeight(true) < pos2.y + div2.outerHeight(true)) {
+                            let outerWidth1 = div.outerWidth(true)/2;
+                            let outerWidth2 = div2.outerWidth(true)/2;
+
+                            let outerHeight1 = div.outerHeight(true)/2;
+                            let outerHeight2 = div2.outerHeight(true)/2;
+
+                            //Checks for collisions, with a buffer space.
+                            if (pos.x + outerWidth1 + 25 > pos2.x - outerWidth2 &&
+                                pos.x - outerWidth1 < pos2.x + outerWidth2 + 25 &&
+                                pos.y + outerHeight1 + 5 > pos2.y - outerHeight2 &&
+                                pos.y - outerHeight1 < pos2.y + outerHeight2 + 5) {
 
                                 if (post.recentActivity >= post2.recentActivity)
                                     post2.hidden = true;
