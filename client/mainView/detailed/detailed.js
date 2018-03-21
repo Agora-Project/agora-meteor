@@ -115,13 +115,16 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
     let visiblePosts = new Mongo.Collection(null);
     // Sort by position, left to right and then top to bottom
     let visiblePostsCursor = visiblePosts.find({}, {sort: {position: -1}});
+
+    let postPositionHashMap = {};
     this.showFullPosts = new ReactiveVar(false);
 
     this.init = function(postArray) {
     };
 
     this.addPost = function(post) {
-
+        visiblePosts.insert(post);
+        postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
     };
 
     this.removePost = function(post) {
@@ -135,12 +138,23 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
 
         div.fadeOut(200, function() {
             visiblePosts.remove({_id: post._id});
+            delete postPositionHashMap["" + post.position.x + ", " + post.position.y];
         });
     };
 
     this.updatePost = function(id, fields) {
+        let post = visiblePosts.findOne({_id: id});
+        if (fields.position) {
+            delete postPositionHashMap["" + post.position.x + ", " + post.position.y];
+        }
+
         if (visiblePosts.findOne({_id: id}))
             visiblePosts.update({_id: id}, {$set: fields});
+
+        post = visiblePosts.findOne({_id: id});
+        if (fields.position) {
+            postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
+        }
     };
 
     this.update = function() {
@@ -163,8 +177,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             }
         }
         visiblePostsCursor.forEach(function(post) {
-            if (!camera.isPointVisible(post.position) ||
-                ((2 + post.replies.length) <= 5 * (1-camera.getZoomFraction()))) {
+            if (!camera.isPointVisible(post.position)) {
                 self.removePost(post);
             }
         });
@@ -172,16 +185,91 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
         //Add posts which are newly visible.
         let visible = partitioner.getVisible();
         for (let post of visible) {
-            if (!visiblePosts.findOne({_id: post._id}) &&
-                ((2 + post.replies.length) > 5 * (1-camera.getZoomFraction()))) {
-
+            if (!visiblePosts.findOne({_id: post._id})) {
                 if (!post.replies || post.replies == undefined) post.replies = [];
-                visiblePosts.insert(post);
+                self.addPost(post);
             }
         }
 
+        //If we're zoomed out far enough to show labels
+        if (!self.showFullPosts.get()) {
+
+            //sort posts by priority.
+            let visiblePostsByPriority = visiblePosts.find({}, {sort: {recentActivity: -1}}).fetch();
+
+            visiblePostsByPriority.forEach(function(post) {
+                post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
+                post.hidden = false;
+            });
+            //go through the sorted posts and hide the ones with less priority whenever theres a conflict.
+            visiblePostsByPriority.forEach(function(post, i) {
+
+                post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
+
+                let div = $('#main-basic-post-' + post._id);
+
+                let pos = camera.toScreen(post.position);
+
+                div.css('left', pos.x - div.outerWidth()/2);
+                div.css('top', pos.y - div.outerHeight()/2);
+
+                if (!post.hidden) {
+
+                    //This is for deciding how many adjacent posts to look for and check collisions against. Magic numbers are for max width and height of a preview.
+                    let width = 1 + Math.floor(150/camera.getScale()), height = 1 + Math.floor(30/camera.getScale());
+
+                    for (let x = -width; (x < width && !post.hidden); x++) {
+                        for (let y = -height; (y < height && !post.hidden); y++) {
+                            if (x === 0 && y === 0) continue;
+                            let post2 = postPositionHashMap["" + (x + post.position.x) + ", " + (y + post.position.y)];
+                            if (!post2 || post2.hidden) continue;
+
+                            let pos2 = camera.toScreen(post2.position);
+
+                            let div2 = $('#main-basic-post-' + post2._id);
+
+                            let outerWidth1 = div.outerWidth(true)/2;
+                            let outerWidth2 = div2.outerWidth(true)/2;
+
+                            let outerHeight1 = div.outerHeight(true)/2;
+                            let outerHeight2 = div2.outerHeight(true)/2;
+
+                            //Checks for collisions, with a buffer space.
+                            if (pos.x + outerWidth1 + 25 > pos2.x - outerWidth2 &&
+                                pos.x - outerWidth1 < pos2.x + outerWidth2 + 25 &&
+                                pos.y + outerHeight1 + 5 > pos2.y - outerHeight2 &&
+                                pos.y - outerHeight1 < pos2.y + outerHeight2 + 5) {
+
+                                if (post.recentActivity >= post2.recentActivity)
+                                    post2.hidden = true;
+                                else post.hidden = true;
+                            }
+                        }
+                    }
+                }
+
+                if (post.hidden)
+                    div.css('visibility','hidden');
+                else
+                    div.css('visibility','visible');
+
+            });
+
+        } else {
+            visiblePostsCursor.forEach(function(post, i) {
+                let div = $('#main-detailed-post-' + post._id);
+
+                let pos = camera.toScreen(post.position);
+
+                div.width(POST_WIDTH*camera.getScale());
+                div.css('max-height', POST_HEIGHT*camera.getScale());
+                div.css('left', pos.x - div.outerWidth()/2);
+                div.css('top', pos.y - div.outerHeight()/2);
+            });
+        }
+
         //Update post positions/sizes.
-        var postMemo = new Map(); // Keep track of the position of each post
+        /*var postMemo = new Map(); // Keep track of the position of each post
         visiblePostsCursor.forEach(function(post) {
             let div;
 
@@ -196,7 +284,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
             let pos = camera.toScreen(post.position);
             let pleft = pos.x - div.outerWidth()/2;
             let ptop = pos.y - div.outerHeight()/2;
-            let tgl = true;/*
+            let tgl = true;
             postMemo.forEach(function(tgtPosition, tgtPost) {
               let tgtx = tgtPosition[0];
               let tgty = tgtPosition[1];
@@ -208,11 +296,11 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                 //pleft += (tgtx - pleft) + 10;
                 //ptop += (tgty - ptop) + 10;
               }
-          });*/
+          });
             div.css('left', pleft);
             div.css('top', ptop);
             postMemo.set(post._id, [pleft + div.outerWidth(), ptop + div.outerHeight()]);
-        });
+        });*/
     };
 
     this.find = function() {
