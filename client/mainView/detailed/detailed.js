@@ -267,40 +267,6 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                 div.css('top', pos.y - div.outerHeight()/2);
             });
         }
-
-        //Update post positions/sizes.
-        /*var postMemo = new Map(); // Keep track of the position of each post
-        visiblePostsCursor.forEach(function(post) {
-            let div;
-
-            if (self.showFullPosts.get()) {
-                div = $('#main-detailed-post-' + post._id);
-                div.width(POST_WIDTH*camera.getScale());
-                div.css('max-height', POST_HEIGHT*camera.getScale());
-            } else {
-                div = $('#main-basic-post-' + post._id);
-            }
-
-            let pos = camera.toScreen(post.position);
-            let pleft = pos.x - div.outerWidth()/2;
-            let ptop = pos.y - div.outerHeight()/2;
-            let tgl = true;
-            postMemo.forEach(function(tgtPosition, tgtPost) {
-              let tgtx = tgtPosition[0];
-              let tgty = tgtPosition[1];
-              if (pleft <= tgtx && ptop <= tgty && tgl) {
-                //div.css('display','none');
-                //div.css('max-width',1);
-                //div.css('max-height',1);
-                tgl = false;
-                //pleft += (tgtx - pleft) + 10;
-                //ptop += (tgty - ptop) + 10;
-              }
-          });
-            div.css('left', pleft);
-            div.css('top', ptop);
-            postMemo.set(post._id, [pleft + div.outerWidth(), ptop + div.outerHeight()]);
-        });*/
     };
 
     this.find = function() {
