@@ -214,13 +214,14 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                 div.css('top', pos.y - div.outerHeight()/2);
 
                 if (!post.hidden) {
-
                     //This is for deciding how many adjacent posts to look for and check collisions against. Magic numbers are for max width and height of a preview.
                     let width = 1 + Math.floor(150/camera.getScale()), height = 1 + Math.floor(30/camera.getScale());
 
-                    for (let x = -width; (x < width && !post.hidden); x++) {
-                        for (let y = -height; (y < height && !post.hidden); y++) {
+                    for (let x = -width; x < width; x++) {
+                        for (let y = -height; y < height; y++) {
+
                             if (x === 0 && y === 0) continue;
+
                             let post2 = postPositionHashMap["" + (x + post.position.x) + ", " + (y + post.position.y)];
                             if (!post2 || post2.hidden) continue;
 
@@ -240,9 +241,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
                                 pos.y + outerHeight1 + 5 > pos2.y - outerHeight2 &&
                                 pos.y - outerHeight1 < pos2.y + outerHeight2 + 5) {
 
-                                if (post.recentActivity >= post2.recentActivity)
-                                    post2.hidden = true;
-                                else post.hidden = true;
+                                post2.hidden = true;
                             }
                         }
                     }
