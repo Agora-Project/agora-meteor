@@ -151,9 +151,9 @@ Template.mainView.onCreated(function() {
 
         instance.autorun(
             function() {
-                let post = Posts.findOne(Iron.controller().state.get('postID'), {fields: {'defaultPosition':1}});
+                let post = instance.layout.localPostPositions.findOne(Iron.controller().state.get('postID'));
                 if (post) {
-                    instance.camera.goToPos(post.defaultPosition);
+                    instance.camera.goToPos(post.position);
                 }
                 return;
             }

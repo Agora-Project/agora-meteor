@@ -1,25 +1,25 @@
 MainViewLayout = function() {
 
-    let localPostPositions = new Mongo.Collection(null);
+    this.localPostPositions = new Mongo.Collection(null);
 
     this.init = function(initPostArray) {
         for (let post of initPostArray) {
-            localPostPositions.insert(post);
+            this.localPostPositions.insert(post);
         }
-        LayeredGrapher.layoutGraph(localPostPositions);
-        return localPostPositions.find({}).fetch();
+        LayeredGrapher.layoutGraph(this.localPostPositions);
+        return this.localPostPositions.find({}).fetch();
     };
 
     this.addPost = function(post) {
-        return LayeredGrapher.insertPost(localPostPositions, post);
+        return LayeredGrapher.insertPost(this.localPostPositions, post);
     };
 
     this.removePost = function(post) {
-        return LayeredGrapher.removePost(localPostPositions, post);
+        return LayeredGrapher.removePost(this.localPostPositions, post);
     };
 
     this.updatePost = function(id, fields) {
-        localPostPositions.update({_id: id},{$set: fields});
+        this.localPostPositions.update({_id: id},{$set: fields});
     };
 
 }

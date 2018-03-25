@@ -108,7 +108,7 @@ Template.mainDetailedPost.events({
     }
 });
 
-MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
+MainViewDetailedPosts = function(camera, partitioner) {
     let self = this;
 
     //Collection of currently visible detailed posts.
