@@ -123,6 +123,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
     };
 
     this.addPost = function(post) {
+        post.replyCount = post.replies.length;
         visiblePosts.insert(post);
         postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
     };
@@ -195,7 +196,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
         if (!self.showFullPosts.get()) {
 
             //sort posts by priority.
-            let visiblePostsByPriority = visiblePosts.find({}, {sort: {recentActivity: -1}}).fetch();
+            let visiblePostsByPriority = visiblePosts.find({}, {sort: {replyCount: -1}}).fetch();
 
             visiblePostsByPriority.forEach(function(post) {
                 post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
@@ -215,7 +216,7 @@ MainViewDetailedPosts = function(camera, partitioner, localPostPositions) {
 
                 if (!post.hidden) {
                     //This is for deciding how many adjacent posts to look for and check collisions against. Magic numbers are for max width and height of a preview.
-                    let width = 1 + Math.floor(150/camera.getScale()), height = 1 + Math.floor(30/camera.getScale());
+                    let width = 1 + Math.floor(130/camera.getScale()), height = 1 + Math.floor(25/camera.getScale());
 
                     for (let x = -width; x < width; x++) {
                         for (let y = -height; y < height; y++) {
