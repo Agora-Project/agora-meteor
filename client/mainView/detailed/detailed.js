@@ -177,8 +177,13 @@ MainViewDetailedPosts = function(camera, partitioner) {
                 });
             }
         }
+
+        let hidePost = function(post) {
+            return (4 + post.replies.length) <= 7 * (1-camera.getZoomFraction())
+        }
+
         visiblePostsCursor.forEach(function(post) {
-            if (!camera.isPointVisible(post.position)) {
+            if (!camera.isPointVisible(post.position) || hidePost(post)) {
                 self.removePost(post);
             }
         });
@@ -186,7 +191,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         //Add posts which are newly visible.
         let visible = partitioner.getVisible();
         for (let post of visible) {
-            if (!visiblePosts.findOne({_id: post._id})) {
+            if (!visiblePosts.findOne({_id: post._id}) && !hidePost(post)) {
                 if (!post.replies || post.replies == undefined) post.replies = [];
                 self.addPost(post);
             }
