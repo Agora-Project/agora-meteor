@@ -1,3 +1,9 @@
+/*
+    Agora Forum Software
+    Copyright (C) 2018 Gregory Sartucci
+    License: AGPL-3.0, Check file LICENSE
+*/
+
 postIsSeen = function (post) {
     let user = Meteor.users.findOne({_id: Meteor.userId()});
 
