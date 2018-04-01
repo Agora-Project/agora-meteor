@@ -24,7 +24,7 @@ Template.mainDetailedPost.onCreated(function() {
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-detailed-post-spinner').fadeOut(100);
-        //instance.div.children('.main-detailed-post-info').css('overflow', 'visible');
+
         instance.div.children('.main-detailed-post-flex')
             .css('display', 'flex')
             .hide()
@@ -185,7 +185,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         }
 
         let hidePost = function(post) {
-            return (4 + post.replies.length) <= 7 * (1-camera.getZoomFraction())
+            return (1 + post.replies.length) * camera.getScale() / 100 <= 1;
         }
 
         visiblePostsCursor.forEach(function(post) {
@@ -227,7 +227,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
                 if (!post.hidden) {
                     //This is for deciding how many adjacent posts to look for and check collisions against. Magic numbers are for max width and height of a preview.
-                    let width = 1 + Math.floor(130/camera.getScale()), height = 1 + Math.floor(25/camera.getScale());
+                    let width = 1 + Math.floor(180/camera.getScale()), height = 1 + Math.floor(25/camera.getScale());
 
                     for (let x = -width; x < width; x++) {
                         for (let y = -height; y < height; y++) {
@@ -248,8 +248,8 @@ MainViewDetailedPosts = function(camera, partitioner) {
                             let outerHeight2 = div2.outerHeight(true)/2;
 
                             //Checks for collisions, with a buffer space.
-                            if (pos.x + outerWidth1 + 25 > pos2.x - outerWidth2 &&
-                                pos.x - outerWidth1 < pos2.x + outerWidth2 + 25 &&
+                            if ((pos.x + outerWidth1 + 50) > pos2.x - outerWidth2 &&
+                                pos.x - outerWidth1 < (pos2.x + outerWidth2 + 50) &&
                                 pos.y + outerHeight1 + 5 > pos2.y - outerHeight2 &&
                                 pos.y - outerHeight1 < pos2.y + outerHeight2 + 5) {
 
