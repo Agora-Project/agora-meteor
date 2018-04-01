@@ -46,9 +46,9 @@ Template.mainReply.onRendered(function() {
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.parent.replyTarget.set();
+                instance.submitted = true;
             }
         });
-        instance.submitted = true;
     };
 
     let submitEdit = function(event) {
