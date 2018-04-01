@@ -3,17 +3,11 @@ TODO
 Refactoring/Debugging
 
 * renderer: stop using post deletion hack
-* make zoom bar cross-platform
-* fix zoom bar first-frame bug (scale is a session variable)
-* make zoom bar smooth
-* fix posts not being deleted from partition properly
 * simplify shared libraries
 * arrange for error method when webGL or any other site component is unsupported.
 
 Changes to Promote Usability
 
-* Have some of the content from nodes display when the graph is further zoomed out.
-* Allow linking to specific posts.
 * Allow users to load posts and control the layout.
 * camera subtree-relative updating
 * show which posts have been read.
@@ -33,3 +27,11 @@ New Features
   * Voting
 * SAA
 * Federation
+* Types for posts and connections between posts.
+
+
+Priorities:
+
+1. Refactor and optimize for better performance in browser.
+2. Implement dynamic post loading
+3. Implement federation

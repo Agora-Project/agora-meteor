@@ -11,7 +11,6 @@ Template.adminScreen.helpers({
 Template.adminScreen.events({
 });
 
-
 Template.report.helpers({
     post: function() {
         let post = Posts.findOne({_id: Template.currentData().targetID});

@@ -11,6 +11,9 @@
  *          This file; the primary entry-point and handler for the other four modules.
  *          Callbacks are mostly set up and destroyed in this module.
  *
+ *    * Layout (layout.js)
+ *          Chooses positions for posts.
+ *
  *    * Camera (camera.js)
  *          Stores client view state (position, zoom, screen boundaries).
  *          Also handles camera input.
