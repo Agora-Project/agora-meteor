@@ -19,7 +19,7 @@ Template.mainReply.onRendered(function() {
 
     this.submitButton = null;
 
-    this.submitted = false;
+    this.submitted = false; //This is for preventing double-posts.
 
     let hasContent = function() {
         return titleInput.val().length > 0 || contentInput.val().length > 0;
@@ -67,9 +67,9 @@ Template.mainReply.onRendered(function() {
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.parent.editTarget.set();
+                instance.submitted = true;
             }
         });
-        instance.submitted = true;
     };
 
     let cancelReply = function(event) {

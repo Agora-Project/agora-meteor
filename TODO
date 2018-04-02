@@ -2,16 +2,17 @@ TODO
 
 Refactoring/Debugging
 
-* renderer: stop using post deletion hack
-* simplify shared libraries
-* arrange for error method when webGL or any other site component is unsupported.
+* Renderer: stop using post deletion hack
+* Simplify shared libraries
+* Arrange for error method when webGL or any other site component is unsupported.
+* Optimize for better performance in browser.
 
 Changes to Promote Usability
 
 * Allow users to load posts and control the layout.
 * camera subtree-relative updating
 * show which posts have been read.
-  * improve date format
+    * improve date format
 * reply line (and maybe go to post button)
 * improved styles (esp. buttons)
 * Center graph
@@ -19,19 +20,20 @@ Changes to Promote Usability
 
 New Features
 
+* Content Warnings
 * Better moderation
-  * Ability to hide posts, so that they don’t show up generally
-  * Ability to lock posts, so that only moderators can respond to them.
+    * Ability to force Content Warnings
+    * Ability to hide posts, so that they don’t show up generally
+    * Ability to lock posts, so that only moderators can respond to them.
 * Moderator tracking
+    * Who did what, when, and why
 * Alerts
-  * Voting
-* SAA
 * Federation
 * Types for posts and connections between posts.
 
 
 Priorities:
 
-1. Refactor and optimize for better performance in browser.
+1. Refactor
 2. Implement dynamic post loading
 3. Implement federation
