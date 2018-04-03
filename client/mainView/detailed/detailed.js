@@ -291,7 +291,8 @@ Template.mainDetailedPostReplyButton.getParents();
 Template.mainDetailedPostReplyButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.replyTarget.set(instance.parent.data);
+        instance.parent.parent.targetPost.set(instance.parent.data);
+        instance.parent.parent.targetMode.set("Reply");
     }
 });
 
@@ -300,7 +301,8 @@ Template.mainDetailedPostEditButton.getParents();
 Template.mainDetailedPostEditButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.editTarget.set(instance.parent.data);
+        instance.parent.parent.targetPost.set(instance.parent.data);
+        instance.parent.parent.targetMode.set("Edit");
     }
 });
 

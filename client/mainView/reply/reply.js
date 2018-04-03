@@ -45,7 +45,7 @@ Template.mainReply.onRendered(function() {
             }
             else {
                 //Don't delete user's work unless it posts successfully.
-                instance.parent.replyTarget.set();
+                instance.parent.targetPost.set();
                 instance.submitted = true;
             }
         });
@@ -66,7 +66,7 @@ Template.mainReply.onRendered(function() {
             }
             else {
                 //Don't delete user's work unless it posts successfully.
-                instance.parent.editTarget.set();
+                instance.parent.targetPost.set();
                 instance.submitted = true;
             }
         });
@@ -74,13 +74,13 @@ Template.mainReply.onRendered(function() {
 
     let cancelReply = function(event) {
         if (!hasContent() || confirm('You have an unfinished post. Are you sure you want to cancel?')) {
-            instance.parent.replyTarget.set();
+            instance.parent.targetPost.set();
         }
     };
 
     let cancelEdit = function(event) {
         if (!hasEdit() || confirm('You have an unfinished edit. Are you sure you want to cancel?')) {
-            instance.parent.editTarget.set();
+            instance.parent.targetPost.set();
         }
     };
 
@@ -94,16 +94,16 @@ Template.mainReply.onRendered(function() {
             return "You have an unfinished edit. Are you sure you want to close the page?";
     };
 
-    if (this.parent.replyTarget.get()) {
-        target = this.parent.replyTarget.get();
+    if (this.parent.targetMode.get() === "Reply") {
+        target = this.parent.targetPost.get();
 
         this.submitButton = submitReply;
 
         $('#main-reply-submit-button').click(this.submitButton);
         $('#main-reply-cancel-button').click(cancelReply);
         $(window).on('beforeunload', exitReply);
-    } else if (this.parent.editTarget.get()) {
-        target = this.parent.editTarget.get();
+    } else if (this.parent.targetMode.get() === "Edit") {
+        target = this.parent.targetPost.get();
 
         titleInput.val(target.title);
         contentInput.val(target.content);
