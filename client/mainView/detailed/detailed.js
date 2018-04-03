@@ -210,8 +210,9 @@ MainViewDetailedPosts = function(camera, partitioner) {
             let visiblePostsByPriority = visiblePosts.find({}, {sort: {replyCount: -1}}).fetch();
 
             visiblePostsByPriority.forEach(function(post) {
-                post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
-                post.hidden = false;
+                let hashPost = postPositionHashMap["" + post.position.x + ", " + post.position.y];
+                if (hashPost)
+                    hashPost.hidden = false;
             });
             //go through the sorted posts and hide the ones with less priority whenever theres a conflict.
             visiblePostsByPriority.forEach(function(post, i) {
