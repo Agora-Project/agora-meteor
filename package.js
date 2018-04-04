@@ -6,7 +6,7 @@
 
 Package.describe({
     name: 'agoraforum:core',
-    version: '0.1.2',
+    version: '0.1.3',
     summary: 'Graph-based forum',
     git: 'https://github.com/Agora-Project/agora-meteor',
     documentation: 'README.md'
@@ -37,8 +37,8 @@ Package.onUse(function(api) {
     api.use([
         'ecmascript@0.6.0',
         'iron:router@1.0.0',
-	'matb33:collection-hooks@0.7.13',
-	'aldeed:simple-schema@1.5.3',
+	    'matb33:collection-hooks@0.7.13',
+        'aldeed:simple-schema@1.5.3',
         'aldeed:collection2@2.3.3',
         'matb33:collection-hooks@0.7.13',
         'accounts-base',

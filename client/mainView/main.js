@@ -11,6 +11,9 @@
  *          This file; the primary entry-point and handler for the other four modules.
  *          Callbacks are mostly set up and destroyed in this module.
  *
+ *    * Layout (layout.js)
+ *          Chooses positions for posts.
+ *
  *    * Camera (camera.js)
  *          Stores client view state (position, zoom, screen boundaries).
  *          Also handles camera input.
@@ -30,9 +33,6 @@
  *
  *    * Reply (reply/reply.js)
  *          Handles the reply box and related code.
- *
- *    * Edit (edit/edit.js)
- *          Handles the edit box and related code.
  *
  *    * Report (report/report.js)
  *          Handles the report box and related code.
@@ -57,13 +57,13 @@ Template.mainView.onCreated(function() {
     let onSubReady = new Notifier();
 
     this.subscribe('localAbstractPosts', {onReady: onSubReady.fulfill});
-    this.replyTarget = new ReactiveVar();
-    this.editTarget = new ReactiveVar();
+    this.targetPost = new ReactiveVar();
+    this.targetMode = new ReactiveVar();
     this.reportTarget = new ReactiveVar();
     this.isSizeDirty = true;
 
     this.isReplyBoxOpen = function() {
-        return instance.replyTarget.get() !== undefined || instance.editTarget.get() !== undefined;
+        return instance.targetPost.get() !== undefined;
     };
 
     this.removePost = function(post) {
@@ -151,9 +151,9 @@ Template.mainView.onCreated(function() {
 
         instance.autorun(
             function() {
-                let post = Posts.findOne(Iron.controller().state.get('postID'), {fields: {'defaultPosition':1}});
+                let post = instance.layout.localPostPositions.findOne(Iron.controller().state.get('postID'));
                 if (post) {
-                    instance.camera.goToPos(post.defaultPosition);
+                    instance.camera.goToPos(post.position);
                 }
                 return;
             }
@@ -192,8 +192,8 @@ Template.mainView.helpers({
     showFullPosts: function() {
         return Template.instance().detailedPosts.showFullPosts.get();
     },
-    replyTarget: function() {
-        return (Template.instance().replyTarget.get() || Template.instance().editTarget.get());
+    targetPost: function() {
+        return Template.instance().targetPost.get();
     },
     reportTarget: function() {
         return Template.instance().reportTarget.get();
