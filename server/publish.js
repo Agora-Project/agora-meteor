@@ -14,16 +14,16 @@ Meteor.publish('post', function(postID, posterID) {
 
 //Returns an abstract shell of all posts, each only containing its id, links, and subtree width.
 Meteor.publish('localAbstractPosts', function() {
-    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1, recentActivity: 1}, limit: 1000});
+    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1, recentActivity: 1}});
 });
 
 //Returns an abstract shell of all posts with a given tag, each only containing its id, links, and subtree width.
 Meteor.publish('abstractPostsByTag', function(tag) {
-    return Posts.find({tags: tag}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1}, limit: 1000});
+    return Posts.find({tags: tag}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1}});
 });
 
 Meteor.publish('abstractPostsByUser', function(userID) {
-    return Posts.find({poster: userID}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1}, limit: 1000});
+    return Posts.find({poster: userID}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1}});
 });
 
 //Universal subscription for roles.

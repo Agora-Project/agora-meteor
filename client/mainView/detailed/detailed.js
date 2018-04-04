@@ -249,8 +249,8 @@ MainViewDetailedPosts = function(camera, partitioner) {
                             let outerHeight2 = div2.outerHeight(true)/2;
 
                             //Checks for collisions, with a buffer space.
-                            if ((pos.x + outerWidth1 + 50) > pos2.x - outerWidth2 &&
-                                pos.x - outerWidth1 < (pos2.x + outerWidth2 + 50) &&
+                            if ((pos.x + outerWidth1 + 20) > pos2.x - outerWidth2 &&
+                                pos.x - outerWidth1 < (pos2.x + outerWidth2 + 20) &&
                                 pos.y + outerHeight1 + 5 > pos2.y - outerHeight2 &&
                                 pos.y - outerHeight1 < pos2.y + outerHeight2 + 5) {
 
