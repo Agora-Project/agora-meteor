@@ -129,6 +129,11 @@ MainViewDetailedPosts = function(camera, partitioner) {
     };
 
     this.addPost = function(post) {
+
+        if (visiblePosts.findOne({_id: post._id})) {
+            return;
+        }
+
         post.replyCount = post.replies.length;
         visiblePosts.insert(post);
         postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
