@@ -41,7 +41,7 @@ Meteor.users.before.insert(function(userId, user) {
     user.seenPosts = [];
 });
 
-Meteor.setInterval(function() {
+Meteor.setInterval(function() { //Remove posts that are older than 30 days fro  a users list of seen posts. Those posts are automatically seen.
 
     Meteor.users.find({}).fetch().forEach(function(user) {
         if (user.seenPosts) {
