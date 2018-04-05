@@ -151,6 +151,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
     this.updatePost = function(id, fields) {
         let post = visiblePosts.findOne({_id: id});
+        if (!post) return;
         if (fields.position) {
             delete postPositionHashMap["" + post.position.x + ", " + post.position.y];
         }
@@ -162,6 +163,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         if (fields.position) {
             postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
         }
+        this.update();
     };
 
     this.update = function() {
