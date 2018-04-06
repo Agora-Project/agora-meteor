@@ -67,10 +67,10 @@ Template.mainView.onCreated(function() {
     };
 
     this.removePost = function(post) {
-        //First, add a post to the layout.
+        //First, remove a post from the layout.
         let results = instance.layout.removePost(post);
 
-        //Then add it everywhere else.
+        //Then remove it from everywhere else.
         for (let module of modules) {
             for (let updatedPost of results.changedPosts) {
                 module.updatePost(updatedPost._id, updatedPost);

@@ -156,7 +156,10 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
     this.updatePost = function(id, fields) {
         let post = visiblePosts.findOne({_id: id});
+
+        //If post is not actually visible we don't need to do anything.
         if (!post) return;
+
         if (fields.position) {
             delete postPositionHashMap["" + post.position.x + ", " + post.position.y];
         }
@@ -168,7 +171,6 @@ MainViewDetailedPosts = function(camera, partitioner) {
         if (fields.position) {
             postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
         }
-        this.update();
     };
 
     this.update = function() {
@@ -225,6 +227,8 @@ MainViewDetailedPosts = function(camera, partitioner) {
             visiblePostsByPriority.forEach(function(post, i) {
 
                 post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
+
+                if (!post) return;
 
                 let div = $('#main-basic-post-' + post._id);
 
