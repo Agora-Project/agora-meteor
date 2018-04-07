@@ -299,8 +299,15 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
                 if (div.width() - (POST_WIDTH*camera.getScale()) > POST_PRECISION || div.width() - (POST_WIDTH*camera.getScale()) < -POST_PRECISION)
                     div.width(POST_WIDTH*camera.getScale());
-                if (div.height() - (POST_HEIGHT*camera.getScale()) > POST_PRECISION || div.height() - (POST_HEIGHT*camera.getScale()) < -POST_PRECISION)
-                div.css('max-height', POST_HEIGHT*camera.getScale());
+
+                let divMaxHeight = div.css('max-height');
+                if (divMaxHeight && divMaxHeight !== "none") {
+
+                    divMaxHeight = parseInt(divMaxHeight.replace('px',''));
+
+                    if (divMaxHeight - (POST_HEIGHT*camera.getScale()) > POST_PRECISION || divMaxHeight - (POST_HEIGHT*camera.getScale()) < -POST_PRECISION)
+                        div.css('max-height', POST_HEIGHT*camera.getScale());
+                } else div.css('max-height', POST_HEIGHT*camera.getScale());
 
                 let offset = div.offset();
 
