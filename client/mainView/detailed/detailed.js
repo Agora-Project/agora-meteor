@@ -297,8 +297,10 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
                 let pos = camera.toScreen(post.position);
 
-                if (div.width() - (POST_WIDTH*camera.getScale()) > POST_PRECISION) div.width(POST_WIDTH*camera.getScale());
-                if (div.height() - (POST_HEIGHT*camera.getScale()) > POST_PRECISION) div.css('max-height', POST_HEIGHT*camera.getScale());
+                if (div.width() - (POST_WIDTH*camera.getScale()) > POST_PRECISION || div.width() - (POST_WIDTH*camera.getScale()) < -POST_PRECISION)
+                    div.width(POST_WIDTH*camera.getScale());
+                if (div.height() - (POST_HEIGHT*camera.getScale()) > POST_PRECISION || div.height() - (POST_HEIGHT*camera.getScale()) < -POST_PRECISION)
+                div.css('max-height', POST_HEIGHT*camera.getScale());
 
                 let offset = div.offset();
 
