@@ -129,7 +129,11 @@ MainViewDetailedPosts = function(camera, partitioner) {
     this.init = function(postArray) {
     };
 
-    this.addPost = function(post) {
+    this.addPost = function() {
+
+    };
+
+    this.addVisiblePost = function(post) {
 
         if (visiblePosts.findOne({_id: post._id})) {
             return;
@@ -209,7 +213,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         for (let post of visible) {
             if (!visiblePosts.findOne({_id: post._id}) && !hidePost(post)) {
                 if (!post.replies || post.replies == undefined) post.replies = [];
-                self.addPost(post);
+                self.addVisiblePost(post);
             }
         }
 
