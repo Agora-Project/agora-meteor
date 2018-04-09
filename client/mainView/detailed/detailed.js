@@ -4,8 +4,8 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
-let POST_WIDTH = 0.75;
-let POST_HEIGHT = 0.875;
+let POST_WIDTH = 0.90;
+let POST_HEIGHT = 0.90;
 let POST_PRECISION = 3;
 
 Template.mainDetailedPost.getParents();
@@ -285,9 +285,9 @@ MainViewDetailedPosts = function(camera, partitioner) {
                 }
 
                 if (post.hidden)
-                    div.css('visibility','hidden');
+                    div.css('visibility', 'hidden');
                 else
-                    div.css('visibility','visible');
+                    div.css('visibility', 'visible');
 
             });
 
@@ -303,7 +303,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
                 let divMaxHeight = div.css('max-height');
                 if (divMaxHeight && divMaxHeight !== "none") {
 
-                    divMaxHeight = parseInt(divMaxHeight.replace('px',''));
+                    divMaxHeight = parseInt(divMaxHeight);
 
                     if (divMaxHeight - (POST_HEIGHT*camera.getScale()) > POST_PRECISION || divMaxHeight - (POST_HEIGHT*camera.getScale()) < -POST_PRECISION)
                         div.css('max-height', POST_HEIGHT*camera.getScale());
