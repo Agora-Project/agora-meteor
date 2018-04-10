@@ -45,7 +45,7 @@ Template.mainView.onCreated(function() {
     //Declare modules
     this.layout = new MainViewLayout();
     this.camera = new MainViewCamera();
-    this.partitioner = new MainViewPartitioner(this.camera, this.layout);
+    this.partitioner = new MainViewPartitioner(this.camera);
     this.renderer = new MainViewRenderer(this.camera, this.layout);
     this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner);
     let modules = [this.camera, this.partitioner, this.renderer, this.detailedPosts];
@@ -77,6 +77,7 @@ Template.mainView.onCreated(function() {
             }
             module.removePost(results.post);
         }
+        instance.partitioner.init(instance.layout.localPostPositions.find({}).fetch());
     }
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
@@ -101,6 +102,7 @@ Template.mainView.onCreated(function() {
                         }
                         module.addPost(results.post);
                     }
+                    instance.partitioner.init(instance.layout.localPostPositions.find({}).fetch());
                 }
             },
             removed: function(post) {
