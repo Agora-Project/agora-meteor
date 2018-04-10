@@ -42,13 +42,14 @@ Template.mainReply.onRendered(function() {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);
+                instance.submitted = false
             }
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.parent.targetPost.set();
-                instance.submitted = true;
             }
         });
+        instance.submitted = true;
     };
 
     let submitEdit = function(event) {
@@ -63,13 +64,14 @@ Template.mainReply.onRendered(function() {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);
+                instance.submitted = false;
             }
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.parent.targetPost.set();
-                instance.submitted = true;
             }
         });
+        instance.submitted = true;
     };
 
     let cancelReply = function(event) {

@@ -45,7 +45,7 @@ Template.mainView.onCreated(function() {
     //Declare modules
     this.layout = new MainViewLayout();
     this.camera = new MainViewCamera();
-    this.partitioner = new MainViewPartitioner(this.camera, this.layout);
+    this.partitioner = new MainViewPartitioner(this.camera);
     this.renderer = new MainViewRenderer(this.camera, this.layout);
     this.detailedPosts = new MainViewDetailedPosts(this.camera, this.partitioner);
     let modules = [this.camera, this.partitioner, this.renderer, this.detailedPosts];
@@ -67,13 +67,17 @@ Template.mainView.onCreated(function() {
     };
 
     this.removePost = function(post) {
+        //First, remove a post from the layout.
         let results = instance.layout.removePost(post);
+
+        //Then remove it from everywhere else.
         for (let module of modules) {
             for (let updatedPost of results.changedPosts) {
                 module.updatePost(updatedPost._id, updatedPost);
             }
             module.removePost(results.post);
         }
+        instance.partitioner.init(instance.layout.localPostPositions.find({}).fetch());
     }
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
@@ -98,6 +102,7 @@ Template.mainView.onCreated(function() {
                         }
                         module.addPost(results.post);
                     }
+                    instance.partitioner.init(instance.layout.localPostPositions.find({}).fetch());
                 }
             },
             removed: function(post) {
@@ -116,8 +121,7 @@ Template.mainView.onCreated(function() {
             }
         });
 
-
-
+        //Change whether or not a post has been seen.
         instance.userObserver = Meteor.users.find({_id: Meteor.userId()}).observeChanges({
             changed: function(id, fields) {
                 if (!fields.seenPosts) return;

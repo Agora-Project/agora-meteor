@@ -4,8 +4,9 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
-let POST_WIDTH = 0.75;
-let POST_HEIGHT = 0.875;
+let POST_WIDTH = 0.90;
+let POST_HEIGHT = 0.90;
+let POST_PRECISION = 3;
 
 Template.mainDetailedPost.getParents();
 
@@ -128,7 +129,16 @@ MainViewDetailedPosts = function(camera, partitioner) {
     this.init = function(postArray) {
     };
 
-    this.addPost = function(post) {
+    this.addPost = function() {
+
+    };
+
+    this.addVisiblePost = function(post) {
+
+        if (visiblePosts.findOne({_id: post._id})) {
+            return;
+        }
+
         post.replyCount = post.replies.length;
         visiblePosts.insert(post);
         postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
@@ -151,6 +161,10 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
     this.updatePost = function(id, fields) {
         let post = visiblePosts.findOne({_id: id});
+
+        //If post is not actually visible we don't need to do anything.
+        if (!post) return;
+
         if (fields.position) {
             delete postPositionHashMap["" + post.position.x + ", " + post.position.y];
         }
@@ -184,12 +198,12 @@ MainViewDetailedPosts = function(camera, partitioner) {
             }
         }
 
-        let hidePost = function(post) {
-            return (1 + post.replies.length) * camera.getScale() / 100 <= 1;
+        let postVisible = function(post) {
+            return (1 + post.replies.length) * camera.getScale() / 100 > 1;
         }
 
         visiblePostsCursor.forEach(function(post) {
-            if (!camera.isPointVisible(post.position) || hidePost(post)) {
+            if (!camera.isPointVisible(post.position) || !postVisible(post)) {
                 self.removePost(post);
             }
         });
@@ -197,9 +211,9 @@ MainViewDetailedPosts = function(camera, partitioner) {
         //Add posts which are newly visible.
         let visible = partitioner.getVisible();
         for (let post of visible) {
-            if (!visiblePosts.findOne({_id: post._id}) && !hidePost(post)) {
+            if (!visiblePosts.findOne({_id: post._id}) && postVisible(post)) {
                 if (!post.replies || post.replies == undefined) post.replies = [];
-                self.addPost(post);
+                self.addVisiblePost(post);
             }
         }
 
@@ -219,12 +233,26 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
                 post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
 
+                if (!post) return;
+
                 let div = $('#main-basic-post-' + post._id);
 
                 let pos = camera.toScreen(post.position);
 
-                div.css('left', pos.x - div.outerWidth()/2);
-                div.css('top', pos.y - div.outerHeight()/2);
+
+                let offset = div.offset();
+
+                if (offset) {
+
+                    let diffLeft = offset.left - (pos.x - div.outerWidth()/2);
+                    let diffTop = offset.top - (pos.y - div.outerHeight()/2);
+
+                    if (diffLeft > POST_PRECISION || diffLeft < -POST_PRECISION ) div.css('left', pos.x - div.outerWidth()/2);
+                    if (diffTop > POST_PRECISION || diffTop < -POST_PRECISION ) div.css('top', pos.y - div.outerHeight()/2);
+                } else {
+                    div.css('left', pos.x - div.outerWidth()/2);
+                    div.css('top', pos.y - div.outerHeight()/2);
+                }
 
                 if (!post.hidden) {
                     //This is for deciding how many adjacent posts to look for and check collisions against. Magic numbers are for max width and height of a preview.
@@ -261,9 +289,9 @@ MainViewDetailedPosts = function(camera, partitioner) {
                 }
 
                 if (post.hidden)
-                    div.css('visibility','hidden');
+                    div.css('visibility', 'hidden');
                 else
-                    div.css('visibility','visible');
+                    div.css('visibility', 'visible');
 
             });
 
@@ -273,10 +301,31 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
                 let pos = camera.toScreen(post.position);
 
-                div.width(POST_WIDTH*camera.getScale());
-                div.css('max-height', POST_HEIGHT*camera.getScale());
-                div.css('left', pos.x - div.outerWidth()/2);
-                div.css('top', pos.y - div.outerHeight()/2);
+                if (div.width() - (POST_WIDTH*camera.getScale()) > POST_PRECISION || div.width() - (POST_WIDTH*camera.getScale()) < -POST_PRECISION)
+                    div.width(POST_WIDTH*camera.getScale());
+
+                let divMaxHeight = div.css('max-height');
+                if (divMaxHeight && divMaxHeight !== "none") {
+
+                    divMaxHeight = parseInt(divMaxHeight);
+
+                    if (divMaxHeight - (POST_HEIGHT*camera.getScale()) > POST_PRECISION || divMaxHeight - (POST_HEIGHT*camera.getScale()) < -POST_PRECISION)
+                        div.css('max-height', POST_HEIGHT*camera.getScale());
+                } else div.css('max-height', POST_HEIGHT*camera.getScale());
+
+                let offset = div.offset();
+
+                if (offset) {
+
+                    let diffLeft = offset.left - (pos.x - div.outerWidth()/2);
+                    let diffTop = offset.top - (pos.y - div.outerHeight()/2);
+
+                    if (diffLeft > POST_PRECISION || diffLeft < -POST_PRECISION ) div.css('left', pos.x - div.outerWidth()/2);
+                    if (diffTop > POST_PRECISION || diffTop < -POST_PRECISION ) div.css('top', pos.y - div.outerHeight()/2);
+                } else {
+                    div.css('left', pos.x - div.outerWidth()/2);
+                    div.css('top', pos.y - div.outerHeight()/2);
+                }
             });
         }
     };
