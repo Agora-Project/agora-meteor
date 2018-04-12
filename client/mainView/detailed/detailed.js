@@ -332,6 +332,17 @@ MainViewDetailedPosts = function(camera, partitioner) {
     };
 };
 
+Template.mainDetailedPostLoadButton.getParents();
+
+Template.mainDetailedPostLoadButton.events({
+    'click': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        for (replyID of instance.parent.data.replies) {
+            instance.parent.parent.addPost(Posts.findOne({_id: replyID}));
+        }
+    }
+});
+
 Template.mainDetailedPostReplyButton.getParents();
 
 Template.mainDetailedPostReplyButton.events({

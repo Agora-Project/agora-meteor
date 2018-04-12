@@ -80,6 +80,17 @@ Template.mainView.onCreated(function() {
         instance.partitioner.init(instance.layout.getPosts());
     }
 
+    this.addPost = function(post) {
+        let results = instance.layout.addPost(post);
+        for (let module of modules) {
+            for (let updatedPost of results.changedPosts) {
+                module.updatePost(updatedPost._id, updatedPost);
+            }
+            module.addPost(results.post);
+        }
+        instance.partitioner.init(instance.layout.getPosts());
+    }
+
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup.
         let postCursor = Posts.find({});
@@ -95,14 +106,7 @@ Template.mainView.onCreated(function() {
         instance.postObserver = postCursor.observe({
             added: function(post) {
                 if (isLive) {
-                    let results = instance.layout.addPost(post);
-                    for (let module of modules) {
-                        for (let updatedPost of results.changedPosts) {
-                            module.updatePost(updatedPost._id, updatedPost);
-                        }
-                        module.addPost(results.post);
-                    }
-                    instance.partitioner.init(instance.layout.getPosts());
+                    instance.addPost(post);
                 }
             },
             removed: function(post) {
@@ -155,7 +159,7 @@ Template.mainView.onCreated(function() {
 
         instance.autorun(
             function() {
-                let post = instance.layout.localPostPositions.findOne(Iron.controller().state.get('postID'));
+                let post = instance.layout.getPost(Iron.controller().state.get('postID'));
                 if (post) {
                     instance.camera.goToPos(post.position);
                 }

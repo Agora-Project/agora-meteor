@@ -32,4 +32,8 @@ MainViewLayout = function() {
         return localPostPositions.find({}).fetch();
     }
 
+    this.getPost = function(id) {
+        return localPostPositions.findOne({_id: id});
+    }
+
 }
