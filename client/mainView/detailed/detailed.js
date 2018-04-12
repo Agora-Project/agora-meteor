@@ -307,7 +307,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
                 let divMaxHeight = div.css('max-height');
                 if (divMaxHeight && divMaxHeight !== "none") {
 
-                    divMaxHeight = parseInt(divMaxHeight);
+                    divMaxHeight = parseFloat(divMaxHeight);
 
                     if (divMaxHeight - (POST_HEIGHT*camera.getScale()) > POST_PRECISION || divMaxHeight - (POST_HEIGHT*camera.getScale()) < -POST_PRECISION)
                         div.css('max-height', POST_HEIGHT*camera.getScale());
