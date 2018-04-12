@@ -54,7 +54,9 @@
                             {{> mainDetailedPostReplyButton}}
                         {{/if}}
                     {{/if}}
-                    {{> mainDetailedPostLoadButton}}
+                    {{#if hasLoadButton}}
+                        {{> mainDetailedPostLoadButton}}  
+                    {{/if}}
                 {{/if}}
             </div>
         </div>

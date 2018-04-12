@@ -84,6 +84,12 @@ Template.mainDetailedPost.helpers({
     hasReportButton: function() {
         return Template.instance().parent.reportTarget.get() === undefined;
     },
+    hasLoadButton: function() {
+        for (replyID of this.replies) {
+            if (!Template.instance().parent.layout.getPost(replyID)) return true;
+        }
+        return false;
+    },
     seen: function() {
         return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
     }
