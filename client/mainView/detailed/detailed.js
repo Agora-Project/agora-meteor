@@ -126,12 +126,9 @@ MainViewDetailedPosts = function(camera, partitioner) {
     let postPositionHashMap = {};
     this.showFullPosts = new ReactiveVar(false);
 
-    this.init = function(postArray) {
-    };
+    this.init = function(postArray) {};
 
-    this.addPost = function() {
-
-    };
+    this.addPost = function() {};
 
     this.addVisiblePost = function(post) {
 
