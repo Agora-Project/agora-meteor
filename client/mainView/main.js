@@ -77,7 +77,7 @@ Template.mainView.onCreated(function() {
             }
             module.removePost(results.post);
         }
-        instance.partitioner.init(instance.layout.localPostPositions.find({}).fetch());
+        instance.partitioner.init(instance.layout.getPosts());
     }
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
@@ -102,7 +102,7 @@ Template.mainView.onCreated(function() {
                         }
                         module.addPost(results.post);
                     }
-                    instance.partitioner.init(instance.layout.localPostPositions.find({}).fetch());
+                    instance.partitioner.init(instance.layout.getPosts());
                 }
             },
             removed: function(post) {
