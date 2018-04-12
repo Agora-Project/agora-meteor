@@ -67,27 +67,46 @@ Template.mainView.onCreated(function() {
     };
 
     this.removePost = function(post) {
+
         //First, remove a post from the layout.
         let results = instance.layout.removePost(post);
 
-        //Then remove it from everywhere else.
+        //Then, for each of the other modules:
         for (let module of modules) {
+
+            //Adjust all the posts displaced by this.
             for (let updatedPost of results.changedPosts) {
                 module.updatePost(updatedPost._id, updatedPost);
             }
+
+            //and remove the post.
             module.removePost(results.post);
         }
+
+        //Finally, re-do the partitioner.
         instance.partitioner.init(instance.layout.getPosts());
     }
 
     this.addPost = function(post) {
+
+        //First, check to make sure the post is not already present
+        if (instance.layout.getPost(post._id)) return;
+
+        //Then add it to the layout.
         let results = instance.layout.addPost(post);
+
+        //Then, for each of the other modules:
         for (let module of modules) {
+
+            //Adjust all the posts displaced by this.
             for (let updatedPost of results.changedPosts) {
                 module.updatePost(updatedPost._id, updatedPost);
             }
+            //and add the new post.
             module.addPost(results.post);
         }
+
+        //Finally, re-do the partitioner.
         instance.partitioner.init(instance.layout.getPosts());
     }
 
