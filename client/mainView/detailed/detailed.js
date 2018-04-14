@@ -88,6 +88,7 @@ Template.mainDetailedPost.helpers({
         for (replyID of this.replies) {
             if (!Template.instance().parent.layout.getPost(replyID)) return true;
         }
+        if (!Template.instance().parent.layout.getPost(this.target)) return true;
         return false;
     },
     seen: function() {
@@ -336,6 +337,8 @@ Template.mainDetailedPostLoadButton.events({
         for (replyID of instance.parent.data.replies) {
             instance.parent.parent.addPost(Posts.findOne({_id: replyID}));
         }
+
+        instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.target}));
     }
 });
 
