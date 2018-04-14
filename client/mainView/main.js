@@ -89,6 +89,8 @@ Template.mainView.onCreated(function() {
 
     this.addPost = function(post) {
 
+        if (!post) return;
+
         //First, check to make sure the post is not already present
         if (instance.layout.getPost(post._id)) return;
 
