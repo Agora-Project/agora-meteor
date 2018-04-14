@@ -96,16 +96,6 @@ Template.mainDetailedPost.helpers({
 });
 
 Template.mainDetailedPost.events({
-    'click .resend-verification-link': function( event, template ) {
-        Meteor.call( 'sendVerificationLink', ( error, response ) => {
-        if ( error ) {
-            window.alert( error.reason, 'danger' );
-        } else {
-            let email = Meteor.user().emails[ 0 ].address;
-            window.alert( `Verification sent to ${ email }!`, 'success' );
-        }
-        });
-    },
     'click .main-detailed-post-close-button': function() {
         Template.instance().parent.removePost(this);
     },
