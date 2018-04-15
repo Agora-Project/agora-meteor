@@ -84,22 +84,19 @@ Template.mainDetailedPost.helpers({
     hasReportButton: function() {
         return Template.instance().parent.reportTarget.get() === undefined;
     },
+    hasLoadButton: function() {
+        for (replyID of this.replies) {
+            if (!Template.instance().parent.layout.getPost(replyID)) return true;
+        }
+        if (!Template.instance().parent.layout.getPost(this.target)) return true;
+        return false;
+    },
     seen: function() {
         return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
     }
 });
 
 Template.mainDetailedPost.events({
-    'click .resend-verification-link': function( event, template ) {
-        Meteor.call( 'sendVerificationLink', ( error, response ) => {
-        if ( error ) {
-            window.alert( error.reason, 'danger' );
-        } else {
-            let email = Meteor.user().emails[ 0 ].address;
-            window.alert( `Verification sent to ${ email }!`, 'success' );
-        }
-        });
-    },
     'click .main-detailed-post-close-button': function() {
         Template.instance().parent.removePost(this);
     },
@@ -126,12 +123,9 @@ MainViewDetailedPosts = function(camera, partitioner) {
     let postPositionHashMap = {};
     this.showFullPosts = new ReactiveVar(false);
 
-    this.init = function(postArray) {
-    };
+    this.init = function(postArray) {};
 
-    this.addPost = function() {
-
-    };
+    this.addPost = function() {};
 
     this.addVisiblePost = function(post) {
 
@@ -334,6 +328,19 @@ MainViewDetailedPosts = function(camera, partitioner) {
         return visiblePostsCursor;
     };
 };
+
+Template.mainDetailedPostLoadButton.getParents();
+
+Template.mainDetailedPostLoadButton.events({
+    'click': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        for (replyID of instance.parent.data.replies) {
+            instance.parent.parent.addPost(Posts.findOne({_id: replyID}));
+        }
+
+        instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.target}));
+    }
+});
 
 Template.mainDetailedPostReplyButton.getParents();
 

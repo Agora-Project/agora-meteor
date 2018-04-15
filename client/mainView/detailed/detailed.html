@@ -53,14 +53,19 @@
                             {{/if}}
                             {{> mainDetailedPostReplyButton}}
                         {{/if}}
-                    {{else}}
-                        <p class="alert alert-warning">Please verify your account before using Agora! <a href="#" class="resend-verification-link">Resend verification link</a>.</p>
+                    {{/if}}
+                    {{#if hasLoadButton}}
+                        {{> mainDetailedPostLoadButton}}  
                     {{/if}}
                 {{/if}}
             </div>
         </div>
         <i class="main-detailed-post-spinner fa fa-refresh" aria-hidden="true"></i>
     </div>
+</template>
+
+<template name="mainDetailedPostLoadButton">
+    <button>Load</button>
 </template>
 
 <template name="mainDetailedPostReplyButton">

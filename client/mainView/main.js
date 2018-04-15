@@ -67,16 +67,48 @@ Template.mainView.onCreated(function() {
     };
 
     this.removePost = function(post) {
+
         //First, remove a post from the layout.
         let results = instance.layout.removePost(post);
 
-        //Then remove it from everywhere else.
+        //Then, for each of the other modules:
         for (let module of modules) {
+
+            //Adjust all the posts displaced by this.
             for (let updatedPost of results.changedPosts) {
                 module.updatePost(updatedPost._id, updatedPost);
             }
+
+            //and remove the post.
             module.removePost(results.post);
         }
+
+        //Finally, re-do the partitioner.
+        instance.partitioner.init(instance.layout.getPosts());
+    }
+
+    this.addPost = function(post) {
+
+        if (!post) return;
+
+        //First, check to make sure the post is not already present
+        if (instance.layout.getPost(post._id)) return;
+
+        //Then add it to the layout.
+        let results = instance.layout.addPost(post);
+
+        //Then, for each of the other modules:
+        for (let module of modules) {
+
+            //Adjust all the posts displaced by this.
+            for (let updatedPost of results.changedPosts) {
+                module.updatePost(updatedPost._id, updatedPost);
+            }
+            //and add the new post.
+            module.addPost(results.post);
+        }
+
+        //Finally, re-do the partitioner.
         instance.partitioner.init(instance.layout.getPosts());
     }
 
@@ -95,14 +127,7 @@ Template.mainView.onCreated(function() {
         instance.postObserver = postCursor.observe({
             added: function(post) {
                 if (isLive) {
-                    let results = instance.layout.addPost(post);
-                    for (let module of modules) {
-                        for (let updatedPost of results.changedPosts) {
-                            module.updatePost(updatedPost._id, updatedPost);
-                        }
-                        module.addPost(results.post);
-                    }
-                    instance.partitioner.init(instance.layout.getPosts());
+                    instance.addPost(post);
                 }
             },
             removed: function(post) {
@@ -155,7 +180,7 @@ Template.mainView.onCreated(function() {
 
         instance.autorun(
             function() {
-                let post = instance.layout.localPostPositions.findOne(Iron.controller().state.get('postID'));
+                let post = instance.layout.getPost(Iron.controller().state.get('postID'));
                 if (post) {
                     instance.camera.goToPos(post.position);
                 }
