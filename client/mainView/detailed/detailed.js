@@ -227,12 +227,14 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
                 post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
 
-                if (!post) return;
+                if (!post) {
+                    console.log("Not able to find post by position.");
+                    return;
+                }
 
                 let div = $('#main-basic-post-' + post._id);
 
                 let pos = camera.toScreen(post.position);
-
 
                 let offset = div.offset();
 
@@ -243,9 +245,6 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
                     if (diffLeft > POST_PRECISION || diffLeft < -POST_PRECISION ) div.css('left', pos.x - div.outerWidth()/2);
                     if (diffTop > POST_PRECISION || diffTop < -POST_PRECISION ) div.css('top', pos.y - div.outerHeight()/2);
-                } else {
-                    div.css('left', pos.x - div.outerWidth()/2);
-                    div.css('top', pos.y - div.outerHeight()/2);
                 }
 
                 if (!post.hidden) {
@@ -280,12 +279,9 @@ MainViewDetailedPosts = function(camera, partitioner) {
                             }
                         }
                     }
-                }
 
-                if (post.hidden)
-                    div.css('visibility', 'hidden');
-                else
                     div.css('visibility', 'visible');
+                } else div.css('visibility', 'hidden');
 
             });
 
