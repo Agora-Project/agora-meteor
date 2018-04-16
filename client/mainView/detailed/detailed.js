@@ -88,7 +88,7 @@ Template.mainDetailedPost.helpers({
         for (replyID of this.replies) {
             if (!Template.instance().parent.layout.getPost(replyID)) return true;
         }
-        if (!Template.instance().parent.layout.getPost(this.target)) return true;
+        if (this.target && !Template.instance().parent.layout.getPost(this.target)) return true;
         return false;
     },
     seen: function() {
