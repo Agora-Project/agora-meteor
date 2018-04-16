@@ -238,11 +238,17 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
                 let offset = div.offset();
 
-                let diffLeft = offset.left - (pos.x - div.outerWidth()/2);
-                let diffTop = offset.top - (pos.y - div.outerHeight()/2);
+                if (offset) {
 
-                if (diffLeft > POST_PRECISION || diffLeft < -POST_PRECISION ) div.css('left', pos.x - div.outerWidth()/2);
-                if (diffTop > POST_PRECISION || diffTop < -POST_PRECISION ) div.css('top', pos.y - div.outerHeight()/2);
+                    let diffLeft = offset.left - (pos.x - div.outerWidth()/2);
+                    let diffTop = offset.top - (pos.y - div.outerHeight()/2);
+
+                    if (diffLeft > POST_PRECISION || diffLeft < -POST_PRECISION ) div.css('left', pos.x - div.outerWidth()/2);
+                    if (diffTop > POST_PRECISION || diffTop < -POST_PRECISION ) div.css('top', pos.y - div.outerHeight()/2);
+                } else {
+                    div.css('left', pos.x - div.outerWidth()/2);
+                    div.css('top', pos.y - div.outerHeight()/2);
+                }
 
                 if (!post.hidden) {
                     //This is for deciding how many adjacent posts to look for and check collisions against. Magic numbers are for max width and height of a preview.
