@@ -63,7 +63,7 @@ Template.mainDetailedPost.helpers({
         return (user.emails && user.emails.length > 0 && user.emails[0].verified);
     },
     content: function() {
-        let rawContent = Template.currentData().content;
+        let rawContent = this.content;
         if (rawContent) {
             return XBBCODE.process({
                 text: rawContent,
