@@ -15,8 +15,6 @@ Template.mainDetailedPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
-    let user = Meteor.users.findOne({_id: Meteor.userId()});
-
     if (postIsSeen(instance.data))
         instance.seen = true;
 
@@ -388,8 +386,6 @@ Template.mainBasicPost.onCreated(function() {
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
 
-    let user = Meteor.users.findOne({_id: Meteor.userId()});
-
     if (postIsSeen(instance.data))
         instance.seen = true;
 
@@ -422,9 +418,9 @@ Template.mainBasicPost.helpers({
         return Meteor.users.findOne({_id: post.poster});
     },
     preview: function() {
-        if (Template.currentData().title) return Template.currentData().title.slice(0, 20);
+        if (this.title) return this.title.slice(0, 20);
         else {
-            let rawContent = Template.currentData().content;
+            let rawContent = this.content;
             let bbcontent, finalContent = "";
             if (rawContent) {
                 bbcontent = XBBCODE.process({
@@ -445,8 +441,8 @@ Template.mainBasicPost.helpers({
                     }
 
                     if (characters > 0 && insideTags < 1) {
-                        if (bbcontent[0] != '\n') finalContent = finalContent + bbcontent[0];
-                        else finalContent = finalContent + ' ';
+                        if (bbcontent[0] != '\n') finalContent += bbcontent[0];
+                        else finalContent += ' ';
                     }
 
                     if (insideTags <= 0) characters--;
