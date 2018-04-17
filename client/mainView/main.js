@@ -56,7 +56,7 @@ Template.mainView.onCreated(function() {
     this.onRendered = new Notifier();
     let onSubReady = new Notifier();
 
-    this.subscribe('localAbstractPosts', {onReady: onSubReady.fulfill});
+    this.subscribe(this.data.subscription, {onReady: onSubReady.fulfill});
     this.targetPost = new ReactiveVar();
     this.targetMode = new ReactiveVar();
     this.reportTarget = new ReactiveVar();
