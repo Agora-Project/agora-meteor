@@ -7,30 +7,28 @@
 //Returns all information about a single post and its poster's basic information.
 Meteor.publish('post', function(postID, posterID) {
     return [
-        Posts.find({_id: postID}),
+        Posts.find( {$or: [ {_id: postID}, {target: postID}, {replies: postID} ] }),
         Meteor.users.find({_id: posterID}, {fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, email_hash: 1}})
     ];
 });
 
-Meteor.publish('abstractPost', function(postID, posterID) {
-    return [
-        Posts.find( {$or: [ {_id: postID}, {target: postID}, {replies: postID} ] }, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1, recentActivity: 1} } ),
-        Meteor.users.find({_id: posterID}, {fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, email_hash: 1}})
-    ];
+Meteor.publish('abstractPost', function(postID) {
+    return Posts.find( {$or: [ {_id: postID}, {target: postID}, {replies: postID} ] },
+        {fields: {poster: 1, target: 1, replies: 1, postedOn: 1, recentActivity: 1} } );
 });
 
 //Returns an abstract shell of all posts, each only containing its id, links, and subtree width.
 Meteor.publish('localAbstractPosts', function() {
-    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1, recentActivity: 1}});
+    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1, postedOn: 1, recentActivity: 1}, sort: {PostedOn: 1}, limit: 100});
 });
 
 //Returns an abstract shell of all posts with a given tag, each only containing its id, links, and subtree width.
 Meteor.publish('abstractPostsByTag', function(tag) {
-    return Posts.find({tags: tag}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1}});
+    return Posts.find({tags: tag}, {fields: {poster: 1, target: 1, replies: 1, postedOn: 1}});
 });
 
 Meteor.publish('abstractPostsByUser', function(userID) {
-    return Posts.find({poster: userID}, {fields: {poster: 1, target: 1, replies: 1, defaultPosition: 1, subtreeWidth: 1, postedOn: 1}});
+    return Posts.find({poster: userID}, {fields: {poster: 1, target: 1, replies: 1, postedOn: 1}});
 });
 
 //Universal subscription for roles.
