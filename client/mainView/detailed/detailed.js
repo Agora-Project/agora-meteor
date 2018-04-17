@@ -20,6 +20,8 @@ Template.mainDetailedPost.onCreated(function() {
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
+    this.subscribe('abstractReplies', this.data._id);
+
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
         instance.div.children('.main-detailed-post-spinner').fadeOut(100);
