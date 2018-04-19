@@ -135,7 +135,6 @@ MainViewDetailedPosts = function(camera, partitioner) {
             return;
         }
 
-        post.replyCount = post.replies.length;
         visiblePosts.insert(post);
         postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
     };
@@ -195,7 +194,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         }
 
         let postVisible = function(post) {
-            return (1 + post.replies.length) * camera.getScale() / 100 > 1;
+            return (1 + post.replyCount) * camera.getScale() / 100 > 1;
         }
 
         visiblePostsCursor.forEach(function(post) {
@@ -208,7 +207,6 @@ MainViewDetailedPosts = function(camera, partitioner) {
         let visible = partitioner.getVisible();
         for (let post of visible) {
             if (!visiblePosts.findOne({_id: post._id}) && postVisible(post)) {
-                if (!post.replies || post.replies == undefined) post.replies = [];
                 self.addVisiblePost(post);
             }
         }
