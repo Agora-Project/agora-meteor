@@ -14,9 +14,7 @@ Template.mainDetailedPost.onCreated(function() {
     let instance = this;
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
-
-    if (postIsSeen(instance.data))
-        instance.seen = true;
+    this.seen = new ReactiveVar(true);
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
@@ -33,7 +31,8 @@ Template.mainDetailedPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        if (instance.data.postedOn && instance.data.poster != Meteor.userId() && Date.now() - instance.data.postedOn < (1000*60*60*24*30) && !instance.seen) {
+        if (!postIsSeen(instance.data)) {
+            instance.seen.set(false);
             instance.div.addClass('unseen');
             Meteor.call('addSeenPost', instance.data._id);
         }
@@ -94,7 +93,7 @@ Template.mainDetailedPost.helpers({
         return false;
     },
     seen: function() {
-        return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
+        return Template.instance().seen.get();
     }
 });
 
@@ -387,9 +386,7 @@ Template.mainBasicPost.onCreated(function() {
     let instance = this;
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
-
-    if (postIsSeen(instance.data))
-        instance.seen = true;
+    this.seen = new ReactiveVar(true);
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
@@ -402,8 +399,10 @@ Template.mainBasicPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        if (instance.data.postedOn && instance.data.poster != Meteor.userId() && Date.now() - instance.data.postedOn < (1000*60*60*24*30) && !instance.seen)
+        if (!postIsSeen(instance.data)) {
+            instance.seen.set(false);
             instance.div.addClass('unseen');
+        }
     });
 });
 
@@ -462,6 +461,6 @@ Template.mainBasicPost.helpers({
         }
     },
     seen: function() {
-        return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
+        return Template.instance().seen.get();
     }
 });
