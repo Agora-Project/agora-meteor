@@ -54,7 +54,7 @@ Router.route('/forum', {
     },
     action: function() {
         if (this.ready()) {
-            this.render('mainView');
+            this.render('forum');
         } else this.render('errorPage', {data: {_id: id}});
     }
 });

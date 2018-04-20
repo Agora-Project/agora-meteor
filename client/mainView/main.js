@@ -56,7 +56,7 @@ Template.mainView.onCreated(function() {
     this.onRendered = new Notifier();
     let onSubReady = new Notifier();
 
-    this.subscribe('localAbstractPosts', {onReady: onSubReady.fulfill});
+    this.subscribe(this.data.subscription, {onReady: onSubReady.fulfill});
     this.targetPost = new ReactiveVar();
     this.targetMode = new ReactiveVar();
     this.reportTarget = new ReactiveVar();
@@ -112,6 +112,10 @@ Template.mainView.onCreated(function() {
         instance.partitioner.init(instance.layout.getPosts());
     }
 
+    this.addPostByID = function(id) {
+        this.addPost(Posts.findOne({_id: id}));
+    }
+
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup.
         let postCursor = Posts.find({});
@@ -122,19 +126,12 @@ Template.mainView.onCreated(function() {
             module.init(initPostArray);
         }
 
-        //Callback for added/removed posts.
-        let isLive = false;
+        //Callback for removed posts.
         instance.postObserver = postCursor.observe({
-            added: function(post) {
-                if (isLive) {
-                    instance.addPost(post);
-                }
-            },
             removed: function(post) {
                 instance.removePost(post);
             }
         });
-        isLive = true;
 
         //Callback for changed post positions.
         instance.changeObserver = postCursor.observeChanges({

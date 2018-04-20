@@ -38,7 +38,7 @@ Template.mainReply.onRendered(function() {
             target: target._id
         };
 
-        Meteor.call("insertPost", post, function(error) {
+        Meteor.call("insertPost", post, function(error, result) {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);
@@ -47,6 +47,7 @@ Template.mainReply.onRendered(function() {
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.parent.targetPost.set();
+                instance.parent.addPostByID(result);
             }
         });
         instance.submitted = true;

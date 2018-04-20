@@ -52,7 +52,8 @@ Package.onUse(function(api) {
         'client/lib/notifier.js',
         'client/lib/requestAnimationFrame.js',
         'client/lib/templateParents.js',
-        'client/lib/seenPosts.js'
+        'client/lib/seenPosts.js',
+        'client/subscriptionManager.js'
     ], 'client');
 
     api.addFiles([
@@ -112,7 +113,8 @@ Package.onUse(function(api) {
         'ui',
         'zodiase:mdl@1.0.2',
         'utilities:avatar@0.9.2',
-        'gwendall:body-events@0.1.6'
+        'gwendall:body-events@0.1.6',
+        'meteorhacks:subs-manager'
     ], 'client');
 });
 

@@ -14,13 +14,13 @@ Template.mainDetailedPost.onCreated(function() {
     let instance = this;
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
-
-    let user = Meteor.users.findOne({_id: Meteor.userId()});
-
-    if (postIsSeen(instance.data))
-        instance.seen = true;
+    this.seen = new ReactiveVar(true);
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
+
+    this.subscribe('abstractReplies', this.data._id);
+
+    this.subscribe('abstractPost', this.data.target);
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
@@ -31,7 +31,8 @@ Template.mainDetailedPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        if (instance.data.postedOn && instance.data.poster != Meteor.userId() && Date.now() - instance.data.postedOn < (1000*60*60*24*30) && !instance.seen) {
+        if (!postIsSeen(instance.data)) {
+            instance.seen.set(false);
             instance.div.addClass('unseen');
             Meteor.call('addSeenPost', instance.data._id);
         }
@@ -63,7 +64,7 @@ Template.mainDetailedPost.helpers({
         return (user.emails && user.emails.length > 0 && user.emails[0].verified);
     },
     content: function() {
-        let rawContent = Template.currentData().content;
+        let rawContent = this.content;
         if (rawContent) {
             return XBBCODE.process({
                 text: rawContent,
@@ -88,11 +89,11 @@ Template.mainDetailedPost.helpers({
         for (replyID of this.replies) {
             if (!Template.instance().parent.layout.getPost(replyID)) return true;
         }
-        if (!Template.instance().parent.layout.getPost(this.target)) return true;
+        if (this.target && !Template.instance().parent.layout.getPost(this.target)) return true;
         return false;
     },
     seen: function() {
-        return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
+        return Template.instance().seen.get();
     }
 });
 
@@ -133,7 +134,6 @@ MainViewDetailedPosts = function(camera, partitioner) {
             return;
         }
 
-        post.replyCount = post.replies.length;
         visiblePosts.insert(post);
         postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
     };
@@ -193,7 +193,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
         }
 
         let postVisible = function(post) {
-            return (1 + post.replies.length) * camera.getScale() / 100 > 1;
+            return (1 + post.replyCount) * camera.getScale() / 100 > 1;
         }
 
         visiblePostsCursor.forEach(function(post) {
@@ -206,7 +206,6 @@ MainViewDetailedPosts = function(camera, partitioner) {
         let visible = partitioner.getVisible();
         for (let post of visible) {
             if (!visiblePosts.findOne({_id: post._id}) && postVisible(post)) {
-                if (!post.replies || post.replies == undefined) post.replies = [];
                 self.addVisiblePost(post);
             }
         }
@@ -227,12 +226,14 @@ MainViewDetailedPosts = function(camera, partitioner) {
 
                 post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
 
-                if (!post) return;
+                if (!post) {
+                    console.log("Not able to find post by position.");
+                    return;
+                }
 
                 let div = $('#main-basic-post-' + post._id);
 
                 let pos = camera.toScreen(post.position);
-
 
                 let offset = div.offset();
 
@@ -280,12 +281,9 @@ MainViewDetailedPosts = function(camera, partitioner) {
                             }
                         }
                     }
-                }
 
-                if (post.hidden)
-                    div.css('visibility', 'hidden');
-                else
                     div.css('visibility', 'visible');
+                } else div.css('visibility', 'hidden');
 
             });
 
@@ -335,9 +333,12 @@ Template.mainDetailedPostLoadButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
         for (replyID of instance.parent.data.replies) {
+            subscriptionManager.subscribe('abstractPost', replyID);
             instance.parent.parent.addPost(Posts.findOne({_id: replyID}));
         }
 
+
+            subscriptionManager.subscribe('abstractPost', instance.parent.data.target);
         instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.target}));
     }
 });
@@ -388,11 +389,7 @@ Template.mainBasicPost.onCreated(function() {
     let instance = this;
     let onSubReady = new Notifier();
     this.onRendered = new Notifier();
-
-    let user = Meteor.users.findOne({_id: Meteor.userId()});
-
-    if (postIsSeen(instance.data))
-        instance.seen = true;
+    this.seen = new ReactiveVar(true);
 
     this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
 
@@ -405,8 +402,10 @@ Template.mainBasicPost.onCreated(function() {
             .hide()
             .fadeIn(200);
 
-        if (instance.data.postedOn && instance.data.poster != Meteor.userId() && Date.now() - instance.data.postedOn < (1000*60*60*24*30) && !instance.seen)
+        if (!postIsSeen(instance.data)) {
+            instance.seen.set(false);
             instance.div.addClass('unseen');
+        }
     });
 });
 
@@ -423,9 +422,9 @@ Template.mainBasicPost.helpers({
         return Meteor.users.findOne({_id: post.poster});
     },
     preview: function() {
-        if (Template.currentData().title) return Template.currentData().title.slice(0, 20);
+        if (this.title) return this.title.slice(0, 20);
         else {
-            let rawContent = Template.currentData().content;
+            let rawContent = this.content;
             let bbcontent, finalContent = "";
             if (rawContent) {
                 bbcontent = XBBCODE.process({
@@ -446,8 +445,8 @@ Template.mainBasicPost.helpers({
                     }
 
                     if (characters > 0 && insideTags < 1) {
-                        if (bbcontent[0] != '\n') finalContent = finalContent + bbcontent[0];
-                        else finalContent = finalContent + ' ';
+                        if (bbcontent[0] != '\n') finalContent += bbcontent[0];
+                        else finalContent += ' ';
                     }
 
                     if (insideTags <= 0) characters--;
@@ -465,6 +464,6 @@ Template.mainBasicPost.helpers({
         }
     },
     seen: function() {
-        return (!this.postedOn || this.poster == Meteor.userId() || Date.now() - this.postedOn >= (1000*60*60*24*30) || Template.instance().seen);
+        return Template.instance().seen.get();
     }
 });
