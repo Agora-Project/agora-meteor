@@ -333,9 +333,12 @@ Template.mainDetailedPostLoadButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
         for (replyID of instance.parent.data.replies) {
+            subscriptionManager.subscribe('abstractPost', replyID);
             instance.parent.parent.addPost(Posts.findOne({_id: replyID}));
         }
 
+
+            subscriptionManager.subscribe('abstractPost', instance.parent.data.target);
         instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.target}));
     }
 });
