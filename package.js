@@ -15,8 +15,6 @@ Package.describe({
 Package.onUse(function(api) {
     both = ['client', 'server'];
 
-    api.versionsFrom('1.1.0.3');
-
     api.addFiles([
         'server/initial-data.js',
         'server/methods.js',
@@ -35,14 +33,14 @@ Package.onUse(function(api) {
     ], both);
 
     api.use([
-        'ecmascript@0.6.0',
-        'iron:router@1.0.0',
-	    'matb33:collection-hooks@0.7.13',
-        'aldeed:simple-schema@1.5.3',
-        'aldeed:collection2@2.3.3',
-        'matb33:collection-hooks@0.7.13',
+        'underscore',
+        'ecmascript',
+        'iron:router',
+	    'matb33:collection-hooks',
+        'aldeed:simple-schema',
+        'aldeed:collection2',
         'accounts-base',
-        'alanning:roles@1.2.13',
+        'alanning:roles',
         'email'
     ], both);
 
@@ -107,13 +105,12 @@ Package.onUse(function(api) {
     ], 'client');
 
     api.use([
+        'ui',
         'session',
         'templating',
         'reactive-var',
-        'ui',
-        'zodiase:mdl@1.0.2',
-        'utilities:avatar@0.9.2',
-        'gwendall:body-events@0.1.6',
+        'utilities:avatar',
+        'gwendall:body-events',
         'meteorhacks:subs-manager'
     ], 'client');
 });
