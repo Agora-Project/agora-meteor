@@ -15,8 +15,6 @@ Package.describe({
 Package.onUse(function(api) {
     both = ['client', 'server'];
 
-    api.versionsFrom('1.1.0.3');
-
     api.addFiles([
         'server/initial-data.js',
         'server/methods.js',
