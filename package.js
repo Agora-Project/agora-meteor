@@ -33,7 +33,6 @@ Package.onUse(function(api) {
     ], both);
 
     api.use([
-        'underscore',
         'ecmascript',
         'iron:router',
 	    'matb33:collection-hooks',
