@@ -12,6 +12,11 @@ Package.describe({
     documentation: 'README.md'
 });
 
+Npm.depends({
+  step: '1.0.0',
+  xml2js: '0.4.19'
+});
+
 Package.onUse(function(api) {
     both = ['client', 'server'];
 
@@ -19,7 +24,8 @@ Package.onUse(function(api) {
         'server/initial-data.js',
         'server/methods.js',
         'server/publish.js',
-        'server/users.js'
+        'server/users.js',
+        'lib/webfinger/lib/webfinger.js'
     ], 'server');
 
     api.addFiles([
