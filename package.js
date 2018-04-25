@@ -21,11 +21,11 @@ Package.onUse(function(api) {
     both = ['client', 'server'];
 
     api.addFiles([
+        'lib/webfinger/lib/webfinger.js',
         'server/initial-data.js',
         'server/methods.js',
         'server/publish.js',
-        'server/users.js',
-        'lib/webfinger/lib/webfinger.js'
+        'server/users.js'
     ], 'server');
 
     api.addFiles([
