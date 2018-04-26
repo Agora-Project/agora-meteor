@@ -4,8 +4,6 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
-import webfinger from '../lib/webfinger/lib/webfinger.js';
-
 Meteor.startup(function() {
     //Deletes all posts and adds a set of random fake posts.
     if (!Posts.findOne({})) {
@@ -70,62 +68,4 @@ Meteor.startup(function() {
     }
 
     console.log('Startup finished');
-
-    request = require('request');
-    discover = webfinger.discover;
-    hostmeta = webfinger.hostmeta;
-    lrdd = webfinger.lrdd;
-
-    const fediverse = (address) => {
-        console.log('address:', address);
-        let linkData = webfinger.webfinger(address, (err, stuff) => {console.log("Stuff:", err, stuff)});
-        //console.log("Link Data:", linkData);
-        return linkData;
-    };
-
-    const is_missing_domain = (address) => /^@[a-zA-Z0-9-._]+$/.test(address);
-    const head = (url) => request({url: url, method: 'HEAD'});
-    const get = (url, response_handler) => request({url: url, method: 'GET'});
-
-    const investigate = (address) => {
-        return new Promise((resolve, reject) => {
-            let profiles;
-
-            if( is_missing_domain(address) ) {
-                console.log("Missing domain!");
-            } else {
-                profiles = Promise.all([fediverse(address)]);
-            }
-
-            profiles
-                .then((profiles) => address.profiles = profiles.filter((href) => Boolean(href)))
-                .then((address) => resolve(address))
-                .catch((reason) => console.log('caught', reason));
-        });
-    }
-
-    function as_promised(fn) {
-        return (...args) => {
-            return new Promise((resolve, reject) => {
-                fn(...args, (err, res) => {
-                    if ( err ) { reject(err); }
-                    else { resolve(res); }
-                });
-            });
-        };
-    }
-
-    // -----------------
-
-    investigate('Angle@anticapitalist.party')
-        .then((dossier) => { console.log("dossier:", dossier); })
-    .catch((reason) => { console.log('caught', reason); });
-
-    /*investigate('rburns@kosmos.social')
-        .then((dossier) => { console.log("dossier:", dossier); })
-    .catch((reason) => { console.log('caught', reason); });
-
-    investigate('gargron@mastodon.social')
-        .then((dossier) => { console.log("dossier:", dossier); })
-    .catch((reason) => { console.log('caught', reason); });*/
 });

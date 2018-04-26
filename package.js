@@ -26,7 +26,8 @@ Package.onUse(function(api) {
         'server/initial-data.js',
         'server/methods.js',
         'server/publish.js',
-        'server/users.js'
+        'server/users.js',
+        'server/federation.js'
     ], 'server');
 
     api.addFiles([
