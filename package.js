@@ -13,9 +13,9 @@ Package.describe({
 });
 
 Npm.depends({
-  step: '1.0.0',
-  xml2js: '0.4.19',
-  request: '2.85.0'
+    step: '1.0.0',
+    xml2js: '0.4.19',
+    request: '2.85.0'
 });
 
 Package.onUse(function(api) {
