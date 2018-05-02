@@ -21,6 +21,18 @@ Npm.depends({
 Package.onUse(function(api) {
     both = ['client', 'server'];
 
+    api.use([
+        'agoraforum:activitypub',
+        'ecmascript',
+        'iron:router',
+	    'matb33:collection-hooks',
+        'aldeed:simple-schema',
+        'aldeed:collection2',
+        'accounts-base',
+        'alanning:roles',
+        'email'
+    ], both);
+
     api.addFiles([
         'lib/webfinger/lib/webfinger.js',
         'server/initial-data.js',
@@ -38,17 +50,6 @@ Package.onUse(function(api) {
         'lib/schemas/tag.js',
         'lib/schemas/vote.js',
         'routes.js'
-    ], both);
-
-    api.use([
-        'ecmascript',
-        'iron:router',
-	    'matb33:collection-hooks',
-        'aldeed:simple-schema',
-        'aldeed:collection2',
-        'accounts-base',
-        'alanning:roles',
-        'email'
     ], both);
 
     api.addFiles([
@@ -70,6 +71,12 @@ Package.onUse(function(api) {
     api.addFiles([
         'client/userList/userList.html',
         'client/userList/userList.js'
+    ], 'client');
+
+    api.addFiles([
+        'client/federation/federation.html',
+        'client/federation/federation.js',
+        'client/federation/federation.css'
     ], 'client');
 
     api.addFiles([
@@ -105,10 +112,6 @@ Package.onUse(function(api) {
         'client/adminScreen/adminScreen.html',
         'client/adminScreen/adminScreen.css',
         'client/adminScreen/adminScreen.js'
-    ], 'client');
-
-    api.addAssets([
-        'public/agoraforum.png'
     ], 'client');
 
     api.use([

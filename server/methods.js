@@ -4,6 +4,8 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
+import { getActivityFromUrl } from 'meteor/agoraforum:activitypub';
+
 Meteor.methods({
     sendVerificationLink: function() {
         let userId = Meteor.userId();
@@ -253,5 +255,11 @@ Meteor.methods({
 
         //Update field.
         Meteor.users.update({_id: this.userId}, {$push: {seenPosts: postID}});
+    },
+    getActivityJSONFromUrl: function(url) {
+        return getActivityFromUrl(url)
+        .then((response) => {
+            return response.json();
+        });
     }
 });

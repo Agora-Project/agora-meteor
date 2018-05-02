@@ -42,6 +42,11 @@ Router.route('/users', {
     template: 'userList'
 });
 
+Router.route('/federation', {
+    name: 'federation',
+    template: 'federation'
+});
+
 Router.route('/forum', {
 
     onRun: function() {
