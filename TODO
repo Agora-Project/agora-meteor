@@ -9,7 +9,7 @@ Refactoring/Debugging
 
 Changes to Promote Usability
 
-* Allow users to load posts and control the layout.
+* More options for loading posts
 * camera subtree-relative updating
 * show which posts have been read.
     * improve date format
@@ -20,6 +20,10 @@ Changes to Promote Usability
 
 New Features
 
+* Federation
+    * Load User from federation
+    * Load post from federation
+* Alerts
 * Content Warnings
 * Better moderation
     * Ability to force Content Warnings
@@ -27,8 +31,6 @@ New Features
     * Ability to lock posts, so that only moderators can respond to them.
 * Moderator tracking
     * Who did what, when, and why
-* Alerts
-* Federation
 * Types for posts and connections between posts.
 
 
