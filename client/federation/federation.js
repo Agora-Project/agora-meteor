@@ -17,7 +17,13 @@ Template.federation.events({
         let instance = Template.instance();
         Meteor.call("getActivityJSONFromUrl", $('#federation-url').val(), function(err, response) {
             if (err) console.log("Error:", err);
-            if (response) instance.content.set(JSON.stringify(response));
+            if (response) {
+                let content = "";
+                for (let property in response) {
+                    content += ("<p>" + property + ": " + JSON.stringify(response[property]) + "</p>");
+                }
+                instance.content.set(content);
+            }
         });
     },
 });
