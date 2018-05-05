@@ -209,7 +209,7 @@ Meteor.methods({
         return Reports.update({_id: report._id},
             {$set: {resolved: true} });
     },
-    updateUserBio: function(newBio) {
+    updateUserSummary: function(newSummary) {
         let user = Meteor.users.findOne({_id: this.userId});
 
         //Don't allow guests to try and edit profiles.
@@ -223,7 +223,7 @@ Meteor.methods({
         }
 
         //Update field.
-        Meteor.users.update({_id: this.userId}, {$set: {bio: newBio}});
+        Meteor.users.update({_id: this.userId}, {$set: {summary: newSummary}});
     },
     addSeenPost: function(postID) {
         let user = Meteor.users.findOne({_id: this.userId});
