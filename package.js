@@ -22,6 +22,8 @@ Package.onUse(function(api) {
     both = ['client', 'server'];
 
     api.use([
+        'accounts-password@1.4.0',
+        'useraccounts:core',
         'agoraforum:activitypub',
         'ecmascript',
         'iron:router',
@@ -38,7 +40,6 @@ Package.onUse(function(api) {
         'server/initial-data.js',
         'server/methods.js',
         'server/publish.js',
-        'server/users.js',
         'server/federation.js'
     ], 'server');
 
@@ -49,6 +50,7 @@ Package.onUse(function(api) {
         'lib/schemas/report.js',
         'lib/schemas/tag.js',
         'lib/schemas/vote.js',
+        'lib/users.js',
         'routes.js'
     ], both);
 
