@@ -38,7 +38,7 @@ Meteor.startup(function() {
     }
 
     //Deletes all posts and adds a set of random fake posts.
-    if (true) {
+    if (false) {
         console.log('Deleting all posts');
         Posts.remove({});
 
