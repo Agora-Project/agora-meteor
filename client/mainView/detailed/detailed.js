@@ -422,7 +422,7 @@ Template.mainBasicPost.helpers({
         return Meteor.users.findOne({_id: post.poster});
     },
     preview: function() {
-        if (this.title) return this.title.slice(0, 20);
+        if (this.summary) return this.summary.slice(0, 20);
         else {
             let rawContent = this.content;
             let bbcontent, finalContent = "";

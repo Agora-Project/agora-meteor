@@ -31,20 +31,20 @@ Meteor.startup(function() {
     if (!Posts.findOne({})) {
         console.log('Adding root post');
         let rootID = Posts.insert({
-            title: 'Forum Root',
+            summary: 'Forum Root',
             content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
             poster: defaultMod._id
         });
     }
 
     //Deletes all posts and adds a set of random fake posts.
-    if (false) {
+    if (true) {
         console.log('Deleting all posts');
         Posts.remove({});
 
         console.log('Adding root post');
         let rootID = Posts.insert({
-            title: 'Forum Root',
+            summary: 'Forum Root',
             content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
             poster: defaultMod._id
         });
@@ -66,7 +66,7 @@ Meteor.startup(function() {
             if (target) reply.target = target;
 
             if (Math.random() > 0.5) {
-                reply.title = 'Fake Title';
+                reply.summary = 'Fake Summary';
             }
 
             let id = Posts.insert(reply);

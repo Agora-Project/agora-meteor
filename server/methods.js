@@ -32,8 +32,8 @@ Meteor.methods({
         }
 
         //Validate post.
-        if (post.title && post.title.length < 1) {
-            delete post.title;
+        if (post.summary && post.summary.length < 1) {
+            delete post.summary;
         }
 
         if (!post.target) {
@@ -119,8 +119,8 @@ Meteor.methods({
         }
 
         //Validate edit.
-        if (post.title && post.title.length < 1) {
-            delete post.title;
+        if (post.summary && post.summary.length < 1) {
+            delete post.summary;
         }
 
         //check post for new tags and process them if found.
@@ -156,7 +156,7 @@ Meteor.methods({
 
         //Edit post.
         Posts.update({_id: postId}, {$set: {
-            title: update.title,
+            summary: update.summary,
             content: update.content,
             lastEditedAt: Date.now()
         }});
