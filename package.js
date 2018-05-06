@@ -32,16 +32,9 @@ Package.onUse(function(api) {
         'aldeed:collection2',
         'accounts-base',
         'alanning:roles',
+        'utilities:avatar',
         'email'
     ], both);
-
-    api.addFiles([
-        'lib/webfinger/lib/webfinger.js',
-        'server/initial-data.js',
-        'server/methods.js',
-        'server/publish.js',
-        'server/federation.js'
-    ], 'server');
 
     api.addFiles([
         'lib/identity_collections/identity_collections.js',
@@ -53,6 +46,15 @@ Package.onUse(function(api) {
         'lib/users.js',
         'routes.js'
     ], both);
+
+
+    api.addFiles([
+        'lib/webfinger/lib/webfinger.js',
+        'server/methods.js',
+        'server/publish.js',
+        'server/federation.js',
+        'server/initial-data.js'
+    ], 'server');
 
     api.addFiles([
         'client/lib/XBBCode/xbbcode.js',
@@ -121,9 +123,9 @@ Package.onUse(function(api) {
         'session',
         'templating',
         'reactive-var',
-        'utilities:avatar',
         'gwendall:body-events',
-        'meteorhacks:subs-manager'
+        'meteorhacks:subs-manager',
+        'momentjs:moment'
     ], 'client');
 });
 
