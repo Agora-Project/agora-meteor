@@ -18,7 +18,9 @@ Template.userProfile.helpers({
         return Meteor.userId() == this.id;
     },
     summary: function() {
-        let rawBio = Meteor.users.findOne({_id: this.id}).profile.summary;
+        let user = Meteor.users.findOne({_id: this.id});
+        if (!user) return;
+        let rawBio = user.profile.summary;
         if (rawBio) {
             return XBBCODE.process({
                 text: rawBio,
