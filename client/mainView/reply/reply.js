@@ -47,6 +47,7 @@ Template.mainReply.onRendered(function() {
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.parent.targetPost.set();
+                subscriptionManager.subscribe('abstractPost', result);
                 instance.parent.addPostByID(result);
             }
         });
