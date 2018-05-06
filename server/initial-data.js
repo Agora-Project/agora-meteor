@@ -14,10 +14,7 @@ Meteor.startup(function() {
         let moderatorId = Accounts.createUser({
             email: moderatorEmail,
             password: "mod1pass",
-            profile: {
-                preferredUsername: "Moderator",
-                name: "Moderator"
-            }
+            username: "Moderator"
         });
 
         Meteor.users.update({

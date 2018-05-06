@@ -22,7 +22,7 @@ Package.onUse(function(api) {
     both = ['client', 'server'];
 
     api.use([
-        'accounts-password@1.4.0',
+        'accounts-password',
         'useraccounts:core',
         'agoraforum:activitypub',
         'ecmascript',
