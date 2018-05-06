@@ -223,7 +223,7 @@ Meteor.methods({
         }
 
         //Update field.
-        Meteor.users.update({_id: this.userId}, {$set: {summary: newSummary}});
+        Meteor.users.update({_id: this.userId}, {$set: {'profile.summary': newSummary}});
     },
     addSeenPost: function(postID) {
         let user = Meteor.users.findOne({_id: this.userId});

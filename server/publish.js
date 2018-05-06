@@ -8,7 +8,7 @@
 Meteor.publish('post', function(postID, posterID) {
     return [
         Posts.find({_id: postID}),
-        Meteor.users.find({_id: posterID}, {fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, email_hash: 1}})
+        Meteor.users.find({_id: posterID}, { fields: {isBanned: 1, createdAt: 1, roles: 1, profile: 1} })
     ];
 });
 
@@ -48,7 +48,7 @@ Meteor.publish(null, function() {
 Meteor.publish('myself', function() {
     if (this.userId) {
         return Meteor.users.find({_id: this.userId}, {
-            fields: {isBanned: 1, createdAt: 1, seenPosts: 1}
+            fields: {isBanned: 1, seenPosts: 1, profile: 1}
         });
     } else {
         return this.ready();
@@ -59,26 +59,20 @@ Meteor.publish('myself', function() {
 Meteor.publish('users', function() {
     if (Roles.userIsInRole(this.userId, ['moderator'])) {
         return Meteor.users.find({}, {
-            fields: {isBanned: 1, createdAt: 1, roles: 1, emails: 1, username: 1, avatar: 1, email_hash: 1}
+            fields: {isBanned: 1, createdAt: 1, roles: 1, emails: 1, profile: 1}
         });
     } else {
         return Meteor.users.find({}, {
-            fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, avatar: 1, email_hash: 1}
+            fields: {isBanned: 1, createdAt: 1, roles: 1, profile: 1}
         });
     }
 });
 
 //User data, for the profile page.
 Meteor.publish('user', function(userId) {
-    if (Roles.userIsInRole(this.userId, ['moderator'])) {
-        return Meteor.users.find({_id: userId}, {
-            fields: {isBanned: 1, createdAt: 1, roles: 1, emails: 1, username: 1, email_hash: 1, bio: 1}
-        });
-    } else {
-        return Meteor.users.find({_id: userId}, {
-            fields: {isBanned: 1, createdAt: 1, roles: 1, username: 1, email_hash: 1, bio: 1}
-        });
-    }
+    return Meteor.users.find({_id: userId}, {
+        fields: {isBanned: 1, createdAt: 1, roles: 1, profile: 1}
+    });
 });
 
 //Reports; for the report management page.

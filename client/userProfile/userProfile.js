@@ -18,7 +18,7 @@ Template.userProfile.helpers({
         return Meteor.userId() == this.id;
     },
     summary: function() {
-        let rawBio = Meteor.users.findOne({_id: this.id}).summary;
+        let rawBio = Meteor.users.findOne({_id: this.id}).profile.summary;
         if (rawBio) {
             return XBBCODE.process({
                 text: rawBio,
@@ -72,7 +72,7 @@ Template.userProfile.events({
         });
     },
     "click #profile-summary-cancel-button": function() {
-        $('#profile-summary-textarea').val(this.summary);
+        $('#profile-summary-textarea').val(this.profile.summary);
         Template.instance().editing.set(false);
     }
 });
