@@ -260,6 +260,11 @@ Meteor.methods({
         return getActivityFromUrl(url)
         .then((response) => {
             return response.json();
+        })
+        .then((json) => {
+            importFromActivityPubJSON(json);
+
+            return json;
         });
     }
 });

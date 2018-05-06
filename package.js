@@ -50,6 +50,7 @@ Package.onUse(function(api) {
 
     api.addFiles([
         'lib/webfinger/lib/webfinger.js',
+        'lib/actors.js',
         'server/methods.js',
         'server/publish.js',
         'server/federation.js',
