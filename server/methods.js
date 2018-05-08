@@ -158,7 +158,7 @@ Meteor.methods({
         Posts.update({_id: postId}, {$set: {
             summary: update.summary,
             content: update.content,
-            lastEditedAt: Date.now()
+            updated: Date.now()
         }});
     },
     deletePost: function(postId) {
