@@ -52,8 +52,8 @@ Template.mainDetailedPost.helpers({
     },
     age: function() {
         let post = Template.currentData();
-        if (post.postedOn) {
-            return new Date(post.postedOn).toDateString();
+        if (post.published) {
+            return new Date(post.published).toDateString();
         }
     },
     currentUser: function() {
