@@ -255,16 +255,5 @@ Meteor.methods({
 
         //Update field.
         Meteor.users.update({_id: this.userId}, {$push: {seenPosts: postID}});
-    },
-    getActivityJSONFromUrl: function(url) {
-        return getActivityFromUrl(url)
-        .then((response) => {
-            return response.json();
-        })
-        .then((json) => {
-            importFromActivityPubJSON(json);
-
-            return json;
-        });
     }
 });

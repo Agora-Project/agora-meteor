@@ -1,24 +1,36 @@
 
 //import webfinger from '../lib/webfinger/lib/webfinger.js';
 
-importFromActivityPubJSON = function(json) {
-    if (!json.type) throw new Meteor.Error('untyped ActivityPub JSON');
+Meteor.methods({
+    getActivityJSONFromUrl: function(url) {
+        return getActivityFromUrl(url)
+        .then((response) => {
+            return response.json();
+        })
+        .then((json) => {
+            Meteor.call('importFromActivityPubJSON', json);
 
-    if (actorTypes.includes(json.type))
-        importActorFromActivityPubJSON(json);
+            return json;
+        });
+    },
+    importFromActivityPubJSON: function(json) {
+        if (!json.type) throw new Meteor.Error('untyped ActivityPub JSON');
 
-    else if (json.type == 'Note')
-        importPostFromActivityPubJSON(json);
-}
+        if (actorTypes.includes(json.type))
+            importActorFromActivityPubJSON(json);
+
+        else if (json.type == 'Note')
+            importPostFromActivityPubJSON(json);
+    }
+});
 
 importActorFromActivityPubJSON = function(json) {
-    let actor = Actors.findOne({id: json.id});
-    if (!actor) {
-        Actors.insert(json);
-        console.log("!!!");
-    } else console.log("Actor: ", actor);
-}
+    let actor = Actors.findOne({id: json.id}); //Is actor already present?
+    if (!actor) {                              //If not,
+        Actors.insert(json);                   //add it.
+    }
+};
 
 importPostFromActivityPubJSON = function(json) {
     console.log("!!!");
-}
+};
