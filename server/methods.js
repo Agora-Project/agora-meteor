@@ -235,7 +235,7 @@ Meteor.methods({
 
         let post = Posts.findOne({_id: postID});
 
-        if (!post.postedOn) {
+        if (!post.published) {
             throw new Meteor.Error('undated-post', 'That post does not have a date and is thus assumed to be to old to be worth recording as seen.');
         }
 
@@ -243,7 +243,7 @@ Meteor.methods({
             throw new Meteor.Error('own-post', 'A user is assumed to have always seen their own posts.');
         }
 
-        if (Date.now() - post.postedOn >= (1000*60*60*24*30)) {
+        if (Date.now() - post.published >= (1000*60*60*24*30)) {
             throw new Meteor.Error('old-post', 'Posts older than a month are assumed to have always been seen.');
         }
 

@@ -22,7 +22,7 @@ Meteor.publish('abstractReplies', function(postID) {
 
 //Returns an abstract shell of all posts, each only containing its id, links, and subtree width.
 Meteor.publish('localAbstractPosts', function() {
-    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1}, sort: {PostedOn: 1}, limit: 100});
+    return Posts.find({}, {fields: {poster: 1, target: 1, replies: 1}, sort: {published: 1}, limit: 100});
 });
 
 //Returns an abstract shell of all posts with a given tag, each only containing its id, links, and subtree width.
