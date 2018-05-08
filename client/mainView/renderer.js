@@ -159,8 +159,8 @@ MainViewRenderer = function(camera) {
         } else buffer = [post.position.x, post.position.y, 1.0, 0.843, 0];
         gl.bufferSubData(gl.ARRAY_BUFFER, postCount*20, new Float32Array(buffer));
 
-        if (post.target) {
-            let target = postIndices[post.target];
+        if (post.inReplyTo) {
+            let target = postIndices[post.inReplyTo];
             if (target !== undefined) {
                 addLink(postCount, target);
             }

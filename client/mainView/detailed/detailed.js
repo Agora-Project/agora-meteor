@@ -20,7 +20,7 @@ Template.mainDetailedPost.onCreated(function() {
 
     this.subscribe('abstractReplies', this.data._id);
 
-    this.subscribe('abstractPost', this.data.target);
+    this.subscribe('abstractPost', this.data.inReplyTo);
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
@@ -89,7 +89,7 @@ Template.mainDetailedPost.helpers({
         for (replyID of this.replies) {
             if (!Template.instance().parent.layout.getPost(replyID)) return true;
         }
-        if (this.target && !Template.instance().parent.layout.getPost(this.target)) return true;
+        if (this.inReplyTo && !Template.instance().parent.layout.getPost(this.inReplyTo)) return true;
         return false;
     },
     seen: function() {
@@ -338,8 +338,8 @@ Template.mainDetailedPostLoadButton.events({
         }
 
 
-            subscriptionManager.subscribe('abstractPost', instance.parent.data.target);
-        instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.target}));
+            subscriptionManager.subscribe('abstractPost', instance.parent.data.inReplyTo);
+        instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.inReplyTo}));
     }
 });
 

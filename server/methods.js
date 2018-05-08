@@ -36,11 +36,11 @@ Meteor.methods({
             delete post.summary;
         }
 
-        if (!post.target) {
             return;
+        if (!post.inReplyTo) {
         }
 
-        let target = Posts.findOne({_id: post.target});
+        let target = Posts.findOne({_id: post.inReplyTo});
         if (!target) {
             return;
         }
@@ -77,7 +77,7 @@ Meteor.methods({
 
         //Insert new post into position.
         let postId = Posts.insert(post);
-        Posts.update({_id: post.target}, {$push: {replies: postId}});
+        Posts.update({_id: post.inReplyTo}, {$push: {replies: postId}});
 
         //add any new tags to the database, and adjust the info for existing tags accordingly.
         for (let tag of post.tags) {
@@ -180,7 +180,7 @@ Meteor.methods({
         });
 
         //delete the post and all references to it.
-        Posts.update({_id: post.target}, {$pull: {replies: postId}});
+        Posts.update({_id: post.inReplyTo}, {$pull: {replies: postId}});
         Posts.remove(postId);
     },
     submitReport: function(report) {

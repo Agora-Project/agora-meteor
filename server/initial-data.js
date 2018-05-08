@@ -63,7 +63,7 @@ Meteor.startup(function() {
                 poster: defaultMod._id
             };
 
-            if (target) reply.target = target;
+            if (target) reply.inReplyTo = target;
 
             if (Math.random() > 0.5) {
                 reply.summary = 'Fake Summary';
