@@ -15,7 +15,8 @@ Package.describe({
 Npm.depends({
     step: '1.0.0',
     xml2js: '0.4.19',
-    request: '2.85.0'
+    request: '2.85.0',
+    'simpl-schema': '1.1.0'
 });
 
 Package.onUse(function(api) {
@@ -28,7 +29,6 @@ Package.onUse(function(api) {
         'ecmascript',
         'iron:router',
 	    'matb33:collection-hooks',
-        'aldeed:simple-schema',
         'aldeed:collection2',
         'accounts-base',
         'alanning:roles',
