@@ -31,12 +31,6 @@ Meteor.methods({
             throw new Meteor.Error('unverified', 'Unverified users may not post.');
         }
 
-        //Validate post.
-        if (post.summary && post.summary.length < 1) {
-            delete post.summary;
-        }
-
-            return;
         if (!post.inReplyTo) {
         }
 
