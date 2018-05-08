@@ -32,17 +32,18 @@ Meteor.methods({
         }
 
         if (!post.inReplyTo) {
+            throw new Meteor.Error('no target', 'Post has no target!');
         }
 
         let target = Posts.findOne({_id: post.inReplyTo});
         if (!target) {
-            return;
+            throw new Meteor.Error('target invalid', 'Targeted post not found!');
         }
 
         //check post for new hashtags and if any are found process them.
         //The regex here describes a hashtag as anything that starts with either
         //the start of a string or any kind of whitespace, then has a # symbol,
-        //and then any  number of letters.
+        //and then any number of letters.
         let postTags = post.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
 
         if(!post.tags) post.tags = [];
