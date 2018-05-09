@@ -33,7 +33,7 @@ Meteor.startup(function() {
         let rootID = Posts.insert({
             summary: 'Forum Root',
             content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
-            poster: defaultMod._id
+            attributedTo: defaultMod._id
         });
     }
 
@@ -46,7 +46,7 @@ Meteor.startup(function() {
         let rootID = Posts.insert({
             summary: 'Forum Root',
             content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
-            poster: defaultMod._id
+            attributedTo: defaultMod._id
         });
 
         console.log("Adding fake posts");
@@ -60,7 +60,7 @@ Meteor.startup(function() {
 
             let reply = {
                 content: 'Fake content.',
-                poster: defaultMod._id
+                attributedTo: defaultMod._id
             };
 
             if (target) reply.inReplyTo = target;

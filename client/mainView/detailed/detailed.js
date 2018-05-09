@@ -16,7 +16,7 @@ Template.mainDetailedPost.onCreated(function() {
     this.onRendered = new Notifier();
     this.seen = new ReactiveVar(true);
 
-    this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
+    this.subscribe('post', this.data._id, this.data.attributedTo, {onReady: onSubReady.fulfill});
 
     this.subscribe('abstractReplies', this.data._id);
 
@@ -48,7 +48,7 @@ Template.mainDetailedPost.onRendered(function() {
 Template.mainDetailedPost.helpers({
     poster: function() {
         let post = Template.currentData();
-        return Meteor.users.findOne({_id: post.poster});
+        return Meteor.users.findOne({_id: post.attributedTo});
     },
     age: function() {
         let post = Template.currentData();
@@ -74,7 +74,7 @@ Template.mainDetailedPost.helpers({
         }
     },
     editAccess: function() {
-        return this.poster === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
+        return this.attributedTo === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
     moderator: function() {
         return Roles.userIsInRole(Meteor.userId(), ['moderator']);
@@ -391,7 +391,7 @@ Template.mainBasicPost.onCreated(function() {
     this.onRendered = new Notifier();
     this.seen = new ReactiveVar(true);
 
-    this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
+    this.subscribe('post', this.data._id, this.data.attributedTo, {onReady: onSubReady.fulfill});
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
@@ -419,7 +419,7 @@ Template.mainBasicPost.onRendered(function() {
 Template.mainBasicPost.helpers({
     poster: function() {
         let post = Template.currentData();
-        return Meteor.users.findOne({_id: post.poster});
+        return Meteor.users.findOne({_id: post.attributedTo});
     },
     preview: function() {
         if (this.summary) return this.summary.slice(0, 20);

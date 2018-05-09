@@ -13,25 +13,25 @@ Meteor.publish('post', function(postID, posterID) {
 });
 
 Meteor.publish('abstractPost', function(postID) {
-    return Posts.find({_id: postID}, {fields: {poster: 1, inReplyTo: 1, replies: 1} } );
+    return Posts.find({_id: postID}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1} } );
 });
 
 Meteor.publish('abstractReplies', function(postID) {
-    return Posts.find({inReplyTo: postID}, {fields: {poster: 1, inReplyTo: 1, replies: 1} } );
+    return Posts.find({inReplyTo: postID}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1} } );
 });
 
 //Returns an abstract shell of all posts, each only containing its id, links, and subtree width.
 Meteor.publish('localAbstractPosts', function() {
-    return Posts.find({}, {fields: {poster: 1, inReplyTo: 1, replies: 1}, sort: {published: 1}, limit: 100});
+    return Posts.find({}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1}, sort: {published: 1}, limit: 100});
 });
 
 //Returns an abstract shell of all posts with a given tag, each only containing its id, links, and subtree width.
 Meteor.publish('abstractPostsByTag', function(tag) {
-    return Posts.find({tags: tag}, {fields: {poster: 1, inReplyTo: 1, replies: 1}});
+    return Posts.find({tags: tag}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1}});
 });
 
 Meteor.publish('abstractPostsByUser', function(userID) {
-    return Posts.find({poster: userID}, {fields: {poster: 1, inReplyTo: 1, replies: 1}});
+    return Posts.find({attributedTo: userID}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1}});
 });
 
 //Universal subscription for roles.

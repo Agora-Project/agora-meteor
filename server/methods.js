@@ -109,7 +109,7 @@ Meteor.methods({
         let post = Posts.findOne({_id: postId});
 
         //Don't allow non-moderators to edit other peoples posts.
-        if (post.poster !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {
+        if (post.attributedTo !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('post-not-owned', 'Only moderators may edit posts they don\'t own.');
         }
 
@@ -234,7 +234,7 @@ Meteor.methods({
             throw new Meteor.Error('undated-post', 'That post does not have a date and is thus assumed to be to old to be worth recording as seen.');
         }
 
-        if (post.poster == this.userId) {
+        if (post.attributedTo == this.userId) {
             throw new Meteor.Error('own-post', 'A user is assumed to have always seen their own posts.');
         }
 
