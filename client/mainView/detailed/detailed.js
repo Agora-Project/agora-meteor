@@ -86,11 +86,13 @@ Template.mainDetailedPost.helpers({
         return Template.instance().parent.reportTarget.get() === undefined;
     },
     hasLoadButton: function() {
-        for (replyID of this.replies) {
-            if (!Template.instance().parent.layout.getPost(replyID)) return true;
-        }
-        if (this.inReplyTo && !Template.instance().parent.layout.getPost(this.inReplyTo)) return true;
-        return false;
+        let instance = Template.instance();
+        let ret = false;
+        Posts.find({inReplyTo: this._id}).forEach(function(post) {
+            if (!ret && !instance.parent.layout.getPost(post._id)) ret = true;
+        })
+        if (!ret && this.inReplyTo && !Template.instance().parent.layout.getPost(this.inReplyTo)) ret = true;
+        return ret;
     },
     seen: function() {
         return Template.instance().seen.get();
@@ -332,13 +334,12 @@ Template.mainDetailedPostLoadButton.getParents();
 Template.mainDetailedPostLoadButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        for (replyID of instance.parent.data.replies) {
-            subscriptionManager.subscribe('abstractPost', replyID);
-            instance.parent.parent.addPost(Posts.findOne({_id: replyID}));
-        }
+        Posts.find({inReplyTo: this._id}).forEach(function(post) {
+            subscriptionManager.subscribe('abstractPost', post._id);
+            instance.parent.parent.addPost(post);
+        });
 
-
-            subscriptionManager.subscribe('abstractPost', instance.parent.data.inReplyTo);
+        subscriptionManager.subscribe('abstractPost', instance.parent.data.inReplyTo);
         instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.inReplyTo}));
     }
 });

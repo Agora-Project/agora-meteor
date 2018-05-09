@@ -170,8 +170,8 @@ Meteor.methods({
         }
 
         //recursively delete all replies to the post.
-        post.replies.forEach(function(reply) {
-            Meteor.call('deletePost', reply);
+        Posts.find({inReplyTo: post._id}).forEach(function(reply) {
+            Meteor.call('deletePost', reply._id);
         });
 
         //delete the post and all references to it.
