@@ -46,7 +46,7 @@ Meteor.methods({
         //and then any number of letters.
         let postTags = post.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
 
-        if(!post.tags) post.tags = [];
+        if(!post.tag) post.tag = [];
 
         if (postTags) {
 
@@ -57,12 +57,12 @@ Meteor.methods({
                 console.log(newTag);
 
                 //check for any new tags not already present on the post.
-                if (post.tags.find(function(tag) {
+                if (post.tag.find(function(tag) {
                     return tag === newTag;
                 }) === undefined) {
                     //if any are found, add them to the list of new tags on the
                     //post.
-                    post.tags.push(newTag);
+                    post.tag.push(newTag);
                 }
             }
         }
@@ -75,7 +75,7 @@ Meteor.methods({
         Posts.update({_id: post.inReplyTo}, {$push: {replies: postId}});
 
         //add any new tags to the database, and adjust the info for existing tags accordingly.
-        for (let tag of post.tags) {
+        for (let tag of post.tag) {
             let tagDocument = Tags.findOne({_id: tag});
             if (!tagDocument) {
                 Tags.insert({_id: tag, postNumber: 1, posts: [postId]});
