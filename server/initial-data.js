@@ -24,8 +24,29 @@ Meteor.startup(function() {
         Roles.addUsersToRoles(moderatorId, ['moderator']);
     }
 
+    //Set up test user account if it does not exist.
+    let userEmail = "user@example.com";
+    if (!Meteor.users.findOne({
+        "emails.address": userEmail
+    })) {
+        console.log("Adding default user");
+        let moderatorId = Accounts.createUser({
+            email: userEmail,
+            password: "user1pass",
+            username: "User"
+        });
+
+        Meteor.users.update({
+            "emails.address": userEmail
+        }, {$set: {"emails.$.verified": true}});
+    }
+
     let defaultMod = Meteor.users.findOne({
         "emails.address": moderatorEmail
+    });
+
+    let user = Meteor.users.findOne({
+        "emails.address": userEmail
     });
 
     if (!Posts.findOne({})) {
