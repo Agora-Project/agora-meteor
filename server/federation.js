@@ -16,11 +16,15 @@ Meteor.methods({
     importFromActivityPubJSON: function(json) {
         if (!json.type) throw new Meteor.Error('untyped ActivityPub JSON');
 
-        if (activityPubActorTypes.includes(json.type))
-            importActorFromActivityPubJSON(json);
+        if (!activityPubSchemas.validate(json.type + ".json", json))
+            console.log(activityPubSchemas.errorsText());
+        else {
+            if (activityPubActorTypes.includes(json.type))
+                importActorFromActivityPubJSON(json);
 
-        else if (activityPubObjectTypes.includes(json.type))
-            importPostFromActivityPubJSON(json);
+            else if (activityPubObjectTypes.includes(json.type))
+                importPostFromActivityPubJSON(json);
+        }
     }
 });
 
