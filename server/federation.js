@@ -16,10 +16,10 @@ Meteor.methods({
     importFromActivityPubJSON: function(json) {
         if (!json.type) throw new Meteor.Error('untyped ActivityPub JSON');
 
-        if (actorTypes.includes(json.type))
+        if (activityPubActorTypes.includes(json.type))
             importActorFromActivityPubJSON(json);
 
-        else if (json.type == 'Note')
+        else if (activityPubObjectTypes.includes(json.type))
             importPostFromActivityPubJSON(json);
     }
 });
@@ -32,5 +32,4 @@ importActorFromActivityPubJSON = function(json) {
 };
 
 importPostFromActivityPubJSON = function(json) {
-    console.log("!!!");
 };
