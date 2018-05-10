@@ -81,7 +81,7 @@ Meteor.startup(function() {
 
             let reply = {
                 content: 'Fake content.',
-                attributedTo: defaultMod._id
+                attributedTo: user._id
             };
 
             if (target) reply.inReplyTo = target;
