@@ -8,29 +8,23 @@
     <div id="profile-div">
         <div id="profile-header">
             <div id="profile-face">
-                {{user.username}}
+                {{user.profile.name}}
                 {{> avatar user=user shape="rounded" size="large" id="profile-avatar"}}
             </div>
             <div id="profile-info">
                 {{#if editing}}
-                    <textarea id="profile-bio-textarea" value={{user.bio}}></textarea>
-                    <button id="profile-bio-submit-button">Submit</button>
-                    <button id="profile-bio-cancel-button">Cancel</button>
+                    <textarea id="profile-summary-textarea" value={{user.profile.summary}}></textarea>
+                    <button id="profile-summary-submit-button">Submit</button>
+                    <button id="profile-summary-cancel-button">Cancel</button>
                     {{#if errorMessage}}
-                        <span id="profile-bio-error-message">{{errorMessage}}</span>
+                        <span id="profile-summary-error-message">{{errorMessage}}</span>
                     {{/if}}
                 {{else}}
-                    {{{bio}}}
+                    {{{summary}}}
                     {{#if ownProfile}}
-                        <a href="#" id="profile-bio-edit">Edit</a>
+                        <a href="#" id="profile-summary-edit">Edit</a>
                     {{/if}}
                 {{/if}}
-            </div>
-        </div>
-        <div id="profile-body">
-            <div id="profile-sidebar">
-            </div>
-            <div id="profile-wall">
             </div>
         </div>
     </div>

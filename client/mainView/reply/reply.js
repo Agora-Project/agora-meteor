@@ -14,7 +14,7 @@ Template.mainReply.onRendered(function() {
     let instance = this;
     let target;
 
-    let titleInput = $('#main-reply-title');
+    let summaryInput = $('#main-reply-summary');
     let contentInput = $('#main-reply-textarea');
 
     this.submitButton = null;
@@ -22,20 +22,20 @@ Template.mainReply.onRendered(function() {
     this.submitted = false; //This is for preventing double-posts.
 
     let hasContent = function() {
-        return titleInput.val().length > 0 || contentInput.val().length > 0;
+        return summaryInput.val().length > 0 || contentInput.val().length > 0;
     };
 
     let hasEdit = function() {
-        let title = target.title === undefined ? "" : target.title;
-        return titleInput.val() != title || contentInput.val() != target.content;
+        let summary = target.summary === undefined ? "" : target.summary;
+        return summaryInput.val() != summary || contentInput.val() != target.content;
     };
 
     let submitReply = function(event) {
         if (instance.submitted) return;
         let post = {
-            title: titleInput.val(),
+            summary: summaryInput.val(),
             content: contentInput.val(),
-            target: target._id
+            inReplyTo: target._id
         };
 
         Meteor.call("insertPost", post, function(error, result) {
@@ -47,6 +47,7 @@ Template.mainReply.onRendered(function() {
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.parent.targetPost.set();
+                subscriptionManager.subscribe('abstractPost', result);
                 instance.parent.addPostByID(result);
             }
         });
@@ -57,7 +58,7 @@ Template.mainReply.onRendered(function() {
         if (instance.submitted) return;
 
         let post = {
-            title: titleInput.val(),
+            summary: summaryInput.val(),
             content: contentInput.val()
         };
 
@@ -108,7 +109,7 @@ Template.mainReply.onRendered(function() {
     } else if (this.parent.targetMode.get() === "Edit") {
         target = this.parent.targetPost.get();
 
-        titleInput.val(target.title);
+        summaryInput.val(target.summary);
         contentInput.val(target.content);
 
         this.submitButton = submitEdit;

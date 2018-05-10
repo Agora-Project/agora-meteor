@@ -16,11 +16,11 @@ Template.mainDetailedPost.onCreated(function() {
     this.onRendered = new Notifier();
     this.seen = new ReactiveVar(true);
 
-    this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
+    this.subscribe('post', this.data._id, this.data.attributedTo, {onReady: onSubReady.fulfill});
 
     this.subscribe('abstractReplies', this.data._id);
 
-    this.subscribe('abstractPost', this.data.target);
+    this.subscribe('abstractPost', this.data.inReplyTo);
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
@@ -48,12 +48,12 @@ Template.mainDetailedPost.onRendered(function() {
 Template.mainDetailedPost.helpers({
     poster: function() {
         let post = Template.currentData();
-        return Meteor.users.findOne({_id: post.poster});
+        return Meteor.users.findOne({_id: post.attributedTo});
     },
     age: function() {
         let post = Template.currentData();
-        if (post.postedOn) {
-            return new Date(post.postedOn).toDateString();
+        if (post.published) {
+            return new Date(post.published).toDateString();
         }
     },
     currentUser: function() {
@@ -74,7 +74,7 @@ Template.mainDetailedPost.helpers({
         }
     },
     editAccess: function() {
-        return this.poster === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
+        return this.attributedTo === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
     moderator: function() {
         return Roles.userIsInRole(Meteor.userId(), ['moderator']);
@@ -86,11 +86,13 @@ Template.mainDetailedPost.helpers({
         return Template.instance().parent.reportTarget.get() === undefined;
     },
     hasLoadButton: function() {
-        for (replyID of this.replies) {
-            if (!Template.instance().parent.layout.getPost(replyID)) return true;
-        }
-        if (this.target && !Template.instance().parent.layout.getPost(this.target)) return true;
-        return false;
+        let instance = Template.instance();
+        let ret = false;
+        Posts.find({inReplyTo: this._id}).forEach(function(post) {
+            if (!ret && !instance.parent.layout.getPost(post._id)) ret = true;
+        })
+        if (!ret && this.inReplyTo && !Template.instance().parent.layout.getPost(this.inReplyTo)) ret = true;
+        return ret;
     },
     seen: function() {
         return Template.instance().seen.get();
@@ -332,14 +334,13 @@ Template.mainDetailedPostLoadButton.getParents();
 Template.mainDetailedPostLoadButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        for (replyID of instance.parent.data.replies) {
-            subscriptionManager.subscribe('abstractPost', replyID);
-            instance.parent.parent.addPost(Posts.findOne({_id: replyID}));
-        }
+        Posts.find({inReplyTo: this._id}).forEach(function(post) {
+            subscriptionManager.subscribe('abstractPost', post._id);
+            instance.parent.parent.addPost(post);
+        });
 
-
-            subscriptionManager.subscribe('abstractPost', instance.parent.data.target);
-        instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.target}));
+        subscriptionManager.subscribe('abstractPost', instance.parent.data.inReplyTo);
+        instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.inReplyTo}));
     }
 });
 
@@ -391,7 +392,7 @@ Template.mainBasicPost.onCreated(function() {
     this.onRendered = new Notifier();
     this.seen = new ReactiveVar(true);
 
-    this.subscribe('post', this.data._id, this.data.poster, {onReady: onSubReady.fulfill});
+    this.subscribe('post', this.data._id, this.data.attributedTo, {onReady: onSubReady.fulfill});
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.
@@ -419,10 +420,10 @@ Template.mainBasicPost.onRendered(function() {
 Template.mainBasicPost.helpers({
     poster: function() {
         let post = Template.currentData();
-        return Meteor.users.findOne({_id: post.poster});
+        return Meteor.users.findOne({_id: post.attributedTo});
     },
     preview: function() {
-        if (this.title) return this.title.slice(0, 20);
+        if (this.summary) return this.summary.slice(0, 20);
         else {
             let rawContent = this.content;
             let bbcontent, finalContent = "";
