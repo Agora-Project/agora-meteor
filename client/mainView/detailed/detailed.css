@@ -36,7 +36,7 @@
     overflow: hidden;
 }
 
-.main-detailed-post-title {
+.main-detailed-post-summary {
     padding: 5px 10px 5px 10px;
     border-bottom: 1px solid #ccc;
 }
@@ -141,7 +141,7 @@
     flex-direction: row;
 }
 
-.main-basic-post-title {
+.main-basic-post-summary {
     border-bottom: 0px solid #ccc;
 }
 

@@ -17,8 +17,10 @@ Template.userProfile.helpers({
     ownProfile: function() {
         return Meteor.userId() == this.id;
     },
-    bio: function() {
-        let rawBio = Meteor.users.findOne({_id: this.id}).bio;
+    summary: function() {
+        let user = Meteor.users.findOne({_id: this.id});
+        if (!user) return;
+        let rawBio = user.profile.summary;
         if (rawBio) {
             return XBBCODE.process({
                 text: rawBio,
@@ -37,7 +39,7 @@ Template.userProfile.onCreated(function() {
 });
 
 Template.userProfile.events({
-    "click #profile-bio-edit": function() {
+    "click #profile-summary-edit": function() {
         Template.instance().editing.set(true);
     },
     'keydown, keyup': function(event) {
@@ -45,7 +47,7 @@ Template.userProfile.events({
 
         if (Template.instance().editing.get() && event.ctrlKey && event.key == "Enter") {
             let instance = Template.instance();
-            Meteor.call("updateUserBio", $('#profile-bio-textarea').val(), function(error) {
+            Meteor.call("updateUserSummary", $('#profile-summary-textarea').val(), function(error) {
                 if (error) {
                     //Display error message to user.
                     instance.errorMessage.set(error.reason);
@@ -58,9 +60,9 @@ Template.userProfile.events({
         }
 
     },
-    "click #profile-bio-submit-button": function() {
+    "click #profile-summary-submit-button": function() {
         let instance = Template.instance();
-        Meteor.call("updateUserBio", $('#profile-bio-textarea').val(), function(error) {
+        Meteor.call("updateUserSummary", $('#profile-summary-textarea').val(), function(error) {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);
@@ -71,8 +73,8 @@ Template.userProfile.events({
             }
         });
     },
-    "click #profile-bio-cancel-button": function() {
-        $('#profile-bio-textarea').val(this.bio);
+    "click #profile-summary-cancel-button": function() {
+        $('#profile-summary-textarea').val(this.profile.summary);
         Template.instance().editing.set(false);
     }
 });

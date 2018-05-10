@@ -56,7 +56,12 @@ Template.mainView.onCreated(function() {
     this.onRendered = new Notifier();
     let onSubReady = new Notifier();
 
-    this.subscribe(this.data.subscription, {onReady: onSubReady.fulfill});
+    if (this.data.subscription) {
+        if (this.data.arg) {
+            console.log(this.data.arg);
+            this.subscribe(this.data.subscription, this.data.arg, {onReady: onSubReady.fulfill});
+        } else this.subscribe(this.data.subscription, {onReady: onSubReady.fulfill});
+    }
     this.targetPost = new ReactiveVar();
     this.targetMode = new ReactiveVar();
     this.reportTarget = new ReactiveVar();

@@ -1,0 +1,3 @@
+[submodule "lib/webfinger"]
+	path = lib/webfinger
+	url = https://github.com/rburns/webfinger

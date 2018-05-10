@@ -159,19 +159,21 @@ MainViewRenderer = function(camera) {
         } else buffer = [post.position.x, post.position.y, 1.0, 0.843, 0];
         gl.bufferSubData(gl.ARRAY_BUFFER, postCount*20, new Float32Array(buffer));
 
-        if (post.target) {
-            let target = postIndices[post.target];
+        if (post.inReplyTo) {
+            let target = postIndices[post.inReplyTo];
             if (target !== undefined) {
                 addLink(postCount, target);
             }
         }
 
-        for (let sourceID of post.replies) {
-            let source = postIndices[sourceID];
+        let self = this;
+
+        Posts.find({inReplyTo: post._id}).forEach(function(reply) {
+            let source = postIndices[reply._id];
             if (source !== undefined) {
-                addLink(source, postCount);
+                self.addLink(source, postCount);
             }
-        }
+        });
 
         postIndices[post._id] = postCount;
         postCount++;

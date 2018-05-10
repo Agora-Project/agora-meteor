@@ -21,7 +21,7 @@ Template.report.helpers({
 
         if(!post) return;
 
-        if (post.title) return post.title.slice(0, 10);
+        if (post.summary) return post.summary.slice(0, 10);
         else {
             let rawContent = post.content;
             let bbcontent, finalContent = "";

@@ -4,6 +4,8 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
+import { getActivityFromUrl } from 'meteor/agoraforum:activitypub';
+
 Meteor.methods({
     sendVerificationLink: function() {
         let userId = Meteor.userId();
@@ -29,27 +31,22 @@ Meteor.methods({
             throw new Meteor.Error('unverified', 'Unverified users may not post.');
         }
 
-        //Validate post.
-        if (post.title && post.title.length < 1) {
-            delete post.title;
+        if (!post.inReplyTo) {
+            throw new Meteor.Error('no target', 'Post has no target!');
         }
 
-        if (!post.target) {
-            return;
-        }
-
-        let target = Posts.findOne({_id: post.target});
+        let target = Posts.findOne({_id: post.inReplyTo});
         if (!target) {
-            return;
+            throw new Meteor.Error('target invalid', 'Targeted post not found!');
         }
 
         //check post for new hashtags and if any are found process them.
         //The regex here describes a hashtag as anything that starts with either
         //the start of a string or any kind of whitespace, then has a # symbol,
-        //and then any  number of letters.
+        //and then any number of letters.
         let postTags = post.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
 
-        if(!post.tags) post.tags = [];
+        if(!post.tag) post.tag = [];
 
         if (postTags) {
 
@@ -60,12 +57,12 @@ Meteor.methods({
                 console.log(newTag);
 
                 //check for any new tags not already present on the post.
-                if (post.tags.find(function(tag) {
+                if (post.tag.find(function(tag) {
                     return tag === newTag;
                 }) === undefined) {
                     //if any are found, add them to the list of new tags on the
                     //post.
-                    post.tags.push(newTag);
+                    post.tag.push(newTag);
                 }
             }
         }
@@ -75,10 +72,10 @@ Meteor.methods({
 
         //Insert new post into position.
         let postId = Posts.insert(post);
-        Posts.update({_id: post.target}, {$push: {replies: postId}});
+        Posts.update({_id: post.inReplyTo}, {$push: {replies: postId}});
 
         //add any new tags to the database, and adjust the info for existing tags accordingly.
-        for (let tag of post.tags) {
+        for (let tag of post.tag) {
             let tagDocument = Tags.findOne({_id: tag});
             if (!tagDocument) {
                 Tags.insert({_id: tag, postNumber: 1, posts: [postId]});
@@ -112,13 +109,13 @@ Meteor.methods({
         let post = Posts.findOne({_id: postId});
 
         //Don't allow non-moderators to edit other peoples posts.
-        if (post.poster !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {
+        if (post.attributedTo !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('post-not-owned', 'Only moderators may edit posts they don\'t own.');
         }
 
         //Validate edit.
-        if (post.title && post.title.length < 1) {
-            delete post.title;
+        if (post.summary && post.summary.length < 1) {
+            delete post.summary;
         }
 
         //check post for new tags and process them if found.
@@ -154,9 +151,9 @@ Meteor.methods({
 
         //Edit post.
         Posts.update({_id: postId}, {$set: {
-            title: update.title,
+            summary: update.summary,
             content: update.content,
-            lastEditedAt: Date.now()
+            updated: Date.now()
         }});
     },
     deletePost: function(postId) {
@@ -173,12 +170,12 @@ Meteor.methods({
         }
 
         //recursively delete all replies to the post.
-        post.replies.forEach(function(reply) {
-            Meteor.call('deletePost', reply);
+        Posts.find({inReplyTo: post._id}).forEach(function(reply) {
+            Meteor.call('deletePost', reply._id);
         });
 
         //delete the post and all references to it.
-        Posts.update({_id: post.target}, {$pull: {replies: postId}});
+        Posts.update({_id: post.inReplyTo}, {$pull: {replies: postId}});
         Posts.remove(postId);
     },
     submitReport: function(report) {
@@ -207,7 +204,7 @@ Meteor.methods({
         return Reports.update({_id: report._id},
             {$set: {resolved: true} });
     },
-    updateUserBio: function(newBio) {
+    updateUserSummary: function(newSummary) {
         let user = Meteor.users.findOne({_id: this.userId});
 
         //Don't allow guests to try and edit profiles.
@@ -221,7 +218,7 @@ Meteor.methods({
         }
 
         //Update field.
-        Meteor.users.update({_id: this.userId}, {$set: {bio: newBio}});
+        Meteor.users.update({_id: this.userId}, {$set: {'profile.summary': newSummary}});
     },
     addSeenPost: function(postID) {
         let user = Meteor.users.findOne({_id: this.userId});
@@ -233,15 +230,15 @@ Meteor.methods({
 
         let post = Posts.findOne({_id: postID});
 
-        if (!post.postedOn) {
+        if (!post.published) {
             throw new Meteor.Error('undated-post', 'That post does not have a date and is thus assumed to be to old to be worth recording as seen.');
         }
 
-        if (post.poster == this.userId) {
+        if (post.attributedTo == this.userId) {
             throw new Meteor.Error('own-post', 'A user is assumed to have always seen their own posts.');
         }
 
-        if (Date.now() - post.postedOn >= (1000*60*60*24*30)) {
+        if (Date.now() - post.published >= (1000*60*60*24*30)) {
             throw new Meteor.Error('old-post', 'Posts older than a month are assumed to have always been seen.');
         }
 

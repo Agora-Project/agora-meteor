@@ -12,15 +12,29 @@ Package.describe({
     documentation: 'README.md'
 });
 
+Npm.depends({
+    step: '1.0.0',
+    xml2js: '0.4.19',
+    request: '2.85.0',
+    'simpl-schema': '1.1.0'
+});
+
 Package.onUse(function(api) {
     both = ['client', 'server'];
 
-    api.addFiles([
-        'server/initial-data.js',
-        'server/methods.js',
-        'server/publish.js',
-        'server/users.js'
-    ], 'server');
+    api.use([
+        'accounts-password',
+        'useraccounts:core',
+        'agoraforum:activitypub',
+        'ecmascript',
+        'iron:router',
+	    'matb33:collection-hooks',
+        'aldeed:collection2',
+        'accounts-base',
+        'alanning:roles',
+        'utilities:avatar',
+        'email'
+    ], both);
 
     api.addFiles([
         'lib/identity_collections/identity_collections.js',
@@ -29,19 +43,19 @@ Package.onUse(function(api) {
         'lib/schemas/report.js',
         'lib/schemas/tag.js',
         'lib/schemas/vote.js',
+        'lib/users.js',
         'routes.js'
     ], both);
 
-    api.use([
-        'ecmascript',
-        'iron:router',
-	    'matb33:collection-hooks',
-        'aldeed:simple-schema',
-        'aldeed:collection2',
-        'accounts-base',
-        'alanning:roles',
-        'email'
-    ], both);
+
+    api.addFiles([
+        'lib/webfinger/lib/webfinger.js',
+        'lib/actors.js',
+        'server/methods.js',
+        'server/publish.js',
+        'server/federation.js',
+        'server/initial-data.js'
+    ], 'server');
 
     api.addFiles([
         'client/lib/XBBCode/xbbcode.js',
@@ -62,6 +76,12 @@ Package.onUse(function(api) {
     api.addFiles([
         'client/userList/userList.html',
         'client/userList/userList.js'
+    ], 'client');
+
+    api.addFiles([
+        'client/federation/federation.html',
+        'client/federation/federation.js',
+        'client/federation/federation.css'
     ], 'client');
 
     api.addFiles([
@@ -99,18 +119,14 @@ Package.onUse(function(api) {
         'client/adminScreen/adminScreen.js'
     ], 'client');
 
-    api.addAssets([
-        'public/agoraforum.png'
-    ], 'client');
-
     api.use([
         'ui',
         'session',
         'templating',
         'reactive-var',
-        'utilities:avatar',
         'gwendall:body-events',
-        'meteorhacks:subs-manager'
+        'meteorhacks:subs-manager',
+        'momentjs:moment'
     ], 'client');
 });
 
