@@ -40,9 +40,9 @@ Package.onUse(function(api) {
         'lib/identity_collections/identity_collections.js',
         'lib/grapher/layered_grapher.js',
         'lib/collections/actors.js',
-        'lib/collections/post.js',
-        'lib/collections/report.js',
-        'lib/collections/tag.js',
+        'lib/collections/posts.js',
+        'lib/collections/reports.js',
+        'lib/collections/tags.js',
         'lib/collections/users.js',
         'routes.js'
     ], both);
