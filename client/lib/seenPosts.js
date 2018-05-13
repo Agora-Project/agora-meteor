@@ -11,7 +11,7 @@ postIsSeen = function (post) {
     if (!user) return true;
 
     //if this post was posted by the logged in user then it is automatically seen.
-    if (post.attributedTo == Meteor.userId()) return true;
+    if (post.attributedTo == user.actor) return true;
 
     //if the post was posted 30 days or more ago, it is automatically seen.
     if (!post.published || Date.now() - post.published >= (1000*60*60*24*30)) return true;
