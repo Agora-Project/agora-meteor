@@ -47,8 +47,10 @@ Template.mainDetailedPost.onRendered(function() {
 
 Template.mainDetailedPost.helpers({
     actor: function() {
-        let post = Template.currentData();
-        return Actors.findOne({id: post.attributedTo});
+        return Actors.findOne({id: this.attributedTo});
+    },
+    initials: function() {
+        return Actors.findOne({id: this.attributedTo}).name[0];
     },
     age: function() {
         let post = Template.currentData();
@@ -419,8 +421,10 @@ Template.mainBasicPost.onRendered(function() {
 
 Template.mainBasicPost.helpers({
     actor: function() {
-        let post = Template.currentData();
-        return Actors.findOne({id: post.attributedTo});
+        return Actors.findOne({id: this.attributedTo});
+    },
+    initials: function() {
+        return Actors.findOne({id: this.attributedTo}).name[0];
     },
     preview: function() {
         if (this.summary) return this.summary.slice(0, 20);

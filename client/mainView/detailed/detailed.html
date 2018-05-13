@@ -14,7 +14,7 @@
             <div class="main-detailed-post-info">
                 {{#if actor}}
                     <a class="main-detailed-post-avatar" href="{{actor.url}}">
-                        {{> avatar user=(actor) size="small" shape="rounded"}}
+                        {{> avatar size="small" shape="rounded" initials=(initials)}}
                     </a>
                     <a class="main-detailed-post-username" href="{{actor.url}}">
                         {{actor.name}}
@@ -90,7 +90,7 @@
             {{#if actor}}
                 <div class="main-basic-post-info">
                         <a class="main-basic-post-avatar" href="{{actor.url}}">
-                            {{> avatar user=(actor) size="extra-small" shape="rounded"}}
+                            {{> avatar size="extra-small" shape="rounded" initials=(initials)}}
                         </a>
                 </div>
             {{/if}}
