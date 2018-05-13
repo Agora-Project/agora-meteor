@@ -5,8 +5,11 @@
 */
 
 //Returns all information about a single post and its poster's basic information.
-Meteor.publish('fullPost', function(postID) {
-    return Posts.find({_id: postID});
+Meteor.publish('fullPost', function(postID, actorID) {
+    return [
+        Posts.find({_id: postID}),
+        Actors.find({id: actorID})
+    ];
 });
 
 Meteor.publish('abstractPost', function(postID) {
