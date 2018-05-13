@@ -5,11 +5,8 @@
 */
 
 //Returns all information about a single post and its poster's basic information.
-Meteor.publish('post', function(postID, posterID) {
-    return [
-        Posts.find({_id: postID}),
-        Meteor.users.find({_id: posterID}, { fields: {isBanned: 1, createdAt: 1, roles: 1, profile: 1} })
-    ];
+Meteor.publish('fullPost', function(postID) {
+    return Posts.find({_id: postID});
 });
 
 Meteor.publish('abstractPost', function(postID) {
@@ -30,8 +27,8 @@ Meteor.publish('abstractPostsByTag', function(tag) {
     return Posts.find({tags: tag}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1}});
 });
 
-Meteor.publish('abstractPostsByUser', function(userID) {
-    return Posts.find({attributedTo: userID}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1}});
+Meteor.publish('abstractPostsByUser', function(actorID) {
+    return Posts.find({attributedTo: actorID}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1}});
 });
 
 //Universal subscription for roles.
@@ -59,20 +56,18 @@ Meteor.publish('myself', function() {
 Meteor.publish('users', function() {
     if (Roles.userIsInRole(this.userId, ['moderator'])) {
         return Meteor.users.find({}, {
-            fields: {isBanned: 1, createdAt: 1, roles: 1, emails: 1, profile: 1}
+            fields: {isBanned: 1, createdAt: 1, roles: 1, emails: 1}
         });
     } else {
         return Meteor.users.find({}, {
-            fields: {isBanned: 1, createdAt: 1, roles: 1, profile: 1}
+            fields: {isBanned: 1, createdAt: 1, roles: 1}
         });
     }
 });
 
 //User data, for the profile page.
-Meteor.publish('user', function(userId) {
-    return Meteor.users.find({_id: userId}, {
-        fields: {isBanned: 1, createdAt: 1, roles: 1, profile: 1}
-    });
+Meteor.publish('actor', function(actorID) {
+    return Actors.find({id: actorID});
 });
 
 //Reports; for the report management page.
