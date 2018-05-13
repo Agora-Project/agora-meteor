@@ -234,7 +234,7 @@ Meteor.methods({
             throw new Meteor.Error('undated-post', 'That post does not have a date and is thus assumed to be to old to be worth recording as seen.');
         }
 
-        if (post.attributedTo == this.userId) {
+        if (post.attributedTo == user.actor) {
             throw new Meteor.Error('own-post', 'A user is assumed to have always seen their own posts.');
         }
 

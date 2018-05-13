@@ -48,7 +48,7 @@ Meteor.publish(null, function() {
 Meteor.publish('myself', function() {
     if (this.userId) {
         return Meteor.users.find({_id: this.userId}, {
-            fields: {isBanned: 1, seenPosts: 1, profile: 1}
+            fields: {isBanned: 1, seenPosts: 1, profile: 1, actor: 1}
         });
     } else {
         return this.ready();
