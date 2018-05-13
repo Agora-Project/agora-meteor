@@ -39,18 +39,17 @@ Package.onUse(function(api) {
     api.addFiles([
         'lib/identity_collections/identity_collections.js',
         'lib/grapher/layered_grapher.js',
-        'lib/schemas/post.js',
-        'lib/schemas/report.js',
-        'lib/schemas/tag.js',
-        'lib/schemas/vote.js',
-        'lib/users.js',
+        'lib/collections/actors.js',
+        'lib/collections/post.js',
+        'lib/collections/report.js',
+        'lib/collections/tag.js',
+        'lib/collections/users.js',
         'routes.js'
     ], both);
 
 
     api.addFiles([
         'lib/webfinger/lib/webfinger.js',
-        'lib/actors.js',
         'server/methods.js',
         'server/publish.js',
         'server/federation.js',
