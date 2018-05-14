@@ -45,6 +45,9 @@ Meteor.methods({
         if (post.summary && post.summary.length > 100)
             throw new Meteor.Error('Summary too long!', 'Cannot insert post with summary greater than 100 characters!');
 
+        if (post.content.length > 500 && (!post.summary || post.summary.length < 1))
+            throw new Meteor.Error('Summary needed!', 'Posts with more than 500 characters of content must have a summary!');
+
         //Don't allow posts that target posts that don't exist.
         if (post.inReplyTo) {
             let target = Posts.findOne({id: post.inReplyTo});
