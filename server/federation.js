@@ -14,17 +14,13 @@ Meteor.methods({
         });
     },
     importFromActivityPubJSON: function(json) {
-        if (!json.type) throw new Meteor.Error('untyped ActivityPub JSON');
+        if (!json.type) throw new Meteor.Error('Untyped ActivityPub JSON');
 
-        if (!activityPubSchemas.validate(json.type + ".json", json))
-            console.log(activityPubSchemas.errorsText());
-        else {
-            if (activityPubActorTypes.includes(json.type))
-                importActorFromActivityPubJSON(json);
+        if (activityPubActorTypes.includes(json.type))
+            importActorFromActivityPubJSON(json);
 
-            else if (activityPubObjectTypes.includes(json.type))
-                importPostFromActivityPubJSON(json);
-        }
+        else if (activityPubObjectTypes.includes(json.type))
+            importPostFromActivityPubJSON(json);
     }
 });
 
@@ -36,4 +32,8 @@ importActorFromActivityPubJSON = function(json) {
 };
 
 importPostFromActivityPubJSON = function(json) {
+    let post = Posts.findOne({id: json.id}); //Is post already present?
+    if (!post) {                             //If not,
+        Posts.insert(json);                  //add it.
+    } else console.log(post);
 };
