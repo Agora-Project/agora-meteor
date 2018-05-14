@@ -35,7 +35,7 @@ Meteor.methods({
             throw new Meteor.Error('no target', 'Post has no target!');
         }
 
-        let target = Posts.findOne({_id: post.inReplyTo});
+        let target = Posts.findOne({id: post.inReplyTo});
         if (!target) {
             throw new Meteor.Error('target invalid', 'Targeted post not found!');
         }
@@ -70,9 +70,10 @@ Meteor.methods({
         //Validate against schema. TODO: Fix validation redundancy--also validates upon insert.
         Schema.Post.validate(post);
 
-        //Insert new post into position.
+        //Insert new post.
         let postId = Posts.insert(post);
-        Posts.update({_id: post.inReplyTo}, {$push: {replies: postId}});
+        post = Posts.findOne({_id: postId});
+        Posts.update({id: post.inReplyTo}, {$push: {replies: post.id}});
 
         //add any new tags to the database, and adjust the info for existing tags accordingly.
         for (let tag of post.tag) {
@@ -170,12 +171,12 @@ Meteor.methods({
         }
 
         //recursively delete all replies to the post.
-        Posts.find({inReplyTo: post._id}).forEach(function(reply) {
+        Posts.find({inReplyTo: post.id}).forEach(function(reply) {
             Meteor.call('deletePost', reply._id);
         });
 
         //delete the post and all references to it.
-        Posts.update({_id: post.inReplyTo}, {$pull: {replies: postId}});
+        Posts.update({id: post.inReplyTo}, {$pull: {replies: post.id}});
         Posts.remove(postId);
     },
     submitReport: function(report) {

@@ -7,31 +7,31 @@
 //Returns all information about a single post and its poster's basic information.
 Meteor.publish('fullPost', function(postID, actorID) {
     return [
-        Posts.find({_id: postID}),
+        Posts.find({id: postID}),
         Actors.find({id: actorID})
     ];
 });
 
 Meteor.publish('abstractPost', function(postID) {
-    return Posts.find({_id: postID}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1} } );
+    return Posts.find({id: postID}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1} } );
 });
 
 Meteor.publish('abstractReplies', function(postID) {
-    return Posts.find({inReplyTo: postID}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1} } );
+    return Posts.find({inReplyTo: postID}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1} } );
 });
 
 //Returns an abstract shell of all posts, each only containing its id, links, and subtree width.
 Meteor.publish('localAbstractPosts', function() {
-    return Posts.find({}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1}, sort: {published: 1}, limit: 100});
+    return Posts.find({}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}, sort: {published: 1}, limit: 100});
 });
 
 //Returns an abstract shell of all posts with a given tag, each only containing its id, links, and subtree width.
 Meteor.publish('abstractPostsByTag', function(tag) {
-    return Posts.find({tags: tag}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1}});
+    return Posts.find({tags: tag}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}});
 });
 
 Meteor.publish('abstractPostsByUser', function(actorID) {
-    return Posts.find({attributedTo: actorID}, {fields: {attributedTo: 1, inReplyTo: 1, replies: 1}});
+    return Posts.find({attributedTo: actorID}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}});
 });
 
 //Universal subscription for roles.

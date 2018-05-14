@@ -24,8 +24,8 @@ MainViewLayout = function() {
         return LayeredGrapher.removePost(localPostPositions, post);
     };
 
-    this.updatePost = function(id, fields) {
-        localPostPositions.update({_id: id},{$set: fields});
+    this.updatePost = function(_id, fields) {
+        localPostPositions.update({_id: _id},{$set: fields});
     };
 
     this.getPosts = function() {
@@ -33,7 +33,7 @@ MainViewLayout = function() {
     }
 
     this.getPost = function(id) {
-        return localPostPositions.findOne({_id: id});
+        return localPostPositions.findOne({id: id});
     }
 
 }

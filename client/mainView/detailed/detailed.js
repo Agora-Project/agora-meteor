@@ -16,9 +16,9 @@ Template.mainDetailedPost.onCreated(function() {
     this.onRendered = new Notifier();
     this.seen = new ReactiveVar(true);
 
-    this.subscribe('fullPost', this.data._id, this.data.attributedTo, {onReady: onSubReady.fulfill});
+    this.subscribe('fullPost', this.data.id, this.data.attributedTo, {onReady: onSubReady.fulfill});
 
-    this.subscribe('abstractReplies', this.data._id);
+    this.subscribe('abstractReplies', this.data.id);
 
     this.subscribe('abstractPost', this.data.inReplyTo);
 
@@ -90,8 +90,8 @@ Template.mainDetailedPost.helpers({
     hasLoadButton: function() {
         let instance = Template.instance();
         let ret = false;
-        Posts.find({inReplyTo: this._id}).forEach(function(post) {
-            if (!ret && !instance.parent.layout.getPost(post._id)) ret = true;
+        Posts.find({inReplyTo: this.id}).forEach(function(post) {
+            if (!ret && !instance.parent.layout.getPost(post.id)) ret = true;
         })
         if (!ret && this.inReplyTo && !Template.instance().parent.layout.getPost(this.inReplyTo)) ret = true;
         return ret;
@@ -157,8 +157,8 @@ MainViewDetailedPosts = function(camera, partitioner) {
         });
     };
 
-    this.updatePost = function(id, fields) {
-        let post = visiblePosts.findOne({_id: id});
+    this.updatePost = function(_id, fields) {
+        let post = visiblePosts.findOne({_id: _id});
 
         //If post is not actually visible we don't need to do anything.
         if (!post) return;
@@ -167,10 +167,10 @@ MainViewDetailedPosts = function(camera, partitioner) {
             delete postPositionHashMap["" + post.position.x + ", " + post.position.y];
         }
 
-        if (visiblePosts.findOne({_id: id}))
-            visiblePosts.update({_id: id}, {$set: fields});
+        if (visiblePosts.findOne({_id: _id}))
+            visiblePosts.update({_id: _id}, {$set: fields});
 
-        post = visiblePosts.findOne({_id: id});
+        post = visiblePosts.findOne({_id: _id});
         if (fields.position) {
             postPositionHashMap["" + post.position.x + ", " + post.position.y] = post;
         }
@@ -336,13 +336,13 @@ Template.mainDetailedPostLoadButton.getParents();
 Template.mainDetailedPostLoadButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        Posts.find({inReplyTo: this._id}).forEach(function(post) {
-            subscriptionManager.subscribe('abstractPost', post._id);
+        Posts.find({inReplyTo: this.id}).forEach(function(post) {
+            subscriptionManager.subscribe('abstractPost', post.id);
             instance.parent.parent.addPost(post);
         });
 
         subscriptionManager.subscribe('abstractPost', instance.parent.data.inReplyTo);
-        instance.parent.parent.addPost(Posts.findOne({_id: instance.parent.data.inReplyTo}));
+        instance.parent.parent.addPost(Posts.findOne({id: instance.parent.data.inReplyTo}));
     }
 });
 
@@ -394,7 +394,7 @@ Template.mainBasicPost.onCreated(function() {
     this.onRendered = new Notifier();
     this.seen = new ReactiveVar(true);
 
-    this.subscribe('fullPost', this.data._id, this.data.attributedTo, {onReady: onSubReady.fulfill});
+    this.subscribe('fullPost', this.data.id, this.data.attributedTo, {onReady: onSubReady.fulfill});
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Fade out spinner and fade in actual post.

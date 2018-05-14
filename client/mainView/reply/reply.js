@@ -35,7 +35,7 @@ Template.mainReply.onRendered(function() {
         let post = {
             summary: summaryInput.val(),
             content: contentInput.val(),
-            inReplyTo: target._id
+            inReplyTo: target.id
         };
 
         Meteor.call("insertPost", post, function(error, result) {
