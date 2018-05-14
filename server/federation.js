@@ -5,15 +5,19 @@ Meteor.methods({
     getActivityJSONFromUrl: function(url) {
         return getActivityFromUrl(url)
         .then((response) => {
-            return response.json();
+            if (response)
+                return response.json();
+                else throw new Meteor.Error('No response from url');
         })
         .then((json) => {
-            Meteor.call('importFromActivityPubJSON', json);
+            if (json) Meteor.call('importFromActivityPubJSON', json);
 
             return json;
         });
     },
     importFromActivityPubJSON: function(json) {
+        if (!json) throw new Meteor.Error('Empty JSON');
+
         if (!json.type) throw new Meteor.Error('Untyped ActivityPub JSON');
 
         if (activityPubActorTypes.includes(json.type))
