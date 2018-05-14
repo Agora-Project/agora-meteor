@@ -12,12 +12,12 @@
             {{/if}}
             <button class="main-detailed-post-close-button">Close</button>
             <div class="main-detailed-post-info">
-                {{#if poster}}
-                    <a class="main-detailed-post-avatar" href="/user/{{poster._id}}">
-                        {{> avatar user=(poster) size="small" shape="rounded"}}
+                {{#if actor}}
+                    <a class="main-detailed-post-avatar" href="{{actor.url}}">
+                        {{> avatar size="small" shape="rounded" initials=(initials)}}
                     </a>
-                    <a class="main-detailed-post-username" href="/user/{{poster._id}}">
-                        {{poster.profile.name}}
+                    <a class="main-detailed-post-username" href="{{actor.url}}">
+                        {{actor.name}}
                     </a>
                 {{/if}}
                 <span class="main-detailed-post-age">
@@ -87,10 +87,10 @@
 <template name="mainBasicPost">
     <div class="main-basic-post" id="main-basic-post-{{_id}}">
         <div class="main-basic-post-flex">
-            {{#if poster}}
+            {{#if actor}}
                 <div class="main-basic-post-info">
-                        <a class="main-basic-post-avatar" href="/user/{{poster._id}}">
-                            {{> avatar user=(poster) size="extra-small" shape="rounded"}}
+                        <a class="main-basic-post-avatar" href="{{actor.url}}">
+                            {{> avatar size="extra-small" shape="rounded" initials=(initials)}}
                         </a>
                 </div>
             {{/if}}

@@ -166,21 +166,19 @@ MainViewRenderer = function(camera) {
             }
         }
 
-        let self = this;
-
-        Posts.find({inReplyTo: post._id}).forEach(function(reply) {
-            let source = postIndices[reply._id];
+        Posts.find({inReplyTo: post.id}).forEach(function(reply) {
+            let source = postIndices[reply.id];
             if (source !== undefined) {
-                self.addLink(source, postCount);
+                addLink(source, postCount);
             }
         });
 
-        postIndices[post._id] = postCount;
+        postIndices[post.id] = postCount;
         postCount++;
     };
 
     this.removePost = function(post) {
-        let index = postIndices[post._id];
+        let index = postIndices[post.id];
 
         if (index === undefined) {
             return;
@@ -192,14 +190,15 @@ MainViewRenderer = function(camera) {
         gl.bufferSubData(gl.ARRAY_BUFFER, index*20, new Float32Array([NaN, NaN, NaN, NaN, NaN]));
 
         //Make sure to forget the old index.
-        delete postIndices[post._id];
+        delete postIndices[post.id];
 
         //TODO: Make this more sophisticated (stop using this hack).
         //Idea: Could count number of post deletions, and remake graph from scratch if there are too many.
         //Probably too slow for large graphs (>10000 posts)
     };
 
-    this.updatePost = function(id, fields) {
+    this.updatePost = function(_id, fields) {
+        let id = Posts.findOne({_id: _id}).id;
         if (fields.position && postIndices[id]) {
             let index = postIndices[id]*20;
             let pos = fields.position;

@@ -97,7 +97,7 @@ Template.mainView.onCreated(function() {
         if (!post) return;
 
         //First, check to make sure the post is not already present
-        if (instance.layout.getPost(post._id)) return;
+        if (instance.layout.getPost(post.id)) return;
 
         //Then add it to the layout.
         let results = instance.layout.addPost(post);
@@ -117,8 +117,8 @@ Template.mainView.onCreated(function() {
         instance.partitioner.init(instance.layout.getPosts());
     }
 
-    this.addPostByID = function(id) {
-        this.addPost(Posts.findOne({_id: id}));
+    this.addPostByID = function(_id) {
+        this.addPost(Posts.findOne({_id: _id}));
     }
 
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {

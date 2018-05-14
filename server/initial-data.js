@@ -54,7 +54,7 @@ Meteor.startup(function() {
         let rootID = Posts.insert({
             summary: 'Forum Root',
             content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
-            attributedTo: defaultMod._id
+            attributedTo: defaultMod.actor
         });
     }
 
@@ -67,11 +67,13 @@ Meteor.startup(function() {
         let rootID = Posts.insert({
             summary: 'Forum Root',
             content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
-            attributedTo: defaultMod._id
+            attributedTo: defaultMod.actor
         });
 
         console.log("Adding fake posts");
-        let posts = [rootID];
+
+        let id = Posts.findOne({_id: rootID}).id;
+        let posts = [id];
 
         for (let i=0; i<1200; i++) { //This will add a LOT of posts. You may wish to decrease the number, as it will take a few minutes otherwise.
             //Decrease exponent to more strongly prefer replying to newer posts.
@@ -81,17 +83,20 @@ Meteor.startup(function() {
 
             let reply = {
                 content: 'Fake content.',
-                attributedTo: user._id
+                attributedTo: user.actor
             };
 
-            if (target) reply.inReplyTo = target;
+            if (target) {
+                reply.inReplyTo = target;
+            }
 
             if (Math.random() > 0.5) {
                 reply.summary = 'Fake Summary';
             }
 
-            let id = Posts.insert(reply);
-            if (target) Posts.update({_id: target}, {$push: {replies: id}});
+            let _id = Posts.insert(reply);
+            let id = Posts.findOne({_id: _id}).id;
+            if (target) Posts.update({id: target}, {$push: {replies: id}});
             posts.push(id);
         }
     }
