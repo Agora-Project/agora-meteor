@@ -25,15 +25,13 @@ Meteor.methods({
 });
 
 importActorFromActivityPubJSON = function(json) {
-    let actor = Actors.findOne({id: json.id}); //Is actor already present?
-    if (!actor) {                              //If not,
-        Actors.insert(json);                   //add it.
+    if (!Actors.findOne({id: json.id})) { //Is actor already present? If not,
+        Actors.insert(json);             //add it.
     }
 };
 
 importPostFromActivityPubJSON = function(json) {
-    let post = Posts.findOne({id: json.id}); //Is post already present?
-    if (!post) {                             //If not,
-        Posts.insert(json);                  //add it.
-    } else console.log(post);
+    if (!Posts.findOne({id: json.id})) { //Is post already present? If not,
+        Posts.insert(json);                  //add the post.
+    }
 };
