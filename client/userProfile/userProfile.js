@@ -22,11 +22,7 @@ Template.userProfile.helpers({
         if (!user) return;
         let rawBio = user.profile.summary;
         if (rawBio) {
-            return XBBCODE.process({
-                text: rawBio,
-                removeMisalignedTags: false,
-                addInLineBreaks: true
-            }).html;
+            return rawBio;
         }
     }
 });

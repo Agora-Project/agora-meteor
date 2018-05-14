@@ -65,16 +65,6 @@ Template.mainDetailedPost.helpers({
         let user = Meteor.user();
         return (user.emails && user.emails.length > 0 && user.emails[0].verified);
     },
-    content: function() {
-        let rawContent = this.content;
-        if (rawContent) {
-            return XBBCODE.process({
-                text: rawContent,
-                removeMisalignedTags: false,
-                addInLineBreaks: true
-            }).html;
-        }
-    },
     editAccess: function() {
         return this.attributedTo === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
@@ -428,45 +418,7 @@ Template.mainBasicPost.helpers({
     },
     preview: function() {
         if (this.summary) return this.summary.slice(0, 20);
-        else {
-            let rawContent = this.content;
-            let bbcontent, finalContent = "";
-            if (rawContent) {
-                bbcontent = XBBCODE.process({
-                    text: rawContent,
-                    removeMisalignedTags: false,
-                    addInLineBreaks: true
-                }).html;
-
-                let insideTags = 0, openTags = 0, characters = 20
-
-                while (bbcontent.length > 0 || insideTags > 0 || openTags > 0) {
-
-                    if (bbcontent[0] == '<') {
-                        insideTags++;
-                        if (bbcontent[1] != '/')
-                            openTags++;
-                        else openTags--;
-                    }
-
-                    if (characters > 0 && insideTags < 1) {
-                        if (bbcontent[0] != '\n') finalContent += bbcontent[0];
-                        else finalContent += ' ';
-                    }
-
-                    if (insideTags <= 0) characters--;
-
-                    if (bbcontent[0] == '>') insideTags--;
-
-                    bbcontent = bbcontent.substr(1, bbcontent.length - 1);
-
-                }
-
-                return finalContent;
-
-
-            }
-        }
+        else if (this.content) return this.content.slice(0, 20);
     },
     seen: function() {
         return Template.instance().seen.get();
