@@ -5,35 +5,37 @@ Meteor.methods({
     getActivityJSONFromUrl: function(url) {
         return getActivityFromUrl(url)
         .then((response) => {
-            return response.json();
+            if (response)
+                return response.json();
+                else throw new Meteor.Error('No response from url');
         })
         .then((json) => {
-            Meteor.call('importFromActivityPubJSON', json);
+            if (json) Meteor.call('importFromActivityPubJSON', json);
 
             return json;
         });
     },
     importFromActivityPubJSON: function(json) {
-        if (!json.type) throw new Meteor.Error('untyped ActivityPub JSON');
+        if (!json) throw new Meteor.Error('Empty JSON');
 
-        if (!activityPubSchemas.validate(json.type + ".json", json))
-            console.log(activityPubSchemas.errorsText());
-        else {
-            if (activityPubActorTypes.includes(json.type))
-                importActorFromActivityPubJSON(json);
+        if (!json.type) throw new Meteor.Error('Untyped ActivityPub JSON');
 
-            else if (activityPubObjectTypes.includes(json.type))
-                importPostFromActivityPubJSON(json);
-        }
+        if (activityPubActorTypes.includes(json.type))
+            importActorFromActivityPubJSON(json);
+
+        else if (activityPubObjectTypes.includes(json.type))
+            importPostFromActivityPubJSON(json);
     }
 });
 
 importActorFromActivityPubJSON = function(json) {
-    let actor = Actors.findOne({id: json.id}); //Is actor already present?
-    if (!actor) {                              //If not,
-        Actors.insert(json);                   //add it.
+    if (!Actors.findOne({id: json.id})) { //Is actor already present? If not,
+        Actors.insert(json);             //add it.
     }
 };
 
 importPostFromActivityPubJSON = function(json) {
+    if (!Posts.findOne({id: json.id})) { //Is post already present? If not,
+        Posts.insert(json);                  //add the post.
+    }
 };
