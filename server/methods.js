@@ -85,8 +85,6 @@ Meteor.methods({
 
         //Insert new post.
         let postId = Posts.insert(post);
-        post = Posts.findOne({_id: postId});
-        Posts.update({id: post.inReplyTo}, {$push: {replies: post.id}});
 
         //add any new tags to the database, and adjust the info for existing tags accordingly.
         for (let tag of post.tag) {
