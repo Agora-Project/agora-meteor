@@ -208,8 +208,10 @@ Meteor.methods({
             throw new Meteor.Error('unverified', 'Unverified users may not submit reports.');
         }
 
-        if (report.content.length >= 1)
-            return Reports.insert(report);
+        if (report.content.length < 1)
+            throw new Meteor.Error('No content', 'Report has no content!');
+
+        return Reports.insert(report);
     },
     resolveReport: function(report) {
         if (Roles.userIsInRole(this.userId, ['moderator']))

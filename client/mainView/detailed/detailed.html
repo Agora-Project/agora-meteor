@@ -44,13 +44,13 @@
                         {{#if moderator}}
                             {{> mainDetailedPostDeleteButton}}
                         {{/if}}
-                        {{#if hasReportButton}}
-                            {{> mainDetailedPostReportButton}}
-                        {{/if}}
                         {{#if hasReplyButtons}}
+                            {{> mainDetailedPostReportButton}}
+
                             {{#if editAccess}}
                                 {{> mainDetailedPostEditButton}}
                             {{/if}}
+                            
                             {{> mainDetailedPostReplyButton}}
                         {{/if}}
                     {{/if}}

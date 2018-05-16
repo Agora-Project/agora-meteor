@@ -32,11 +32,7 @@
  *          Depends on the camera and partitioner.
  *
  *    * Reply (reply/reply.js)
- *          Handles the reply box and related code.
- *
- *    * Report (report/report.js)
- *          Handles the report box and related code.
- *
+ *          Handles the reply/edit/report box and related code.
  */
 
 Template.mainView.onCreated(function() {
@@ -64,7 +60,7 @@ Template.mainView.onCreated(function() {
     }
     this.targetPost = new ReactiveVar();
     this.targetMode = new ReactiveVar();
-    this.reportTarget = new ReactiveVar();
+    this.targetUser = new ReactiveVar();
     this.isSizeDirty = true;
 
     this.isReplyBoxOpen = function() {
@@ -226,9 +222,6 @@ Template.mainView.helpers({
     targetPost: function() {
         return Template.instance().targetPost.get();
     },
-    reportTarget: function() {
-        return Template.instance().reportTarget.get();
-    }
 });
 
 Template.mainView.events({

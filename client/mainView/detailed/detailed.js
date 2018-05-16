@@ -74,9 +74,6 @@ Template.mainDetailedPost.helpers({
     hasReplyButtons: function() {
         return !Template.instance().parent.isReplyBoxOpen();
     },
-    hasReportButton: function() {
-        return Template.instance().parent.reportTarget.get() === undefined;
-    },
     hasLoadButton: function() {
         let instance = Template.instance();
         let ret = false;
@@ -361,7 +358,8 @@ Template.mainDetailedPostReportButton.getParents();
 Template.mainDetailedPostReportButton.events({
     'click': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.reportTarget.set(instance.parent.data);
+        instance.parent.parent.targetPost.set(instance.parent.data);
+        instance.parent.parent.targetMode.set("Report");
     }
 });
 
