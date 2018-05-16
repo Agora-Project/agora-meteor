@@ -6,7 +6,7 @@
 
 Template.userProfile.helpers({
     user: function() {
-        return Meteor.users.findOne({_id: this.id});
+        return Actors.findOne({preferredUsername: this.handle});
     },
     editing: function() {
         return Template.instance().editing.get();;
@@ -15,12 +15,17 @@ Template.userProfile.helpers({
         return Template.instance().errorMessage.get();
     },
     ownProfile: function() {
-        return Meteor.userId() == this.id;
+        return Meteor.userId() == this.handle;
+    },
+    initials: function() {
+        let actor = Actors.findOne({preferredUsername: this.handle});
+        if (!actor) return;
+        return actor.name[0];
     },
     summary: function() {
-        let user = Meteor.users.findOne({_id: this.id});
-        if (!user) return;
-        let rawBio = user.profile.summary;
+        let actor = Actors.findOne({preferredUsername: this.handle});
+        if (!actor) return;
+        let rawBio = actor.summary;
         if (rawBio) {
             return rawBio;
         }
@@ -28,7 +33,7 @@ Template.userProfile.helpers({
 });
 
 Template.userProfile.onCreated(function() {
-    this.subscribe('user', this.data.id);
+    this.subscribe('actorByHandle', this.data.handle);
 
     this.editing = new ReactiveVar(false);
     this.errorMessage = new ReactiveVar();

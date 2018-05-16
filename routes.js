@@ -17,14 +17,14 @@ Router.route('/admin', {
     template: 'adminScreen'
 });
 
-Router.route('/user/:_id', function() {
-    var id = this.params._id;
+Router.route('/@:handle', function() {
+    var handle = this.params.handle;
 
-    if (!id) id = Meteor.userId();
+    if (!handle) handle = Meteor.userId();
 
     if (this.ready()) {
-        if (id) this.render('userProfile', {data: {id: id}});
-        else this.render('errorPage', {data: {_id: id}});
+        if (handle) this.render('userProfile', {data: {handle: handle}});
+        else this.render('errorPage', {data: {_id: handle}});
     }
 });
 

@@ -9,7 +9,7 @@
         <div id="profile-header">
             <div id="profile-face">
                 {{user.profile.name}}
-                {{> avatar user=user shape="rounded" size="large" id="profile-avatar"}}
+                {{> avatar shape="rounded" size="large" id="profile-avatar" initials=(initials)}}
             </div>
             <div id="profile-info">
                 {{#if editing}}
