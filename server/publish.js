@@ -68,9 +68,14 @@ Meteor.publish('users', function() {
     }
 });
 
-//User data, for the profile page.
+//Actor data, for the profile page.
 Meteor.publish('actor', function(actorID) {
     return Actors.find({id: actorID});
+});
+
+//Actor data, for the profile page.
+Meteor.publish('actorByHandle', function(handle) {
+    return Actors.find({preferredUsername: handle});
 });
 
 //Reports; for the report management page.
