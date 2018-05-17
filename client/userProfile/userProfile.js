@@ -5,7 +5,7 @@
 */
 
 Template.userProfile.helpers({
-    user: function() {
+    actor: function() {
         return Actors.findOne({preferredUsername: this.handle});
     },
     editing: function() {

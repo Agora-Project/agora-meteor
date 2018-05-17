@@ -68,7 +68,7 @@ Template.mainDetailedPost.helpers({
     editAccess: function() {
         return this.attributedTo === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
-    moderator: function() {
+    isModerator: function() {
         return Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
     hasReplyButtons: function() {
@@ -79,7 +79,7 @@ Template.mainDetailedPost.helpers({
         let ret = false;
         Posts.find({inReplyTo: this.id}).forEach(function(post) {
             if (!ret && !instance.parent.layout.getPost(post.id)) ret = true;
-        })
+        });
         if (!ret && this.inReplyTo && !Template.instance().parent.layout.getPost(this.inReplyTo)) ret = true;
         return ret;
     },

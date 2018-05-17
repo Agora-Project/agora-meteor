@@ -41,7 +41,7 @@
             <div class="main-detailed-post-footer">
                 {{#if currentUser}}
                     {{#if verifiedUser}}
-                        {{#if moderator}}
+                        {{#if isModerator}}
                             {{> mainDetailedPostDeleteButton}}
                         {{/if}}
                         {{#if hasReplyButtons}}
