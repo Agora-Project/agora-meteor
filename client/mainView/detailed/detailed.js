@@ -92,6 +92,12 @@ Template.mainDetailedPost.events({
     'click .main-detailed-post-close-button': function(event, instance) {
         instance.parent.removePost(this);
     },
+    'click .main-detailed-post-avatar, click .main-detailed-post-username': function(event, instance) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        instance.parent.targetActor.set(this.attributedTo);
+    },
     'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
         if (instance.parent.camera.isDragging()) {
             //Prevents interaction while dragging.

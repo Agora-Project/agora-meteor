@@ -60,7 +60,7 @@ Template.mainView.onCreated(function() {
     }
     this.targetPost = new ReactiveVar();
     this.targetMode = new ReactiveVar();
-    this.targetUser = new ReactiveVar();
+    this.targetActor = new ReactiveVar();
     this.isSizeDirty = true;
 
     this.isReplyBoxOpen = function() {
@@ -222,6 +222,9 @@ Template.mainView.helpers({
     targetPost: function() {
         return Template.instance().targetPost.get();
     },
+    targetActor: function() {
+        return Template.instance().targetActor.get();
+    }
 });
 
 Template.mainView.events({

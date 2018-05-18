@@ -22,9 +22,11 @@ Router.route('/@:handle', function() {
 
     if (!handle) handle = Meteor.userId();
 
+    let id = Meteor.absoluteUrl() + "actors/" + handle;
+
     if (this.ready()) {
-        if (handle) this.render('userProfile', {data: {handle: handle}});
-        else this.render('errorPage', {data: {_id: handle}});
+        if (handle) this.render('userProfile', {data: {id: id}});
+        else this.render('errorPage', {data: {_id: id}});
     }
 });
 

@@ -5,27 +5,25 @@
 -->
 
 <template name="userProfile">
-    <div id="profile-div">
-        <div id="profile-header">
-            <div id="profile-face">
-                {{actor.name}}
-                {{> avatar shape="rounded" size="large" id="profile-avatar" initials=(initials)}}
-            </div>
-            <div id="profile-info">
-                {{#if editing}}
-                    <textarea id="profile-summary-textarea" value={{actor.summary}}></textarea>
-                    <button id="profile-summary-submit-button">Submit</button>
-                    <button id="profile-summary-cancel-button">Cancel</button>
-                    {{#if errorMessage}}
-                        <span id="profile-summary-error-message">{{errorMessage}}</span>
-                    {{/if}}
-                {{else}}
-                    {{{summary}}}
-                    {{#if ownProfile}}
-                        <a href="#" id="profile-summary-edit">Edit</a>
-                    {{/if}}
+    <div id="profile-body">
+        <div id="profile-face">
+            {{actor.name}}
+            {{> avatar shape="rounded" size="large" id="profile-avatar" initials=(initials)}}
+        </div>
+        <div id="profile-info">
+            {{#if editing}}
+                <textarea id="profile-summary-textarea" value={{actor.summary}}></textarea>
+                <button id="profile-summary-submit-button">Submit</button>
+                <button id="profile-summary-cancel-button">Cancel</button>
+                {{#if errorMessage}}
+                    <span id="profile-summary-error-message">{{errorMessage}}</span>
                 {{/if}}
-            </div>
+            {{else}}
+                {{{summary}}}
+                {{#if ownProfile}}
+                    <a href="#" id="profile-summary-edit">Edit</a>
+                {{/if}}
+            {{/if}}
         </div>
     </div>
 </template>

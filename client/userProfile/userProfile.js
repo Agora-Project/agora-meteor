@@ -6,7 +6,7 @@
 
 Template.userProfile.helpers({
     actor: function() {
-        return Actors.findOne({preferredUsername: this.handle});
+        return Actors.findOne({id: this.id});
     },
     editing: function() {
         return Template.instance().editing.get();;
@@ -15,17 +15,17 @@ Template.userProfile.helpers({
         return Template.instance().errorMessage.get();
     },
     ownProfile: function() {
-        let actor = Actors.findOne({preferredUsername: this.handle});
+        let actor = Actors.findOne({id: this.id});
         if (actor)
             return Meteor.user().actor == actor.id;
     },
     initials: function() {
-        let actor = Actors.findOne({preferredUsername: this.handle});
+        let actor = Actors.findOne({id: this.id});
         if (!actor) return;
         return actor.name[0];
     },
     summary: function() {
-        let actor = Actors.findOne({preferredUsername: this.handle});
+        let actor = Actors.findOne({id: this.id});
         if (!actor) return;
         let rawBio = actor.summary;
         if (rawBio) {
@@ -36,7 +36,8 @@ Template.userProfile.helpers({
 
 Template.userProfile.onCreated(function() {
     let instance = this;
-    this.subscribe('actorByHandle', this.data.handle);
+
+    this.subscribe('actor', this.data.id);
 
     this.editing = new ReactiveVar(false);
     this.errorMessage = new ReactiveVar();
@@ -53,6 +54,11 @@ Template.userProfile.onCreated(function() {
             }
         });
     }
+});
+
+Template.userProfile.onRendered(function() {
+    if (this.data.floating)
+        $('#profile-body').css('transform', 'translateY(-50%) translateX(-50%)');
 });
 
 Template.userProfile.events({

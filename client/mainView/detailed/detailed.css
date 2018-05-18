@@ -188,3 +188,9 @@
     border-radius: 8px;
     border-color: #FFD700;
 }
+
+.main-floating-profile-centerer {
+    position: absolute;
+    left: 50%;
+    bottom: 50%;
+}
