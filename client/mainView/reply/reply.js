@@ -180,11 +180,11 @@ Template.mainReply.events({
             event.stopImmediatePropagation();
         }
     },
-    'keydown, keyup': function(event) {
+    'keydown, keyup': function(event, instance) {
         event.stopImmediatePropagation();
 
         if (event.ctrlKey && event.key == "Enter")
-            Template.instance().submitButton();
+            instance.submitButton();
 
     }
 });
