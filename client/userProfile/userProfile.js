@@ -15,7 +15,9 @@ Template.userProfile.helpers({
         return Template.instance().errorMessage.get();
     },
     ownProfile: function() {
-        return Meteor.userId() == this.handle;
+        let actor = Actors.findOne({preferredUsername: this.handle});
+        if (actor)
+            return Meteor.user().actor == actor.id;
     },
     initials: function() {
         let actor = Actors.findOne({preferredUsername: this.handle});
@@ -40,15 +42,14 @@ Template.userProfile.onCreated(function() {
 });
 
 Template.userProfile.events({
-    "click #profile-summary-edit": function() {
-        Template.instance().editing.set(true);
+    "click #profile-summary-edit": function(event, instance) {
+        instance.editing.set(true);
     },
-    'keydown, keyup': function(event) {
+    'keydown, keyup': function(event, instance) {
         event.stopImmediatePropagation();
 
-        if (Template.instance().editing.get() && event.ctrlKey && event.key == "Enter") {
-            let instance = Template.instance();
-            Meteor.call("updateUserSummary", $('#profile-summary-textarea').val(), function(error) {
+        if (instance.editing.get() && event.ctrlKey && event.key == "Enter") {
+            Meteor.call("updateActorSummary", $('#profile-summary-textarea').val(), function(error) {
                 if (error) {
                     //Display error message to user.
                     instance.errorMessage.set(error.reason);
@@ -61,9 +62,8 @@ Template.userProfile.events({
         }
 
     },
-    "click #profile-summary-submit-button": function() {
-        let instance = Template.instance();
-        Meteor.call("updateUserSummary", $('#profile-summary-textarea').val(), function(error) {
+    "click #profile-summary-submit-button": function(event, instance) {
+        Meteor.call("updateActorSummary", $('#profile-summary-textarea').val(), function(error) {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);
@@ -74,8 +74,8 @@ Template.userProfile.events({
             }
         });
     },
-    "click #profile-summary-cancel-button": function() {
+    "click #profile-summary-cancel-button": function(event, instance) {
         $('#profile-summary-textarea').val(this.profile.summary);
-        Template.instance().editing.set(false);
+        instance.editing.set(false);
     }
 });
