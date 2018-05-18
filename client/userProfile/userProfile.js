@@ -35,34 +35,13 @@ Template.userProfile.helpers({
 });
 
 Template.userProfile.onCreated(function() {
+    let instance = this;
     this.subscribe('actorByHandle', this.data.handle);
 
     this.editing = new ReactiveVar(false);
     this.errorMessage = new ReactiveVar();
-});
 
-Template.userProfile.events({
-    "click #profile-summary-edit": function(event, instance) {
-        instance.editing.set(true);
-    },
-    'keydown, keyup': function(event, instance) {
-        event.stopImmediatePropagation();
-
-        if (instance.editing.get() && event.ctrlKey && event.key == "Enter") {
-            Meteor.call("updateActorSummary", $('#profile-summary-textarea').val(), function(error) {
-                if (error) {
-                    //Display error message to user.
-                    instance.errorMessage.set(error.reason);
-                }
-                else {
-                    //Don't delete user's work unless it posts successfully.
-                    instance.editing.set(false);
-                }
-            });
-        }
-
-    },
-    "click #profile-summary-submit-button": function(event, instance) {
+    this.submitEdit = function() {
         Meteor.call("updateActorSummary", $('#profile-summary-textarea').val(), function(error) {
             if (error) {
                 //Display error message to user.
@@ -73,9 +52,25 @@ Template.userProfile.events({
                 instance.editing.set(false);
             }
         });
+    }
+});
+
+Template.userProfile.events({
+    "click #profile-summary-edit": function(event, instance) {
+        instance.editing.set(true);
+    },
+    'keydown, keyup': function(event, instance) {
+        event.stopImmediatePropagation();
+
+        if (instance.editing.get() && event.ctrlKey && event.key == "Enter") {
+            instance.submitEdit();
+        }
+
+    },
+    "click #profile-summary-submit-button": function(event, instance) {
+        instance.submitEdit();
     },
     "click #profile-summary-cancel-button": function(event, instance) {
-        $('#profile-summary-textarea').val(this.profile.summary);
         instance.editing.set(false);
     }
 });
