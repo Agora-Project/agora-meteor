@@ -5,14 +5,12 @@
 */
 
 #profile-body {
-    position: absolute;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: left;
     background-color: #fff;
     border-radius: 4px;
     flex-flow: row;
-    contain: layout;
 }
 
 #profile-face {

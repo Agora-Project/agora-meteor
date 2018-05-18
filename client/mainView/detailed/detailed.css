@@ -191,6 +191,9 @@
 
 .main-floating-profile-centerer {
     position: absolute;
+    top: 50%;
     left: 50%;
-    bottom: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
