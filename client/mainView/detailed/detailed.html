@@ -41,47 +41,27 @@
             <div class="main-detailed-post-footer">
                 {{#if currentUser}}
                     {{#if verifiedUser}}
-                        {{#if moderator}}
-                            {{> mainDetailedPostDeleteButton}}
-                        {{/if}}
-                        {{#if hasReportButton}}
-                            {{> mainDetailedPostReportButton}}
+                        {{#if isModerator}}
+                            <button class="main-detailed-post-delete-button">Delete</button>
                         {{/if}}
                         {{#if hasReplyButtons}}
+                            <button class="main-detailed-post-report-button">Report</button>
+
                             {{#if editAccess}}
-                                {{> mainDetailedPostEditButton}}
+                                <button class="main-detailed-post-edit-button">Edit</button>
                             {{/if}}
-                            {{> mainDetailedPostReplyButton}}
+
+                            <button class="main-detailed-post-reply-button">Reply</button>
                         {{/if}}
                     {{/if}}
                 {{/if}}
                 {{#if hasLoadButton}}
-                    {{> mainDetailedPostLoadButton}}
+                    <button class="main-detailed-post-load-button">Load</button>
                 {{/if}}
             </div>
         </div>
         <i class="main-detailed-post-spinner fa fa-refresh" aria-hidden="true"></i>
     </div>
-</template>
-
-<template name="mainDetailedPostLoadButton">
-    <button>Load</button>
-</template>
-
-<template name="mainDetailedPostReplyButton">
-    <button>Reply</button>
-</template>
-
-<template name="mainDetailedPostEditButton">
-    <button>Edit</button>
-</template>
-
-<template name="mainDetailedPostReportButton">
-    <button>Report</button>
-</template>
-
-<template name="mainDetailedPostDeleteButton">
-    <button>Delete</button>
 </template>
 
 <template name="mainBasicPost">

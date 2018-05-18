@@ -208,15 +208,17 @@ Meteor.methods({
             throw new Meteor.Error('unverified', 'Unverified users may not submit reports.');
         }
 
-        if (report.content.length >= 1)
-            return Reports.insert(report);
+        if (report.content.length < 1)
+            throw new Meteor.Error('No content', 'Report has no content!');
+
+        return Reports.insert(report);
     },
     resolveReport: function(report) {
         if (Roles.userIsInRole(this.userId, ['moderator']))
         return Reports.update({_id: report._id},
             {$set: {resolved: true} });
     },
-    updateUserSummary: function(newSummary) {
+    updateActorSummary: function(newSummary) {
         let user = Meteor.users.findOne({_id: this.userId});
 
         //Don't allow guests to try and edit profiles.
@@ -230,7 +232,7 @@ Meteor.methods({
         }
 
         //Update field.
-        Meteor.users.update({_id: this.userId}, {$set: {'profile.summary': newSummary}});
+        Actors.update({id: user.actor}, {$set: {summary: newSummary}});
     },
     addSeenPost: function(postID) {
         let user = Meteor.users.findOne({_id: this.userId});

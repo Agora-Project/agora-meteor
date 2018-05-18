@@ -25,6 +25,11 @@ Meteor.publish('localAbstractPosts', function() {
     return Posts.find({}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}, sort: {published: 1}, limit: 100});
 });
 
+//Returns an abstract shell of all posts, each only containing its id, links, and subtree width.
+Meteor.publish('recentAbstractPosts', function() {
+    return Posts.find({}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}, sort: {published: -1}, limit: 100});
+});
+
 //Returns an abstract shell of all posts with a given tag, each only containing its id, links, and subtree width.
 Meteor.publish('abstractPostsByTag', function(tag) {
     return Posts.find({tags: tag}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}});
@@ -68,9 +73,14 @@ Meteor.publish('users', function() {
     }
 });
 
-//User data, for the profile page.
+//Actor data, for the profile page.
 Meteor.publish('actor', function(actorID) {
     return Actors.find({id: actorID});
+});
+
+//Actor data, for the profile page.
+Meteor.publish('actorByHandle', function(handle) {
+    return Actors.find({preferredUsername: handle});
 });
 
 //Reports; for the report management page.

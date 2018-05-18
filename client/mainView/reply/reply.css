@@ -27,6 +27,11 @@
     clear: both;
 }
 
+#main-reply-header {
+    text-align: center;
+    margin: 5px 0px 0px 0px;
+}
+
 #main-reply input {
     margin: 10px 10px 0px 10px;
     resize: none;

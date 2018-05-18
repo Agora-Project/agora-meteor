@@ -68,21 +68,18 @@ Template.mainDetailedPost.helpers({
     editAccess: function() {
         return this.attributedTo === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
-    moderator: function() {
+    isModerator: function() {
         return Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
     hasReplyButtons: function() {
         return !Template.instance().parent.isReplyBoxOpen();
-    },
-    hasReportButton: function() {
-        return Template.instance().parent.reportTarget.get() === undefined;
     },
     hasLoadButton: function() {
         let instance = Template.instance();
         let ret = false;
         Posts.find({inReplyTo: this.id}).forEach(function(post) {
             if (!ret && !instance.parent.layout.getPost(post.id)) ret = true;
-        })
+        });
         if (!ret && this.inReplyTo && !Template.instance().parent.layout.getPost(this.inReplyTo)) ret = true;
         return ret;
     },
@@ -92,8 +89,8 @@ Template.mainDetailedPost.helpers({
 });
 
 Template.mainDetailedPost.events({
-    'click .main-detailed-post-close-button': function() {
-        Template.instance().parent.removePost(this);
+    'click .main-detailed-post-close-button': function(event, instance) {
+        instance.parent.removePost(this);
     },
     'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
         if (instance.parent.camera.isDragging()) {
@@ -103,6 +100,36 @@ Template.mainDetailedPost.events({
         else {
             //Prevent events from passing through posts into the WebGL canvas.
             event.stopImmediatePropagation();
+        }
+    },
+    'click .main-detailed-post-load-button': function(event, instance) {
+        Posts.find({inReplyTo: this.id}).forEach(function(post) {
+            subscriptionManager.subscribe('abstractPost', post.id);
+            instance.parent.addPost(post);
+        });
+
+        subscriptionManager.subscribe('abstractPost', instance.data.inReplyTo);
+        instance.parent.addPost(Posts.findOne({id: instance.data.inReplyTo}));
+    },
+    'click .main-detailed-post-reply-button': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        instance.parent.targetPost.set(instance.data);
+        instance.parent.targetMode.set("Reply");
+    },
+    'click .main-detailed-post-edit-button': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        instance.parent.targetPost.set(instance.data);
+        instance.parent.targetMode.set("Edit");
+    },
+    'click .main-detailed-post-report-button': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        instance.parent.targetPost.set(instance.data);
+        instance.parent.targetMode.set("Report");
+    },
+    'click .main-detailed-post-delete-button': function(event, instance) {
+        //Our parent is a mainDetailedPost, and its parent is the mainView.
+        if (confirm("Are you sure you want to delete this post?")) {
+            Meteor.call('deletePost', instance.data._id);
         }
     }
 });
@@ -320,61 +347,6 @@ MainViewDetailedPosts = function(camera, partitioner) {
         return visiblePostsCursor;
     };
 };
-
-Template.mainDetailedPostLoadButton.getParents();
-
-Template.mainDetailedPostLoadButton.events({
-    'click': function(event, instance) {
-        //Our parent is a mainDetailedPost, and its parent is the mainView.
-        Posts.find({inReplyTo: this.id}).forEach(function(post) {
-            subscriptionManager.subscribe('abstractPost', post.id);
-            instance.parent.parent.addPost(post);
-        });
-
-        subscriptionManager.subscribe('abstractPost', instance.parent.data.inReplyTo);
-        instance.parent.parent.addPost(Posts.findOne({id: instance.parent.data.inReplyTo}));
-    }
-});
-
-Template.mainDetailedPostReplyButton.getParents();
-
-Template.mainDetailedPostReplyButton.events({
-    'click': function(event, instance) {
-        //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.targetPost.set(instance.parent.data);
-        instance.parent.parent.targetMode.set("Reply");
-    }
-});
-
-Template.mainDetailedPostEditButton.getParents();
-
-Template.mainDetailedPostEditButton.events({
-    'click': function(event, instance) {
-        //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.targetPost.set(instance.parent.data);
-        instance.parent.parent.targetMode.set("Edit");
-    }
-});
-
-Template.mainDetailedPostReportButton.getParents();
-
-Template.mainDetailedPostReportButton.events({
-    'click': function(event, instance) {
-        //Our parent is a mainDetailedPost, and its parent is the mainView.
-        instance.parent.parent.reportTarget.set(instance.parent.data);
-    }
-});
-
-Template.mainDetailedPostDeleteButton.getParents();
-
-Template.mainDetailedPostDeleteButton.events({
-    'click': function(event, instance) {
-        //Our parent is a mainDetailedPost, and its parent is the mainView.
-        if (confirm("Are you sure you want to delete this post?")) {
-            Meteor.call('deletePost', instance.parent.data._id);
-        }
-    }
-});
 
 Template.mainBasicPost.getParents();
 

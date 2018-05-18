@@ -8,12 +8,12 @@
     <div id="profile-div">
         <div id="profile-header">
             <div id="profile-face">
-                {{user.profile.name}}
-                {{> avatar user=user shape="rounded" size="large" id="profile-avatar"}}
+                {{actor.name}}
+                {{> avatar shape="rounded" size="large" id="profile-avatar" initials=(initials)}}
             </div>
             <div id="profile-info">
                 {{#if editing}}
-                    <textarea id="profile-summary-textarea" value={{user.profile.summary}}></textarea>
+                    <textarea id="profile-summary-textarea" value={{actor.summary}}></textarea>
                     <button id="profile-summary-submit-button">Submit</button>
                     <button id="profile-summary-cancel-button">Cancel</button>
                     {{#if errorMessage}}

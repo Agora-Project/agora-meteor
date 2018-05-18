@@ -32,11 +32,7 @@
  *          Depends on the camera and partitioner.
  *
  *    * Reply (reply/reply.js)
- *          Handles the reply box and related code.
- *
- *    * Report (report/report.js)
- *          Handles the report box and related code.
- *
+ *          Handles the reply/edit/report box and related code.
  */
 
 Template.mainView.onCreated(function() {
@@ -64,7 +60,7 @@ Template.mainView.onCreated(function() {
     }
     this.targetPost = new ReactiveVar();
     this.targetMode = new ReactiveVar();
-    this.reportTarget = new ReactiveVar();
+    this.targetUser = new ReactiveVar();
     this.isSizeDirty = true;
 
     this.isReplyBoxOpen = function() {
@@ -226,9 +222,6 @@ Template.mainView.helpers({
     targetPost: function() {
         return Template.instance().targetPost.get();
     },
-    reportTarget: function() {
-        return Template.instance().reportTarget.get();
-    }
 });
 
 Template.mainView.events({
@@ -321,76 +314,56 @@ Template.mainZoomControl.events({
         let instance = Template.instance();
         instance.parent.camera.setZoomFraction(instance.slider.val()/100.0);
     },
-    "click #main-zoom-plus-button": function() {
-        let instance = Template.instance();
+    "click #main-zoom-plus-button": function(event, instance) {
         instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() + 0.01);
     },
-    "click #main-zoom-minus-button": function() {
-        let instance = Template.instance();
+    "click #main-zoom-minus-button": function(event, instance) {
         instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() - 0.01);
     },
-    "click #main-zoom-up-button": function() {
-        let instance = Template.instance();
+    "click #main-zoom-up-button": function(event, instance) {
         instance.parent.camera.buttonPressed("ButtonUp");
     },
-    "click #main-zoom-down-button": function() {
-        let instance = Template.instance();
+    "click #main-zoom-down-button": function(event, instance) {
         instance.parent.camera.buttonPressed("ButtonDown");
     },
-    "click #main-zoom-left-button": function() {
-        let instance = Template.instance();
+    "click #main-zoom-left-button": function(event, instance) {
         instance.parent.camera.buttonPressed("ButtonLeft");
     },
-    "click #main-zoom-right-button": function() {
-        let instance = Template.instance();
+    "click #main-zoom-right-button": function(event, instance) {
         instance.parent.camera.buttonPressed("ButtonRight");
     },
-    "keydown #main-zoom-control-slider": function(e, data, tpl) {
-        // e -> jquery event
-        // data -> Blaze data context of the DOM element triggering the event handler
-        // tpl -> the parent template instance for the target element
+    "keydown #main-zoom-control-slider": function(event, instance) {
 
-        if (e.key.startsWith("Arrow")) {
-            e.stopImmediatePropagation();
-        } else if (e.key == "-") {
-            let instance = Template.instance();
+        if (event.key.startsWith("Arrow")) {
+            event.stopImmediatePropagation();
+        } else if (event.key == "-") {
             instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() - 0.01);
-        } else if (e.key == "+") {
-            let instance = Template.instance();
+        } else if (event.key == "+") {
             instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() + 0.01);
         }
     },
-    "keyup #main-zoom-control-slider": function(e, data, tpl) {
-        // e -> jquery event
-        // data -> Blaze data context of the DOM element triggering the event handler
-        // tpl -> the parent template instance for the target element
+    "keyup #main-zoom-control-slider": function(event, instance) {
 
-        if (e.key.startsWith("Arrow")) {
-            e.stopImmediatePropagation();
-        } else if (e.key == "-" || e.key == "+") {
-            Template.body.camera.keyReleased(e.key);
+        if (event.key.startsWith("Arrow")) {
+            event.stopImmediatePropagation();
+        } else if (e.key == "-" || event.key == "+") {
+            Template.body.camera.keyReleased(event.key);
         }
     }
 });
 
 //code for catching key events globally.
 Template.body.events({
-    "keydown": function(e, data, tpl) {
-        // e -> jquery event
-        // data -> Blaze data context of the DOM element triggering the event handler
-        // tpl -> the parent template instance for the target element
+    "keydown": function(event, instance) {
 
-        if (e.key.startsWith("Arrow") || e.key == "-" || e.key == "+") {
-            Template.body.camera.keyPressed(e.key);
+        if (event.key.startsWith("Arrow") || event.key == "-" || event.key == "+") {
+            Template.body.camera.keyPressed(event.key);
         }
     },
-    "keyup": function(e, data, tpl) {
-        // e -> jquery event
-        // data -> Blaze data context of the DOM element triggering the event handler
-        // tpl -> the parent template instance for the target element
+    "keyup": function(event, instance) {
 
-        if (e.key.startsWith("Arrow") || e.key == "-" || e.key == "+") {
-            Template.body.camera.keyReleased(e.key);
+        if (event.key.startsWith("Arrow") || event.key == "-" || event.key == "+") {
+            Template.body.camera.keyReleased(event.key);
         }
     }
 })
