@@ -73,8 +73,6 @@ Template.userProfile.events({
         }, 100);
     },
     'keydown, keyup': function(event, instance) {
-        event.stopPropagation();
-
         if (instance.editing.get() && event.ctrlKey && event.key == "Enter") {
             instance.submitEdit();
         }

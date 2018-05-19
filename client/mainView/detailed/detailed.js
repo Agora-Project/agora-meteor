@@ -429,5 +429,9 @@ Template.mainFloatingProfile.events({
     },
     'click .profile-stop-edit-button': function(event, instance) {
         instance.parent.profileEditing = false;
+    },
+    'keydown, keyup': function(event, instance) {
+        event.stopPropagation();
+
     }
 });
