@@ -283,6 +283,9 @@ Template.mainView.events({
             //Will not respond properly to very fast scrolling, but whatever.
             instance.camera.mouseWheel(event.originalEvent.deltaY > 0 ? 1.0 : -1.0);
         }
+    },
+    'click': function(event, instance) {
+        instance.targetActor.set(null);
     }
 });
 

@@ -78,5 +78,8 @@ Template.userProfile.events({
     },
     "click #profile-summary-cancel-button": function(event, instance) {
         instance.editing.set(false);
+    },
+    'click': function(event, instance) {
+        event.stopPropagation();
     }
 });
