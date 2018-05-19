@@ -83,7 +83,11 @@ Template.userProfile.events({
         instance.submitEdit();
     },
     "click .profile-summary-edit-cancel-button": function(event, instance) {
-        instance.editing.set(false);
+        let actor = Actors.findOne({id: this.id});
+        if (!actor) return;
+        if ($(".profile-summary-edit-textarea").val() == actor.summary || confirm('You have an unfinished edit. Are you sure you want to cancel?'))
+            instance.editing.set(false);
+        else event.stopPropagation();
     },
     'autosize:resized': function() {
         //We want our text area to expand it's width, not just it's height.

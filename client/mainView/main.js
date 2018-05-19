@@ -61,6 +61,7 @@ Template.mainView.onCreated(function() {
     this.targetPost = new ReactiveVar();
     this.targetMode = new ReactiveVar();
     this.targetActor = new ReactiveVar();
+    this.profileEditing = false;
     this.isSizeDirty = true;
 
     this.isReplyBoxOpen = function() {
@@ -289,7 +290,7 @@ Template.mainView.events({
     },
     'click': function(event, instance) {
         //Close floating profile windows, unless we were dragging the view.
-        if (!instance.dragBuffer) {
+        if (!instance.dragBuffer && (!instance.profileEditing || confirm('You are editing your profile. Are you sure you want to close it?'))) {
             instance.targetActor.set(null);
         }
     }

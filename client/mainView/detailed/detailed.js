@@ -421,6 +421,13 @@ Template.mainFloatingProfile.events({
     },
     'click .main-floating-profile-close-button': function(event, instance) {
         //Close floating profile windows, unless we were dragging the view.
-        instance.parent.targetActor.set(null);
+        if (!instance.parent.profileEditing || confirm('You are editing your profile. Are you sure you want to close it?'))
+            instance.parent.targetActor.set(null);
+    },
+    'click .profile-start-edit-button': function(event, instance) {
+        instance.parent.profileEditing = true;
+    },
+    'click .profile-stop-edit-button': function(event, instance) {
+        instance.parent.profileEditing = false;
     }
 });
