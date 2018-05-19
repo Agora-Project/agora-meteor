@@ -60,7 +60,8 @@ Template.mainView.onCreated(function() {
     }
     this.targetPost = new ReactiveVar();
     this.targetMode = new ReactiveVar();
-    this.targetUser = new ReactiveVar();
+    this.targetActor = new ReactiveVar();
+    this.profileEditing = false;
     this.isSizeDirty = true;
 
     this.isReplyBoxOpen = function() {
@@ -222,6 +223,9 @@ Template.mainView.helpers({
     targetPost: function() {
         return Template.instance().targetPost.get();
     },
+    targetActor: function() {
+        return Template.instance().targetActor.get();
+    }
 });
 
 Template.mainView.events({
@@ -240,6 +244,9 @@ Template.mainView.events({
     'mousemove': function(event, instance) {
         if (instance.camera) {
             instance.camera.mouseMove(instance.getMousePos(event));
+
+            //This is to prevent closing floating profile windows after dragging.
+            instance.dragBuffer = instance.camera.isDragging();
         }
     },
     'touchmove': function(event, instance) {
@@ -279,6 +286,12 @@ Template.mainView.events({
             //Normalize across browsers.
             //Will not respond properly to very fast scrolling, but whatever.
             instance.camera.mouseWheel(event.originalEvent.deltaY > 0 ? 1.0 : -1.0);
+        }
+    },
+    'click': function(event, instance) {
+        //Close floating profile windows, unless we were dragging the view.
+        if (!instance.dragBuffer && (!instance.profileEditing || confirm('You are editing your profile. Are you sure you want to close it?'))) {
+            instance.targetActor.set(null);
         }
     }
 });

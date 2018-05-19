@@ -25,6 +25,9 @@
             {{/if}}
         {{/if}}
         {{> mainZoomControl}}
+        {{#if targetActor}}
+            {{>mainFloatingProfile id=targetActor}}
+        {{/if}}
     </div>
 </template>
 

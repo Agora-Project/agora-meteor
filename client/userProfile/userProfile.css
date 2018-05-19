@@ -4,75 +4,47 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
-#profile-div {
-    position: relative;
-    left: 20px;
-    right: 20px;
-    top: 50px;
-    padding: 0px;
-}
-
-#profile-avatar {
-    display: block;
+.profile-body-div {
+    display: inline-flex;
+    align-items: center;
+    justify-content: left;
+    background-color: #fff;
     border-radius: 4px;
-    margin: 1vh;
+    flex-flow: row;
 }
 
-#profile-header {
-    position: absolute;
-    left: 2%;
-    right: 2%;
-    top: 5%;
-    height: 16vh;
-    padding: 0px;
-    margin: 0px auto;
-    border: 1px solid #999;
-    border-radius: 8px;
-    box-shadow: inset 0 0 10px #bbb;
+.profile-face-div {
     display: flex;
-}
-
-#profile-face {
-    position: absolute;
-    left: 0.5%;
-    top: 5%;
-    padding: 0px;
+    flex-direction: column;
     margin: 0px auto;
     border: 1px solid #999;
     border-radius: 8px;
     box-shadow: inset 0 0 10px #bbb;
-    display: table-column;
     text-align: center;
+    align-items: center;
 }
 
-#profile-info {
-    position: absolute;
-    left: 7%;
-    overflow-y: auto;
-    width: 86vw;
-    height: 16vh;
+.profile-info-div {
 }
 
-#profile-info p {
-}
-
-#profile-summary-textarea {
-    margin: 10px 10px 0px 10px;
-    height: 120px;
-    width: 84vw;
-    resize: none;
-}
-
-#profile-wall {
-    position: absolute;
-    left: 13%;
-    right: 2%;
-    top: 25%;
-    height: 62vh;
-    padding: 0px;
-    margin: 0px auto;
-    border: 1px solid #999;
-    border-radius: 8px;
-    box-shadow: inset 0 0 10px #bbb;
+.profile-summary-edit-div {
+    position: relative;
     display: flex;
+    flex-direction: column;
+}
+
+.profile-summary-edit-textarea {
+    max-height: 700px;
+}
+
+.profile-summary-text-div {
+    max-height: 700px;
+    overflow: scroll;
+}
+
+.profile-summary-edit-buttons-div {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+
 }

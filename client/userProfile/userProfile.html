@@ -5,27 +5,35 @@
 -->
 
 <template name="userProfile">
-    <div id="profile-div">
-        <div id="profile-header">
-            <div id="profile-face">
+    <div class="profile-body-div">
+        <div class="profile-face-div">
+            <a class="profile-username" href="{{actor.url}}">
                 {{actor.name}}
-                {{> avatar shape="rounded" size="large" id="profile-avatar" initials=(initials)}}
-            </div>
-            <div id="profile-info">
-                {{#if editing}}
-                    <textarea id="profile-summary-textarea" value={{actor.summary}}></textarea>
-                    <button id="profile-summary-submit-button">Submit</button>
-                    <button id="profile-summary-cancel-button">Cancel</button>
+            </a>
+            <a class="profile-avatar" href="{{actor.url}}">
+                {{> avatar shape="rounded" size="large" class="profile-avatar" initials=(initials)}}
+            </a>
+        </div>
+        <div class="profile-info-div">
+            {{#if editing}}
+                <div class="profile-summary-edit-div">
+                    <textarea class="profile-summary-edit-textarea" value={{actor.summary}}></textarea>
+                    <div class="profile-summary-edit-buttons-div">
+                        <button class="profile-summary-edit-submit-button profile-stop-edit-button">Submit</button>
+                        <button class="profile-summary-edit-cancel-button profile-stop-edit-button">Cancel</button>
+                    </div>
                     {{#if errorMessage}}
-                        <span id="profile-summary-error-message">{{errorMessage}}</span>
+                        <span class="profile-summary-edit-error-message">{{errorMessage}}</span>
                     {{/if}}
-                {{else}}
+                </div>
+            {{else}}
+                <div class="profile-summary-text-div">
                     {{{summary}}}
-                    {{#if ownProfile}}
-                        <a href="#" id="profile-summary-edit">Edit</a>
-                    {{/if}}
+                </div>
+                {{#if ownProfile}}
+                    <a href="#" class="profile-summary-edit-button profile-start-edit-button">Edit</a>
                 {{/if}}
-            </div>
+            {{/if}}
         </div>
     </div>
 </template>

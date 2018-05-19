@@ -92,6 +92,12 @@ Template.mainDetailedPost.events({
     'click .main-detailed-post-close-button': function(event, instance) {
         instance.parent.removePost(this);
     },
+    'click .main-detailed-post-avatar, click .main-detailed-post-username': function(event, instance) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        instance.parent.targetActor.set(this.attributedTo);
+    },
     'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
         if (instance.parent.camera.isDragging()) {
             //Prevents interaction while dragging.
@@ -394,5 +400,34 @@ Template.mainBasicPost.helpers({
     },
     seen: function() {
         return Template.instance().seen.get();
+    }
+});
+
+Template.mainFloatingProfile.getParents();
+
+Template.mainFloatingProfile.events({
+    'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
+        if (instance.parent.camera.isDragging()) {
+            //Prevents interaction while dragging.
+            event.preventDefault();
+        }
+        else {
+            //Prevent events from passing through posts into the WebGL canvas.
+            event.stopPropagation();
+        }
+    },
+    'click': function(event, instance) {
+        event.stopPropagation();
+    },
+    'click .main-floating-profile-close-button': function(event, instance) {
+        //Close floating profile windows, unless we were dragging the view.
+        if (!instance.parent.profileEditing || confirm('You are editing your profile. Are you sure you want to close it?'))
+            instance.parent.targetActor.set(null);
+    },
+    'click .profile-start-edit-button': function(event, instance) {
+        instance.parent.profileEditing = true;
+    },
+    'click .profile-stop-edit-button': function(event, instance) {
+        instance.parent.profileEditing = false;
     }
 });

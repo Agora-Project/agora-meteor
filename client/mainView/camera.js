@@ -133,12 +133,15 @@ MainViewCamera = function() {
     this.mouseDown = function(mp, button) {
         if (button === 0) {
             mp0 = mp;
-            dragging = true;
+            dragging = "Possibly?";
         }
     };
 
     this.mouseMove = function(mp) {
-        if (dragging) {
+        if (dragging == "Possibly?")
+            dragging = true;
+
+        if (dragging === true) {
             p.x += (mp0.x - mp.x)/scale;
             p.y += (mp.y - mp0.y)/scale;
         }
@@ -147,13 +150,13 @@ MainViewCamera = function() {
     };
 
     this.mouseUp = function(mp, button) {
-        if (button === 0 && dragging) {
+        if (button === 0 && dragging === true) {
             //Clamp position to edges of screen.
             mp.x = Math.max(0, Math.min(mp.x, canvas[0].width));
             mp.y = Math.max(0, Math.min(mp.y, canvas[0].height));
             this.mouseMove(mp);
-            dragging = false;
         }
+        dragging = false;
     };
 
     let touchDistance = null;
@@ -269,7 +272,7 @@ MainViewCamera = function() {
     };
 
     this.isDragging = function() {
-        return dragging;
+        return dragging === true;
     };
 
     let keysDown = {
