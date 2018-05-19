@@ -46,7 +46,7 @@ Template.userProfile.onCreated(function() {
     this.errorMessage = new ReactiveVar();
 
     this.submitEdit = function() {
-        Meteor.call("updateActorSummary", $('#profile-summary-textarea').val(), function(error) {
+        Meteor.call("updateActorSummary", $('.profile-summary-edit-textarea').val(), function(error) {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);
@@ -60,21 +60,21 @@ Template.userProfile.onCreated(function() {
 });
 
 Template.userProfile.events({
-    "click #profile-summary-edit": function(event, instance) {
+    "click .profile-summary-edit-button": function(event, instance) {
         instance.editing.set(true);
     },
     'keydown, keyup': function(event, instance) {
-        event.stopImmediatePropagation();
+        event.stopPropagation();
 
         if (instance.editing.get() && event.ctrlKey && event.key == "Enter") {
             instance.submitEdit();
         }
 
     },
-    "click #profile-summary-submit-button": function(event, instance) {
+    "click .profile-summary-edit-submit-button": function(event, instance) {
         instance.submitEdit();
     },
-    "click #profile-summary-cancel-button": function(event, instance) {
+    "click .profile-summary-edit-cancel-button": function(event, instance) {
         instance.editing.set(false);
     }
 });
