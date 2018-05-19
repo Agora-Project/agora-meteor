@@ -418,5 +418,9 @@ Template.mainFloatingProfile.events({
     },
     'click': function(event, instance) {
         event.stopPropagation();
+    },
+    'click .main-floating-profile-close-button': function(event, instance) {
+        //Close floating profile windows, unless we were dragging the view.
+        instance.parent.targetActor.set(null);
     }
 });
