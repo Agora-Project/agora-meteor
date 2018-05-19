@@ -7,8 +7,12 @@
 <template name="userProfile">
     <div id="profile-body">
         <div id="profile-face">
-            {{actor.name}}
-            {{> avatar shape="rounded" size="large" id="profile-avatar" initials=(initials)}}
+            <a class="profile-username" href="{{actor.url}}">
+                {{actor.name}}
+            </a>
+            <a class="profile-avatar" href="{{actor.url}}">
+                {{> avatar shape="rounded" size="large" id="profile-avatar" initials=(initials)}}
+            </a>
         </div>
         <div id="profile-info">
             {{#if editing}}
