@@ -177,11 +177,11 @@ Template.mainReply.events({
         }
         else {
             //Prevent events from passing through posts into the WebGL canvas.
-            event.stopImmediatePropagation();
+            event.stopPropagation();
         }
     },
     'keydown, keyup': function(event, instance) {
-        event.stopImmediatePropagation();
+        event.stopPropagation();
 
         if (event.ctrlKey && event.key == "Enter")
             instance.submitButton();
