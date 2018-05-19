@@ -76,18 +76,5 @@ Template.userProfile.events({
     },
     "click #profile-summary-cancel-button": function(event, instance) {
         instance.editing.set(false);
-    },
-    'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
-        if (instance.parent.parent.camera.isDragging()) {
-            //Prevents interaction while dragging.
-            event.preventDefault();
-        }
-        else {
-            //Prevent events from passing through posts into the WebGL canvas.
-            event.stopPropagation();
-        }
-    },
-    'click': function(event, instance) {
-        event.stopPropagation();
     }
 });
