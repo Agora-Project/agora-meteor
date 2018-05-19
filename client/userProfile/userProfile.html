@@ -5,8 +5,8 @@
 -->
 
 <template name="userProfile">
-    <div class="profile-body">
-        <div class="profile-face">
+    <div class="profile-body-div">
+        <div class="profile-face-div">
             <a class="profile-username" href="{{actor.url}}">
                 {{actor.name}}
             </a>
@@ -14,7 +14,7 @@
                 {{> avatar shape="rounded" size="large" class="profile-avatar" initials=(initials)}}
             </a>
         </div>
-        <div class="profile-info">
+        <div class="profile-info-div">
             {{#if editing}}
                 <div class="profile-summary-edit-div">
                     <textarea class="profile-summary-edit-textarea" value={{actor.summary}}></textarea>
