@@ -14,8 +14,8 @@ Template.mainReply.onRendered(function() {
     let instance = this;
     let target = this.parent.targetPost.get();
 
-    let summaryInput = $('#main-reply-summary');
-    let contentInput = $('#main-reply-textarea');
+    let summaryInput = $('.main-reply-summary');
+    let contentInput = $('.main-reply-textarea');
 
     this.submitButton = null;
 
@@ -138,7 +138,7 @@ Template.mainReply.onRendered(function() {
 
         this.submitButton = submitReply;
 
-        $('#main-reply-cancel-button').click(cancelReply);
+        $('.main-reply-cancel-button').click(cancelReply);
         $(window).on('beforeunload', exitReply);
     } else if (this.parent.targetMode.get() === "Edit") {
 
@@ -147,17 +147,17 @@ Template.mainReply.onRendered(function() {
 
         this.submitButton = submitEdit;
 
-        $('#main-reply-cancel-button').click(cancelEdit);
+        $('.main-reply-cancel-button').click(cancelEdit);
         $(window).on('beforeunload', exitEdit);
     } else if (this.parent.targetMode.get() === "Report") {
 
         this.submitButton = submitReport;
 
-        $('#main-reply-cancel-button').click(cancelReport);
+        $('.main-reply-cancel-button').click(cancelReport);
         $(window).on('beforeunload', exitReport);
     }
 
-    $('#main-reply-submit-button').click(this.submitButton);
+    $('.main-reply-submit-button').click(this.submitButton);
 });
 
 Template.mainReply.helpers({
