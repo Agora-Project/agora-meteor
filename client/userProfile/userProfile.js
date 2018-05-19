@@ -61,7 +61,16 @@ Template.userProfile.onCreated(function() {
 
 Template.userProfile.events({
     "click .profile-summary-edit-button": function(event, instance) {
+        let width = $(".profile-summary-text-div").outerWidth();
+
         instance.editing.set(true);
+
+        Meteor.setTimeout(function() {
+            //First, expand the text area's width to that of the div that came before it.
+            //Then, have it start autosizing it's height as people write in it.
+            //We also change it's width with an event, down below.
+            autosize($(".profile-summary-edit-textarea").css('width', width));
+        }, 100);
     },
     'keydown, keyup': function(event, instance) {
         event.stopPropagation();
@@ -69,12 +78,27 @@ Template.userProfile.events({
         if (instance.editing.get() && event.ctrlKey && event.key == "Enter") {
             instance.submitEdit();
         }
-
     },
     "click .profile-summary-edit-submit-button": function(event, instance) {
         instance.submitEdit();
     },
     "click .profile-summary-edit-cancel-button": function(event, instance) {
         instance.editing.set(false);
+    },
+    'autosize:resized': function() {
+        //We want our text area to expand it's width, not just it's height.
+        //So, we call this event when it resize height and manually resize width.
+        let textarea = $(".profile-summary-edit-textarea");
+
+        let width = textarea.outerWidth();
+        let height = textarea.outerHeight();
+
+        if (width > height * 3) {
+            textarea.css('width', height * 3);
+            autosize.update(textarea);
+        } else if (width < height * 2) {
+            textarea.css('width', height * 2);
+            autosize.update(textarea);
+        }
     }
 });

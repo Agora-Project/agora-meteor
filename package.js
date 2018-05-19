@@ -118,9 +118,10 @@ Package.onUse(function(api) {
         'session',
         'templating',
         'reactive-var',
+        'verron:autosize',
+        'momentjs:moment',
         'gwendall:body-events',
-        'meteorhacks:subs-manager',
-        'momentjs:moment'
+        'meteorhacks:subs-manager'
     ], 'client');
 });
 
