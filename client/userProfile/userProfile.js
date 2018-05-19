@@ -59,11 +59,6 @@ Template.userProfile.onCreated(function() {
     }
 });
 
-Template.userProfile.onRendered(function() {
-    if (this.data.floating)
-        $('#profile-body').css('transform', 'translateY(-50%) translateX(-50%)');
-});
-
 Template.userProfile.events({
     "click #profile-summary-edit": function(event, instance) {
         instance.editing.set(true);

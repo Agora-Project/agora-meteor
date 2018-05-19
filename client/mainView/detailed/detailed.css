@@ -197,3 +197,12 @@
     align-items: center;
     justify-content: center;
 }
+
+.main-floating-profile-div {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-50%) translateX(-50%);
+}
