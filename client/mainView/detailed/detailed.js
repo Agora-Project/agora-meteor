@@ -402,3 +402,5 @@ Template.mainBasicPost.helpers({
         return Template.instance().seen.get();
     }
 });
+
+Template.mainFloatingProfile.getParents();
