@@ -53,7 +53,7 @@ Meteor.startup(function() {
         console.log('Adding root post');
         let rootID = Posts.insert({
             summary: 'Forum Root',
-            content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
+            content: 'Welcome to Agora! This is the root post of the forum.',
             attributedTo: defaultMod.actor
         });
     }
@@ -66,7 +66,7 @@ Meteor.startup(function() {
         console.log('Adding root post');
         let rootID = Posts.insert({
             summary: 'Forum Root',
-            content: 'Welcome to Agora! This is the root post of the forum.\n\nAll posts are either direct or indrect replies to this post.',
+            content: 'Welcome to Agora! This is the root post of the forum.',
             attributedTo: defaultMod.actor
         });
 
