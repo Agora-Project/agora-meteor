@@ -18,14 +18,18 @@
             {{#if editing}}
                 <div class="profile-summary-edit-div">
                     <textarea class="profile-summary-edit-textarea" value={{actor.summary}}></textarea>
-                    <button class="profile-summary-edit-submit-button">Submit</button>
-                    <button class="profile-summary-edit-cancel-button">Cancel</button>
+                    <div class="profile-summary-edit-buttons-div">
+                        <button class="profile-summary-edit-submit-button">Submit</button>
+                        <button class="profile-summary-edit-cancel-button">Cancel</button>
+                    </div>
                     {{#if errorMessage}}
                         <span class="profile-summary-edit-error-message">{{errorMessage}}</span>
                     {{/if}}
                 </div>
             {{else}}
-                {{{summary}}}
+                <div class="profile-summary-text-div">
+                    {{{summary}}}
+                </div>
                 {{#if ownProfile}}
                     <a href="#" class="profile-summary-edit-button">Edit</a>
                 {{/if}}

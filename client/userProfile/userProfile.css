@@ -26,3 +26,25 @@
 
 .profile-info-div {
 }
+
+.profile-summary-edit-div {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-summary-edit-textarea {
+    max-height: 700px;
+}
+
+.profile-summary-text-div {
+    max-height: 700px;
+    overflow: scroll;
+}
+
+.profile-summary-edit-buttons-div {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+
+}
