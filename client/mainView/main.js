@@ -243,6 +243,9 @@ Template.mainView.events({
     'mousemove': function(event, instance) {
         if (instance.camera) {
             instance.camera.mouseMove(instance.getMousePos(event));
+
+            //This is to prevent closing floating profile windows after dragging.
+            instance.dragBuffer = instance.camera.isDragging();
         }
     },
     'touchmove': function(event, instance) {
@@ -285,7 +288,10 @@ Template.mainView.events({
         }
     },
     'click': function(event, instance) {
-        instance.targetActor.set(null);
+        //Close floating profile windows, unless we were dragging the view.
+        if (!instance.dragBuffer) {
+            instance.targetActor.set(null);
+        }
     }
 });
 
