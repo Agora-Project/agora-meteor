@@ -17,21 +17,21 @@ Router.route('/admin', {
     template: 'adminScreen'
 });
 
-Router.route('/@:handle', function() {
-    var handle = this.params.handle;
+Router.route('/@:handle', {
+    template: 'userProfile',
+    data: function() {
+        var handle = this.params.handle;
 
-    if (!handle) handle = Meteor.userId();
+        if (!handle) handle = Meteor.userId();
 
-    let id = Meteor.absoluteUrl() + "actors/" + handle;
+        let id = Meteor.absoluteUrl() + "actors/" + handle;
 
-    if (this.ready()) {
-        if (handle) this.render('userProfile', {data: {id: id}});
-        else this.render('errorPage', {data: {_id: id}});
+        return {id: id};
     }
 });
 
 Router.route('/user', function() {
-    var id = Meteor.userId();
+    var id = Meteor.user().actor;
 
     if (this.ready()) {
         if (id) this.render('userProfile', {data: {id: id}});
