@@ -60,6 +60,9 @@ Template.userProfile.onCreated(function() {
     }
 });
 
+Template.userProfile.onRendered(function() {
+});
+
 Template.userProfile.events({
     "click .profile-summary-edit-button": function(event, instance) {
         let width = $(".profile-summary-text-div").outerWidth();
