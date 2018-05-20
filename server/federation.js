@@ -30,7 +30,8 @@ Meteor.methods({
 
 importActorFromActivityPubJSON = function(json) {
     if (!Actors.findOne({id: json.id})) { //Is actor already present? If not,
-        Actors.insert(json);             //add it.
+        json.local = false; //mark it as foreign,
+        Actors.insert(json); //then add it.
     }
 };
 
