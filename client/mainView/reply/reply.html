@@ -5,16 +5,16 @@
 -->
 
 <template name="mainReply">
-    <div id="main-reply-centerer">
-        <div id="main-reply">
-            <div id="main-reply-header">{{mode}}</div>
-            <input type="text" placeholder="Summary (Optional)" id="main-reply-summary">
-            <textarea placeholder="Text" id="main-reply-textarea"></textarea>
-            <div id="main-reply-button-container">
-                <button id="main-reply-submit-button">Submit</button>
-                <button id="main-reply-cancel-button">Cancel</button>
+    <div class="main-reply-centerer">
+        <div class="main-reply">
+            <div class="main-reply-header">{{mode}}</div>
+            <input type="text" placeholder="Summary (Optional)" class="main-reply-summary">
+            <textarea placeholder="Text" class="main-reply-textarea"></textarea>
+            <div class="main-reply-button-container">
+                <button class="main-reply-submit-button">Submit</button>
+                <button class="main-reply-cancel-button">Cancel</button>
                 {{#if errorMessage}}
-                    <span id="main-reply-error-message">{{errorMessage}}</span>
+                    <span class="main-reply-error-message">{{errorMessage}}</span>
                 {{/if}}
             </div>
         </div>

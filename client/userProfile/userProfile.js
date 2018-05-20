@@ -54,6 +54,7 @@ Template.userProfile.onCreated(function() {
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.editing.set(false);
+                instance.errorMessage.set();
             }
         });
     }
@@ -73,8 +74,6 @@ Template.userProfile.events({
         }, 100);
     },
     'keydown, keyup': function(event, instance) {
-        event.stopPropagation();
-
         if (instance.editing.get() && event.ctrlKey && event.key == "Enter") {
             instance.submitEdit();
         }
@@ -85,9 +84,10 @@ Template.userProfile.events({
     "click .profile-summary-edit-cancel-button": function(event, instance) {
         let actor = Actors.findOne({id: this.id});
         if (!actor) return;
-        if ($(".profile-summary-edit-textarea").val() == actor.summary || confirm('You have an unfinished edit. Are you sure you want to cancel?'))
+        if ($(".profile-summary-edit-textarea").val() == actor.summary || confirm('You have an unfinished edit. Are you sure you want to cancel?')) {
             instance.editing.set(false);
-        else event.stopPropagation();
+            instance.errorMessage.set();
+        } else event.stopPropagation();
     },
     'autosize:resized': function() {
         //We want our text area to expand it's width, not just it's height.

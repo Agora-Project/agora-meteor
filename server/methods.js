@@ -209,7 +209,7 @@ Meteor.methods({
         }
 
         if (report.content.length < 1)
-            throw new Meteor.Error('No content', 'Report has no content!');
+            throw new Meteor.Error('no content', 'Report has no content!');
 
         return Reports.insert(report);
     },
@@ -230,6 +230,12 @@ Meteor.methods({
         if (user.isBanned) {
             throw new Meteor.Error('banned', 'Banned users may not edit posts.');
         }
+
+        if (typeof newSummary !== "string")
+            throw new Meteor.Error('summary not a string', 'Summary must be a string.');
+
+        if (newSummary.length >= 5000)
+            throw new Meteor.Error('summary too long', 'summary must be 5000 characters or less.');
 
         //Update field.
         Actors.update({id: user.actor}, {$set: {summary: newSummary}});

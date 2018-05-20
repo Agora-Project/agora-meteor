@@ -94,7 +94,7 @@ Template.mainDetailedPost.events({
     },
     'click .main-detailed-post-avatar, click .main-detailed-post-username': function(event, instance) {
         event.preventDefault();
-        event.stopImmediatePropagation();
+        event.stopPropagation();
 
         instance.parent.targetActor.set(this.attributedTo);
     },
@@ -105,7 +105,7 @@ Template.mainDetailedPost.events({
         }
         else {
             //Prevent events from passing through posts into the WebGL canvas.
-            event.stopImmediatePropagation();
+            event.stopPropagation();
         }
     },
     'click .main-detailed-post-load-button': function(event, instance) {
@@ -429,5 +429,9 @@ Template.mainFloatingProfile.events({
     },
     'click .profile-stop-edit-button': function(event, instance) {
         instance.parent.profileEditing = false;
+    },
+    'keydown, keyup': function(event, instance) {
+        event.stopPropagation();
+
     }
 });

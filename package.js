@@ -53,7 +53,8 @@ Package.onUse(function(api) {
         'server/methods.js',
         'server/publish.js',
         'server/federation.js',
-        'server/initial-data.js'
+        'server/initial-data.js',
+        'lib/collections/orderedCollections.js'
     ], 'server');
 
     api.addFiles([

@@ -4,14 +4,14 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
-#main-reply-centerer {
+.main-reply-centerer {
     position: absolute;
     height: 0px;
     left: 50%;
     bottom: 0px;
 }
 
-#main-reply {
+.main-reply {
     display: flex;
     flex-direction: column;
     position: relative;
@@ -27,35 +27,35 @@
     clear: both;
 }
 
-#main-reply-header {
+.main-reply-header {
     text-align: center;
     margin: 5px 0px 0px 0px;
 }
 
-#main-reply input {
+.main-reply input {
     margin: 10px 10px 0px 10px;
     resize: none;
 }
 
-#main-reply textarea {
+.main-reply textarea {
     margin: 10px 10px 0px 10px;
     height: 192px;
     resize: none;
 }
 
 @media only screen and (max-height: 513px) {
-    #main-reply textarea {
+    .main-reply textarea {
         height: 56px;
     }
 }
 
-#main-reply-button-container {
+.main-reply-button-container {
     display: flex;
     flex-direction: row;
     padding: 10px;
 }
 
-#main-reply-error-message {
+.main-reply-error-message {
     margin-left: 8px;
     overflow: hidden;
     white-space: nowrap;

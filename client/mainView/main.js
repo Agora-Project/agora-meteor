@@ -320,7 +320,7 @@ Template.mainZoomControl.events({
         }
         else {
             //Prevent events from passing through posts into the WebGL canvas.
-            event.stopImmediatePropagation();
+            event.stopPropagation();
         }
     },
     'input': function() {
@@ -348,7 +348,7 @@ Template.mainZoomControl.events({
     "keydown #main-zoom-control-slider": function(event, instance) {
 
         if (event.key.startsWith("Arrow")) {
-            event.stopImmediatePropagation();
+            event.stopPropagation();
         } else if (event.key == "-") {
             instance.parent.camera.setZoomFraction(instance.parent.camera.getZoomFraction() - 0.01);
         } else if (event.key == "+") {
@@ -358,7 +358,7 @@ Template.mainZoomControl.events({
     "keyup #main-zoom-control-slider": function(event, instance) {
 
         if (event.key.startsWith("Arrow")) {
-            event.stopImmediatePropagation();
+            event.stopPropagation();
         } else if (e.key == "-" || event.key == "+") {
             Template.body.camera.keyReleased(event.key);
         }

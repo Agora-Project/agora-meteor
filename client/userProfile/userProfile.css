@@ -48,3 +48,11 @@
     flex-direction: row;
 
 }
+
+.profile-summary-edit-error-message {
+    margin-left: 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #f33;
+}
