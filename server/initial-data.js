@@ -75,7 +75,7 @@ Meteor.startup(function() {
         let id = Posts.findOne({_id: rootID}).id;
         let posts = [id];
 
-        for (let i=0; i<1200; i++) { //This will add a LOT of posts. You may wish to decrease the number, as it will take a few minutes otherwise.
+        for (let i=0; i<12; i++) { //Add posts. Beware, anything above a thousand will take a little bit.
             //Decrease exponent to more strongly prefer replying to newer posts.
             let random = Math.pow(Math.random(), 0.5);
             let target;

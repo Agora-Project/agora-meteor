@@ -17,21 +17,21 @@ Router.route('/admin', {
     template: 'adminScreen'
 });
 
-Router.route('/@:handle', function() {
-    var handle = this.params.handle;
+Router.route('/@:handle', {
+    template: 'userProfile',
+    data: function() {
+        var handle = this.params.handle;
 
-    if (!handle) handle = Meteor.userId();
+        if (!handle) handle = Meteor.userId();
 
-    let id = Meteor.absoluteUrl() + "actors/" + handle;
+        let id = Meteor.absoluteUrl() + "actors/" + handle;
 
-    if (this.ready()) {
-        if (handle) this.render('userProfile', {data: {id: id}});
-        else this.render('errorPage', {data: {_id: id}});
+        return {id: id};
     }
 });
 
 Router.route('/user', function() {
-    var id = Meteor.userId();
+    var id = Meteor.user().actor;
 
     if (this.ready()) {
         if (id) this.render('userProfile', {data: {id: id}});
@@ -50,7 +50,6 @@ Router.route('/federation', {
 });
 
 Router.route('/forum', {
-
     onRun: function() {
         var id = this.params.query.post;
 
@@ -65,13 +64,3 @@ Router.route('/forum', {
         } else this.render('errorPage', {data: {_id: id}});
     }
 });
-
-/*Router.route('/search/:_id', function() {
-    var id = this.params._id;
-
-    if (this.ready()) {
-        var tag = Tags.findOne({_id: id});
-        if (tag) this.render('search', {data: tag});
-        else this.render('errorPage', {data: {_id: id}});
-    }
-});*/
