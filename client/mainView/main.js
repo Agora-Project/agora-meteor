@@ -369,13 +369,13 @@ Template.mainZoomControl.events({
 Template.body.events({
     "keydown": function(event, instance) {
 
-        if (event.key.startsWith("Arrow") || event.key == "-" || event.key == "+") {
+        if ((event.key.startsWith("Arrow") || event.key == "-" || event.key == "+" ) && Template.body.camera) {
             Template.body.camera.keyPressed(event.key);
         }
     },
     "keyup": function(event, instance) {
 
-        if (event.key.startsWith("Arrow") || event.key == "-" || event.key == "+") {
+        if ((event.key.startsWith("Arrow") || event.key == "-" || event.key == "+" ) && Template.body.camera) {
             Template.body.camera.keyReleased(event.key);
         }
     }
