@@ -50,7 +50,6 @@ Router.route('/federation', {
 });
 
 Router.route('/forum', {
-
     onRun: function() {
         var id = this.params.query.post;
 
@@ -65,13 +64,3 @@ Router.route('/forum', {
         } else this.render('errorPage', {data: {_id: id}});
     }
 });
-
-/*Router.route('/search/:_id', function() {
-    var id = this.params._id;
-
-    if (this.ready()) {
-        var tag = Tags.findOne({_id: id});
-        if (tag) this.render('search', {data: tag});
-        else this.render('errorPage', {data: {_id: id}});
-    }
-});*/
