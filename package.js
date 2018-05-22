@@ -28,11 +28,13 @@ Package.onUse(function(api) {
         'agoraforum:activitypub',
         'ecmascript',
         'iron:router',
+        'useraccounts:iron-routing',
 	    'matb33:collection-hooks',
         'aldeed:collection2',
         'accounts-base',
         'alanning:roles',
         'utilities:avatar',
+        'spacebars',
         'email'
     ], both);
 
