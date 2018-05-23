@@ -4,8 +4,6 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
-import { getActivityFromUrl } from 'meteor/agoraforum:activitypub';
-
 Meteor.methods({
     sendVerificationLink: function() {
         let userId = Meteor.userId();
@@ -56,47 +54,8 @@ Meteor.methods({
             }
         }
 
-        //check post for new hashtags and if any are found process them.
-        //The regex here describes a hashtag as anything that starts with either
-        //the start of a string or any kind of whitespace, then has a # symbol,
-        //and then any number of letters.
-        let postTags = post.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
-
-        if(!post.tag) post.tag = [];
-
-        if (postTags) {
-
-            for (let newTag of postTags) {
-                newTag = newTag.trim().toLowerCase();
-                newTag = newTag.replace("#", "");
-
-                console.log(newTag);
-
-                //check for any new tags not already present on the post.
-                if (post.tag.find(function(tag) {
-                    return tag === newTag;
-                }) === undefined) {
-                    //if any are found, add them to the list of new tags on the
-                    //post.
-                    post.tag.push(newTag);
-                }
-            }
-        }
-
         //Insert new post.
         let postId = Posts.insert(post);
-
-        //add any new tags to the database, and adjust the info for existing tags accordingly.
-        for (let tag of post.tag) {
-            let tagDocument = Tags.findOne({_id: tag});
-            if (!tagDocument) {
-                Tags.insert({_id: tag, postNumber: 1, posts: [postId]});
-                tagDocument = Tags.findOne({_id: tag});
-            } else {
-                Tags.update({_id: tag}, { $inc: {postNumber: 1}, $push: {posts: postId} });
-                tagDocument = Tags.findOne({_id: tag});
-            }
-        }
 
         return postId;
     },
@@ -128,37 +87,6 @@ Meteor.methods({
         //Validate edit.
         if (post.summary && post.summary.length < 1) {
             delete post.summary;
-        }
-
-        //check post for new tags and process them if found.
-        let postTags = update.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
-
-        if(!update.tags) update.tags = [];
-
-        if (postTags) {
-
-            for (let newTag of postTags) {
-                newTag = newTag.trim().toLowerCase();
-
-                //check for any new tags not already present on the post.
-                if (update.tags.find(function(tag) {
-                    return tag === newTag;
-                }) === undefined) {
-                    //if any are found, add them to the list of new tags on the
-                    //post.
-                    update.tags.push(newTag);
-
-                    let tagDocument = Tags.findOne({_id: newTag});
-                    if (!tagDocument) {
-                        Tags.insert({_id: newTag, postNumber: 1, posts: [postId]});
-                        tagDocument = Tags.findOne({_id: newTag});
-                    } else {
-                        Tags.update({_id: newTag}, { $inc: {postNumber: 1}, $push: {posts: postId} });
-                        tagDocument = Tags.findOne({_id: newTag});
-                    }
-
-                }
-            }
         }
 
         //Edit post.

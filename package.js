@@ -44,7 +44,6 @@ Package.onUse(function(api) {
         'lib/collections/actors.js',
         'lib/collections/posts.js',
         'lib/collections/reports.js',
-        'lib/collections/tags.js',
         'lib/collections/users.js',
         'routes.js'
     ], both);
