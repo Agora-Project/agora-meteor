@@ -4,6 +4,20 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
+deletePost = function(postID) {
+    let post = Posts.findOne({id: postID});
+
+    //check to make sure the post exists before attempting to delete it.
+    if (post === undefined) {
+        throw new Meteor.Error('post-not-found', 'No such post was found.');
+    }
+
+    //delete the post and all references to it.
+    Posts.update({id: post.inReplyTo}, {$pull: {replies: post.id}});
+    Posts.update({inReplyTo: post.id},  {$unset: {inReplyTo:1}}, {multi: true});
+    Posts.remove({id: postID});
+}
+
 Meteor.methods({
     sendVerificationLink: function() {
         let userId = Meteor.userId();
@@ -96,27 +110,14 @@ Meteor.methods({
             updated: Date.now()
         }});
     },
-    deletePost: function(postId) {
-        let post = Posts.findOne({_id: postId});
+    deletePost: function(postID) {
 
         //Don't allow non-moderators to delete posts.
         if (!Roles.userIsInRole(this.userId, ['moderator'])) {
             throw new Meteor.Error('not-logged-in', 'Only moderators may delete posts.');
         }
 
-        //check to make sure the post exists before attempting to delete it.
-        if (post === undefined) {
-            throw new Meteor.Error('post-not-found', 'No such post was found.');
-        }
-
-        //recursively delete all replies to the post.
-        Posts.find({inReplyTo: post.id}).forEach(function(reply) {
-            Meteor.call('deletePost', reply._id);
-        });
-
-        //delete the post and all references to it.
-        Posts.update({id: post.inReplyTo}, {$pull: {replies: post.id}});
-        Posts.remove(postId);
+        deletePost(postID)
     },
     submitReport: function(report) {
         let user = Meteor.users.findOne({_id: this.userId});
