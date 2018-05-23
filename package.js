@@ -28,6 +28,7 @@ Package.onUse(function(api) {
         'agoraforum:activitypub',
         'ecmascript',
         'iron:router',
+        'mrest:restivus',
         'useraccounts:iron-routing',
 	    'matb33:collection-hooks',
         'aldeed:collection2',
