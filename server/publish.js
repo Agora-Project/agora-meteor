@@ -30,11 +30,6 @@ Meteor.publish('recentAbstractPosts', function() {
     return Posts.find({}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}, sort: {published: -1}, limit: 100});
 });
 
-//Returns an abstract shell of all posts with a given tag, each only containing its id, links, and subtree width.
-Meteor.publish('abstractPostsByTag', function(tag) {
-    return Posts.find({tags: tag}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}});
-});
-
 Meteor.publish('abstractPostsByUser', function(actorID) {
     return Posts.find({attributedTo: actorID}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}});
 });
@@ -42,11 +37,6 @@ Meteor.publish('abstractPostsByUser', function(actorID) {
 //Universal subscription for roles.
 Meteor.publish(null, function() {
     return Meteor.roles.find({});
-});
-
-//Universal subscription for tags.
-Meteor.publish(null, function() {
-    return Tags.find({});
 });
 
 //Returns info about the client user.
