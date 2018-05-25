@@ -1,6 +1,28 @@
 
 //import webfinger from '../lib/webfinger/lib/webfinger.js';
 
+let checkActivityPermitted = function(user, activity) {
+    if (!user) {
+        throw new Meteor.Error('Not-logged-in', 'The user must be logged in to perform activities.');
+    }
+
+    if (activity.actor != user.actor)
+        throw new Meteor.Error('Actor mismatch!', 'Method actor does not match activity actor!');
+
+    switch(activity.type) {
+        case 'Create':
+        //Don't allow banned users to post.
+        if (user.isBanned) {
+            throw new Meteor.Error('Banned', 'Banned users may not post.');
+        }
+
+        //Don't allow unverified users to post.
+        if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
+            throw new Meteor.Error('Unverified', 'Unverified users may not post.');
+        }
+    }
+};
+
 let processCreateActivity = function(activity) {
     let post = activity.object;
 
@@ -47,7 +69,8 @@ let encapsulateContentWithCreate = function(post) {
     };
 }
 
-let processClientActivity = function(object) {
+let processClientActivity = function(user, object) {
+
 
     //Set the activity as being published right now.
     object.published = new Date().toISOString();
@@ -64,6 +87,8 @@ let processClientActivity = function(object) {
         //If we do have an activity, proceed normally.
         activity = object;
     }
+
+    checkActivityPermitted(user, activity);
 
     let result;
 
@@ -94,7 +119,8 @@ let importActorFromActivityPubJSON = function(json) {
 
 let importPostFromActivityPubJSON = function(json) {
     if (!Posts.findOne({id: json.id})) { //Is post already present? If not,
-        Posts.insert(json);                  //add the post.
+        json.local = false; //mark it as foreign,
+        Posts.insert(json); //then add it.
     }
 };
 
@@ -120,10 +146,36 @@ Meteor.methods({
         if (activityPubActorTypes.includes(json.type))
             importActorFromActivityPubJSON(json);
 
-        else if (activityPubObjectTypes.includes(json.type))
+        else if (activityPubContentTypes.includes(json.type))
             importPostFromActivityPubJSON(json);
+    },
+    postActivity: function(object) {
+
+        let user = Meteor.users.findOne({_id: this.userId});
+
+        return processClientActivity(user, object);
     }
 });
+
+let successfulJSON = function(data) {
+    response = {
+        statusCode: 200
+    };
+
+    if (data) {
+        delete data._id;
+        response.body = data;
+    }
+
+    return response;
+}
+
+let failedJSON = function(message) {
+    return {
+        statusCode: 400,
+        body: {status: "fail", message: message}
+    };
+}
 
 Api = new Restivus({
     apiPath: '/',
@@ -136,15 +188,8 @@ Api.addRoute('post/:_id', {}, {
             var post = Posts.findOne({_id: this.urlParams._id});
             if (post) {
                 delete post._id;
-                return {
-                    statusCode: 200,
-                    body: post
-                };
-            }
-            return {
-                statusCode: 400,
-                body: {status: "fail", message: "Unable to get post!"}
-            };
+                return successfulJSON(post);
+            } else return failedJSON("Unable to get post!");
         }
     }
 });
@@ -154,35 +199,17 @@ Api.addRoute('actors/:handle', {}, {
         action: function () {
             var actor = Actors.findOne({preferredUsername: this.urlParams.handle});
             if (actor) {
-                delete actor._id;
                 delete actor.local;
-                return {
-                    statusCode: 200,
-                    body: actor
-                };
-            }
-            return {
-                statusCode: 400,
-                body: {status: "fail", message: "Unable to get actor!"}
-            };
+                return successfulJSON(actor);
+            } else return failedJSON("Unable to get actor!");
         }
     }
 });
 
 Api.addRoute('actors/:handle/inbox', {}, {
-    post: {/*
+    post: {
         action: function () {
-            console.log("???");
-            var inbox = Inboxes.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/inbox"});
-            if (inbox) {
-                delete inbox._id;
-                return inbox;
-            }
-            return {
-                statusCode: 400,
-                body: {status: "fail", message: "Unable to get actor!"}
-            };
-        }*/
+        }
     }
 });
 
@@ -191,21 +218,19 @@ Api.addRoute('actors/:handle/outbox', {}, {
         action: function () {
             var outbox = Outboxes.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/outbox"});
             if (outbox) {
-                delete outbox._id;
-                return {
-                    statusCode: 200,
-                    body: outbox
-                };
-            }
-            return {
-                statusCode: 400,
-                body: {status: "fail", message: "Unable to get outbox!"}
-            };
+                return successfulJSON(outbox);
+            } else return failedJSON("Unable to get outbox!");
         }
     },
     post: {
         action: function () {
+            let object = this.request.body;
 
+            try {
+                return successfulJSON(processClientActivity(object));
+            } catch (exception) {
+                return failedJSON(exception.reason);
+            }
         }
     }
 });
@@ -215,16 +240,8 @@ Api.addRoute('actors/:handle/following', {}, {
         action: function () {
             var following = FollowingLists.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/following"});
             if (following) {
-                delete following._id;
-                return {
-                    statusCode: 200,
-                    body: following
-                };
-            }
-            return {
-                statusCode: 400,
-                body: {status: "fail", message: "Unable to get following list!"}
-            };
+                return successfulJSON(following);
+            } else return failedJSON("Unable to get following list!");
         }
     }
 });
@@ -234,16 +251,8 @@ Api.addRoute('actors/:handle/followers', {}, {
         action: function () {
             var followers = FollowerLists.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/followers"});
             if (followers) {
-                delete followers._id;
-                return {
-                    statusCode: 200,
-                    body: followers
-                };
-            }
-            return {
-                statusCode: 400,
-                body: {status: "fail", message: "Unable to get followers list!"}
-            };
+                return successfulJSON(followers);
+            } else return failedJSON("Unable to get followers list!");
         }
     }
 });

@@ -53,17 +53,17 @@ Template.mainReply.onRendered(function() {
             post.to.push("https://www.w3.org/ns/activitystreams#Public");
         }
 
-        HTTP.post(actor.outbox, {data: post}, function(error, result) {
+        Meteor.call("postActivity", post, function(error, result) {
             if (error) {
                 //Display error message to user.
-                instance.errorMessage.set(error.response.data.message);
+                instance.errorMessage.set(error.reason);
                 instance.submitted = false;
             }
             else {
                 //Don't delete user's work unless it is posted successfully.
                 instance.parent.targetPost.set();
-                subscriptionManager.subscribe('abstractPost', result.data);
-                instance.parent.addPostByID(result.data);
+                subscriptionManager.subscribe('abstractPost', result);
+                instance.parent.addPostByID(result);
             }
         });
         instance.submitted = true;

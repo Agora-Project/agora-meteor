@@ -25,55 +25,6 @@ Meteor.methods({
             return Accounts.sendVerificationEmail( userID );
         }
     },
-    insertPost: function(post) {
-
-        let user = Meteor.users.findOne({_id: this.userId});
-
-        //First, some validation.
-
-        //Don't allow guests to post.
-        if (!user) {
-            throw new Meteor.Error('Not-logged-in', 'The user must be logged in to post.');
-        }
-
-        //Don't allow banned users to post.
-        if (user.isBanned) {
-            throw new Meteor.Error('Banned', 'Banned users may not post.');
-        }
-
-        //Don't allow unverified users to post.
-        if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
-            throw new Meteor.Error('Unverified', 'Unverified users may not post.');
-        }
-
-        //Don't allow posts with no content.
-        if (!post.content || post.content.length < 1)
-            throw new Meteor.Error('No content!', 'Cannot insert post without content!');
-
-        //Don't allow posts with too much content
-        if (post.content.length > 100000)
-            throw new Meteor.Error('Too much content!', 'Cannot insert post with content greater than 100,000 characters!');
-
-        //Don't allow posts with summariesw that are too long.
-        if (post.summary && post.summary.length > 100)
-            throw new Meteor.Error('Summary too long!', 'Cannot insert post with summary greater than 100 characters!');
-
-        if (post.content.length > 500 && (!post.summary || post.summary.length < 1))
-            throw new Meteor.Error('Summary needed!', 'Posts with more than 500 characters of content must have a summary!');
-
-        //Don't allow posts that target posts that don't exist.
-        if (post.inReplyTo) {
-            let target = Posts.findOne({id: post.inReplyTo});
-            if (!target) {
-                throw new Meteor.Error('target invalid', 'Targeted post not found!');
-            }
-        }
-
-        //Insert new post.
-        let postId = Posts.insert(post);
-
-        return postId;
-    },
     editPost: function(postId, update) {
         let user = Meteor.users.findOne({_id: this.userId});
 
