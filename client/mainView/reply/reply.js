@@ -32,23 +32,38 @@ Template.mainReply.onRendered(function() {
 
     let submitReply = function(event) {
         if (instance.submitted) return;
+
+        let actorID = Meteor.user().actor;
+        let actor = Actors.findOne({id: actorID});
+
         let post = {
+            type: "Note",
+            attributedTo: actorID,
             summary: summaryInput.val(),
             content: contentInput.val(),
-            inReplyTo: target.id
+            to: [],
+            cc: [actor.followers]
         };
 
-        Meteor.call("insertPost", post, function(error, result) {
+        if (target) {
+            post.inReplyTo = target.id;
+            post.to.push(target.attributedTo);
+            post.cc.push("https://www.w3.org/ns/activitystreams#Public");
+        } else {
+            post.to.push("https://www.w3.org/ns/activitystreams#Public");
+        }
+
+        HTTP.post(actor.outbox, {data: post}, function(error, result) {
             if (error) {
                 //Display error message to user.
-                instance.errorMessage.set(error.reason);
-                instance.submitted = false
+                instance.errorMessage.set(error.response.data.message);
+                instance.submitted = false;
             }
             else {
-                //Don't delete user's work unless it posts successfully.
+                //Don't delete user's work unless it is posted successfully.
                 instance.parent.targetPost.set();
-                subscriptionManager.subscribe('abstractPost', result);
-                instance.parent.addPostByID(result);
+                subscriptionManager.subscribe('abstractPost', result.data);
+                instance.parent.addPostByID(result.data);
             }
         });
         instance.submitted = true;

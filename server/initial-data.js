@@ -54,7 +54,8 @@ Meteor.startup(function() {
         let rootID = Posts.insert({
             summary: 'Forum Root',
             content: 'Welcome to Agora! This is the root post of the forum.',
-            attributedTo: defaultMod.actor
+            attributedTo: defaultMod.actor,
+            local: true
         });
     }
 
@@ -64,15 +65,16 @@ Meteor.startup(function() {
         Posts.remove({});
 
         console.log('Adding root post');
-        let rootID = Posts.insert({
+        let root_ID = Posts.insert({
             summary: 'Forum Root',
             content: 'Welcome to Agora! This is the root post of the forum.',
-            attributedTo: defaultMod.actor
+            attributedTo: defaultMod.actor,
+            local: true
         });
 
         console.log("Adding fake posts");
 
-        let id = Posts.findOne({_id: rootID}).id;
+        let id = Posts.findOne({_id: root_ID}).id;
         let posts = [id];
 
         for (let i=0; i<12; i++) { //Add posts. Beware, anything above a thousand will take a little bit.
@@ -83,7 +85,8 @@ Meteor.startup(function() {
 
             let reply = {
                 content: 'Fake content.',
-                attributedTo: user.actor
+                attributedTo: user.actor,
+                local: true
             };
 
             if (target) {
@@ -96,7 +99,6 @@ Meteor.startup(function() {
 
             let _id = Posts.insert(reply);
             let id = Posts.findOne({_id: _id}).id;
-            if (target) Posts.update({id: target}, {$push: {replies: id}});
             posts.push(id);
         }
     }

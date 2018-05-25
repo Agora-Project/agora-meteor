@@ -20,29 +20,30 @@ deletePost = function(postID) {
 
 Meteor.methods({
     sendVerificationLink: function() {
-        let userId = Meteor.userId();
-        if ( userId ) {
-            return Accounts.sendVerificationEmail( userId );
+        let userID = Meteor.userId();
+        if ( userID ) {
+            return Accounts.sendVerificationEmail( userID );
         }
     },
     insertPost: function(post) {
+
         let user = Meteor.users.findOne({_id: this.userId});
 
         //First, some validation.
 
         //Don't allow guests to post.
         if (!user) {
-            throw new Meteor.Error('not-logged-in', 'The user must be logged in to post.');
+            throw new Meteor.Error('Not-logged-in', 'The user must be logged in to post.');
         }
 
         //Don't allow banned users to post.
         if (user.isBanned) {
-            throw new Meteor.Error('banned', 'Banned users may not post.');
+            throw new Meteor.Error('Banned', 'Banned users may not post.');
         }
 
         //Don't allow unverified users to post.
         if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
-            throw new Meteor.Error('unverified', 'Unverified users may not post.');
+            throw new Meteor.Error('Unverified', 'Unverified users may not post.');
         }
 
         //Don't allow posts with no content.

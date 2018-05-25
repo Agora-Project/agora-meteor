@@ -35,7 +35,8 @@ Package.onUse(function(api) {
         'alanning:roles',
         'utilities:avatar',
         'spacebars',
-        'email'
+        'email',
+        'http'
     ], both);
 
     api.addFiles([

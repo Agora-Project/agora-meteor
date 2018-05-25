@@ -1,6 +1,90 @@
 
 //import webfinger from '../lib/webfinger/lib/webfinger.js';
 
+let processCreateActivity = function(activity) {
+    let post = activity.object;
+
+    let post_ID = Posts.insert(post);
+    activity.object = Posts.findOne({_id: post_ID});
+
+    return post_ID;
+};
+let encapsulateContentWithCreate = function(post) {
+
+    //Don't allow posts with no content.
+    if (!post.content || post.content.length < 1)
+        throw new Meteor.Error('No content!', 'Cannot insert post without content!');
+
+    //Don't allow posts with too much content
+    if (post.content.length > 100000)
+        throw new Meteor.Error('Too much content!', 'Cannot insert post with content greater than 100,000 characters!');
+
+    //Don't allow posts with summariesw that are too long.
+    if (post.summary && post.summary.length > 100)
+        throw new Meteor.Error('Summary too long!', 'Cannot insert post with summary greater than 100 characters!');
+
+    if (post.content.length > 500 && (!post.summary || post.summary.length < 1))
+        throw new Meteor.Error('Summary needed!', 'Posts with more than 500 characters of content must have a summary!');
+
+    //Don't allow posts that target posts that don't exist.
+    if (post.inReplyTo) {
+        let target = Posts.findOne({id: post.inReplyTo});
+        if (!target) {
+            throw new Meteor.Error('target invalid', 'Targeted post not found!');
+        }
+    }
+
+    post.local = true;
+
+    return {
+        '@context': "https://www.w3.org/ns/activitystreams",
+        type: "Create",
+        object: post,
+        actor: post.attributedTo,
+        published: post.published,
+        to: post.to,
+        cc: post.cc
+    };
+}
+
+let processClientActivity = function(object) {
+
+    //Set the activity as being published right now.
+    object.published = new Date().toISOString();
+
+    let activity;
+    //We may or may not have an activity to work with here.
+    if (!activityPubActivityTypes.includes(object.type)) {
+        //If we don't and it's a content object, encapsulate the object in a create activity.
+        if (activityPubContentTypes.includes(object.type))
+            activity = encapsulateContentWithCreate(object);
+        //If we don't, and we don't know what it is, throw an error.
+        else throw new Meteor.Error('Unknown type!', 'Cannot handle that type of object!');
+    } else {
+        //If we do have an activity, proceed normally.
+        activity = object;
+    }
+
+    let result;
+
+    switch(activity.type){
+        case 'Create':
+            result = processCreateActivity(activity);
+            break;
+        case 'Delete':
+            result = processDeleteActivity(activity);
+            break;
+        case 'Follow':
+            result = processFollowActivity(activity);
+            break;
+        case 'Update':
+            result = processUpdateActivity(activity);
+            break;
+    }
+
+    return result;
+};
+
 let importActorFromActivityPubJSON = function(json) {
     if (!Actors.findOne({id: json.id})) { //Is actor already present? If not,
         json.local = false; //mark it as foreign,
