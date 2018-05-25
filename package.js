@@ -15,14 +15,14 @@ Package.describe({
 Npm.depends({
     step: '1.0.0',
     xml2js: '0.4.19',
-    request: '2.85.0',
-    'simpl-schema': '1.1.0'
+    request: '2.85.0'
 });
 
 Package.onUse(function(api) {
     both = ['client', 'server'];
 
     api.use([
+        'mongo',
         'accounts-password',
         'useraccounts:core',
         'agoraforum:activitypub',
@@ -31,7 +31,6 @@ Package.onUse(function(api) {
         'mrest:restivus',
         'useraccounts:iron-routing',
 	    'matb33:collection-hooks',
-        'aldeed:collection2',
         'accounts-base',
         'alanning:roles',
         'utilities:avatar',
