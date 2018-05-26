@@ -25,43 +25,6 @@ Meteor.methods({
             return Accounts.sendVerificationEmail( userID );
         }
     },
-    editPost: function(postId, update) {
-        let user = Meteor.users.findOne({_id: this.userId});
-
-        //Don't allow guests to edit posts.
-        if (!user) {
-            throw new Meteor.Error('not-logged-in', 'The user must be logged in to edit posts.');
-        }
-
-        //Don't allow banned users to edit posts.
-        if (user.isBanned) {
-            throw new Meteor.Error('banned', 'Banned users may not edit posts.');
-        }
-
-        //Don't allow unverified users to edit posts.
-        if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
-            throw new Meteor.Error('unverified', 'Unverified users may not edit posts.');
-        }
-
-        let post = Posts.findOne({_id: postId});
-
-        //Don't allow non-moderators to edit other peoples posts.
-        if (post.attributedTo !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {
-            throw new Meteor.Error('post-not-owned', 'Only moderators may edit posts they don\'t own.');
-        }
-
-        //Validate edit.
-        if (post.summary && post.summary.length < 1) {
-            delete post.summary;
-        }
-
-        //Edit post.
-        Posts.update({_id: postId}, {$set: {
-            summary: update.summary,
-            content: update.content,
-            updated: Date.now()
-        }});
-    },
     deletePost: function(postID) {
 
         //Don't allow non-moderators to delete posts.
