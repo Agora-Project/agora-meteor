@@ -78,10 +78,11 @@ Template.mainReply.onRendered(function() {
         let actorID = Meteor.user().actor;
         let actor = Actors.findOne({id: actorID});
 
-        let update = target;
-
-        update.summary = summaryInput.val();
-        update.content = contentInput.val();
+        let update = {
+            id: target.id,
+            summary: summaryInput.val(),
+            content: contentInput.val()
+        };
 
         let activity = new ActivityPubActivity("Update", actorID, update);
         activity.copyAddressingProperties(target);

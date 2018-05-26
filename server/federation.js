@@ -41,7 +41,7 @@ let processCreateActivity = function(activity) {
 let processUpdateActivity = function(activity) {
     let update = activity.object;
 
-    Posts.update({id: update.id}, update);
+    Posts.update({id: update.id}, {$set: update});
 };
 let encapsulateContentWithCreate = function(post) {
 

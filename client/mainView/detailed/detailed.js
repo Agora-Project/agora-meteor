@@ -66,7 +66,7 @@ Template.mainDetailedPost.helpers({
         return (user.emails && user.emails.length > 0 && user.emails[0].verified);
     },
     editAccess: function() {
-        return this.attributedTo === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
+        return this.attributedTo === Meteor.user().actor || Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
     isModerator: function() {
         return Roles.userIsInRole(Meteor.userId(), ['moderator']);
