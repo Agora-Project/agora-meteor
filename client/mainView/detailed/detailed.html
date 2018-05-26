@@ -41,14 +41,12 @@
             <div class="main-detailed-post-footer">
                 {{#if currentUser}}
                     {{#if verifiedUser}}
-                        {{#if isModerator}}
-                            <button class="main-detailed-post-delete-button">Delete</button>
-                        {{/if}}
                         {{#if hasReplyButtons}}
                             <button class="main-detailed-post-report-button">Report</button>
 
                             {{#if editAccess}}
                                 <button class="main-detailed-post-edit-button">Edit</button>
+                                <button class="main-detailed-post-delete-button">Delete</button>
                             {{/if}}
 
                             <button class="main-detailed-post-reply-button">Reply</button>

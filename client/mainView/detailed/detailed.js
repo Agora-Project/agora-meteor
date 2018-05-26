@@ -135,7 +135,14 @@ Template.mainDetailedPost.events({
     'click .main-detailed-post-delete-button': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
         if (confirm("Are you sure you want to delete this post?")) {
-            Meteor.call('deletePost', instance.data.id);
+
+            let actorID = Meteor.user().actor;
+
+            let activity = new ActivityPubActivity("Delete", actorID, instance.data.id);
+            activity.copyAddressingProperties(instance.data);
+
+            if (instance.data.attributedTo != actorID) activity.to.push(instance.data.attributedTo);
+            Meteor.call('postActivity', activity);
         }
     }
 });

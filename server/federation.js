@@ -11,12 +11,16 @@ let checkActivityPermitted = function(user, activity) {
 
     switch(activity.type) {
         case 'Update':
+        case 'Delete':
+
         //Don't allow non-moderators to edit other peoples posts.
         if (activity.actor !== user.actor && !Roles.userIsInRole(user._id, ['moderator'])) {
-            throw new Meteor.Error('Post Not Owned', "Only moderators may edit posts they don't own.");
+            throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
         }
 
+        //No break here. editing and deleting are subject to all the same restrictions as posting.
         case 'Create':
+
         //Don't allow banned users to post or edit.
         if (user.isBanned) {
             throw new Meteor.Error('Banned', 'Banned users may not perform that activity.');
@@ -36,6 +40,12 @@ let processCreateActivity = function(activity) {
     activity.object = Posts.findOne({_id: post_ID});
 
     return post_ID;
+};
+
+let processDeleteActivity = function(activity) {
+    let postID = activity.object;
+
+    deletePost(postID);
 };
 
 let processUpdateActivity = function(activity) {

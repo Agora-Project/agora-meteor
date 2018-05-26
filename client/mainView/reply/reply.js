@@ -76,7 +76,6 @@ Template.mainReply.onRendered(function() {
         if (instance.submitted) return;
 
         let actorID = Meteor.user().actor;
-        let actor = Actors.findOne({id: actorID});
 
         let update = {
             id: target.id,

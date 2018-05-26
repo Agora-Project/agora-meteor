@@ -25,15 +25,6 @@ Meteor.methods({
             return Accounts.sendVerificationEmail( userID );
         }
     },
-    deletePost: function(postID) {
-
-        //Don't allow non-moderators to delete posts.
-        if (!Roles.userIsInRole(this.userId, ['moderator'])) {
-            throw new Meteor.Error('not-logged-in', 'Only moderators may delete posts.');
-        }
-
-        deletePost(postID)
-    },
     submitReport: function(report) {
         let user = Meteor.users.findOne({_id: this.userId});
 
