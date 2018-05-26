@@ -32,20 +32,38 @@ Template.mainReply.onRendered(function() {
 
     let submitReply = function(event) {
         if (instance.submitted) return;
+
+        let actorID = Meteor.user().actor;
+        let actor = Actors.findOne({id: actorID});
+
         let post = {
+            type: "Note",
+            attributedTo: actorID,
             summary: summaryInput.val(),
             content: contentInput.val(),
-            inReplyTo: target.id
+            to: [],
+            cc: [actor.followers],
+            bto: [],
+            bcc: [],
+            audience: []
         };
 
-        Meteor.call("insertPost", post, function(error, result) {
+        if (target) {
+            post.inReplyTo = target.id;
+            post.to.push(target.attributedTo);
+            post.cc.push("https://www.w3.org/ns/activitystreams#Public");
+        } else {
+            post.to.push("https://www.w3.org/ns/activitystreams#Public");
+        }
+
+        Meteor.call("postActivity", post, function(error, result) {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);
-                instance.submitted = false
+                instance.submitted = false;
             }
             else {
-                //Don't delete user's work unless it posts successfully.
+                //Don't delete user's work unless it is posted successfully.
                 instance.parent.targetPost.set();
                 subscriptionManager.subscribe('abstractPost', result);
                 instance.parent.addPostByID(result);
@@ -57,12 +75,20 @@ Template.mainReply.onRendered(function() {
     let submitEdit = function(event) {
         if (instance.submitted) return;
 
-        let post = {
+        let actorID = Meteor.user().actor;
+
+        let update = {
+            id: target.id,
             summary: summaryInput.val(),
             content: contentInput.val()
         };
 
-        Meteor.call("editPost", target._id, post, function(error) {
+        let activity = new ActivityPubActivity("Update", actorID, update);
+        activity.copyAddressingProperties(target);
+
+        if (target.attributedTo != actorID) activity.to.push(target.attributedTo);
+
+        Meteor.call("postActivity", activity, function(error) {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);

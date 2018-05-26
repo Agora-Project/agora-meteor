@@ -66,7 +66,7 @@ Template.mainDetailedPost.helpers({
         return (user.emails && user.emails.length > 0 && user.emails[0].verified);
     },
     editAccess: function() {
-        return this.attributedTo === Meteor.userId() || Roles.userIsInRole(Meteor.userId(), ['moderator']);
+        return this.attributedTo === Meteor.user().actor || Roles.userIsInRole(Meteor.userId(), ['moderator']);
     },
     isModerator: function() {
         return Roles.userIsInRole(Meteor.userId(), ['moderator']);
@@ -135,7 +135,14 @@ Template.mainDetailedPost.events({
     'click .main-detailed-post-delete-button': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
         if (confirm("Are you sure you want to delete this post?")) {
-            Meteor.call('deletePost', instance.data._id);
+
+            let actorID = Meteor.user().actor;
+
+            let activity = new ActivityPubActivity("Delete", actorID, instance.data.id);
+            activity.copyAddressingProperties(instance.data);
+
+            if (instance.data.attributedTo != actorID) activity.to.push(instance.data.attributedTo);
+            Meteor.call('postActivity', activity);
         }
     }
 });

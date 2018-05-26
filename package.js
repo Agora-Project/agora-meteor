@@ -15,25 +15,28 @@ Package.describe({
 Npm.depends({
     step: '1.0.0',
     xml2js: '0.4.19',
-    request: '2.85.0',
-    'simpl-schema': '1.1.0'
+    request: '2.85.0'
 });
 
 Package.onUse(function(api) {
     both = ['client', 'server'];
 
     api.use([
+        'mongo',
         'accounts-password',
         'useraccounts:core',
         'agoraforum:activitypub',
         'ecmascript',
         'iron:router',
+        'mrest:restivus',
+        'useraccounts:iron-routing',
 	    'matb33:collection-hooks',
-        'aldeed:collection2',
         'accounts-base',
         'alanning:roles',
         'utilities:avatar',
-        'email'
+        'spacebars',
+        'email',
+        'http'
     ], both);
 
     api.addFiles([
@@ -42,7 +45,6 @@ Package.onUse(function(api) {
         'lib/collections/actors.js',
         'lib/collections/posts.js',
         'lib/collections/reports.js',
-        'lib/collections/tags.js',
         'lib/collections/users.js',
         'routes.js'
     ], both);

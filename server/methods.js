@@ -4,191 +4,26 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
-import { getActivityFromUrl } from 'meteor/agoraforum:activitypub';
+deletePost = function(postID) {
+    let post = Posts.findOne({id: postID});
+
+    //check to make sure the post exists before attempting to delete it.
+    if (post === undefined) {
+        throw new Meteor.Error('post-not-found', 'No such post was found.');
+    }
+
+    //delete the post and all references to it.
+    Posts.update({id: post.inReplyTo}, {$pull: {replies: post.id}});
+    Posts.update({inReplyTo: post.id},  {$unset: {inReplyTo:1}}, {multi: true});
+    Posts.remove({id: postID});
+}
 
 Meteor.methods({
     sendVerificationLink: function() {
-        let userId = Meteor.userId();
-        if ( userId ) {
-            return Accounts.sendVerificationEmail( userId );
+        let userID = Meteor.userId();
+        if ( userID ) {
+            return Accounts.sendVerificationEmail( userID );
         }
-    },
-    insertPost: function(post) {
-        let user = Meteor.users.findOne({_id: this.userId});
-
-        //First, some validation.
-
-        //Don't allow guests to post.
-        if (!user) {
-            throw new Meteor.Error('not-logged-in', 'The user must be logged in to post.');
-        }
-
-        //Don't allow banned users to post.
-        if (user.isBanned) {
-            throw new Meteor.Error('banned', 'Banned users may not post.');
-        }
-
-        //Don't allow unverified users to post.
-        if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
-            throw new Meteor.Error('unverified', 'Unverified users may not post.');
-        }
-
-        //Don't allow posts with no content.
-        if (!post.content || post.content.length < 1)
-            throw new Meteor.Error('No content!', 'Cannot insert post without content!');
-
-        //Don't allow posts with too much content
-        if (post.content.length > 100000)
-            throw new Meteor.Error('Too much content!', 'Cannot insert post with content greater than 100,000 characters!');
-
-        //Don't allow posts with summariesw that are too long.
-        if (post.summary && post.summary.length > 100)
-            throw new Meteor.Error('Summary too long!', 'Cannot insert post with summary greater than 100 characters!');
-
-        if (post.content.length > 500 && (!post.summary || post.summary.length < 1))
-            throw new Meteor.Error('Summary needed!', 'Posts with more than 500 characters of content must have a summary!');
-
-        //Don't allow posts that target posts that don't exist.
-        if (post.inReplyTo) {
-            let target = Posts.findOne({id: post.inReplyTo});
-            if (!target) {
-                throw new Meteor.Error('target invalid', 'Targeted post not found!');
-            }
-        }
-
-        //check post for new hashtags and if any are found process them.
-        //The regex here describes a hashtag as anything that starts with either
-        //the start of a string or any kind of whitespace, then has a # symbol,
-        //and then any number of letters.
-        let postTags = post.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
-
-        if(!post.tag) post.tag = [];
-
-        if (postTags) {
-
-            for (let newTag of postTags) {
-                newTag = newTag.trim().toLowerCase();
-                newTag = newTag.replace("#", "");
-
-                console.log(newTag);
-
-                //check for any new tags not already present on the post.
-                if (post.tag.find(function(tag) {
-                    return tag === newTag;
-                }) === undefined) {
-                    //if any are found, add them to the list of new tags on the
-                    //post.
-                    post.tag.push(newTag);
-                }
-            }
-        }
-
-        //Insert new post.
-        let postId = Posts.insert(post);
-
-        //add any new tags to the database, and adjust the info for existing tags accordingly.
-        for (let tag of post.tag) {
-            let tagDocument = Tags.findOne({_id: tag});
-            if (!tagDocument) {
-                Tags.insert({_id: tag, postNumber: 1, posts: [postId]});
-                tagDocument = Tags.findOne({_id: tag});
-            } else {
-                Tags.update({_id: tag}, { $inc: {postNumber: 1}, $push: {posts: postId} });
-                tagDocument = Tags.findOne({_id: tag});
-            }
-        }
-
-        return postId;
-    },
-    editPost: function(postId, update) {
-        let user = Meteor.users.findOne({_id: this.userId});
-
-        //Don't allow guests to edit posts.
-        if (!user) {
-            throw new Meteor.Error('not-logged-in', 'The user must be logged in to edit posts.');
-        }
-
-        //Don't allow banned users to edit posts.
-        if (user.isBanned) {
-            throw new Meteor.Error('banned', 'Banned users may not edit posts.');
-        }
-
-        //Don't allow unverified users to edit posts.
-        if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
-            throw new Meteor.Error('unverified', 'Unverified users may not edit posts.');
-        }
-
-        let post = Posts.findOne({_id: postId});
-
-        //Don't allow non-moderators to edit other peoples posts.
-        if (post.attributedTo !== this.userId && !Roles.userIsInRole(this.userId, ['moderator'])) {
-            throw new Meteor.Error('post-not-owned', 'Only moderators may edit posts they don\'t own.');
-        }
-
-        //Validate edit.
-        if (post.summary && post.summary.length < 1) {
-            delete post.summary;
-        }
-
-        //check post for new tags and process them if found.
-        let postTags = update.content.match(/(^|\s)(#[a-z\d][\w-]*)/gi);
-
-        if(!update.tags) update.tags = [];
-
-        if (postTags) {
-
-            for (let newTag of postTags) {
-                newTag = newTag.trim().toLowerCase();
-
-                //check for any new tags not already present on the post.
-                if (update.tags.find(function(tag) {
-                    return tag === newTag;
-                }) === undefined) {
-                    //if any are found, add them to the list of new tags on the
-                    //post.
-                    update.tags.push(newTag);
-
-                    let tagDocument = Tags.findOne({_id: newTag});
-                    if (!tagDocument) {
-                        Tags.insert({_id: newTag, postNumber: 1, posts: [postId]});
-                        tagDocument = Tags.findOne({_id: newTag});
-                    } else {
-                        Tags.update({_id: newTag}, { $inc: {postNumber: 1}, $push: {posts: postId} });
-                        tagDocument = Tags.findOne({_id: newTag});
-                    }
-
-                }
-            }
-        }
-
-        //Edit post.
-        Posts.update({_id: postId}, {$set: {
-            summary: update.summary,
-            content: update.content,
-            updated: Date.now()
-        }});
-    },
-    deletePost: function(postId) {
-        let post = Posts.findOne({_id: postId});
-
-        //Don't allow non-moderators to delete posts.
-        if (!Roles.userIsInRole(this.userId, ['moderator'])) {
-            throw new Meteor.Error('not-logged-in', 'Only moderators may delete posts.');
-        }
-
-        //check to make sure the post exists before attempting to delete it.
-        if (post === undefined) {
-            throw new Meteor.Error('post-not-found', 'No such post was found.');
-        }
-
-        //recursively delete all replies to the post.
-        Posts.find({inReplyTo: post.id}).forEach(function(reply) {
-            Meteor.call('deletePost', reply._id);
-        });
-
-        //delete the post and all references to it.
-        Posts.update({id: post.inReplyTo}, {$pull: {replies: post.id}});
-        Posts.remove(postId);
     },
     submitReport: function(report) {
         let user = Meteor.users.findOne({_id: this.userId});
