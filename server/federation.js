@@ -10,15 +10,21 @@ let checkActivityPermitted = function(user, activity) {
         throw new Meteor.Error('Actor mismatch!', 'Method actor does not match activity actor!');
 
     switch(activity.type) {
-        case 'Create':
-        //Don't allow banned users to post.
-        if (user.isBanned) {
-            throw new Meteor.Error('Banned', 'Banned users may not post.');
+        case 'Update':
+        //Don't allow non-moderators to edit other peoples posts.
+        if (activity.actor !== user.actor && !Roles.userIsInRole(user._id, ['moderator'])) {
+            throw new Meteor.Error('Post Not Owned', "Only moderators may edit posts they don't own.");
         }
 
-        //Don't allow unverified users to post.
+        case 'Create':
+        //Don't allow banned users to post or edit.
+        if (user.isBanned) {
+            throw new Meteor.Error('Banned', 'Banned users may not perform that activity.');
+        }
+
+        //Don't allow unverified users to post or edit.
         if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
-            throw new Meteor.Error('Unverified', 'Unverified users may not post.');
+            throw new Meteor.Error('Unverified', 'Unverified users may not perform that activity.');
         }
     }
 };
@@ -30,6 +36,12 @@ let processCreateActivity = function(activity) {
     activity.object = Posts.findOne({_id: post_ID});
 
     return post_ID;
+};
+
+let processUpdateActivity = function(activity) {
+    let update = activity.object;
+
+    Posts.update({id: update.id}, update);
 };
 let encapsulateContentWithCreate = function(post) {
 
@@ -57,16 +69,8 @@ let encapsulateContentWithCreate = function(post) {
     }
 
     post.local = true;
-
-    return {
-        '@context': "https://www.w3.org/ns/activitystreams",
-        type: "Create",
-        object: post,
-        actor: post.attributedTo,
-        published: post.published,
-        to: post.to,
-        cc: post.cc
-    };
+    let activity = new ActivityPubActivity("Create", post.attributedTo, post);
+    return activity;
 }
 
 let processClientActivity = function(user, object) {
@@ -164,6 +168,7 @@ let successfulJSON = function(data) {
 
     if (data) {
         delete data._id;
+        delete data.local;
         response.body = data;
     }
 
@@ -199,7 +204,6 @@ Api.addRoute('actors/:handle', {}, {
         action: function () {
             var actor = Actors.findOne({preferredUsername: this.urlParams.handle});
             if (actor) {
-                delete actor.local;
                 return successfulJSON(actor);
             } else return failedJSON("Unable to get actor!");
         }

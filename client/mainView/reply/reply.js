@@ -42,7 +42,10 @@ Template.mainReply.onRendered(function() {
             summary: summaryInput.val(),
             content: contentInput.val(),
             to: [],
-            cc: [actor.followers]
+            cc: [actor.followers],
+            bto: [],
+            bcc: [],
+            audience: []
         };
 
         if (target) {
@@ -72,12 +75,20 @@ Template.mainReply.onRendered(function() {
     let submitEdit = function(event) {
         if (instance.submitted) return;
 
-        let post = {
-            summary: summaryInput.val(),
-            content: contentInput.val()
-        };
+        let actorID = Meteor.user().actor;
+        let actor = Actors.findOne({id: actorID});
 
-        Meteor.call("editPost", target._id, post, function(error) {
+        let update = target;
+
+        update.summary = summaryInput.val();
+        update.content = contentInput.val();
+
+        let activity = new ActivityPubActivity("Update", actorID, update);
+        activity.copyAddressingProperties(target);
+
+        if (target.attributedTo != actorID) activity.to.push(target.attributedTo);
+
+        Meteor.call("postActivity", activity, function(error) {
             if (error) {
                 //Display error message to user.
                 instance.errorMessage.set(error.reason);
