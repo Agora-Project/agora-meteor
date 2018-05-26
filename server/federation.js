@@ -9,27 +9,40 @@ let checkActivityPermitted = function(user, activity) {
     if (activity.actor != user.actor)
         throw new Meteor.Error('Actor mismatch!', 'Method actor does not match activity actor!');
 
+    if (!actors.findOne({id: activity.actor}))
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + followerID);
+
+
     switch(activity.type) {
         case 'Update':
         case 'Delete':
+            //Don't allow non-moderators to edit other peoples posts.
+            if (activity.actor !== user.actor && !Roles.userIsInRole(user._id, ['moderator'])) {
+                throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
+            }
 
-        //Don't allow non-moderators to edit other peoples posts.
-        if (activity.actor !== user.actor && !Roles.userIsInRole(user._id, ['moderator'])) {
-            throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
-        }
-
-        //No break here. editing and deleting are subject to all the same restrictions as posting.
+        //No break here, as update and delete activities should be subject to the same restrictions as create and announce.
         case 'Create':
+        case 'Announce':
+            //Don't allow banned users to post or announce.
+            if (user.isBanned) {
+                throw new Meteor.Error('Banned', 'Banned users may not perform that activity.');
+            }
+            break;
 
-        //Don't allow banned users to post or edit.
-        if (user.isBanned) {
-            throw new Meteor.Error('Banned', 'Banned users may not perform that activity.');
-        }
+        //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
+        case 'Follow':
+            let target = actors.findOne({id: activity.object});
 
-        //Don't allow unverified users to post or edit.
-        if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
-            throw new Meteor.Error('Unverified', 'Unverified users may not perform that activity.');
-        }
+            if (!target)
+                throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
+            return;
+
+    }
+
+    //Don't allow unverified users to manipulate the forum. They can still follow people though.
+    if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
+        throw new Meteor.Error('Unverified', 'Unverified users may not perform that activity.');
     }
 };
 
