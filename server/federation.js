@@ -14,7 +14,7 @@ let dispatchActivity = function(activity) {
         let arrayName = targetArrays[i];
         let targetArray = activity[arrayName];
         for (let j = 0; j < targetArray.length; j++) {
-            let actor = Posts.findOne({id: targetArray[j]});
+            let actor = Actors.findOne({id: targetArray[j]});
             if (actor)
                 HTTP.post(actor.inbox, {data: activity});
         }
