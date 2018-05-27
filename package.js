@@ -57,7 +57,8 @@ Package.onUse(function(api) {
         'server/clientActivity.js',
         'server/federation.js',
         'server/initial-data.js',
-        'lib/collections/orderedCollections.js'
+        'lib/collections/orderedCollections.js',
+        'lib/collections/activities.js'
     ], 'server');
 
     api.addFiles([
