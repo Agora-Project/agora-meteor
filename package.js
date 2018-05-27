@@ -54,6 +54,7 @@ Package.onUse(function(api) {
         'lib/webfinger/lib/webfinger.js',
         'server/methods.js',
         'server/publish.js',
+        'server/clientActivity.js',
         'server/federation.js',
         'server/initial-data.js',
         'lib/collections/orderedCollections.js'

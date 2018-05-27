@@ -114,7 +114,7 @@ Template.mainView.onCreated(function() {
         instance.partitioner.init(instance.layout.getPosts());
     }
 
-    this.addPostByID = function(_id) {
+    this.addPostBy_ID = function(_id) {
         this.addPost(Posts.findOne({_id: _id}));
     }
 
