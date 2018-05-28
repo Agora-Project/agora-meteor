@@ -9,7 +9,6 @@ let checkClientActivityPermitted = function(user, activity) {
     if (!Actors.findOne({id: activity.actor}))
         throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + followerID);
 
-
     switch(activity.type) {
 
         //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
@@ -34,7 +33,8 @@ let checkClientActivityPermitted = function(user, activity) {
 
     }
 
-    //Don't allow unverified users to manipulate the forum. They can still follow people though.
+    //Don't allow unverified users to manipulate the forum. They can still follow people though,
+    //which is why follows return above and don't execute this code.
     if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
         throw new Meteor.Error('Unverified', 'Unverified users may not perform that activity.');
     }
