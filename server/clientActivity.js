@@ -1,4 +1,4 @@
-let checkActivityPermitted = function(user, activity) {
+let checkClientActivityPermitted = function(user, activity) {
     if (!user) {
         throw new Meteor.Error('Not-logged-in', 'The user must be logged in to perform activities.');
     }
@@ -40,7 +40,7 @@ let checkActivityPermitted = function(user, activity) {
     }
 };
 
-let processCreateActivity = function(activity) {
+let processClientCreateActivity = function(activity) {
     let post = activity.object;
 
     post.local = true;
@@ -51,7 +51,7 @@ let processCreateActivity = function(activity) {
     return activity;
 };
 
-let processDeleteActivity = function(activity) {
+let processClientDeleteActivity = function(activity) {
     let postID = activity.object;
 
     deletePost(postID);
@@ -59,7 +59,7 @@ let processDeleteActivity = function(activity) {
     return activity;
 };
 
-let processUpdateActivity = function(activity) {
+let processClientUpdateActivity = function(activity) {
     let update = activity.object;
 
     Posts.update({id: update.id}, {$set: update});
@@ -124,24 +124,22 @@ processClientActivity = function(user, object) {
         activity = object;
     }
 
-    checkActivityPermitted(user, activity);
-
-    let result;
+    checkClientActivityPermitted(user, activity);
 
     switch(activity.type){
         case 'Create':
-            result = processCreateActivity(activity);
+            activity = processClientCreateActivity(activity);
             break;
         case 'Delete':
-            result = processDeleteActivity(activity);
+            activity = processClientDeleteActivity(activity);
             break;
         case 'Follow':
-            result = processFollowActivity(activity);
+            activity = processClientFollowActivity(activity);
             break;
         case 'Update':
-            result = processUpdateActivity(activity);
+            activity = processClientUpdateActivity(activity);
             break;
     }
 
-    return result;
+    return activity;
 };
