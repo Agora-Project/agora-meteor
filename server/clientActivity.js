@@ -76,6 +76,11 @@ let processClientFollowActivity = function(activity) {
 
     FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
 
+    let followee = actors.findOne({id: activity.object});
+
+    if (followee.local)
+        FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+
     return activity;
 };
 
