@@ -70,8 +70,6 @@ Meteor.methods({
 
         let result = processClientActivity(user, object);
 
-        dispatchActivity(result);
-
         return result;
     }
 });

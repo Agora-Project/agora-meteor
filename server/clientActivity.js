@@ -106,6 +106,23 @@ let encapsulateContentWithCreate = function(post) {
     return activity;
 }
 
+let dispatchActivity = function(activity) {
+    let targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
+
+    for (let i = 0; i < targetArrays.length; i++) {
+        let arrayName = targetArrays[i];
+        let targetArray = activity[arrayName];
+        for (let j = 0; j < targetArray.length; j++) {
+            let actor = Actors.findOne({id: targetArray[j]});
+            if (actor)
+                HTTP.post(actor.inbox, {data: activity}, function(err, result) {
+                    //if (err) console.log("Error: ", err);
+                    //if (result) console.log("Result: ", result);
+                });
+        }
+    }
+}
+
 processClientActivity = function(user, object) {
 
     //Set the object as being published right now.
@@ -140,6 +157,11 @@ processClientActivity = function(user, object) {
             activity = processClientUpdateActivity(activity);
             break;
     }
+
+    let _id = Activities.insert(activity);
+    activity = Activities.findOne({_id: _id});
+
+    //dispatchActivity(activity);
 
     return activity;
 };
