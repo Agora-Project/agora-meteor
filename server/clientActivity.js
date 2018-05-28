@@ -48,6 +48,8 @@ let processClientCreateActivity = function(activity) {
     let post_ID = Posts.insert(post);
     activity.object = Posts.findOne({_id: post_ID});
 
+    delete activity.object.local;
+
     return activity;
 };
 
