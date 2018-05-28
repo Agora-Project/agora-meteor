@@ -1,29 +1,89 @@
 
 //import webfinger from '../lib/webfinger/lib/webfinger.js';
 
-let processFederatedFollowActivity = function(activity) {
-    let followee = actors.findOne({id: activity.object});
-
-    FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
-}
-
-let dispatchActivity = function(activity) {
-    let targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
-
-    for (let i = 0; i < targetArrays.length; i++) {
-        let arrayName = targetArrays[i];
-        let targetArray = activity[arrayName];
-        for (let j = 0; j < targetArray.length; j++) {
-            let actor = Actors.findOne({id: targetArray[j]});
-            if (actor)
-                HTTP.post(actor.inbox, {data: activity});
-        }
+let getObjectFromActivity = function(activity) {
+    switch (typeof activity.object) {
+        case 'string':
+            return Posts.findOne({id: activity.object});
+            break;
+        case 'object':
+            return activity.object
+            break;
     }
 }
 
-let processFederatedActivity = function(activity) {
-    console.log(activity);
+let checkFederatedActivityPermitted = function(activity) {
 
+    let actor = Actors.findOne({id: activity.actor});
+
+    if (actor.blocked)
+        throw new Meteor.Error('Actor blocked!', 'That actor is blocked from this forum!');
+
+    let object = getObjectFromActivity(activity);
+
+    switch(activity.type) {
+
+        //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
+        case 'Follow':
+            return;
+
+        case 'Update':
+        case 'Delete':
+            //Don't allow non-moderators to edit other peoples posts.
+            if (activity.actor !== user.actor && !Roles.userIsInRole(user._id, ['moderator'])) {
+                throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
+            }
+
+        //No break here, as update and delete activities should be subject to the same restrictions as create and announce.
+        case 'Create':
+        case 'Announce':
+            //Don't allow banned users to post or announce.
+            if (user.isBanned) {
+                throw new Meteor.Error('Banned', 'Banned users may not perform that activity.');
+            }
+            break;
+
+    }
+
+    //Don't allow unverified users to manipulate the forum. They can still follow people though,
+    //which is why follows return above and don't execute this code.
+    if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
+        throw new Meteor.Error('Unverified', 'Unverified users may not perform that activity.');
+    }
+};
+
+let processFederatedFollowActivity = function(activity) {
+    let followee = actors.findOne({id: activity.object});
+
+    if (followee.local)
+        FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+}
+
+let processFederatedCreateActivity = function(activity) {
+    let post = getObjectFromActivity(activity);
+
+    let post_ID = Posts.insert(post);
+    activity.object = Posts.findOne({_id: post_ID}).id;
+
+    return activity;
+};
+
+let processFederatedActivity = function(activity) {
+    if (Activities.findOne({id: activity.id}))
+        return
+
+    switch(activity.type) {
+        case 'Create':
+            activity = processFederatedCreateActivity(activity);
+            break;
+        case 'Delete':
+            activity = processFederatedCreateActivity(activity);
+            break;
+    }
+
+    let _id = Activities.insert(activity);
+
+    return Activities.findOne({_id: _id});
 };
 
 let importActorFromActivityPubJSON = function(json) {
@@ -128,6 +188,7 @@ Api.addRoute('actors/:handle/inbox', {}, {
         action: function () {
             let object = this.request.body;
             processFederatedActivity(object);
+            return successfulJSON();
         }
     }
 });
@@ -148,6 +209,7 @@ Api.addRoute('actors/:handle/outbox', {}, {
             try {
                 return successfulJSON(processClientActivity(object));
             } catch (exception) {
+                console.log(exception.reason);
                 return failedJSON(exception.reason);
             }
         }
