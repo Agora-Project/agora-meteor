@@ -1,19 +1,32 @@
 
 //import webfinger from '../lib/webfinger/lib/webfinger.js';
 
-let checkActivityPermitted = function(user, activity) {
-    if (!user) {
-        throw new Meteor.Error('Not-logged-in', 'The user must be logged in to perform activities.');
+let getObjectFromActivity = function(activity) {
+    switch (typeof activity.object) {
+        case 'string':
+            return Posts.findOne({id: activity.object});
+            break;
+        case 'object':
+            return activity.object
+            break;
     }
+}
 
-    if (activity.actor != user.actor)
-        throw new Meteor.Error('Actor mismatch!', 'Method actor does not match activity actor!');
+let checkFederatedActivityPermitted = function(activity) {
 
-    if (!actors.findOne({id: activity.actor}))
-        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + followerID);
+    let actor = Actors.findOne({id: activity.actor});
 
+    if (actor.blocked)
+        throw new Meteor.Error('Actor blocked!', 'That actor is blocked from this forum!');
+
+    let object = getObjectFromActivity(activity);
 
     switch(activity.type) {
+
+        //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
+        case 'Follow':
+            return;
+
         case 'Update':
         case 'Delete':
             //Don't allow non-moderators to edit other peoples posts.
@@ -30,111 +43,47 @@ let checkActivityPermitted = function(user, activity) {
             }
             break;
 
-        //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
-        case 'Follow':
-            let target = actors.findOne({id: activity.object});
-
-            if (!target)
-                throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
-            return;
-
     }
 
-    //Don't allow unverified users to manipulate the forum. They can still follow people though.
+    //Don't allow unverified users to manipulate the forum. They can still follow people though,
+    //which is why follows return above and don't execute this code.
     if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
         throw new Meteor.Error('Unverified', 'Unverified users may not perform that activity.');
     }
 };
 
-let processCreateActivity = function(activity) {
-    let post = activity.object;
+let processFederatedFollowActivity = function(activity) {
+    let followee = actors.findOne({id: activity.object});
 
-    let post_ID = Posts.insert(post);
-    activity.object = Posts.findOne({_id: post_ID});
-
-    return post_ID;
-};
-
-let processDeleteActivity = function(activity) {
-    let postID = activity.object;
-
-    deletePost(postID);
-};
-
-let processUpdateActivity = function(activity) {
-    let update = activity.object;
-
-    Posts.update({id: update.id}, {$set: update});
-};
-let encapsulateContentWithCreate = function(post) {
-
-    //Don't allow posts with no content.
-    if (!post.content || post.content.length < 1)
-        throw new Meteor.Error('No content!', 'Cannot insert post without content!');
-
-    //Don't allow posts with too much content
-    if (post.content.length > 100000)
-        throw new Meteor.Error('Too much content!', 'Cannot insert post with content greater than 100,000 characters!');
-
-    //Don't allow posts with summariesw that are too long.
-    if (post.summary && post.summary.length > 100)
-        throw new Meteor.Error('Summary too long!', 'Cannot insert post with summary greater than 100 characters!');
-
-    if (post.content.length > 500 && (!post.summary || post.summary.length < 1))
-        throw new Meteor.Error('Summary needed!', 'Posts with more than 500 characters of content must have a summary!');
-
-    //Don't allow posts that target posts that don't exist.
-    if (post.inReplyTo) {
-        let target = Posts.findOne({id: post.inReplyTo});
-        if (!target) {
-            throw new Meteor.Error('target invalid', 'Targeted post not found!');
-        }
-    }
-
-    post.local = true;
-    let activity = new ActivityPubActivity("Create", post.attributedTo, post);
-    return activity;
+    if (followee.local)
+        FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
 }
 
-let processClientActivity = function(user, object) {
+let processFederatedCreateActivity = function(activity) {
+    let post = getObjectFromActivity(activity);
 
+    let post_ID = Posts.insert(post);
+    activity.object = Posts.findOne({_id: post_ID}).id;
 
-    //Set the activity as being published right now.
-    object.published = new Date().toISOString();
+    return activity;
+};
 
-    let activity;
-    //We may or may not have an activity to work with here.
-    if (!activityPubActivityTypes.includes(object.type)) {
-        //If we don't and it's a content object, encapsulate the object in a create activity.
-        if (activityPubContentTypes.includes(object.type))
-            activity = encapsulateContentWithCreate(object);
-        //If we don't, and we don't know what it is, throw an error.
-        else throw new Meteor.Error('Unknown type!', 'Cannot handle that type of object!');
-    } else {
-        //If we do have an activity, proceed normally.
-        activity = object;
-    }
+let processFederatedActivity = function(activity) {
+    if (Activities.findOne({id: activity.id}))
+        return
 
-    checkActivityPermitted(user, activity);
-
-    let result;
-
-    switch(activity.type){
+    switch(activity.type) {
         case 'Create':
-            result = processCreateActivity(activity);
+            activity = processFederatedCreateActivity(activity);
             break;
         case 'Delete':
-            result = processDeleteActivity(activity);
-            break;
-        case 'Follow':
-            result = processFollowActivity(activity);
-            break;
-        case 'Update':
-            result = processUpdateActivity(activity);
+            activity = processFederatedCreateActivity(activity);
             break;
     }
 
-    return result;
+    let _id = Activities.insert(activity);
+
+    return Activities.findOne({_id: _id});
 };
 
 let importActorFromActivityPubJSON = function(json) {
@@ -177,10 +126,11 @@ Meteor.methods({
             importPostFromActivityPubJSON(json);
     },
     postActivity: function(object) {
-
         let user = Meteor.users.findOne({_id: this.userId});
 
-        return processClientActivity(user, object);
+        let result = processClientActivity(user, object);
+
+        return result;
     }
 });
 
@@ -236,6 +186,9 @@ Api.addRoute('actors/:handle', {}, {
 Api.addRoute('actors/:handle/inbox', {}, {
     post: {
         action: function () {
+            let object = this.request.body;
+            processFederatedActivity(object);
+            return successfulJSON();
         }
     }
 });
@@ -256,6 +209,7 @@ Api.addRoute('actors/:handle/outbox', {}, {
             try {
                 return successfulJSON(processClientActivity(object));
             } catch (exception) {
+                console.log(exception.reason);
                 return failedJSON(exception.reason);
             }
         }
