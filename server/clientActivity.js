@@ -14,7 +14,7 @@ let checkClientActivityPermitted = function(user, activity) {
         //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
         case 'Follow':
             return;
-
+            //No break here, as return accomplishes the same thing.
         case 'Update':
         case 'Delete':
             //Don't allow non-moderators to edit other peoples posts.
@@ -113,6 +113,13 @@ let encapsulateContentWithCreate = function(post) {
     return activity;
 }
 
+let dispatchToActor = function(actor, activity) {
+    HTTP.post(actor.inbox, {data: activity}, function(err, result) {
+        //if (err) console.log("Error: ", err);
+        //if (result) console.log("Result: ", result);
+    });
+}
+
 let dispatchActivity = function(activity) {
     let targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
 
@@ -120,12 +127,21 @@ let dispatchActivity = function(activity) {
         let arrayName = targetArrays[i];
         let targetArray = activity[arrayName];
         for (let j = 0; j < targetArray.length; j++) {
-            let actor = Actors.findOne({id: targetArray[j]});
+            let targetID = targetArray[j];
+            if (targetID == "https://www.w3.org/ns/activitystreams#Public")
+                continue;
+            let actor = Actors.findOne({id: targetID});
             if (actor)
-                HTTP.post(actor.inbox, {data: activity}, function(err, result) {
-                    //if (err) console.log("Error: ", err);
-                    //if (result) console.log("Result: ", result);
-                });
+                dispatchToActor(actor, activity);
+            else {
+                let list = FollowerLists.findOne({id: targetID});
+                if (list)
+                    for (let actorID in list.orderedItems) {
+                        actor = Actors.findOne({id: actorID});
+                        if (actor)
+                            dispatchToActor(actor, activity);
+                    }
+            }
         }
     }
 }
@@ -168,7 +184,9 @@ processClientActivity = function(user, object) {
     let _id = Activities.insert(activity);
     activity = Activities.findOne({_id: _id});
 
-    //dispatchActivity(activity);
+    Meteor.setTimeout(function(){
+         dispatchActivity(activity)
+    }, 0);
 
     return activity;
 };
