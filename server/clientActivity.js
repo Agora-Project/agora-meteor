@@ -1,4 +1,15 @@
 let checkClientActivityPermitted = function(user, activity) {
+getObjectFromActivity = function(activity) {
+    switch (typeof activity.object) {
+        case 'string':
+            return Posts.findOne({id: activity.object});
+            break;
+        case 'object':
+            return activity.object
+            break;
+    }
+}
+
     if (!user) {
         throw new Meteor.Error('Not-logged-in', 'The user must be logged in to perform activities.');
     }

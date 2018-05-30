@@ -1,16 +1,6 @@
 
 //import webfinger from '../lib/webfinger/lib/webfinger.js';
 
-let getObjectFromActivity = function(activity) {
-    switch (typeof activity.object) {
-        case 'string':
-            return Posts.findOne({id: activity.object});
-            break;
-        case 'object':
-            return activity.object
-            break;
-    }
-}
 
 let checkFederatedActivityPermitted = function(activity) {
 
