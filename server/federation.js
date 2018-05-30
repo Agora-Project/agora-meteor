@@ -101,7 +101,9 @@ Meteor.methods({
             } else throw new Meteor.Error('No response from url');
         })
         .then((json) => {
-            if (json) Meteor.call('importFromActivityPubJSON', json);
+            if (json) Meteor.setTimeout(function(){
+                 Meteor.call('importFromActivityPubJSON', json);
+            }, 0);
 
             return json;
         });
