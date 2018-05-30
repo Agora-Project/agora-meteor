@@ -51,7 +51,7 @@ getObjectFromActivity = function(activity) {
     }
 };
 
-let processClientCreateActivity = function(activity) {
+const processClientCreateActivity = function(activity) {
     let post = activity.object;
 
     post.local = true;
@@ -64,15 +64,15 @@ let processClientCreateActivity = function(activity) {
     return activity;
 };
 
-let processClientDeleteActivity = function(activity) {
-    let postID = activity.object;
+const processClientDeleteActivity = function(activity) {
+    const postID = activity.object;
 
     deletePost(postID);
 
     return activity;
 };
 
-let processClientUpdateActivity = function(activity) {
+const processClientUpdateActivity = function(activity) {
     let update = activity.object;
 
     Posts.update({id: update.id}, {$set: update});
@@ -80,16 +80,16 @@ let processClientUpdateActivity = function(activity) {
     return activity;
 };
 
-let processClientFollowActivity = function(activity) {
+const processClientFollowActivity = function(activity) {
 
     if (!actors.findOne({id: activity.object}))
         throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
 
-    let follower = actors.findOne({id: activity.actor});
+    const follower = actors.findOne({id: activity.actor});
 
     FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
 
-    let followee = actors.findOne({id: activity.object});
+    const followee = actors.findOne({id: activity.object});
 
     if (followee.local)
         FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
@@ -97,7 +97,7 @@ let processClientFollowActivity = function(activity) {
     return activity;
 };
 
-let encapsulateContentWithCreate = function(post) {
+const encapsulateContentWithCreate = function(post) {
 
     //Don't allow posts with no content.
     if (!post.content || post.content.length < 1)
@@ -126,28 +126,28 @@ let encapsulateContentWithCreate = function(post) {
     return activity;
 }
 
-let dispatchToActor = function(actor, activity) {
+const dispatchToActor = function(actor, activity) {
     HTTP.post(actor.inbox, {data: activity}, function(err, result) {
         //if (err) console.log("Error: ", err);
         //if (result) console.log("Result: ", result);
     });
 }
 
-let dispatchActivity = function(activity) {
-    let targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
+const dispatchActivity = function(activity) {
 
+    const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
     for (let i = 0; i < targetArrays.length; i++) {
-        let arrayName = targetArrays[i];
-        let targetArray = activity[arrayName];
+        const arrayName = targetArrays[i];
+        const targetArray = activity[arrayName];
         for (let j = 0; j < targetArray.length; j++) {
-            let targetID = targetArray[j];
             if (targetID == "https://www.w3.org/ns/activitystreams#Public")
+            const targetID = targetArray[j];
                 continue;
             let actor = Actors.findOne({id: targetID});
             if (actor)
                 dispatchToActor(actor, activity);
             else {
-                let list = FollowerLists.findOne({id: targetID});
+                const list = FollowerLists.findOne({id: targetID});
                 if (list)
                     for (let actorID in list.orderedItems) {
                         actor = Actors.findOne({id: actorID});

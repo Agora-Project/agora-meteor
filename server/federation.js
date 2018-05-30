@@ -1,15 +1,15 @@
 
 //import webfinger from '../lib/webfinger/lib/webfinger.js';
 
+const checkFederatedActivityPermitted = function(activity) {
 
-let checkFederatedActivityPermitted = function(activity) {
+    const actor = Actors.findOne({id: activity.actor});
 
-    let actor = Actors.findOne({id: activity.actor});
 
     if (actor.blocked)
         throw new Meteor.Error('Actor blocked!', 'That actor is blocked from this forum!');
 
-    let object = getObjectFromActivity(activity);
+    const object = getObjectFromActivity(activity);
 
     switch(activity.type) {
 
@@ -42,23 +42,23 @@ let checkFederatedActivityPermitted = function(activity) {
     }
 };
 
-let processFederatedFollowActivity = function(activity) {
-    let followee = actors.findOne({id: activity.object});
+const processFederatedFollowActivity = function(activity) {
+    const followee = actors.findOne({id: activity.object});
 
     if (followee.local)
         FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
 }
 
-let processFederatedCreateActivity = function(activity) {
-    let post = getObjectFromActivity(activity);
+const processFederatedCreateActivity = function(activity) {
+    const post = getObjectFromActivity(activity);
 
-    let post_ID = Posts.insert(post);
+    const post_ID = Posts.insert(post);
     activity.object = Posts.findOne({_id: post_ID}).id;
 
     return activity;
 };
 
-let processFederatedActivity = function(activity) {
+const processFederatedActivity = function(activity) {
     if (Activities.findOne({id: activity.id}))
         return
 
@@ -71,19 +71,19 @@ let processFederatedActivity = function(activity) {
             break;
     }
 
-    let _id = Activities.insert(activity);
+    const _id = Activities.insert(activity);
 
     return Activities.findOne({_id: _id});
 };
 
-let importActorFromActivityPubJSON = function(json) {
+const importActorFromActivityPubJSON = function(json) {
     if (!Actors.findOne({id: json.id})) { //Is actor already present? If not,
         json.local = false; //mark it as foreign,
         Actors.insert(json); //then add it.
     }
 };
 
-let importPostFromActivityPubJSON = function(json) {
+const importPostFromActivityPubJSON = function(json) {
     if (!Posts.findOne({id: json.id})) { //Is post already present? If not,
         json.local = false; //mark it as foreign,
         Posts.insert(json); //then add it.
@@ -116,7 +116,7 @@ Meteor.methods({
             importPostFromActivityPubJSON(json);
     },
     postActivity: function(object) {
-        let user = Meteor.users.findOne({_id: this.userId});
+        const user = Meteor.users.findOne({_id: this.userId});
 
         let result = processClientActivity(user, object);
 
@@ -124,7 +124,7 @@ Meteor.methods({
     }
 });
 
-let successfulJSON = function(data) {
+const successfulJSON = function(data) {
     response = {
         statusCode: 200
     };
@@ -138,7 +138,7 @@ let successfulJSON = function(data) {
     return response;
 }
 
-let failedJSON = function(message) {
+const failedJSON = function(message) {
     return {
         statusCode: 400,
         body: {status: "fail", message: message}
@@ -153,7 +153,7 @@ Api = new Restivus({
 Api.addRoute('post/:_id', {}, {
     get: {
         action: function () {
-            var post = Posts.findOne({_id: this.urlParams._id});
+            let post = Posts.findOne({_id: this.urlParams._id});
             if (post) {
                 delete post._id;
                 return successfulJSON(post);
@@ -165,7 +165,7 @@ Api.addRoute('post/:_id', {}, {
 Api.addRoute('actors/:handle', {}, {
     get: {
         action: function () {
-            var actor = Actors.findOne({preferredUsername: this.urlParams.handle});
+            let actor = Actors.findOne({preferredUsername: this.urlParams.handle});
             if (actor) {
                 return successfulJSON(actor);
             } else return failedJSON("Unable to get actor!");
@@ -209,7 +209,7 @@ Api.addRoute('actors/:handle/outbox', {}, {
 Api.addRoute('actors/:handle/following', {}, {
     get: {
         action: function () {
-            var following = FollowingLists.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/following"});
+            let following = FollowingLists.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/following"});
             if (following) {
                 return successfulJSON(following);
             } else return failedJSON("Unable to get following list!");
@@ -220,7 +220,7 @@ Api.addRoute('actors/:handle/following', {}, {
 Api.addRoute('actors/:handle/followers', {}, {
     get: {
         action: function () {
-            var followers = FollowerLists.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/followers"});
+            let followers = FollowerLists.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/followers"});
             if (followers) {
                 return successfulJSON(followers);
             } else return failedJSON("Unable to get followers list!");
