@@ -20,6 +20,8 @@ const checkClientActivityPermitted = function(user, activity) {
     if (!Actors.findOne({id: activity.actor}))
         throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + activity.actor);
 
+    const object = getObjectFromActivity(activity);
+
     switch(activity.type) {
 
         //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
@@ -134,6 +136,17 @@ const dispatchToActor = function(actor, activity) {
         //if (err) console.log("Error: ", err);
         //if (result) console.log("Result: ", result);
     });
+}
+
+cleanActivityPub = function(object) {
+    delete object._id;
+    delete object.local;
+    if (object.object && typeof object.object === 'object') {
+        delete object.object._id;
+        delete object.object.local;
+    }
+
+    return object;
 }
 
 const dispatchActivity = function(activity) {

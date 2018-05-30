@@ -132,9 +132,8 @@ const successfulJSON = function(data) {
     };
 
     if (data) {
-        delete data._id;
-        delete data.local;
-        response.body = data;
+
+        response.body = cleanActivityPub(data);
     }
 
     return response;
