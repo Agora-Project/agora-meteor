@@ -160,7 +160,9 @@ cleanActivityPub = function(object) {
     return object;
 }
 
-const dispatchActivity = function(activity) {
+const dispatchActivity = function(activityID) {
+
+    activity = cleanActivityPub(activities.findOne(activityID));
 
     const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
 
@@ -228,7 +230,7 @@ processClientActivity = function(user, object) {
     activity = Activities.findOne({_id: _id});
 
     Meteor.setTimeout(function(){
-         dispatchActivity(activity)
+         dispatchActivity(activity.id)
     }, 0);
 
     return activity;
