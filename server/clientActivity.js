@@ -162,7 +162,7 @@ cleanActivityPub = function(object) {
 
 const dispatchActivity = function(activityID) {
 
-    activity = cleanActivityPub(activities.findOne(activityID));
+    activity = cleanActivityPub(Activities.findOne(activityID));
 
     const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
 
