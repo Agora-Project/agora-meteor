@@ -1,15 +1,4 @@
-getObjectFromActivity = function(activity) {
-    switch (typeof activity.object) {
-        case 'string':
-            return Posts.findOne({id: activity.object});
-            break;
-        case 'object':
-            return activity.object
-            break;
-    }
-}
-
-const checkClientActivityPermitted = function(user, activity) {
+checkClientActivityUserPermissions = function(activity, user) {
     if (!user) {
         throw new Meteor.Error('Not-logged-in', 'The user must be logged in to perform activities.');
     }
@@ -20,7 +9,35 @@ const checkClientActivityPermitted = function(user, activity) {
     if (!Actors.findOne({id: activity.actor}))
         throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + activity.actor);
 
+    return true;
+}
+
+getObjectFromActivity = function(activity) {
+    switch (typeof activity.object) {
+        case 'string':
+            return Posts.findOne({id: activity.object});
+            break;
+        case 'object':
+            return activity.object
+            break;
+    }
+};
+
+checkUpdateOrDeleteActivityPermitted = function(activity, user) {
     const object = getObjectFromActivity(activity);
+
+    const originalObject = Posts.findOne({id: object.id});
+
+    //Don't allow non-moderators to edit other peoples posts.
+    if (activity.actor !== originalObject.attributedTo && (!user || !Roles.userIsInRole(user._id, ['moderator']))) {
+        throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
+    }
+    return true;
+};
+
+const checkClientActivityPermitted = function(activity, user) {
+
+    checkClientActivityUserPermissions(activity, user);
 
     switch(activity.type) {
 
@@ -30,30 +47,24 @@ const checkClientActivityPermitted = function(user, activity) {
             //No break here, as return accomplishes the same thing.
         case 'Update':
         case 'Delete':
-
-            const originalObject = Posts.findOne({id: object.id});
-
-            //Don't allow non-moderators to edit other peoples posts.
-            if (activity.actor !== originalObject.attributedTo && !Roles.userIsInRole(user._id, ['moderator'])) {
-                throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
-            }
+            checkUpdateOrDeleteActivityPermitted(activity, user);
 
         //No break here, as update and delete activities should be subject to the same restrictions as create and announce.
         case 'Create':
         case 'Announce':
             //Don't allow banned users to post or announce.
-            if (user.isBanned) {
+            if (checkUserBanned(user)) {
                 throw new Meteor.Error('Banned', 'Banned users may not perform that activity.');
             }
             break;
-
     }
 
     //Don't allow unverified users to manipulate the forum. They can still follow people though,
     //which is why follows return above and don't execute this code.
-    if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
+    if(!checkUserVerified(user))
         throw new Meteor.Error('Unverified', 'Unverified users may not perform that activity.');
-    }
+
+    return true;
 };
 
 const processClientCreateActivity = function(activity) {
@@ -193,7 +204,7 @@ processClientActivity = function(user, object) {
         activity = object;
     }
 
-    checkClientActivityPermitted(user, activity);
+    checkClientActivityPermitted(activity, user);
 
     switch(activity.type){
         case 'Create':

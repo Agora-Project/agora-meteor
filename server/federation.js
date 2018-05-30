@@ -8,8 +8,6 @@ const checkFederatedActivityPermitted = function(activity) {
     if (!actor)
         throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + activity.actor);
 
-    const object = getObjectFromActivity(activity);
-
     switch(activity.type) {
 
         //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
@@ -19,12 +17,7 @@ const checkFederatedActivityPermitted = function(activity) {
         case 'Update':
         case 'Delete':
 
-        const originalObject = Posts.findOne({id: object.id});
-
-        //Don't allow non-moderators to edit other peoples posts.
-        if (activity.actor !== originalObject.attributedTo) {
-            throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
-        }
+            checkUpdateOrDeleteActivityPermitted(activity);
 
         //No break here, as update and delete activities should be subject to the same restrictions as create and announce.
         case 'Create':
