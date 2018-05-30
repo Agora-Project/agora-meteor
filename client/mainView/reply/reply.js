@@ -86,7 +86,7 @@ Template.mainReply.onRendered(function() {
         let activity = new ActivityPubActivity("Update", actorID, update);
         activity.copyAddressingProperties(target);
 
-        if (target.attributedTo != actorID) activity.to.push(target.attributedTo);
+        if (target.attributedTo !== actorID) activity.to.push(target.attributedTo);
 
         Meteor.call("postActivity", activity, function(error) {
             if (error) {

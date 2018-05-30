@@ -163,12 +163,13 @@ cleanActivityPub = function(object) {
 const dispatchActivity = function(activity) {
 
     const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
+
     for (let i = 0; i < targetArrays.length; i++) {
         const arrayName = targetArrays[i];
         const targetArray = activity[arrayName];
         for (let j = 0; j < targetArray.length; j++) {
-            if (targetID == "https://www.w3.org/ns/activitystreams#Public")
             const targetID = targetArray[j];
+            if (targetID === "https://www.w3.org/ns/activitystreams#Public")
                 continue;
             let actor = Actors.findOne({id: targetID});
             if (actor)
@@ -194,9 +195,11 @@ processClientActivity = function(user, object) {
     let activity;
     //We may or may not have an activity to work with here.
     if (!activityPubActivityTypes.includes(object.type)) {
+
         //If we don't and it's a content object, encapsulate the object in a create activity.
         if (activityPubContentTypes.includes(object.type))
             activity = encapsulateContentWithCreate(object);
+
         //If we don't, and we don't know what it is, throw an error.
         else throw new Meteor.Error('Unknown type!', 'Cannot handle that type of object!');
     } else {
