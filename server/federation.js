@@ -5,9 +5,8 @@ const checkFederatedActivityPermitted = function(activity) {
 
     const actor = Actors.findOne({id: activity.actor});
 
-
-    if (actor.blocked)
-        throw new Meteor.Error('Actor blocked!', 'That actor is blocked from this forum!');
+    if (!actor)
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + activity.actor);
 
     const object = getObjectFromActivity(activity);
 
@@ -19,10 +18,13 @@ const checkFederatedActivityPermitted = function(activity) {
 
         case 'Update':
         case 'Delete':
-            //Don't allow non-moderators to edit other peoples posts.
-            if (activity.actor !== user.actor && !Roles.userIsInRole(user._id, ['moderator'])) {
-                throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
-            }
+
+        const originalObject = Posts.findOne({id: object.id});
+
+        //Don't allow non-moderators to edit other peoples posts.
+        if (activity.actor !== originalObject.attributedTo) {
+            throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
+        }
 
         //No break here, as update and delete activities should be subject to the same restrictions as create and announce.
         case 'Create':

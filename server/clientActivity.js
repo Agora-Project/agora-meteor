@@ -1,4 +1,3 @@
-let checkClientActivityPermitted = function(user, activity) {
 getObjectFromActivity = function(activity) {
     switch (typeof activity.object) {
         case 'string':
@@ -10,6 +9,7 @@ getObjectFromActivity = function(activity) {
     }
 }
 
+const checkClientActivityPermitted = function(user, activity) {
     if (!user) {
         throw new Meteor.Error('Not-logged-in', 'The user must be logged in to perform activities.');
     }
@@ -18,7 +18,7 @@ getObjectFromActivity = function(activity) {
         throw new Meteor.Error('Actor mismatch!', 'Method actor does not match activity actor!');
 
     if (!Actors.findOne({id: activity.actor}))
-        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + followerID);
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + activity.actor);
 
     switch(activity.type) {
 
@@ -28,8 +28,11 @@ getObjectFromActivity = function(activity) {
             //No break here, as return accomplishes the same thing.
         case 'Update':
         case 'Delete':
+
+            const originalObject = Posts.findOne({id: object.id});
+
             //Don't allow non-moderators to edit other peoples posts.
-            if (activity.actor !== user.actor && !Roles.userIsInRole(user._id, ['moderator'])) {
+            if (activity.actor !== originalObject.attributedTo && !Roles.userIsInRole(user._id, ['moderator'])) {
                 throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
             }
 
