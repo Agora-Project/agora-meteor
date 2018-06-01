@@ -161,7 +161,6 @@ Api.addRoute('post/:_id', {}, {
         action: function () {
             let post = Posts.findOne({_id: this.urlParams._id});
             if (post) {
-                delete post._id;
                 return successfulJSON(post);
             } else return failedJSON("Unable to get post!");
         }
