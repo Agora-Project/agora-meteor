@@ -38,7 +38,7 @@ const checkFederatedActivityPermitted = function(activity) {
 };
 
 const processFederatedFollowActivity = function(activity) {
-    const followee = actors.findOne({id: activity.object});
+    const followee = Actors.findOne({id: activity.object});
 
     if (followee.local)
         FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});

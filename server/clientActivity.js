@@ -98,14 +98,14 @@ const processClientUpdateActivity = function(activity) {
 
 const processClientFollowActivity = function(activity) {
 
-    if (!actors.findOne({id: activity.object}))
+    if (!Actors.findOne({id: activity.object}))
         throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
 
-    const follower = actors.findOne({id: activity.actor});
+    const follower = Actors.findOne({id: activity.actor});
 
     FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
 
-    const followee = actors.findOne({id: activity.object});
+    const followee = Actors.findOne({id: activity.object});
 
     if (followee.local)
         FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
