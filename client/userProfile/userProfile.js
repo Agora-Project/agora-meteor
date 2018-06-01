@@ -34,6 +34,11 @@ Template.userProfile.helpers({
         if (rawBio) {
             return rawBio;
         }
+    },
+    notFollowed: function() {
+        let actor = Actors.findOne({id: Meteor.user().actor})
+        let followingList = FollowingLists.findOne({id: actor.following});
+        return !followingList.orderedItems.includes(this.id);
     }
 });
 

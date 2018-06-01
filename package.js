@@ -46,6 +46,7 @@ Package.onUse(function(api) {
         'lib/collections/posts.js',
         'lib/collections/reports.js',
         'lib/collections/users.js',
+        'lib/collections/orderedCollections.js',
         'routes.js'
     ], both);
 
@@ -57,7 +58,6 @@ Package.onUse(function(api) {
         'server/clientActivity.js',
         'server/federation.js',
         'server/initial-data.js',
-        'lib/collections/orderedCollections.js',
         'lib/collections/activities.js'
     ], 'server');
 

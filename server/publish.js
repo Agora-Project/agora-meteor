@@ -43,10 +43,16 @@ Meteor.publish(null, function() {
 Meteor.publish('myself', function() {
     if (this.userId) {
         let actorID = Meteor.users.findOne({_id: this.userId}).actor;
+
+        let actor = Actors.find({id: actorID});
+
+        let actorData = actor.fetch();
+
+        //console.log(FollowerLists.findOne({id: actorData.followers}));
+
         return [Meteor.users.find({_id: this.userId}, {
-            fields: {isBanned: 1, seenPosts: 1, profile: 1, actor: 1}
-        }),
-        Actors.find({id: actorID})];
+            fields: {isBanned: 1, seenPosts: 1, actor: 1}
+        }), actor, FollowingLists.find({id: actorData[0].following}), FollowerLists.find({id: actorData[0].followers})];
     } else {
         return this.ready();
     }
@@ -67,7 +73,11 @@ Meteor.publish('users', function() {
 
 //Actor data, for the profile page.
 Meteor.publish('actor', function(actorID) {
-    return Actors.find({id: actorID});
+    let actor = Actors.find({id: actorID});
+
+    let actorData = actor.fetch();
+
+    return [actor, FollowingLists.find({id: actorData[0].following}), FollowerLists.find({id: actorData[0].followers})];
 });
 
 //Actor data, for the profile page.
