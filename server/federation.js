@@ -47,8 +47,18 @@ const processFederatedFollowActivity = function(activity) {
 const processFederatedCreateActivity = function(activity) {
     const post = getObjectFromActivity(activity);
 
-    const post_ID = Posts.insert(post);
-    activity.object = Posts.findOne({_id: post_ID}).id;
+    if (Posts.findOne({id: post.id}))
+        throw new Meteor.Error('Post id already exists', 'Cannot insert post, id already exists.');
+
+    Posts.insert(post);
+
+    return activity;
+};
+
+const processFederatedDeleteActivity = function(activity) {
+    const postID = activity.object;
+
+    deletePost(postID);
 
     return activity;
 };
