@@ -72,7 +72,7 @@ const processFederatedActivity = function(activity) {
             activity = processFederatedCreateActivity(activity);
             break;
         case 'Delete':
-            activity = processFederatedCreateActivity(activity);
+            activity = processFederatedDeleteActivity(activity);
             break;
     }
 
