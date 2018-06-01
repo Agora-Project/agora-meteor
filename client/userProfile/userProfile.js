@@ -97,6 +97,11 @@ Template.userProfile.events({
             instance.errorMessage.set();
         } else event.stopPropagation();
     },
+    "click .profile-summary-follow-button": function(event, instance) {
+        let activity = new ActivityPubActivity("Follow", Meteor.user().actor, this.id);
+        Meteor.call("postActivity", activity, function() {});
+
+    },
     'autosize:resized': function() {
         //We want our text area to expand it's width, not just it's height.
         //So, we call this event when it resize height and manually resize width.
