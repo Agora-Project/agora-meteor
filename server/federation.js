@@ -158,6 +158,17 @@ Api.addRoute('post/:_id', {}, {
     }
 });
 
+Api.addRoute('activity/:_id', {}, {
+    get: {
+        action: function () {
+            let activity = Activities.findOne({_id: this.urlParams._id});
+            if (activity) {
+                return successfulJSON(activity);
+            } else return failedJSON("Unable to get post!");
+        }
+    }
+});
+
 Api.addRoute('actors/:handle', {}, {
     get: {
         action: function () {
