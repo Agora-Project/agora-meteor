@@ -38,7 +38,7 @@ const checkFederatedActivityPermitted = function(activity) {
 };
 
 const processFederatedFollowActivity = function(activity) {
-    const followee = actors.findOne({id: activity.object});
+    const followee = Actors.findOne({id: activity.object});
 
     if (followee.local)
         FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
@@ -47,8 +47,18 @@ const processFederatedFollowActivity = function(activity) {
 const processFederatedCreateActivity = function(activity) {
     const post = getObjectFromActivity(activity);
 
-    const post_ID = Posts.insert(post);
-    activity.object = Posts.findOne({_id: post_ID}).id;
+    if (Posts.findOne({id: post.id}))
+        throw new Meteor.Error('Post id already exists', 'Cannot insert post, id already exists.');
+
+    Posts.insert(post);
+
+    return activity;
+};
+
+const processFederatedDeleteActivity = function(activity) {
+    const postID = activity.object;
+
+    deletePost(postID);
 
     return activity;
 };
@@ -62,7 +72,7 @@ const processFederatedActivity = function(activity) {
             activity = processFederatedCreateActivity(activity);
             break;
         case 'Delete':
-            activity = processFederatedCreateActivity(activity);
+            activity = processFederatedDeleteActivity(activity);
             break;
     }
 
@@ -151,8 +161,18 @@ Api.addRoute('post/:_id', {}, {
         action: function () {
             let post = Posts.findOne({_id: this.urlParams._id});
             if (post) {
-                delete post._id;
                 return successfulJSON(post);
+            } else return failedJSON("Unable to get post!");
+        }
+    }
+});
+
+Api.addRoute('activity/:_id', {}, {
+    get: {
+        action: function () {
+            let activity = Activities.findOne({_id: this.urlParams._id});
+            if (activity) {
+                return successfulJSON(activity);
             } else return failedJSON("Unable to get post!");
         }
     }

@@ -34,6 +34,11 @@ Template.userProfile.helpers({
         if (rawBio) {
             return rawBio;
         }
+    },
+    notFollowed: function() {
+        let actor = Actors.findOne({id: Meteor.user().actor})
+        let followingList = FollowingLists.findOne({id: actor.following});
+        return !followingList.orderedItems.includes(this.id);
     }
 });
 
@@ -91,6 +96,11 @@ Template.userProfile.events({
             instance.editing.set(false);
             instance.errorMessage.set();
         } else event.stopPropagation();
+    },
+    "click .profile-summary-follow-button": function(event, instance) {
+        let activity = new ActivityPubActivity("Follow", Meteor.user().actor, this.id);
+        Meteor.call("postActivity", activity, function() {});
+
     },
     'autosize:resized': function() {
         //We want our text area to expand it's width, not just it's height.

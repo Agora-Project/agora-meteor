@@ -15,6 +15,14 @@
             </a>
         </div>
         <div class="profile-info-div">
+            {{#if ownProfile}}
+            {{else}}
+                {{#if notFollowed}}
+                    <button class="profile-summary-follow-button">Follow</button>
+                {{else}}
+                    <button class="profile-summary-unfollow-button">Unfollow</button>
+                {{/if}}
+            {{/if}}
             {{#if editing}}
                 <div class="profile-summary-edit-div">
                     <textarea class="profile-summary-edit-textarea" value={{actor.summary}}></textarea>
