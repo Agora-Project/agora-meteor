@@ -99,6 +99,7 @@ Template.userProfile.events({
     },
     "click .profile-summary-follow-button": function(event, instance) {
         let activity = new ActivityPubActivity("Follow", Meteor.user().actor, this.id);
+        activity.to.push(this.id);
         Meteor.call("postActivity", activity, function() {});
 
     },

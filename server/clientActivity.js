@@ -67,6 +67,35 @@ const checkClientActivityPermitted = function(activity, user) {
     return true;
 };
 
+const dispatchActivity = function(activity) {
+
+    activity = cleanActivityPub(activity);
+
+    const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
+
+    for (let i = 0; i < targetArrays.length; i++) {
+        const arrayName = targetArrays[i];
+        const targetArray = activity[arrayName];
+        for (let j = 0; j < targetArray.length; j++) {
+            const targetID = targetArray[j];
+            if (targetID === "https://www.w3.org/ns/activitystreams#Public")
+                continue;
+            let actor = Actors.findOne({id: targetID});
+            if (actor)
+                dispatchToActor(actor, activity);
+            else {
+                const list = FollowerLists.findOne({id: targetID});
+                if (list)
+                    for (let actorID in list.orderedItems) {
+                        actor = Actors.findOne({id: actorID});
+                        if (actor)
+                            dispatchToActor(actor, activity);
+                    }
+            }
+        }
+    }
+}
+
 const processClientCreateActivity = function(activity) {
     let post = activity.object;
 
@@ -103,12 +132,27 @@ const processClientFollowActivity = function(activity) {
 
     const follower = Actors.findOne({id: activity.actor});
 
-    FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
-
     const followee = Actors.findOne({id: activity.object});
 
-    if (followee.local)
-        FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+    if (FollowingLists.findOne({id: follower.following, orderedItems: followee.id}))
+        throw new Meteor.Error('Already Following!', 'You are already following that actor!');
+
+    PendingFollows.remove({});
+
+    if (PendingFollows.findOne({follower: follower.id, followee: followee.id})) {
+        throw new Meteor.Error('Follow Already Pending!', 'A pending follow between those actors was already present!: ' + activity.actor + ", " + activity.object);
+    }
+
+    PendingFollows.insert({follower: follower.id, followee: followee.id});
+
+
+    if (followee.local) {
+        let accept = new ActivityPubActivity("Accept", followee.id, activity.actor);
+        accept.to.push(activity.actor);
+        Meteor.setTimeout(function(){
+            dispatchActivity(accept)
+       }, 0);
+    }
 
     return activity;
 };
@@ -160,35 +204,6 @@ cleanActivityPub = function(object) {
     return object;
 }
 
-const dispatchActivity = function(activityID) {
-
-    activity = cleanActivityPub(Activities.findOne({id: activityID}));
-
-    const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
-
-    for (let i = 0; i < targetArrays.length; i++) {
-        const arrayName = targetArrays[i];
-        const targetArray = activity[arrayName];
-        for (let j = 0; j < targetArray.length; j++) {
-            const targetID = targetArray[j];
-            if (targetID === "https://www.w3.org/ns/activitystreams#Public")
-                continue;
-            let actor = Actors.findOne({id: targetID});
-            if (actor)
-                dispatchToActor(actor, activity);
-            else {
-                const list = FollowerLists.findOne({id: targetID});
-                if (list)
-                    for (let actorID in list.orderedItems) {
-                        actor = Actors.findOne({id: actorID});
-                        if (actor)
-                            dispatchToActor(actor, activity);
-                    }
-            }
-        }
-    }
-}
-
 processClientActivity = function(user, object) {
 
     //Set the object as being published right now.
@@ -230,7 +245,7 @@ processClientActivity = function(user, object) {
     activity = Activities.findOne({_id: _id});
 
     Meteor.setTimeout(function(){
-         dispatchActivity(activity.id)
+         dispatchActivity(Activities.findOne({_id: _id}));
     }, 0);
 
     return activity;

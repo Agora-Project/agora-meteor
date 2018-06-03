@@ -63,6 +63,30 @@ const processFederatedDeleteActivity = function(activity) {
     return activity;
 };
 
+const processFederatedAcceptActivity = function(activity) {
+
+    const follower = Actors.findOne({id: activity.object});
+
+    if (!follower)
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
+
+    const followee = Actors.findOne({id: activity.actor});
+
+    let pendingFollow = PendingFollows.findOne({follower: follower.id, followee: followee.id});
+
+    if (!pendingFollow)
+        throw new Meteor.Error('No Follow Pending!', 'No pending follow between those actors was found!: ' + activity.actor + ", " + activity.object);
+
+        FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+
+    if (followee.local)
+        FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
+
+    PendingFollows.remove(pendingFollow);
+
+    return activity;
+}
+
 const processFederatedActivity = function(activity) {
     if (Activities.findOne({id: activity.id}))
         return
@@ -73,6 +97,9 @@ const processFederatedActivity = function(activity) {
             break;
         case 'Delete':
             activity = processFederatedDeleteActivity(activity);
+            break;
+        case "Accept":
+            activity = processFederatedAcceptActivity(activity);
             break;
     }
 
@@ -105,7 +132,7 @@ Meteor.methods({
         })
         .then((json) => {
             if (json) Meteor.setTimeout(function(){
-                 Meteor.call('importFromActivityPubJSON', json);
+                Meteor.call('importFromActivityPubJSON', json);
             }, 0);
 
             return json;
@@ -215,7 +242,6 @@ Api.addRoute('actors/:handle/outbox', {}, {
             try {
                 return successfulJSON(processClientActivity(object));
             } catch (exception) {
-                console.log(exception.reason);
                 return failedJSON(exception.reason);
             }
         }
@@ -236,10 +262,15 @@ Api.addRoute('actors/:handle/following', {}, {
 Api.addRoute('actors/:handle/followers', {}, {
     get: {
         action: function () {
-            let followers = FollowerLists.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/followers"});
-            if (followers) {
-                return successfulJSON(followers);
-            } else return failedJSON("Unable to get followers list!");
+            let actor = Actors.findOne({preferredUsername: this.urlParams.handle});
+            if (actor) {
+                let followers = FollowerLists.findOne({id: actor.followers});
+                if (followers) {
+                    return successfulJSON(followers);
+                }
+            }
+
+            return failedJSON("Unable to get followers list!");
         }
     }
 });
