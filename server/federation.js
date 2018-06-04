@@ -75,9 +75,9 @@ const processFederatedAcceptActivity = function(activity) {
     let pendingFollow = PendingFollows.findOne({follower: follower.id, followee: followee.id});
 
     if (!pendingFollow)
-        throw new Meteor.Error('No Follow Pending!', 'No pending follow between those actors was found!: ' + activity.actor + ", " + activity.object);
+        throw new Meteor.Error('No Follow Pending!', 'No pending follow between those actors was found: ' + activity.object + ", " + activity.actor);
 
-        FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+    FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
 
     if (followee.local)
         FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
@@ -85,6 +85,30 @@ const processFederatedAcceptActivity = function(activity) {
     PendingFollows.remove(pendingFollow);
 
     return activity;
+}
+
+const processFederatedUndoActivity = function(activity) {
+
+    let targetActivity = Activities.findOne({id: activity.object});
+
+    if (targetActivity.type === "Follow"){
+
+        const follower = Actors.findOne({id: targetActivity.actor});
+
+        if (!follower)
+            throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + targetActivity.object);
+
+        const followee = Actors.findOne({id: targetActivity.actor});
+
+        FollowingLists.update({id: follower.following}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.actor}});
+
+        if (followee.local)
+            FollowerLists.update({id: followee.followers}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.object}});
+
+        PendingFollows.remove({follower: follower.id, followee: followee.id});
+
+        return activity;
+    }
 }
 
 const processFederatedActivity = function(activity) {

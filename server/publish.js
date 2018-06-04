@@ -73,11 +73,16 @@ Meteor.publish('users', function() {
 
 //Actor data, for the profile page.
 Meteor.publish('actor', function(actorID) {
+
     let actor = Actors.find({id: actorID});
 
     let actorData = actor.fetch();
 
-    return [actor, FollowingLists.find({id: actorData[0].following}), FollowerLists.find({id: actorData[0].followers})];
+    return [actor,
+        FollowingLists.find({id: actorData[0].following}),
+        FollowerLists.find({id: actorData[0].followers}),
+        Activities.find({type: "Follow", actor: Meteor.user().actor, object: actorID})
+    ];
 });
 
 //Actor data, for the profile page.

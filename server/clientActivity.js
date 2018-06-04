@@ -35,13 +35,29 @@ checkUpdateOrDeleteActivityPermitted = function(activity, user) {
     return true;
 };
 
+const checkUndoActivityPermitted = function (activity, user) {
+    let targetActivity = Activities.findOne({id: activity.object});
+
+    if (!targetActivity) {
+        throw new Meteor.Error('Activity Not Found!', 'No activity with the given ID could be found in the database: ' + activity.object);
+    }
+
+    if (activity.actor !== targetActivity.actor) {
+        throw new Meteor.Error('Activity Not Owned', "You can't undo other peoples activities.");
+    }
+
+    return true;
+};
+
 const checkClientActivityPermitted = function(activity, user) {
 
     checkClientActivityUserPermissions(activity, user);
 
     switch(activity.type) {
 
-        //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
+        case 'Undo':
+            checkUndoActivityPermitted(activity, user);
+        //Users can follow and unfollow without being verified. Thus, return here, instead of further down after the verification check.
         case 'Follow':
             return;
             //No break here, as return accomplishes the same thing.
@@ -127,17 +143,15 @@ const processClientUpdateActivity = function(activity) {
 
 const processClientFollowActivity = function(activity) {
 
-    if (!Actors.findOne({id: activity.object}))
-        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
-
     const follower = Actors.findOne({id: activity.actor});
 
     const followee = Actors.findOne({id: activity.object});
 
+    if (!followee)
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
+
     if (FollowingLists.findOne({id: follower.following, orderedItems: followee.id}))
         throw new Meteor.Error('Already Following!', 'You are already following that actor!');
-
-    PendingFollows.remove({});
 
     if (PendingFollows.findOne({follower: follower.id, followee: followee.id})) {
         throw new Meteor.Error('Follow Already Pending!', 'A pending follow between those actors was already present!: ' + activity.actor + ", " + activity.object);
@@ -150,11 +164,35 @@ const processClientFollowActivity = function(activity) {
         let accept = new ActivityPubActivity("Accept", followee.id, activity.actor);
         accept.to.push(activity.actor);
         Meteor.setTimeout(function(){
-            dispatchActivity(accept)
-       }, 0);
+            dispatchActivity(accept);
+        }, 0);
     }
 
     return activity;
+};
+
+const processClientUndoActivity = function(activity) {
+
+    let targetActivity = Activities.findOne({id: activity.object});
+
+    if (targetActivity.type === "Follow") {
+
+        const follower = Actors.findOne({id: targetActivity.actor});
+
+        const followee = Actors.findOne({id: targetActivity.object});
+
+        if (!followee)
+            throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + targetActivity.object);
+
+        FollowingLists.update({id: follower.following}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.object}});
+
+        if (followee.local)
+            FollowerLists.update({id: followee.followers}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.actor}});
+
+        PendingFollows.remove({follower: follower.id, followee: followee.id});
+
+        return activity;
+    }
 };
 
 const encapsulateContentWithCreate = function(post) {
@@ -238,6 +276,9 @@ processClientActivity = function(user, object) {
             break;
         case 'Update':
             activity = processClientUpdateActivity(activity);
+            break;
+        case 'Undo':
+            activity = processClientUndoActivity(activity);
             break;
     }
 

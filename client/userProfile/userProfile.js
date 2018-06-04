@@ -103,6 +103,13 @@ Template.userProfile.events({
         Meteor.call("postActivity", activity, function() {});
 
     },
+    "click .profile-summary-unfollow-button": function(event, instance) {
+        let follow = Activities.findOne({type: "Follow", actor: Meteor.user().actor, object: this.id});
+        let activity = new ActivityPubActivity("Undo", Meteor.user().actor, follow.id);
+        activity.to.push(this.id);
+        Meteor.call("postActivity", activity, function() {});
+
+    },
     'autosize:resized': function() {
         //We want our text area to expand it's width, not just it's height.
         //So, we call this event when it resize height and manually resize width.
