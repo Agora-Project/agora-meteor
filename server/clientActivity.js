@@ -234,9 +234,11 @@ const dispatchToActor = function(actor, activity) {
 cleanActivityPub = function(object) {
     delete object._id;
     delete object.local;
+
+    if (!object['@context']) object['@context'] = "https://www.w3.org/ns/activitystreams";
+
     if (object.object && typeof object.object === 'object') {
-        delete object.object._id;
-        delete object.object.local;
+        cleanActivityPub(object.object);
     }
 
     return object;
