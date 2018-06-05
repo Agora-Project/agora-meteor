@@ -255,6 +255,11 @@ Api.addRoute('actors/:handle/outbox', {}, {
         action: function () {
             var outbox = Outboxes.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/outbox"});
             if (outbox) {
+                let orderedItems = [];
+                for (let i = 0; i < outbox.totalItems && i < 10; i++) {
+                    orderedItems.push(Activities.findOne({id: outbox.orderedItems[i]}));
+                } 
+                outbox.orderedItems = orderedItems;
                 return successfulJSON(outbox);
             } else return failedJSON("Unable to get outbox!");
         }

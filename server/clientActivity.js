@@ -241,6 +241,12 @@ cleanActivityPub = function(object) {
         cleanActivityPub(object.object);
     }
 
+    if (object.orderedItems) {
+        for (let i = 0; i < object.orderedItems.length; i++) {
+            object.orderedItems[i] = cleanActivityPub(object.orderedItems[i]);
+        }
+    }
+
     return object;
 }
 
@@ -284,6 +290,7 @@ processClientActivity = function(user, object) {
             break;
     }
 
+    activity.local = true;
     let _id = Activities.insert(activity);
     activity = Activities.findOne({_id: _id});
 
