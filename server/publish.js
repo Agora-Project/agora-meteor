@@ -34,6 +34,20 @@ Meteor.publish('abstractPostsByUser', function(actorID) {
     return Posts.find({attributedTo: actorID}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}});
 });
 
+Meteor.publish('abstractPostsByTimeline', function() {
+    if (this.userId) {
+        let actorID = Meteor.users.findOne({_id: this.userId}).actor;
+
+        let actor = Actors.findOne({id: actorID}, {fields: {id: 1, following: 1}});
+
+        let users = FollowingLists.findOne({id: actor.following}).orderedItems.concat([actor.id]);
+
+        return Posts.find({attributedTo: {$in: users}}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}, sort: {published: -1}, limit: 100});
+    } else {
+        return this.ready();
+    }
+});
+
 //Universal subscription for roles.
 Meteor.publish(null, function() {
     return Meteor.roles.find({});
