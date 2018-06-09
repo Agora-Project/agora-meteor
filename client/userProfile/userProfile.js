@@ -99,6 +99,14 @@ Template.userProfile.events({
     },
     "click .profile-summary-follow-button": function(event, instance) {
         let activity = new ActivityPubActivity("Follow", Meteor.user().actor, this.id);
+        activity.to.push(this.id);
+        Meteor.call("postActivity", activity, function() {});
+
+    },
+    "click .profile-summary-unfollow-button": function(event, instance) {
+        let follow = Activities.findOne({type: "Follow", actor: Meteor.user().actor, object: this.id});
+        let activity = new ActivityPubActivity("Undo", Meteor.user().actor, follow.id);
+        activity.to.push(this.id);
         Meteor.call("postActivity", activity, function() {});
 
     },

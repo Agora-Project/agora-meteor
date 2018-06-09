@@ -35,13 +35,29 @@ checkUpdateOrDeleteActivityPermitted = function(activity, user) {
     return true;
 };
 
+const checkUndoActivityPermitted = function (activity, user) {
+    let targetActivity = Activities.findOne({id: activity.object});
+
+    if (!targetActivity) {
+        throw new Meteor.Error('Activity Not Found!', 'No activity with the given ID could be found in the database: ' + activity.object);
+    }
+
+    if (activity.actor !== targetActivity.actor) {
+        throw new Meteor.Error('Activity Not Owned', "You can't undo other peoples activities.");
+    }
+
+    return true;
+};
+
 const checkClientActivityPermitted = function(activity, user) {
 
     checkClientActivityUserPermissions(activity, user);
 
     switch(activity.type) {
 
-        //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
+        case 'Undo':
+            checkUndoActivityPermitted(activity, user);
+        //Users can follow and unfollow without being verified. Thus, return here, instead of further down after the verification check.
         case 'Follow':
             return;
             //No break here, as return accomplishes the same thing.
@@ -66,6 +82,35 @@ const checkClientActivityPermitted = function(activity, user) {
 
     return true;
 };
+
+const dispatchActivity = function(activity) {
+
+    activity = cleanActivityPub(activity);
+
+    const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
+
+    for (let i = 0; i < targetArrays.length; i++) {
+        const arrayName = targetArrays[i];
+        const targetArray = activity[arrayName];
+        for (let j = 0; j < targetArray.length; j++) {
+            const targetID = targetArray[j];
+            if (targetID === "https://www.w3.org/ns/activitystreams#Public")
+                continue;
+            let actor = Actors.findOne({id: targetID});
+            if (actor)
+                dispatchToActor(actor, activity);
+            else {
+                const list = FollowerLists.findOne({id: targetID});
+                if (list)
+                    for (let actorID in list.orderedItems) {
+                        actor = Actors.findOne({id: actorID});
+                        if (actor)
+                            dispatchToActor(actor, activity);
+                    }
+            }
+        }
+    }
+}
 
 const processClientCreateActivity = function(activity) {
     let post = activity.object;
@@ -98,19 +143,56 @@ const processClientUpdateActivity = function(activity) {
 
 const processClientFollowActivity = function(activity) {
 
-    if (!Actors.findOne({id: activity.object}))
-        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
-
     const follower = Actors.findOne({id: activity.actor});
-
-    FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
 
     const followee = Actors.findOne({id: activity.object});
 
-    if (followee.local)
-        FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+    if (!followee)
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
+
+    if (FollowingLists.findOne({id: follower.following, orderedItems: followee.id}))
+        throw new Meteor.Error('Already Following!', 'You are already following that actor!');
+
+    if (PendingFollows.findOne({follower: follower.id, followee: followee.id})) {
+        throw new Meteor.Error('Follow Already Pending!', 'A pending follow between those actors was already present!: ' + activity.actor + ", " + activity.object);
+    }
+
+    PendingFollows.insert({follower: follower.id, followee: followee.id});
+
+
+    if (followee.local) {
+        let accept = new ActivityPubActivity("Accept", followee.id, activity.actor);
+        accept.to.push(activity.actor);
+        Meteor.setTimeout(function(){
+            dispatchActivity(accept);
+        }, 0);
+    }
 
     return activity;
+};
+
+const processClientUndoActivity = function(activity) {
+
+    let targetActivity = Activities.findOne({id: activity.object});
+
+    if (targetActivity.type === "Follow") {
+
+        const follower = Actors.findOne({id: targetActivity.actor});
+
+        const followee = Actors.findOne({id: targetActivity.object});
+
+        if (!followee)
+            throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + targetActivity.object);
+
+        FollowingLists.update({id: follower.following}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.object}});
+
+        if (followee.local)
+            FollowerLists.update({id: followee.followers}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.actor}});
+
+        PendingFollows.remove({follower: follower.id, followee: followee.id});
+
+        return activity;
+    }
 };
 
 const encapsulateContentWithCreate = function(post) {
@@ -152,41 +234,20 @@ const dispatchToActor = function(actor, activity) {
 cleanActivityPub = function(object) {
     delete object._id;
     delete object.local;
+
+    if (!object['@context']) object['@context'] = "https://www.w3.org/ns/activitystreams";
+
     if (object.object && typeof object.object === 'object') {
-        delete object.object._id;
-        delete object.object.local;
+        cleanActivityPub(object.object);
+    }
+
+    if (object.orderedItems) {
+        for (let i = 0; i < object.orderedItems.length; i++) {
+            object.orderedItems[i] = cleanActivityPub(object.orderedItems[i]);
+        }
     }
 
     return object;
-}
-
-const dispatchActivity = function(activityID) {
-
-    activity = cleanActivityPub(Activities.findOne({id: activityID}));
-
-    const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
-
-    for (let i = 0; i < targetArrays.length; i++) {
-        const arrayName = targetArrays[i];
-        const targetArray = activity[arrayName];
-        for (let j = 0; j < targetArray.length; j++) {
-            const targetID = targetArray[j];
-            if (targetID === "https://www.w3.org/ns/activitystreams#Public")
-                continue;
-            let actor = Actors.findOne({id: targetID});
-            if (actor)
-                dispatchToActor(actor, activity);
-            else {
-                const list = FollowerLists.findOne({id: targetID});
-                if (list)
-                    for (let actorID in list.orderedItems) {
-                        actor = Actors.findOne({id: actorID});
-                        if (actor)
-                            dispatchToActor(actor, activity);
-                    }
-            }
-        }
-    }
 }
 
 processClientActivity = function(user, object) {
@@ -224,13 +285,17 @@ processClientActivity = function(user, object) {
         case 'Update':
             activity = processClientUpdateActivity(activity);
             break;
+        case 'Undo':
+            activity = processClientUndoActivity(activity);
+            break;
     }
 
+    activity.local = true;
     let _id = Activities.insert(activity);
     activity = Activities.findOne({_id: _id});
 
     Meteor.setTimeout(function(){
-         dispatchActivity(activity.id)
+         dispatchActivity(Activities.findOne({_id: _id}));
     }, 0);
 
     return activity;

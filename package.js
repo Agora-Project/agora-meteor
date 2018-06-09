@@ -47,6 +47,7 @@ Package.onUse(function(api) {
         'lib/collections/reports.js',
         'lib/collections/users.js',
         'lib/collections/orderedCollections.js',
+        'lib/collections/activities.js',
         'routes.js'
     ], both);
 
@@ -57,8 +58,7 @@ Package.onUse(function(api) {
         'server/publish.js',
         'server/clientActivity.js',
         'server/federation.js',
-        'server/initial-data.js',
-        'lib/collections/activities.js'
+        'server/initial-data.js'
     ], 'server');
 
     api.addFiles([

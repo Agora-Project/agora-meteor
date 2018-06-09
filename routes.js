@@ -49,7 +49,7 @@ Router.route('/federation', {
     template: 'federation'
 });
 
-Router.route('/forum', {
+Router.route('/recent', {
     onRun: function() {
         var id = this.params.query.post;
 
@@ -62,5 +62,13 @@ Router.route('/forum', {
         if (this.ready()) {
             this.render('forum');
         } else this.render('errorPage', {data: {_id: id}});
+    }
+});
+
+Router.route('/home', {
+    action: function() {
+        if (this.ready()) {
+            this.render('homeTimeline');
+        } else this.render('errorPage');
     }
 });

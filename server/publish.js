@@ -34,6 +34,20 @@ Meteor.publish('abstractPostsByUser', function(actorID) {
     return Posts.find({attributedTo: actorID}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}});
 });
 
+Meteor.publish('abstractPostsByTimeline', function() {
+    if (this.userId) {
+        let actorID = Meteor.users.findOne({_id: this.userId}).actor;
+
+        let actor = Actors.findOne({id: actorID}, {fields: {id: 1, following: 1}});
+
+        let users = FollowingLists.findOne({id: actor.following}).orderedItems.concat([actor.id]);
+
+        return Posts.find({attributedTo: {$in: users}}, {fields: {id: 1, attributedTo: 1, inReplyTo: 1, replies: 1}, sort: {published: -1}, limit: 100});
+    } else {
+        return this.ready();
+    }
+});
+
 //Universal subscription for roles.
 Meteor.publish(null, function() {
     return Meteor.roles.find({});
@@ -73,11 +87,16 @@ Meteor.publish('users', function() {
 
 //Actor data, for the profile page.
 Meteor.publish('actor', function(actorID) {
+
     let actor = Actors.find({id: actorID});
 
     let actorData = actor.fetch();
 
-    return [actor, FollowingLists.find({id: actorData[0].following}), FollowerLists.find({id: actorData[0].followers})];
+    return [actor,
+        FollowingLists.find({id: actorData[0].following}),
+        FollowerLists.find({id: actorData[0].followers}),
+        Activities.find({type: "Follow", actor: Meteor.user().actor, object: actorID})
+    ];
 });
 
 //Actor data, for the profile page.
