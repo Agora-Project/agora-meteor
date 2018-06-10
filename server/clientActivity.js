@@ -10,7 +10,7 @@ checkClientActivityUserPermissions = function(activity, user) {
         throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + activity.actor);
 
     return true;
-}
+};
 
 getObjectFromActivity = function(activity) {
     switch (typeof activity.object) {
@@ -110,7 +110,7 @@ const dispatchActivity = function(activity) {
             }
         }
     }
-}
+};
 
 const processClientCreateActivity = function(activity) {
     let post = activity.object;
@@ -153,11 +153,10 @@ const processClientFollowActivity = function(activity) {
     if (FollowingLists.findOne({id: follower.following, orderedItems: followee.id}))
         throw new Meteor.Error('Already Following!', 'You are already following that actor!');
 
-    if (PendingFollows.findOne({follower: follower.id, followee: followee.id})) {
-        throw new Meteor.Error('Follow Already Pending!', 'A pending follow between those actors was already present!: ' + activity.actor + ", " + activity.object);
+    if (!PendingFollows.findOne({follower: follower.id, followee: followee.id})) {
+        PendingFollows.insert({follower: follower.id, followee: followee.id});
+        //throw new Meteor.Error('Follow Already Pending!', 'A pending follow between those actors was already present!: ' + activity.actor + ", " + activity.object);
     }
-
-    PendingFollows.insert({follower: follower.id, followee: followee.id});
 
 
     if (followee.local) {
@@ -222,14 +221,14 @@ const encapsulateContentWithCreate = function(post) {
     activity.published = post.published;
 
     return activity;
-}
+};
 
 const dispatchToActor = function(actor, activity) {
     HTTP.post(actor.inbox, {data: activity}, function(err, result) {
         //if (err) console.log("Error: ", err);
         //if (result) console.log("Result: ", result);
     });
-}
+};
 
 cleanActivityPub = function(object) {
     delete object._id;
@@ -248,7 +247,7 @@ cleanActivityPub = function(object) {
     }
 
     return object;
-}
+};
 
 processClientActivity = function(user, object) {
 
@@ -272,6 +271,11 @@ processClientActivity = function(user, object) {
 
     checkClientActivityPermitted(activity, user);
 
+    activity.local = true;
+
+    let _id = Activities.insert(activity);
+    activity = Activities.findOne({_id: _id});
+
     switch(activity.type){
         case 'Create':
             activity = processClientCreateActivity(activity);
@@ -290,11 +294,7 @@ processClientActivity = function(user, object) {
             break;
     }
 
-    activity.local = true;
-    let _id = Activities.insert(activity);
-    activity = Activities.findOne({_id: _id});
-
-    Meteor.setTimeout(function(){
+    Meteor.setTimeout(function() {
          dispatchActivity(Activities.findOne({_id: _id}));
     }, 0);
 

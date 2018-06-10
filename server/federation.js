@@ -3,6 +3,8 @@
 
 const checkFederatedActivityPermitted = function(activity) {
 
+    //TODO: Check to see if foreign instances are blocked or banned.
+
     const actor = Actors.findOne({id: activity.actor});
 
     if (!actor)
@@ -12,6 +14,7 @@ const checkFederatedActivityPermitted = function(activity) {
 
         //Users can follow without being verified. Thus, return here, instead of further down after the verification check.
         case 'Follow':
+        case 'Undo':
             return;
 
         case 'Update':
@@ -22,19 +25,9 @@ const checkFederatedActivityPermitted = function(activity) {
         //No break here, as update and delete activities should be subject to the same restrictions as create and announce.
         case 'Create':
         case 'Announce':
-            //Don't allow banned users to post or announce.
-            if (user.isBanned) {
-                throw new Meteor.Error('Banned', 'Banned users may not perform that activity.');
-            }
-            break;
-
     }
 
-    //Don't allow unverified users to manipulate the forum. They can still follow people though,
-    //which is why follows return above and don't execute this code.
-    if (!user.emails || user.emails.length < 1 || !user.emails[0].verified) {
-        throw new Meteor.Error('Unverified', 'Unverified users may not perform that activity.');
-    }
+    //TODO: Check to see if foreign actors are blocked or banned.
 };
 
 const processFederatedFollowActivity = function(activity) {
@@ -42,7 +35,7 @@ const processFederatedFollowActivity = function(activity) {
 
     if (followee.local)
         FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
-}
+};
 
 const processFederatedCreateActivity = function(activity) {
     const post = getObjectFromActivity(activity);
@@ -85,7 +78,7 @@ const processFederatedAcceptActivity = function(activity) {
     PendingFollows.remove(pendingFollow);
 
     return activity;
-}
+};
 
 const processFederatedUndoActivity = function(activity) {
 
@@ -109,11 +102,14 @@ const processFederatedUndoActivity = function(activity) {
 
         return activity;
     }
-}
+};
 
 const processFederatedActivity = function(activity) {
-    if (Activities.findOne({id: activity.id}))
-        return
+
+    if (activity.id && Activities.findOne({id: activity.id}))
+        return;
+
+    checkFederatedActivityPermitted(activity);
 
     switch(activity.type) {
         case 'Create':
@@ -193,14 +189,14 @@ const successfulJSON = function(data) {
     }
 
     return response;
-}
+};
 
 const failedJSON = function(message) {
     return {
         statusCode: 400,
         body: {status: "fail", message: message}
     };
-}
+};
 
 Api = new Restivus({
     apiPath: '/',
@@ -258,7 +254,7 @@ Api.addRoute('actors/:handle/outbox', {}, {
                 let orderedItems = [];
                 for (let i = 0; i < outbox.totalItems && i < 10; i++) {
                     orderedItems.push(Activities.findOne({id: outbox.orderedItems[i]}));
-                } 
+                }
                 outbox.orderedItems = orderedItems;
                 return successfulJSON(outbox);
             } else return failedJSON("Unable to get outbox!");
