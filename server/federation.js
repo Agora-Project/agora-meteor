@@ -1,6 +1,47 @@
 
 //import webfinger from '../lib/webfinger/lib/webfinger.js';
 
+const dispatchToActor = function(actor, activity) {
+    HTTP.post(actor.inbox, {data: activity, npmRequestOptions: {
+        httpSignature: {
+            keyId: 'pkcs8-private-pem',
+            key: Keys.findOne({id: activity.actor + "#main-key"}, {fields: {privateKeyPem: 1}}).privateKeyPem
+        }
+    }}, function(err, result) {
+        if (err) console.log("Error: ", err);
+        if (result) console.log("Result: ", result);
+    });
+};
+
+dispatchActivity = function(activity) {
+
+    activity = cleanActivityPub(activity);
+
+    const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
+
+    for (let i = 0; i < targetArrays.length; i++) {
+        const arrayName = targetArrays[i];
+        const targetArray = activity[arrayName];
+        for (let j = 0; j < targetArray.length; j++) {
+            const targetID = targetArray[j];
+            if (targetID === "https://www.w3.org/ns/activitystreams#Public")
+                continue;
+            let actor = Actors.findOne({id: targetID});
+            if (actor)
+                dispatchToActor(actor, activity);
+            else {
+                const list = FollowerLists.findOne({id: targetID});
+                if (list)
+                    for (let actorID in list.orderedItems) {
+                        actor = Actors.findOne({id: actorID});
+                        if (actor)
+                            dispatchToActor(actor, activity);
+                    }
+            }
+        }
+    }
+};
+
 const checkFederatedActivityPermitted = function(activity) {
 
     //TODO: Check to see if foreign instances are blocked or banned.
@@ -240,6 +281,7 @@ Api.addRoute('actors/:handle/inbox', {}, {
     post: {
         action: function () {
             let object = this.request.body;
+            console.log(this.request.headers);
             processFederatedActivity(object);
             return successfulJSON();
         }

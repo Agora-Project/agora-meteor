@@ -15,7 +15,8 @@ Package.describe({
 Npm.depends({
     step: '1.0.0',
     xml2js: '0.4.19',
-    request: '2.85.0'
+    request: '2.85.0',
+    'node-rsa': '1.0.0'
 });
 
 Package.onUse(function(api) {
@@ -39,6 +40,10 @@ Package.onUse(function(api) {
         'http'
     ], both);
 
+    api.use([
+        'mrest:restivus'
+    ], 'server');
+
     api.addFiles([
         'lib/identity_collections/identity_collections.js',
         'lib/grapher/layered_grapher.js',
@@ -58,7 +63,8 @@ Package.onUse(function(api) {
         'server/publish.js',
         'server/clientActivity.js',
         'server/federation.js',
-        'server/initial-data.js'
+        'server/initial-data.js',
+        'lib/collections/keys.js'
     ], 'server');
 
     api.addFiles([

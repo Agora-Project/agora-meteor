@@ -83,35 +83,6 @@ const checkClientActivityPermitted = function(activity, user) {
     return true;
 };
 
-const dispatchActivity = function(activity) {
-
-    activity = cleanActivityPub(activity);
-
-    const targetArrays = ['to', 'cc', 'bto', 'bcc', 'audience'];
-
-    for (let i = 0; i < targetArrays.length; i++) {
-        const arrayName = targetArrays[i];
-        const targetArray = activity[arrayName];
-        for (let j = 0; j < targetArray.length; j++) {
-            const targetID = targetArray[j];
-            if (targetID === "https://www.w3.org/ns/activitystreams#Public")
-                continue;
-            let actor = Actors.findOne({id: targetID});
-            if (actor)
-                dispatchToActor(actor, activity);
-            else {
-                const list = FollowerLists.findOne({id: targetID});
-                if (list)
-                    for (let actorID in list.orderedItems) {
-                        actor = Actors.findOne({id: actorID});
-                        if (actor)
-                            dispatchToActor(actor, activity);
-                    }
-            }
-        }
-    }
-};
-
 const processClientCreateActivity = function(activity) {
     let post = activity.object;
 
@@ -221,13 +192,6 @@ const encapsulateContentWithCreate = function(post) {
     activity.published = post.published;
 
     return activity;
-};
-
-const dispatchToActor = function(actor, activity) {
-    HTTP.post(actor.inbox, {data: activity}, function(err, result) {
-        //if (err) console.log("Error: ", err);
-        //if (result) console.log("Result: ", result);
-    });
 };
 
 cleanActivityPub = function(object) {
