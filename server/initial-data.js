@@ -59,7 +59,7 @@ Meteor.startup(function() {
         });
     }
 
-    //Deletes all posts and adds a set of random fake posts.
+    //Deletes all posts and adds a set of random test posts.
     if (false) {
         console.log('Deleting all posts');
         Posts.remove({});
@@ -72,7 +72,7 @@ Meteor.startup(function() {
             local: true
         });
 
-        console.log("Adding fake posts");
+        console.log("Adding test posts");
 
         let id = Posts.findOne({_id: root_ID}).id;
         let posts = [id];
@@ -84,7 +84,7 @@ Meteor.startup(function() {
             if (Math.random() > 0.02) target = posts[Math.floor(random*posts.length)];
 
             let reply = {
-                content: 'Fake content.',
+                content: 'Test content.',
                 attributedTo: user.actor,
                 local: true
             };
@@ -94,7 +94,7 @@ Meteor.startup(function() {
             }
 
             if (Math.random() > 0.5) {
-                reply.summary = 'Fake Summary';
+                reply.summary = 'Test Summary';
             }
 
             let _id = Posts.insert(reply);
