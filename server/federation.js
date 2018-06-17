@@ -4,6 +4,7 @@
 const dispatchToActor = function(actor, activity) {
     HTTP.post(actor.inbox, {data: activity, npmRequestOptions: {
         httpSignature: {
+            authorizationHeaderName: "Signature",
             keyId: actor.id + "#main-key",
             key: Keys.findOne({id: activity.actor + "#main-key"}, {fields: {privateKeyPem: 1}}).privateKeyPem
         }
