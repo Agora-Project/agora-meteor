@@ -15,7 +15,7 @@ Package.describe({
 Npm.depends({
     step: '1.0.0',
     xml2js: '0.4.19',
-    request: '2.85.0',
+    request: '2.87.0',
     'node-rsa': '1.0.0'
 });
 
@@ -29,7 +29,6 @@ Package.onUse(function(api) {
         'agoraforum:activitypub',
         'ecmascript',
         'iron:router',
-        'mrest:restivus',
         'useraccounts:iron-routing',
 	    'matb33:collection-hooks',
         'accounts-base',
