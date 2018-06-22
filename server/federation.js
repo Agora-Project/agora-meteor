@@ -1,11 +1,11 @@
 
-//import webfinger from '../lib/webfinger/lib/webfinger.js';
+import webfinger from '../lib/webfinger/lib/webfinger.js';
 
 const dispatchToActor = function(actor, activity) {
     HTTP.post(actor.inbox, {data: activity, npmRequestOptions: {
         httpSignature: {
             authorizationHeaderName: "Signature",
-            keyId: actor.id + "#main-key",
+            keyId: activity.actor + "#main-key",
             key: Keys.findOne({id: activity.actor + "#main-key"}, {fields: {privateKeyPem: 1}}).privateKeyPem
         }
     }}, function(err, result) {
@@ -226,7 +226,6 @@ const successfulJSON = function(data) {
     };
 
     if (data) {
-
         response.body = cleanActivityPub(data);
     }
 
@@ -245,12 +244,100 @@ Api = new Restivus({
     prettyJson: true
 });
 
+Api.addRoute('.well-known/host-meta', {}, {
+    get: {
+        action: function () {
+            let response = successfulJSON();
+            response.headers = {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/xml; charset=UTF-8'
+            };
+
+            response.body = '<XRD>' +
+                            '  <Link rel="lrdd"' +
+                            '    type="application/xrd+xml"' +
+                            '    template="' +
+                            process.env.ROOT_URL + '/webfinger/xrd/{uri}" />' +
+                            '</XRD>'
+
+            return response;
+        }
+    }
+});
+
+Api.addRoute('.well-known/host-meta.json', {}, {
+    get: {
+        action: function () {
+            let response = successfulJSON();
+            response.headers = {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json; charset=UTF-8'
+            };
+
+            response.body = {
+                links: [
+                    {
+                        "rel": "lrdd",
+                        "type": "application/json",
+                        "template": process.env.ROOT_URL + "/.well-known/webfinger?resource={uri}"
+                    }
+                ]
+            }
+
+            return response;
+        }
+    }
+});
+
+Api.addRoute('.well-known/webfinger', {}, {
+    get: {
+        action: function () {
+
+            let resource = this.queryParams.resource;
+            var re = /(acct:@?)(.*)(@.*)/;
+            let handle = resource.replace(re, "$2");
+            let actor = Actors.findOne({preferredUsername: handle, local: true});
+
+            actor = cleanActivityPub(actor);
+
+            let response = successfulJSON();
+
+            response.headers = {
+                'Content-Type': 'application/json; charset=UTF-8'
+            };
+
+            response.body = {
+                subject: resource,
+                aliases: [actor.url, actor.id],
+                links: [
+                    {
+                        "rel":"http://webfinger.net/rel/profile-page",
+                        "type":"text/html",
+                        "href": actor.url
+                    },
+                    {
+                        "rel":"self",
+                        "type":"application/activity+json",
+                        "href": actor.id
+                    }
+                ]
+            }
+
+            return response;
+        }
+    }
+});
+
 Api.addRoute('post/:_id', {}, {
     get: {
         action: function () {
             let post = Posts.findOne({_id: this.urlParams._id});
             if (post) {
-                return successfulJSON(post);
+                let response = successfulJSON(post);
+                response.headers = {
+                    'Content-Type': 'activity/json; charset=UTF-8'
+                };
+                return response;
             } else return failedJSON("Unable to get post!");
         }
     }
@@ -261,7 +348,11 @@ Api.addRoute('activity/:_id', {}, {
         action: function () {
             let activity = Activities.findOne({_id: this.urlParams._id});
             if (activity) {
-                return successfulJSON(activity);
+                let response = successfulJSON(activity);
+                response.headers = {
+                    'Content-Type': 'activity/json; charset=UTF-8'
+                };
+                return response;
             } else return failedJSON("Unable to get post!");
         }
     }
@@ -272,7 +363,11 @@ Api.addRoute('actors/:handle', {}, {
         action: function () {
             let actor = Actors.findOne({preferredUsername: this.urlParams.handle});
             if (actor) {
-                return successfulJSON(actor);
+                let response = successfulJSON(actor);
+                response.headers = {
+                    'Content-Type': 'activity/json; charset=UTF-8'
+                };
+                return response;
             } else return failedJSON("Unable to get actor!");
         }
     }
@@ -282,7 +377,6 @@ Api.addRoute('actors/:handle/inbox', {}, {
     post: {
         action: function () {
             let object = this.request.body;
-            console.log(this.request.headers);
             processFederatedActivity(object);
             return successfulJSON();
         }
@@ -299,7 +393,11 @@ Api.addRoute('actors/:handle/outbox', {}, {
                     orderedItems.push(Activities.findOne({id: outbox.orderedItems[i]}));
                 }
                 outbox.orderedItems = orderedItems;
-                return successfulJSON(outbox);
+                let response = successfulJSON(outbox);
+                response.headers = {
+                    'Content-Type': 'activity/json; charset=UTF-8'
+                };
+                return response;
             } else return failedJSON("Unable to get outbox!");
         }
     },
@@ -321,7 +419,11 @@ Api.addRoute('actors/:handle/following', {}, {
         action: function () {
             let following = FollowingLists.findOne({id: process.env.ROOT_URL + "actors/" + this.urlParams.handle + "/following"});
             if (following) {
-                return successfulJSON(following);
+                let response = successfulJSON(following);
+                response.headers = {
+                    'Content-Type': 'activity/json; charset=UTF-8'
+                };
+                return response;
             } else return failedJSON("Unable to get following list!");
         }
     }
