@@ -30,7 +30,7 @@ Package.onUse(function(api) {
         'ecmascript',
         'iron:router',
         'useraccounts:iron-routing',
-	    'matb33:collection-hooks',
+        'matb33:collection-hooks',
         'accounts-base',
         'alanning:roles',
         'utilities:avatar',
@@ -40,7 +40,8 @@ Package.onUse(function(api) {
     ], both);
 
     api.use([
-        'mrest:restivus'
+        'mrest:restivus',
+        'percolate:migrations'
     ], 'server');
 
     api.addFiles([
@@ -62,8 +63,9 @@ Package.onUse(function(api) {
         'server/publish.js',
         'server/clientActivity.js',
         'server/federation.js',
-        'server/initial-data.js',
-        'lib/collections/keys.js'
+        'lib/collections/keys.js',
+        'server/migrations.js',
+        'server/initial-data.js'
     ], 'server');
 
     api.addFiles([
