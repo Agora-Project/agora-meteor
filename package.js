@@ -15,7 +15,8 @@ Package.describe({
 Npm.depends({
     step: '1.0.0',
     xml2js: '0.4.19',
-    request: '2.85.0'
+    request: '2.87.0',
+    'node-rsa': '1.0.0'
 });
 
 Package.onUse(function(api) {
@@ -28,9 +29,8 @@ Package.onUse(function(api) {
         'agoraforum:activitypub',
         'ecmascript',
         'iron:router',
-        'mrest:restivus',
         'useraccounts:iron-routing',
-	    'matb33:collection-hooks',
+        'matb33:collection-hooks',
         'accounts-base',
         'alanning:roles',
         'utilities:avatar',
@@ -38,6 +38,11 @@ Package.onUse(function(api) {
         'email',
         'http'
     ], both);
+
+    api.use([
+        'mrest:restivus',
+        'percolate:migrations'
+    ], 'server');
 
     api.addFiles([
         'lib/identity_collections/identity_collections.js',
@@ -58,6 +63,8 @@ Package.onUse(function(api) {
         'server/publish.js',
         'server/clientActivity.js',
         'server/federation.js',
+        'lib/collections/keys.js',
+        'server/migrations.js',
         'server/initial-data.js'
     ], 'server');
 
