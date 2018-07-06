@@ -85,6 +85,7 @@ const processFederatedCreateActivity = function(activity) {
     if (Posts.findOne({id: post.id}))
         throw new Meteor.Error('Post id already exists', 'Cannot insert post, id already exists.');
 
+    post.local = false;
     Posts.insert(post);
 
     return activity;
