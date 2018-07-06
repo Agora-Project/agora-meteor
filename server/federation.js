@@ -101,10 +101,19 @@ const processFederatedDeleteActivity = function(activity) {
 
 const processFederatedAcceptActivity = function(activity) {
 
-    const follower = Actors.findOne({id: activity.object});
+    let follower;
+
+    switch (typeof activity.object) {
+        case 'string':
+            follower = Actors.findOne({id: activity.object});
+            break;
+        case 'object':
+            follower = Actors.findOne({id: activity.object.actor});
+            break;
+    }
 
     if (!follower)
-        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + JSON.stringify(activity.object));
 
     const followee = Actors.findOne({id: activity.actor});
 
