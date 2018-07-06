@@ -193,7 +193,7 @@ Meteor.methods({
             } else throw new Meteor.Error('No response from url');
         })
         .then((json) => {
-            if (json) Meteor.setTimeout(function(){
+            if (json) Meteor.setTimeout(function(){ //This is to get this bit of code to run independently.
                 Meteor.call('importFromActivityPubJSON', json);
             }, 0);
 
@@ -361,7 +361,7 @@ Api.addRoute('activity/:_id', {}, {
 Api.addRoute('actors/:handle', {}, {
     get: {
         action: function () {
-            let actor = Actors.findOne({preferredUsername: this.urlParams.handle});
+            let actor = Actors.findOne({preferredUsername: this.urlParams.handle, local: true});
             if (actor) {
                 let response = successfulJSON(actor);
                 response.headers = {
