@@ -9,7 +9,7 @@ deletePost = function(postID) {
 
     //check to make sure the post exists before attempting to delete it.
     if (post === undefined) {
-        throw new Meteor.Error('post-not-found', 'No such post was found.');
+        throw new Meteor.Error('post-not-found', 'No such post was found: ' + postID);
     }
 
     //delete the post and all references to it.
