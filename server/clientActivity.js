@@ -28,6 +28,8 @@ checkUpdateOrDeleteActivityPermitted = function(activity, user) {
 
     const originalObject = Posts.findOne({id: object.id});
 
+    if (!originalObject) throw new Meteor.Error('Post Not Present', "That post is not present in this forum.");
+
     //Don't allow non-moderators to edit other peoples posts.
     if (activity.actor !== originalObject.attributedTo && (!user || !Roles.userIsInRole(user._id, ['moderator']))) {
         throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
