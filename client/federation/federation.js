@@ -15,7 +15,7 @@ Template.federation.helpers({
 Template.federation.events({
     'click #federation-query-button': function() {
         let instance = Template.instance();
-        Meteor.call("getActivityJSONFromUrl", $('#federation-url').val(), function(err, response) {
+        Meteor.call("importActivityJSONFromUrl", $('#federation-url').val(), function(err, response) {
             if (err) console.log("Error:", err);
             if (response) {
                 let content = "";

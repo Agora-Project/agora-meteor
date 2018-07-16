@@ -3,7 +3,7 @@ checkClientActivityUserPermissions = function(activity, user) {
         throw new Meteor.Error('Not-logged-in', 'The user must be logged in to perform activities.');
     }
 
-    if (activity.actor != user.actor)
+    if (activity.actor !== user.actor)
         throw new Meteor.Error('Actor mismatch!', 'Method actor does not match activity actor!');
 
     if (!Actors.findOne({id: activity.actor}))
@@ -26,12 +26,26 @@ getObjectFromActivity = function(activity) {
 checkUpdateOrDeleteActivityPermitted = function(activity, user) {
     const object = getObjectFromActivity(activity);
 
-    const originalObject = Posts.findOne({id: object.id});
+    if (activityPubContentTypes.includes(object.type)) {
+        const originalObject = Posts.findOne({id: object.id});
 
-    //Don't allow non-moderators to edit other peoples posts.
-    if (activity.actor !== originalObject.attributedTo && (!user || !Roles.userIsInRole(user._id, ['moderator']))) {
-        throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
+        if (!originalObject) throw new Meteor.Error('Post Not Present', "That post is not present in this forum: " + JSON.stringify(activity));
+
+        //Don't allow non-moderators to edit other peoples posts.
+        if (activity.actor !== originalObject.attributedTo && (!user || !Roles.userIsInRole(user._id, ['moderator']))) {
+            throw new Meteor.Error('Post Not Owned', "Only moderators may edit or delete posts they don't own.");
+        }
+    } else if (activityPubActorTypes.includes(object.type)) {
+        const originalActor = Actors.findOne({id: object.id});
+
+        if (!originalActor) throw new Meteor.Error('Actor Not Present', "That actor is not present in this forum: " + JSON.stringify(activity));
+
+        //Don't allow non-moderators to edit other peoples posts.
+        if (activity.actor !== originalActor.id && (!user || !Roles.userIsInRole(user._id, ['moderator']))) {
+            throw new Meteor.Error('Actor Not Owned', "Only moderators may edit or delete actors they don't own.");
+        }
     }
+
     return true;
 };
 
@@ -85,6 +99,27 @@ const checkClientActivityPermitted = function(activity, user) {
 
 const processClientCreateActivity = function(activity) {
     let post = activity.object;
+
+    //Don't allow posts with no content.
+    if (!post.content || post.content.length < 1)
+        throw new Meteor.Error('No content!', 'Cannot insert post without content!');
+
+    //The constants below are from lib/collections/posts.js
+
+    //Don't allow posts with too much content
+    if (post.content.length > POST_CONTENT_CHARACTER_LIMIT)
+        throw new Meteor.Error('Too much content!', 'Cannot insert post with content greater than ' + POST_CONTENT_CHARACTER_LIMIT + ' characters!');
+
+    //Don't allow posts with summariesw that are too long.
+    if (post.summary && post.summary.length > POST_SUMMARY_CHARACTER_LIMIT)
+        throw new Meteor.Error('Summary too long!', 'Cannot insert post with summary greater than ' + POST_SUMMARY_CHARACTER_LIMIT + ' characters!');
+
+    if (post.content.length > POST_CONTENT_SUMMARY_REQUIREMENT && (!post.summary || post.summary.length < 1))
+        throw new Meteor.Error('Summary needed!', 'Posts with more than ' + POST_CONTENT_SUMMARY_REQUIREMENT + ' characters of content must have a summary!');
+
+    //Don't allow posts that target posts that don't exist.
+    if (post.inReplyTo && !Posts.findOne({id: post.inReplyTo}))
+        throw new Meteor.Error('target invalid', 'Targeted post not found!');
 
     post.local = true;
 
@@ -167,27 +202,6 @@ const processClientUndoActivity = function(activity) {
 
 const encapsulateContentWithCreate = function(post) {
 
-    //Don't allow posts with no content.
-    if (!post.content || post.content.length < 1)
-        throw new Meteor.Error('No content!', 'Cannot insert post without content!');
-
-    //The constants below are from lib/collections/posts.js
-
-    //Don't allow posts with too much content
-    if (post.content.length > POST_CONTENT_CHARACTER_LIMIT)
-        throw new Meteor.Error('Too much content!', 'Cannot insert post with content greater than ' + POST_CONTENT_CHARACTER_LIMIT + ' characters!');
-
-    //Don't allow posts with summariesw that are too long.
-    if (post.summary && post.summary.length > POST_SUMMARY_CHARACTER_LIMIT)
-        throw new Meteor.Error('Summary too long!', 'Cannot insert post with summary greater than ' + POST_SUMMARY_CHARACTER_LIMIT + ' characters!');
-
-    if (post.content.length > POST_CONTENT_SUMMARY_REQUIREMENT && (!post.summary || post.summary.length < 1))
-        throw new Meteor.Error('Summary needed!', 'Posts with more than ' + POST_CONTENT_SUMMARY_REQUIREMENT + ' characters of content must have a summary!');
-
-    //Don't allow posts that target posts that don't exist.
-    if (post.inReplyTo && !Posts.findOne({id: post.inReplyTo}))
-        throw new Meteor.Error('target invalid', 'Targeted post not found!');
-
     let activity = new ActivityPubActivity("Create", post.attributedTo, post);
     activity.published = post.published;
 
@@ -258,6 +272,8 @@ processClientActivity = function(user, object) {
             break;
     }
 
+    //The setTimeout here is to make the dispatch happen as a separate process, so
+    //it doesn't interfere with the rest of the function if it encounters an error.
     Meteor.setTimeout(function() {
          dispatchActivity(Activities.findOne({_id: _id}));
     }, 0);

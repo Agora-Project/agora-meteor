@@ -49,8 +49,12 @@ const checkFederatedActivityPermitted = function(activity) {
 
     const actor = Actors.findOne({id: activity.actor});
 
+    //I think theres some kind of race condition going on here, where it won't
+    //have finished importing the actor by the time it gets to this code and so it throws an error?
+
+    //I tried to ensure it would have to have finished by the time it gets here, but it seems like I didn't quite manage.
     if (!actor)
-        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found in the database: ' + activity.actor);
+        throw new Meteor.Error('Actor Not Found', 'No actor with the given ID could be found in the database: ' + activity.actor);
 
     switch(activity.type) {
 
@@ -66,6 +70,10 @@ const checkFederatedActivityPermitted = function(activity) {
 
         //No break here, as update and delete activities should be subject to the same restrictions as create and announce.
         case 'Create':
+
+        if (Posts.findOne({id: activity.object.id}))
+            throw new Meteor.Error('Post Already Exists', 'Cannot insert post, id already exists.');
+
         case 'Announce':
     }
 
@@ -83,8 +91,9 @@ const processFederatedCreateActivity = function(activity) {
     const post = getObjectFromActivity(activity);
 
     if (Posts.findOne({id: post.id}))
-        throw new Meteor.Error('Post id already exists', 'Cannot insert post, id already exists.');
+        throw new Meteor.Error('Post Already Exists', 'Cannot insert post, id already exists: ' + JSON.stringify({prev: Posts.findOne({id: post.id}), post: post}));
 
+    post.local = false;
     Posts.insert(post);
 
     return activity;
@@ -100,10 +109,19 @@ const processFederatedDeleteActivity = function(activity) {
 
 const processFederatedAcceptActivity = function(activity) {
 
-    const follower = Actors.findOne({id: activity.object});
+    let follower;
+
+    switch (typeof activity.object) {
+        case 'string':
+            follower = Actors.findOne({id: activity.object});
+            break;
+        case 'object':
+            follower = Actors.findOne({id: activity.object.actor});
+            break;
+    }
 
     if (!follower)
-        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + JSON.stringify(activity.object));
 
     const followee = Actors.findOne({id: activity.actor});
 
@@ -151,14 +169,36 @@ const processFederatedActivity = function(activity) {
     if (activity.id && Activities.findOne({id: activity.id}))
         return;
 
-    checkFederatedActivityPermitted(activity);
+    if (activity.actor && !Actors.findOne({id: activity.actor})) { //Is this posts actor already present? If not,
+        importActivityJSONFromUrl(activity.actor); //add it.
+    }
+
+    try {
+        checkFederatedActivityPermitted(activity);
+    } catch (error) {
+        if (['Post Not Present', 'Post Already Exists'].includes(error.error)) {
+            const _id = Activities.insert(activity);
+
+            return Activities.findOne({_id: _id});
+        } else throw error;
+    }
 
     switch(activity.type) {
         case 'Create':
-            activity = processFederatedCreateActivity(activity);
+            try {
+                activity = processFederatedCreateActivity(activity);
+            } catch (error) {
+                throw error;
+            }
             break;
         case 'Delete':
+        try {
             activity = processFederatedDeleteActivity(activity);
+        } catch (error) {
+            if (error.error === 'Post Not Present') {
+
+            } else throw error;
+        }
             break;
         case "Accept":
             activity = processFederatedAcceptActivity(activity);
@@ -174,6 +214,8 @@ const importActorFromActivityPubJSON = function(json) {
     if (!Actors.findOne({id: json.id})) { //Is actor already present? If not,
         json.local = false; //mark it as foreign,
         Actors.insert(json); //then add it.
+
+        console.log("Added Actor: " + json.id);
     }
 };
 
@@ -184,33 +226,37 @@ const importPostFromActivityPubJSON = function(json) {
     }
 };
 
+importActivityJSONFromUrl = function(url) {
+    console.log("Importing from: " + url);
+
+    return getActivityFromUrl(url)
+    .then((response) => {
+        if (response) {
+            return response.json();
+        } else throw new Meteor.Error('No response from url');
+    })
+    .then((json) => {
+        importFromActivityPubJSON(json);
+
+        return json;
+    }).catch((err) => { console.log(err); });
+};
+
+importFromActivityPubJSON = function(json) {
+    if (!json) throw new Meteor.Error('Empty JSON');
+
+    if (!json.type) throw new Meteor.Error('Untyped ActivityPub JSON');
+
+    if (activityPubActorTypes.includes(json.type))
+        importActorFromActivityPubJSON(json);
+
+    else if (activityPubContentTypes.includes(json.type))
+        importPostFromActivityPubJSON(json);
+};
+
 Meteor.methods({
-    getActivityJSONFromUrl: function(url) {
-        return getActivityFromUrl(url)
-        .then((response) => {
-            if (response) {
-                return response.json();
-            } else throw new Meteor.Error('No response from url');
-        })
-        .then((json) => {
-            if (json) Meteor.setTimeout(function(){ //This is to get this bit of code to run independently.
-                Meteor.call('importFromActivityPubJSON', json);
-            }, 0);
-
-            return json;
-        });
-    },
-    importFromActivityPubJSON: function(json) {
-        if (!json) throw new Meteor.Error('Empty JSON');
-
-        if (!json.type) throw new Meteor.Error('Untyped ActivityPub JSON');
-
-        if (activityPubActorTypes.includes(json.type))
-            importActorFromActivityPubJSON(json);
-
-        else if (activityPubContentTypes.includes(json.type))
-            importPostFromActivityPubJSON(json);
-    },
+    importActivityJSONFromUrl: importActivityJSONFromUrl,
+    importFromActivityPubJSON: importFromActivityPubJSON,
     postActivity: function(object) {
         const user = Meteor.users.findOne({_id: this.userId});
 

@@ -65,6 +65,22 @@ Router.route('/recent', {
     }
 });
 
+Router.route('/forum', {
+    onRun: function() {
+        var id = this.params.query.post;
+
+        if (id && this.ready()) {
+            this.state.set("postID", id);
+        }
+        this.next();
+    },
+    action: function() {
+        if (this.ready()) {
+            this.render('forum');
+        } else this.render('errorPage', {data: {_id: id}});
+    }
+});
+
 Router.route('/home', {
     action: function() {
         if (this.ready()) {
