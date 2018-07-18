@@ -170,37 +170,37 @@ const processFederatedActivity = function(activity) {
         return;
 
     let processFederatedActivityCallback = function() {
-    try {
-        checkFederatedActivityPermitted(activity);
-    } catch (error) {
-        if (['Post Not Present', 'Post Already Exists'].includes(error.error)) {
-            const _id = Activities.insert(activity);
-
-            return Activities.findOne({_id: _id});
-        } else throw error;
-    }
-
-    switch(activity.type) {
-        case 'Create':
-            try {
-                activity = processFederatedCreateActivity(activity);
-            } catch (error) {
-                throw error;
-            }
-            break;
-        case 'Delete':
         try {
-            activity = processFederatedDeleteActivity(activity);
+            checkFederatedActivityPermitted(activity);
         } catch (error) {
-            if (error.error === 'Post Not Present') {
+            if (['Post Not Present', 'Post Already Exists'].includes(error.error)) {
+                const _id = Activities.insert(activity);
 
+                return Activities.findOne({_id: _id});
             } else throw error;
         }
-            break;
-        case "Accept":
-            activity = processFederatedAcceptActivity(activity);
-            break;
-    }
+
+        switch(activity.type) {
+            case 'Create':
+                try {
+                    activity = processFederatedCreateActivity(activity);
+                } catch (error) {
+                    throw error;
+                }
+                break;
+            case 'Delete':
+            try {
+                activity = processFederatedDeleteActivity(activity);
+            } catch (error) {
+                if (error.error === 'Post Not Present') {
+
+                } else throw error;
+            }
+                break;
+            case "Accept":
+                activity = processFederatedAcceptActivity(activity);
+                break;
+        }
 
         Activities.insert(activity);
     }
