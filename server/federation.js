@@ -169,10 +169,7 @@ const processFederatedActivity = function(activity) {
     if (activity.id && Activities.findOne({id: activity.id}))
         return;
 
-    if (activity.actor && !Actors.findOne({id: activity.actor})) { //Is this posts actor already present? If not,
-        importActivityJSONFromUrl(activity.actor); //add it.
-    }
-
+    let processFederatedActivityCallback = function() {
     try {
         checkFederatedActivityPermitted(activity);
     } catch (error) {
@@ -205,9 +202,14 @@ const processFederatedActivity = function(activity) {
             break;
     }
 
-    const _id = Activities.insert(activity);
+        Activities.insert(activity);
+    }
 
-    return Activities.findOne({_id: _id});
+    if (activity.actor && !Actors.findOne({id: activity.actor})) { //Is this posts actor already present? If not,
+        importActivityJSONFromUrl(activity.actor, processFederatedActivityCallback); //add it, and finish the function as a callback.
+    } else {
+        processFederatedActivityCallback(); //If it is present, then continue as normal.
+    }
 };
 
 const importActorFromActivityPubJSON = function(json) {
@@ -226,7 +228,7 @@ const importPostFromActivityPubJSON = function(json) {
     }
 };
 
-importActivityJSONFromUrl = function(url) {
+importActivityJSONFromUrl = function(url, callback) {
     console.log("Importing from: " + url);
 
     return getActivityFromUrl(url)
@@ -238,6 +240,7 @@ importActivityJSONFromUrl = function(url) {
     .then((json) => {
         importFromActivityPubJSON(json);
 
+        if (callback) callback(json);
         return json;
     }).catch((err) => { console.log(err); });
 };
