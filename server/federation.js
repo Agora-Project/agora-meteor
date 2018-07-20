@@ -231,18 +231,17 @@ const importPostFromActivityPubJSON = function(json) {
 importActivityJSONFromUrl = function(url, callback) {
     console.log("Importing from: " + url);
 
-    return getActivityFromUrl(url)
-    .then((response) => {
-        if (response) {
-            return response.json();
-        } else throw new Meteor.Error('No response from url');
-    })
-    .then((json) => {
-        importFromActivityPubJSON(json);
+    let json = JSON.parse(HTTP.get(url, {
+        headers: {
+            Accept: 'application/activity+json; profile="https://www.w3.org/ns/activitystreams#"'
+        }
+    }).content);
 
-        if (callback) callback(json);
-        return json;
-    }).catch((err) => { console.log(err); });
+    importFromActivityPubJSON(json);
+
+    if (callback) callback(json);
+
+    return json;
 };
 
 importFromActivityPubJSON = function(json) {
