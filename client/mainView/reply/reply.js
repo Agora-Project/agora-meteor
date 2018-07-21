@@ -166,6 +166,9 @@ Template.mainReply.onRendered(function() {
 
         $('.main-reply-cancel-button').click(cancelReply);
         $(window).on('beforeunload', exitReply);
+
+        summaryInput.val(target.summary);
+
     } else if (this.parent.targetMode.get() === "Edit") {
 
         summaryInput.val(target.summary);
