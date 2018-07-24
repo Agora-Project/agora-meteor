@@ -172,6 +172,15 @@ Template.mainReply.onRendered(function() {
 
         summaryInput.val(target.summary);
 
+        if (target.attributedTo) {
+            let actor = Actors.findOne({id: target.attributedTo});
+            let url = new URL(target.attributedTo);
+            let mention = "@" + actor.preferredUsername;
+
+            if (!actor.local) mention += "@" + url.host;
+            contentInput.val(mention);
+        }
+
     } else if (this.parent.targetMode.get() === "Edit") {
 
         summaryInput.val(target.summary);
