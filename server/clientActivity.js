@@ -97,24 +97,29 @@ const checkClientActivityPermitted = function(activity, user) {
     return true;
 };
 
+const processPost = function(post) {
+    post.content = post.source.content;
+    post.summary = post.source.summary;
+}
+
 const processClientCreateActivity = function(activity) {
     let post = activity.object;
 
     //Don't allow posts with no content.
-    if (!post.content || post.content.length < 1)
+    if (!post.source.content || post.source.content.length < 1)
         throw new Meteor.Error('No content!', 'Cannot insert post without content!');
 
     //The constants below are from lib/collections/posts.js
 
     //Don't allow posts with too much content
-    if (post.content.length > POST_CONTENT_CHARACTER_LIMIT)
+    if (post.source.content.length > POST_CONTENT_CHARACTER_LIMIT)
         throw new Meteor.Error('Too much content!', 'Cannot insert post with content greater than ' + POST_CONTENT_CHARACTER_LIMIT + ' characters!');
 
     //Don't allow posts with summariesw that are too long.
-    if (post.summary && post.summary.length > POST_SUMMARY_CHARACTER_LIMIT)
+    if (post.source.summary && post.source.summary.length > POST_SUMMARY_CHARACTER_LIMIT)
         throw new Meteor.Error('Summary too long!', 'Cannot insert post with summary greater than ' + POST_SUMMARY_CHARACTER_LIMIT + ' characters!');
 
-    if (post.content.length > POST_CONTENT_SUMMARY_REQUIREMENT && (!post.summary || post.summary.length < 1))
+    if (post.source.content.length > POST_CONTENT_SUMMARY_REQUIREMENT && (!post.source.summary || post.source.summary.length < 1))
         throw new Meteor.Error('Summary needed!', 'Posts with more than ' + POST_CONTENT_SUMMARY_REQUIREMENT + ' characters of content must have a summary!');
 
     //Don't allow posts that target posts that don't exist.

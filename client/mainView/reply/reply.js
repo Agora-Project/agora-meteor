@@ -39,8 +39,11 @@ Template.mainReply.onRendered(function() {
         let post = {
             type: "Note",
             attributedTo: actorID,
-            summary: summaryInput.val(),
-            content: contentInput.val(),
+            source: {
+                summary: summaryInput.val(),
+                content: contentInput.val(),
+                mediaType: "text/plain"
+            },
             to: [],
             cc: [actor.followers],
             bto: [],
