@@ -128,6 +128,8 @@ const processClientCreateActivity = function(activity) {
 
     post.local = true;
 
+    processPost(post);
+
     let post_ID = Posts.insert(post);
     activity.object = Posts.findOne({_id: post_ID});
 
@@ -276,8 +278,6 @@ processClientActivity = function(user, object) {
 
     let _id = Activities.insert(activity);
     activity = Activities.findOne({_id: _id});
-
-    console.log(activity.object);
 
     //The setTimeout here is to make the dispatch happen as a separate process, so
     //it doesn't interfere with the rest of the function if it encounters an error.
