@@ -100,6 +100,11 @@ const checkClientActivityPermitted = function(activity, user) {
 const processPost = function(post) {
     post.content = post.source.content;
     post.summary = post.source.summary;
+
+    let mentions = post.content.match(/@([\w\.]*\w+)(@[\w]+(\.\w+)+)?(\:\d+)?/gi);
+    for (let mention of mentions) {
+        let actor = findActorByMention(mention);
+    }
 }
 
 const processClientCreateActivity = function(activity) {

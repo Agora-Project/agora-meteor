@@ -14,6 +14,28 @@ const dispatchToActor = function(actor, activity) {
     });
 };
 
+findActorByMention = function(mention) {
+    if (mention[0] === '@')
+        mention = mention.substring(1, mention.length);
+    let components = mention.split("@");
+
+    let actor;
+
+    if (components.length === 1) {
+        actor = Actors.findOne({preferredUsername: components[0], local: true});
+        if (actor) return actor;
+    } else {
+        actor = Actors.findOne({preferredUsername: components[0], host: components[1]});
+        if (actor) return actor;
+        else {
+            webfinger.webfinger(mention, function(err, result) {
+                if (err) console.log("Error: ", err);
+                if (result) console.log("Result: ", result);
+            });
+        }
+    }
+}
+
 dispatchActivity = function(activity) {
 
     activity = cleanActivityPub(activity);
