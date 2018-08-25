@@ -48,7 +48,8 @@ Template.mainReply.onRendered(function() {
             cc: [actor.followers],
             bto: [],
             bcc: [],
-            audience: []
+            audience: [],
+            tag:[]
         };
 
         if (target) {

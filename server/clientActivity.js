@@ -1,3 +1,47 @@
+
+import webfinger from '../lib/webfinger/lib/webfinger.js';
+
+const {promisify} = require('util');
+
+findActorByMention = function(mention, callback) {
+    if (mention[0] === '@')
+        mention = mention.substring(1, mention.length);
+    let components = mention.split("@");
+
+    let actor;
+
+    if (components.length === 1) {
+        actor = Actors.findOne({preferredUsername: components[0], local: true});
+        if (actor) {
+            if (callback) callback(null, actor);
+            else return actor;
+        }
+    } else {
+        actor = Actors.findOne({preferredUsername: components[0], host: components[1]});
+        if (actor) {
+            if (callback) callback(null, actor);
+            else return actor;
+        }
+        else {
+            webfinger.webfinger(mention, Meteor.bindEnvironment(function(err, result) {
+                if (result) {
+                    let actorID;
+                    for (let link of result.links) {
+                        if (link.rel === 'self') {
+                            actorID = link.href;
+                            break;
+                        }
+                    }
+
+                    importActivityJSONFromUrl(actorID, callback);
+                }
+            }));
+        }
+    }
+}
+
+promiseActorByMention = promisify(findActorByMention);
+
 checkClientActivityUserPermissions = function(activity, user) {
     if (!user) {
         throw new Meteor.Error('Not-logged-in', 'The user must be logged in to perform activities.');
@@ -97,17 +141,39 @@ const checkClientActivityPermitted = function(activity, user) {
     return true;
 };
 
-const processPost = function(post) {
+const processPost = function(post, callback) {
     post.content = post.source.content;
     post.summary = post.source.summary;
+    if (!post.tag) post.tag = [];
 
     let mentions = post.content.match(/@([\w\.]*\w+)(@[\w]+(\.\w+)+)?(\:\d+)?/gi);
+    let promisedMentions = [];
     for (let mention of mentions) {
-        let actor = findActorByMention(mention);
+        //let actor = findActorByMention(mention);
+        promisedMentions.push(promiseActorByMention(mention));
     }
+
+    Promise.all(promisedMentions).then(function(actors) {
+        let i = 0;
+        for (let actor of actors) {
+            post.content = post.content.replace(mentions[i], '<a href=\"' + actor.url + '\" class=\"u-url mention\">@<span>' + actor.preferredUsername + '</span></a>');
+            post.tag.push({
+                type: "Mention",
+                href: actor.url,
+                name: mentions[i]
+            });
+            if(post.to.indexOf(actor.id) === -1) post.to.push(actor.id);
+            i++;
+        }
+
+        callback(null, post);
+    }).catch(function(err) {
+        console.log(err);
+    });
+
 }
 
-const processClientCreateActivity = function(activity) {
+const processClientCreateActivity = promisify(function(activity, callback) {
     let post = activity.object;
 
     //Don't allow posts with no content.
@@ -133,15 +199,15 @@ const processClientCreateActivity = function(activity) {
 
     post.local = true;
 
-    processPost(post);
+    processPost(post, function(err, result) {
+        let post_ID = Posts.insert(result);
+        activity.object = Posts.findOne({_id: post_ID});
 
-    let post_ID = Posts.insert(post);
-    activity.object = Posts.findOne({_id: post_ID});
+        delete activity.object.local;
 
-    delete activity.object.local;
-
-    return activity;
-};
+        callback(err, activity);
+    });
+});
 
 const processClientDeleteActivity = function(activity) {
     const postID = activity.object;
@@ -239,7 +305,7 @@ cleanActivityPub = function(object) {
     return object;
 };
 
-processClientActivity = function(user, object) {
+processClientActivity = async function(user, object) {
 
     //Set the object as being published right now.
     object.published = new Date().toISOString();
@@ -265,7 +331,7 @@ processClientActivity = function(user, object) {
 
     switch(activity.type){
         case 'Create':
-            activity = processClientCreateActivity(activity);
+            activity = await processClientCreateActivity(activity);
             break;
         case 'Delete':
             activity = processClientDeleteActivity(activity);
