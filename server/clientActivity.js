@@ -141,7 +141,7 @@ const checkClientActivityPermitted = function(activity, user) {
     return true;
 };
 
-const processPost = function(post, callback) {
+const processPost = promisify(function(post, callback) {
     post.content = post.source.content;
     post.summary = post.source.summary;
     if (!post.tag) post.tag = [];
@@ -171,9 +171,9 @@ const processPost = function(post, callback) {
         console.log(err);
     });
 
-}
+});
 
-const processClientCreateActivity = promisify(function(activity, callback) {
+processClientCreateActivity = async function(activity) {
     let post = activity.object;
 
     //Don't allow posts with no content.
@@ -199,15 +199,15 @@ const processClientCreateActivity = promisify(function(activity, callback) {
 
     post.local = true;
 
-    processPost(post, function(err, result) {
-        let post_ID = Posts.insert(result);
-        activity.object = Posts.findOne({_id: post_ID});
+    post = await processPost(post);
 
-        delete activity.object.local;
+    let post_ID = Posts.insert(post);
+    activity.object = Posts.findOne({_id: post_ID});
 
-        callback(err, activity);
-    });
-});
+    delete activity.object.local;
+
+    return activity;
+};
 
 const processClientDeleteActivity = function(activity) {
     const postID = activity.object;
@@ -305,7 +305,7 @@ cleanActivityPub = function(object) {
     return object;
 };
 
-processClientActivity = async function(user, object) {
+processClientActivity = function(user, object) {
 
     //Set the object as being published right now.
     object.published = new Date().toISOString();
@@ -331,7 +331,7 @@ processClientActivity = async function(user, object) {
 
     switch(activity.type){
         case 'Create':
-            activity = await processClientCreateActivity(activity);
+            activity = processClientCreateActivity(activity);
             break;
         case 'Delete':
             activity = processClientDeleteActivity(activity);
@@ -346,6 +346,8 @@ processClientActivity = async function(user, object) {
             activity = processClientUndoActivity(activity);
             break;
     }
+
+    console.log(activity);
 
     let _id = Activities.insert(activity);
     activity = Activities.findOne({_id: _id});
