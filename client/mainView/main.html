@@ -17,11 +17,10 @@
             {{/each}}
         {{/if}}
         {{#if currentUser}}
-            {{#if targetPost}}
+            {{#if targetMode}}
                 {{> mainReply}}
-            {{/if}}
-            {{#if reportTarget}}
-                {{> mainReport}}
+            {{else}}
+                {{> mainReplyButton}}
             {{/if}}
         {{/if}}
         {{> mainZoomControl}}
@@ -43,9 +42,14 @@
                 <button type="button" class="deg0" id="main-zoom-right-button"><i class="arrow right"></i></button>
                 <button type="button" class="deg90" id="main-zoom-down-button"><i class="arrow down"></i></button>
                 <button type="button" class="deg180" id="main-zoom-left-button"><i class="arrow left"></i></button>
-
             </div>
         </div>
+    </div>
+</template>
+
+<template name="mainReplyButton">
+    <div id="main-reply-button-div">
+        <button type="button" id="main-reply-button">New Post</button>
     </div>
 </template>
 
