@@ -4,11 +4,16 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
+.profile-div {
+    background-color: #fff;
+    border: 1px solid #999;
+    border-radius: 4px;
+}
+
 .profile-body-div {
     display: inline-flex;
     align-items: center;
     justify-content: left;
-    background-color: #fff;
     border-radius: 4px;
     flex-flow: row;
 }
