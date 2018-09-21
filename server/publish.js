@@ -104,6 +104,10 @@ Meteor.publish('actorByHandle', function(handle) {
     return Actors.find({preferredUsername: handle});
 });
 
+Meteor.publish('followers', function(followersID) {
+    return FollowingLists.find({id: followersID});
+});
+
 //Reports; for the report management page.
 Meteor.publish('reports', function() {
     if (Roles.userIsInRole(this.userId, ['moderator'])) {

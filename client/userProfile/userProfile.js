@@ -4,6 +4,21 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
+Template.followerCount.getParents();
+
+Template.followerCount.helpers({
+    followerCount: function() {
+        return "Followers: " + FollowerLists.findOne({id: this.id}).totalItems;
+    }
+});
+
+Template.followerCount.onCreated(function() {
+    let instance = this;
+
+    console.log("id: ", this.data.id);
+
+    this.subscribe('followers', this.data.id);
+});
 
 Template.userProfile.getParents();
 

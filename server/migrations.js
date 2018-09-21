@@ -1,4 +1,31 @@
 Migrations.add({
+    version: 2,
+    name: 'Add host data to Actors',
+    up: function() {
+
+        let actors = Actors.find({}).forEach(function(actor) {
+            let url = actor.id;
+
+            var host;
+            //find & remove protocol (http, ftp, etc.) and get hostname
+
+            if (url.indexOf("//") > -1) {
+                host = url.split('/')[2];
+            }
+            else {
+                host = url.split('/')[0];
+            }
+
+            //find & remove "?"
+            host = host.split('?')[0];
+            actor.host = host;
+            Actors.update({id: actor.id}, actor);
+        });
+    },
+    down: function() {}
+});
+
+Migrations.add({
     version: 1,
     name: 'Add support for activityPub',
     up: function() {
@@ -54,11 +81,13 @@ Migrations.add({
             if (post.title) post.summary = post.title;
 
             delete post.title;
+
+            post.update({_id: post._id}, post);
         }
     },
     down: function() {}
 });
 
 Meteor.startup(() => {
-  Migrations.migrateTo('latest');
+    Migrations.migrateTo('latest');
 });

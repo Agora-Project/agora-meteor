@@ -39,13 +39,17 @@ Template.mainReply.onRendered(function() {
         let post = {
             type: "Note",
             attributedTo: actorID,
-            summary: summaryInput.val(),
-            content: contentInput.val(),
+            source: {
+                summary: summaryInput.val(),
+                content: contentInput.val(),
+                mediaType: "text/plain"
+            },
             to: [],
             cc: [actor.followers],
             bto: [],
             bcc: [],
-            audience: []
+            audience: [],
+            tag:[]
         };
 
         if (target) {
@@ -65,6 +69,7 @@ Template.mainReply.onRendered(function() {
             else {
                 //Don't delete user's work unless it is posted successfully.
                 instance.parent.targetPost.set();
+                instance.parent.targetMode.set();
                 subscriptionManager.subscribe('abstractPost', result.object._id);
                 instance.parent.addPostBy_ID(result.object._id);
             }
@@ -97,6 +102,7 @@ Template.mainReply.onRendered(function() {
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.parent.targetPost.set();
+                instance.parent.targetMode.set();
             }
         });
         instance.submitted = true;
@@ -120,6 +126,7 @@ Template.mainReply.onRendered(function() {
             else {
                 //Don't delete user's work unless it posts successfully.
                 instance.parent.targetPost.set();
+                instance.parent.targetMode.set();
             }
         });
 
@@ -129,18 +136,21 @@ Template.mainReply.onRendered(function() {
     let cancelReply = function(event) {
         if (!hasContent() || confirm('You have an unfinished post. Are you sure you want to cancel?')) {
             instance.parent.targetPost.set();
+            instance.parent.targetMode.set();
         }
     };
 
     let cancelEdit = function(event) {
         if (!hasEdit() || confirm('You have an unfinished edit. Are you sure you want to cancel?')) {
             instance.parent.targetPost.set();
+            instance.parent.targetMode.set();
         }
     };
 
     let cancelReport = function(event) {
         if (!hasContent() || confirm('You have an unfinished report. Are you sure you want to cancel?')) {
             instance.parent.targetPost.set();
+            instance.parent.targetMode.set();
         }
     };
 
@@ -160,12 +170,27 @@ Template.mainReply.onRendered(function() {
         }
     };
 
-    if (this.parent.targetMode.get() === "Reply") {
+    if (this.parent.targetMode.get() === "Reply" ||
+        this.parent.targetMode.get() === "New Post") {
 
         this.submitButton = submitReply;
 
         $('.main-reply-cancel-button').click(cancelReply);
         $(window).on('beforeunload', exitReply);
+
+        if (target) {
+            summaryInput.val(target.summary);
+
+            if (target.attributedTo) {
+                let actor = Actors.findOne({id: target.attributedTo});
+                let url = new URL(target.attributedTo);
+                let mention = "@" + actor.preferredUsername;
+
+                if (!actor.local) mention += "@" + url.host;
+                contentInput.val(mention);
+            }
+        }
+
     } else if (this.parent.targetMode.get() === "Edit") {
 
         summaryInput.val(target.summary);

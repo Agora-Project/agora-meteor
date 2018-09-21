@@ -43,7 +43,6 @@
     -webkit-appearance: slider-vertical;
 }
 
-
 #main-zoom-plus-button {
 }
 
@@ -118,3 +117,8 @@
 .deg90 { transform: rotate(90deg) translate(1.5em) rotate(-90deg); }
 .deg180 { transform: translate(-1.5em); }
 .deg270 { transform: rotate(270deg) translate(1.5em) rotate(-270deg); }
+
+#main-reply-button-div {
+    position: absolute;
+    top: 90%; left: 90%;
+}

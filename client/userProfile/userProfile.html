@@ -4,44 +4,61 @@
     License: AGPL-3.0, Check file LICENSE
 -->
 
+<template name="followerCount">
+    <div class="follower-count-body-div">
+        {{followerCount}}
+    </div>
+</template>
+
 <template name="userProfile">
-    <div class="profile-body-div">
-        <div class="profile-face-div">
-            <a class="profile-username" href="{{actor.url}}">
-                {{actor.name}}
-            </a>
-            <a class="profile-avatar" href="{{actor.url}}">
-                {{> avatar shape="rounded" size="large" class="profile-avatar" initials=(initials)}}
-            </a>
-        </div>
-        <div class="profile-info-div">
-            {{#if ownProfile}}
-            {{else}}
-                {{#if notFollowed}}
-                    <button class="profile-summary-follow-button">Follow</button>
-                {{else}}
-                    <button class="profile-summary-unfollow-button">Unfollow</button>
-                {{/if}}
-            {{/if}}
-            {{#if editing}}
-                <div class="profile-summary-edit-div">
-                    <textarea class="profile-summary-edit-textarea" value={{actor.summary}}></textarea>
-                    <div class="profile-summary-edit-buttons-div">
-                        <button class="profile-summary-edit-submit-button profile-stop-edit-button">Submit</button>
-                        <button class="profile-summary-edit-cancel-button profile-stop-edit-button">Cancel</button>
-                    </div>
-                    {{#if errorMessage}}
-                        <span class="profile-summary-edit-error-message">{{errorMessage}}</span>
-                    {{/if}}
-                </div>
-            {{else}}
-                <div class="profile-summary-text-div">
-                    {{{summary}}}
-                </div>
+    <div class="profile-div">
+        <div class="profile-body-div">
+            <div class="profile-face-div">
+                <a class="profile-username" href="{{actor.url}}">
+                    {{actor.name}}
+                </a>
+                <a class="profile-avatar" href="{{actor.url}}">
+                    {{> avatar shape="rounded" size="large" class="profile-avatar" initials=(initials)}}
+                </a>
+            </div>
+            <div class="profile-info-div">
                 {{#if ownProfile}}
-                    <a href="#" class="profile-summary-edit-button profile-start-edit-button">Edit</a>
+                {{else}}
+                    {{#if notFollowed}}
+                        <button class="profile-summary-follow-button">Follow</button>
+                    {{else}}
+                        <button class="profile-summary-unfollow-button">Unfollow</button>
+                    {{/if}}
                 {{/if}}
-            {{/if}}
+                {{#if editing}}
+                    <div class="profile-summary-edit-div">
+                        <textarea class="profile-summary-edit-textarea" value={{actor.summary}}></textarea>
+                        <div class="profile-summary-edit-buttons-div">
+                            <button class="profile-summary-edit-submit-button profile-stop-edit-button">Submit</button>
+                            <button class="profile-summary-edit-cancel-button profile-stop-edit-button">Cancel</button>
+                        </div>
+                        {{#if errorMessage}}
+                            <span class="profile-summary-edit-error-message">{{errorMessage}}</span>
+                        {{/if}}
+                    </div>
+                {{else}}
+                    <div class="profile-summary-text-div">
+                        {{{summary}}}
+                    </div>
+                    {{#if ownProfile}}
+                        <a href="#" class="profile-summary-edit-button profile-start-edit-button">Edit</a>
+                    {{/if}}
+                {{/if}}
+            </div>
         </div>
+        <div class="profile-footer-div">
+            {{> followerCount id=(actor.followers)}}
+        </div>
+    </div>
+</template>
+
+<template name="followerList">
+    <div class="follower-list-body-div">
+
     </div>
 </template>

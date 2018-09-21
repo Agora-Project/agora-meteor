@@ -220,8 +220,8 @@ Template.mainView.helpers({
     showFullPosts: function() {
         return Template.instance().detailedPosts.showFullPosts.get();
     },
-    targetPost: function() {
-        return Template.instance().targetPost.get();
+    targetMode: function() {
+        return Template.instance().targetMode.get();
     },
     targetActor: function() {
         return Template.instance().targetActor.get();
@@ -362,6 +362,28 @@ Template.mainZoomControl.events({
         } else if (e.key == "-" || event.key == "+") {
             Template.body.camera.keyReleased(event.key);
         }
+    }
+});
+
+Template.mainReplyButton.getParents();
+
+Template.mainReplyButton.events({
+    'mousedown, touchstart, mousemove, touchmove, mouseup, touchend, wheel': function(event, instance) {
+        if (instance.parent.camera.isDragging()) {
+            //Prevents interaction while dragging.
+            event.preventDefault();
+        }
+        else {
+            //Prevent events from passing through posts into the WebGL canvas.
+            event.stopPropagation();
+        }
+    },
+    'input': function() {
+        let instance = Template.instance();
+        instance.parent.camera.setZoomFraction(instance.slider.val()/100.0);
+    },
+    "click": function(event, instance) {
+        instance.parent.targetMode.set("New Post")
     }
 });
 

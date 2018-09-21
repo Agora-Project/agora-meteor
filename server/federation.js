@@ -1,6 +1,4 @@
 
-import webfinger from '../lib/webfinger/lib/webfinger.js';
-
 const dispatchToActor = function(actor, activity) {
     HTTP.post(actor.inbox, {data: activity, npmRequestOptions: {
         httpSignature: {
@@ -9,8 +7,8 @@ const dispatchToActor = function(actor, activity) {
             key: Keys.findOne({id: activity.actor + "#main-key"}, {fields: {privateKeyPem: 1}}).privateKeyPem
         }
     }}, function(err, result) {
-        if (err) console.log("Error: ", err);
-        if (result) console.log("Result: ", result);
+        //if (err) console.log("Error: ", err);
+        //if (result) console.log("Result: ", result);
     });
 };
 
@@ -169,7 +167,7 @@ const processFederatedActivity = function(activity) {
     if (activity.id && Activities.findOne({id: activity.id}))
         return;
 
-    let processFederatedActivityCallback = function() {
+    let processFederatedActivityCallback = function(err, result) {
         try {
             checkFederatedActivityPermitted(activity);
         } catch (error) {
@@ -230,19 +228,17 @@ const importPostFromActivityPubJSON = function(json) {
 
 importActivityJSONFromUrl = function(url, callback) {
     console.log("Importing from: " + url);
+    let json = JSON.parse(HTTP.get(url, {
+        headers: {
+            Accept: 'application/activity+json; profile="https://www.w3.org/ns/activitystreams#"'
+        }
+    }).content);
 
-    return getActivityFromUrl(url)
-    .then((response) => {
-        if (response) {
-            return response.json();
-        } else throw new Meteor.Error('No response from url');
-    })
-    .then((json) => {
-        importFromActivityPubJSON(json);
+    importFromActivityPubJSON(json);
 
-        if (callback) callback(json);
-        return json;
-    }).catch((err) => { console.log(err); });
+    if (callback) callback(null, json);
+
+    return json;
 };
 
 importFromActivityPubJSON = function(json) {
