@@ -105,7 +105,11 @@ Meteor.publish('actorByHandle', function(handle) {
 });
 
 Meteor.publish('followers', function(followersID) {
-    return FollowingLists.find({id: followersID});
+    return FollowerLists.find({id: followersID});
+});
+
+Meteor.publish('following', function(followingID) {
+    return FollowingLists.find({id: followingID});
 });
 
 //Reports; for the report management page.

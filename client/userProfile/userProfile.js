@@ -12,12 +12,24 @@ Template.followerCount.helpers({
     }
 });
 
-Template.followerCount.onCreated(function() {
+Template.followingCount.onCreated(function() {
     let instance = this;
 
-    console.log("id: ", this.data.id);
-
     this.subscribe('followers', this.data.id);
+});
+
+Template.followingCount.getParents();
+
+Template.followingCount.helpers({
+    followingCount: function() {
+        return "Following: " + FollowingLists.findOne({id: this.id}).totalItems;
+    }
+});
+
+Template.followingCount.onCreated(function() {
+    let instance = this;
+
+    this.subscribe('following', this.data.id);
 });
 
 Template.userProfile.getParents();

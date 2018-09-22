@@ -4,6 +4,12 @@
     License: AGPL-3.0, Check file LICENSE
 */
 
+.following-count-body-div, .follower-count-body-div {
+    margin: 0px auto;
+    border: 1px solid #999;
+    padding: 2px;
+}
+
 .profile-div {
     background-color: #fff;
     border: 1px solid #999;
@@ -60,4 +66,12 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     color: #f33;
+}
+
+.profile-footer-div {
+    display: inline-flex;
+    align-items: center;
+    justify-content: left;
+    border-radius: 4px;
+    flex-flow: row;
 }
