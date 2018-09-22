@@ -79,10 +79,27 @@ const checkFederatedActivityPermitted = function(activity) {
 };
 
 const processFederatedFollowActivity = function(activity) {
+    const follower = Actors.findOne({id: activity.actor});
+
     const followee = Actors.findOne({id: activity.object});
 
-    if (followee.local)
-        FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+    if (!followee)
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
+
+    let accept = new ActivityPubActivity("Accept", followee.id, activity.actor);
+
+    accept.to.push(activity.actor);
+
+    Meteor.setTimeout(function(){
+        dispatchActivity(accept);
+    }, 0);
+
+    FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
+
+    if (follower.local)
+        FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+
+    return activity;
 };
 
 const processFederatedCreateActivity = function(activity) {
@@ -179,6 +196,13 @@ const processFederatedActivity = function(activity) {
         }
 
         switch(activity.type) {
+            case 'Follow':
+                try {
+                    activity = processFederatedFollowActivity(activity);
+                } catch (error) {
+                    throw error;
+                }
+                break;
             case 'Create':
                 try {
                     activity = processFederatedCreateActivity(activity);

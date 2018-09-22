@@ -240,7 +240,6 @@ const processClientFollowActivity = function(activity) {
 
     if (!PendingFollows.findOne({follower: follower.id, followee: followee.id})) {
         PendingFollows.insert({follower: follower.id, followee: followee.id});
-        //throw new Meteor.Error('Follow Already Pending!', 'A pending follow between those actors was already present!: ' + activity.actor + ", " + activity.object);
     }
 
 
