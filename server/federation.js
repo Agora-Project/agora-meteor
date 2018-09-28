@@ -1,5 +1,7 @@
 
 const dispatchToActor = function(actor, activity) {
+    if (!actor || !activity) return;
+
     HTTP.post(actor.inbox, {data: activity, npmRequestOptions: {
         httpSignature: {
             authorizationHeaderName: "Signature",
@@ -31,10 +33,8 @@ dispatchActivity = function(activity) {
             else {
                 const list = FollowerLists.findOne({id: targetID});
                 if (list)
-                    for (let actorID in list.orderedItems) {
-                        actor = Actors.findOne({id: actorID});
-                        if (actor)
-                            dispatchToActor(actor, activity);
+                    for (let actorID of list.orderedItems) {
+                        dispatchToActor(Actors.findOne({id: actorID}), activity);
                     }
             }
         }
