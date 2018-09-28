@@ -56,10 +56,11 @@ checkClientActivityUserPermissions = function(activity, user) {
     return true;
 };
 
-getObjectFromActivity = function(activity) {
+getObjectFromActivity = function(activity, collection) {
+    if (!collection) collection = Posts;
     switch (typeof activity.object) {
         case 'string':
-            return Posts.findOne({id: activity.object});
+            return collection.findOne({id: activity.object});
             break;
         case 'object':
             return activity.object
@@ -244,7 +245,7 @@ const processClientFollowActivity = function(activity) {
 
 
     if (followee.local) {
-        let accept = new ActivityPubActivity("Accept", followee.id, activity.actor);
+        let accept = new ActivityPubActivity("Accept", followee.id, activity);
         accept.to.push(activity.actor);
         Meteor.setTimeout(function(){
             dispatchActivity(accept);
@@ -282,7 +283,6 @@ const encapsulateContentWithCreate = function(post) {
 
     let activity = new ActivityPubActivity("Create", post.attributedTo, post);
     activity.published = post.published;
-
     return activity;
 };
 

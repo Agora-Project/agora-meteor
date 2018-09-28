@@ -81,12 +81,12 @@ const checkFederatedActivityPermitted = function(activity) {
 const processFederatedFollowActivity = function(activity) {
     const follower = Actors.findOne({id: activity.actor});
 
-    const followee = Actors.findOne({id: activity.object});
+    const followee = getObjectFromActivity(activity, Actors);
 
     if (!followee)
         throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
 
-    let accept = new ActivityPubActivity("Accept", followee.id, activity.actor);
+    let accept = new ActivityPubActivity("Accept", followee.id, activity);
 
     accept.to.push(activity.actor);
 
@@ -94,10 +94,10 @@ const processFederatedFollowActivity = function(activity) {
         dispatchActivity(accept);
     }, 0);
 
-    FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
+    FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
 
     if (follower.local)
-        FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+        FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
 
     return activity;
 };
@@ -166,12 +166,12 @@ const processFederatedUndoActivity = function(activity) {
         if (!follower)
             throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + targetActivity.object);
 
-        const followee = Actors.findOne({id: targetActivity.actor});
+        const followee = Actors.findOne({id: targetActivity.object});
 
-        FollowingLists.update({id: follower.following}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.actor}});
+        FollowingLists.update({id: follower.following}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.object}});
 
         if (followee.local)
-            FollowerLists.update({id: followee.followers}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.object}});
+            FollowerLists.update({id: followee.followers}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.actor}});
 
         PendingFollows.remove({follower: follower.id, followee: followee.id});
 
