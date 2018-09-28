@@ -1,5 +1,7 @@
 
 const dispatchToActor = function(actor, activity) {
+    if (!actor || !activity) return;
+
     HTTP.post(actor.inbox, {data: activity, npmRequestOptions: {
         httpSignature: {
             authorizationHeaderName: "Signature",
@@ -31,10 +33,8 @@ dispatchActivity = function(activity) {
             else {
                 const list = FollowerLists.findOne({id: targetID});
                 if (list)
-                    for (let actorID in list.orderedItems) {
-                        actor = Actors.findOne({id: actorID});
-                        if (actor)
-                            dispatchToActor(actor, activity);
+                    for (let actorID of list.orderedItems) {
+                        dispatchToActor(Actors.findOne({id: actorID}), activity);
                     }
             }
         }
@@ -79,10 +79,27 @@ const checkFederatedActivityPermitted = function(activity) {
 };
 
 const processFederatedFollowActivity = function(activity) {
-    const followee = Actors.findOne({id: activity.object});
+    const follower = Actors.findOne({id: activity.actor});
 
-    if (followee.local)
-        FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+    const followee = getObjectFromActivity(activity, Actors);
+
+    if (!followee)
+        throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + activity.object);
+
+    let accept = new ActivityPubActivity("Accept", followee.id, activity);
+
+    accept.to.push(activity.actor);
+
+    Meteor.setTimeout(function(){
+        dispatchActivity(accept);
+    }, 0);
+
+    FollowerLists.update({id: followee.followers}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.actor}});
+
+    if (follower.local)
+        FollowingLists.update({id: follower.following}, {$inc: {totalItems: 1}, $push: {orderedItems: activity.object}});
+
+    return activity;
 };
 
 const processFederatedCreateActivity = function(activity) {
@@ -149,12 +166,12 @@ const processFederatedUndoActivity = function(activity) {
         if (!follower)
             throw new Meteor.Error('Actor not found!', 'No actor with the given ID could be found: ' + targetActivity.object);
 
-        const followee = Actors.findOne({id: targetActivity.actor});
+        const followee = Actors.findOne({id: targetActivity.object});
 
-        FollowingLists.update({id: follower.following}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.actor}});
+        FollowingLists.update({id: follower.following}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.object}});
 
         if (followee.local)
-            FollowerLists.update({id: followee.followers}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.object}});
+            FollowerLists.update({id: followee.followers}, {$inc: {totalItems: -1}, $pull: {orderedItems: targetActivity.actor}});
 
         PendingFollows.remove({follower: follower.id, followee: followee.id});
 
@@ -179,6 +196,20 @@ const processFederatedActivity = function(activity) {
         }
 
         switch(activity.type) {
+            case 'Follow':
+                try {
+                    activity = processFederatedFollowActivity(activity);
+                } catch (error) {
+                    throw error;
+                }
+                break;
+            case 'Undo':
+                try {
+                    activity = processFederatedUndoActivity(activity);
+                } catch (error) {
+                    throw error;
+                }
+                break;
             case 'Create':
                 try {
                     activity = processFederatedCreateActivity(activity);

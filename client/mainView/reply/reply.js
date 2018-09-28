@@ -179,7 +179,9 @@ Template.mainReply.onRendered(function() {
         $(window).on('beforeunload', exitReply);
 
         if (target) {
-            summaryInput.val(target.summary);
+            if (target.attributedTo != Meteor.user().actor && target.summary && !target.summary.startsWith("Re: "))
+                summaryInput.val("Re: " + target.summary);
+            else summaryInput.val(target.summary);
 
             if (target.attributedTo) {
                 let actor = Actors.findOne({id: target.attributedTo});
