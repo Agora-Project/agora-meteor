@@ -203,6 +203,13 @@ const processFederatedActivity = function(activity) {
                     throw error;
                 }
                 break;
+            case 'Undo':
+                try {
+                    activity = processFederatedUndoActivity(activity);
+                } catch (error) {
+                    throw error;
+                }
+                break;
             case 'Create':
                 try {
                     activity = processFederatedCreateActivity(activity);
