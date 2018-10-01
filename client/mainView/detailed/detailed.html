@@ -54,7 +54,13 @@
                     {{/if}}
                 {{/if}}
                 {{#if hasLoadButton}}
-                    <button class="main-detailed-post-load-button">Load</button>
+                    <div class="dropdown">
+                        <button class="main-detailed-post-dropbtn">Load</button>
+                        <div id="main-basic-post-dropdown-{{_id}}" class="main-detailed-post-dropdown-content">
+                            <button class="main-detailed-post-load-button">Load Adjacent</button>
+                            <button class="main-detailed-post-recursive-load-button">Recursive Load</button>
+                        </div>
+                    </div>
                 {{/if}}
             </div>
         </div>
