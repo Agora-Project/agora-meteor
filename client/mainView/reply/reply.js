@@ -183,13 +183,26 @@ Template.mainReply.onRendered(function() {
                 summaryInput.val("Re: " + target.summary);
             else summaryInput.val(target.summary);
 
+            let content = contentInput.val();
+
+            if (target.tag) {
+                for (let tag of target.tag) {
+                    if (tag.type === "Mention" && content.indexOf(tag.name) === -1)
+                            content += tag.name + " ";
+                }
+            }
+
             if (target.attributedTo) {
                 let actor = Actors.findOne({id: target.attributedTo});
                 let url = new URL(target.attributedTo);
                 let mention = "@" + actor.preferredUsername;
 
                 if (!actor.local) mention += "@" + url.host;
-                contentInput.val(mention);
+
+                if (content.indexOf(mention) === -1)
+                    content += mention + " ";
+
+                contentInput.val(content);
             }
         }
 
