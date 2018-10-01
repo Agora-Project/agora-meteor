@@ -92,7 +92,7 @@
 
 .main-detailed-post-footer button {
     padding: 2px 4px 2px 4px;
-    margin: 4px 4px 4px 0px;
+    margin: 4px 4px 4px 4px;
     color: #000;
     background-color: #ddd;
     border: 1px solid #ccc;
@@ -116,6 +116,27 @@
 }
 
 .main-detailed-post-edit-button {
+}
+
+.main-detailed-post-dropdown {
+    float: right;
+    position: relative;
+    display: inline-block;
+}
+
+.main-detailed-post-dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    overflow: auto;
+    right: 0;
+    z-index: 1;
+    border-radius: 4px;
+}
+
+.main-detailed-post-show {
+    display: flex;
+    flex-direction: column;
 }
 
 .main-basic-post {

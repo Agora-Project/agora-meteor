@@ -293,6 +293,11 @@ Template.mainView.events({
         if (!instance.dragBuffer && (!instance.profileEditing || confirm('You are editing your profile. Are you sure you want to close it?'))) {
             instance.targetActor.set(null);
         }
+
+        //close dropdown menus, unless we just opened one.
+        if (!event.target.matches('.main-detailed-post-dropbtn')) {
+            $('.main-detailed-post-dropdown-content').removeClass("main-detailed-post-show");
+        }
     }
 });
 

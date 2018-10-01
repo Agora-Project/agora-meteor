@@ -37,6 +37,41 @@ Template.mainDetailedPost.onCreated(function() {
             Meteor.call('addSeenPost', instance.data._id);
         }
     });
+
+    this.loadPost = function(post) {
+        subscriptionManager.subscribe('abstractPost', post.id);
+        instance.parent.addPost(post);
+    }
+
+    this.loadPosts = function() {
+        Posts.find({inReplyTo: instance.data.id}).forEach(function(post) {
+            instance.loadPost(post);
+        });
+
+        instance.loadPost(Posts.findOne({id: instance.data.inReplyTo}));
+    }
+
+    this.recursiveLoad = function() {
+        frontier = [instance.data.id];
+        visited = [];
+        while (frontier.length > 0) {
+
+            let postID = frontier.shift();
+            instance.loadPost(Posts.findOne({id: postID}));
+
+            Posts.find({inReplyTo: postID}).forEach(function(post) {
+                if (visited.indexOf(post.id) === -1) {
+                    frontier.push(post.id)
+                }
+            });
+
+            if (instance.data.inReplyTo && visited.indexOf(instance.data.inReplyTo) === -1) {
+                frontier.push(instance.data.inReplyTo)
+            }
+
+            visited.push(postID);
+        }
+    }
 });
 
 Template.mainDetailedPost.onRendered(function() {
@@ -108,14 +143,18 @@ Template.mainDetailedPost.events({
             event.stopPropagation();
         }
     },
-    'click .main-detailed-post-load-button': function(event, instance) {
-        Posts.find({inReplyTo: this.id}).forEach(function(post) {
-            subscriptionManager.subscribe('abstractPost', post.id);
-            instance.parent.addPost(post);
-        });
+    'click .main-detailed-post-dropbtn': function(event, instance) {
+        let dropdownMenu = instance.$('#main-basic-post-dropdown-' + this._id);
 
-        subscriptionManager.subscribe('abstractPost', instance.data.inReplyTo);
-        instance.parent.addPost(Posts.findOne({id: instance.data.inReplyTo}));
+        //console.log(dropdownMenu);
+
+        dropdownMenu.toggleClass("main-detailed-post-show");
+    },
+    'click .main-detailed-post-load-button': function(event, instance) {
+        instance.loadPosts();
+    },
+    'click .main-detailed-post-recursive-load-button': function(event, instance) {
+        instance.recursiveLoad();
     },
     'click .main-detailed-post-reply-button': function(event, instance) {
         //Our parent is a mainDetailedPost, and its parent is the mainView.
