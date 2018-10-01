@@ -185,25 +185,31 @@ Template.mainReply.onRendered(function() {
 
             let content = contentInput.val();
 
+            let userActor = Actors.findOne({id: Meteor.user().actor});
+            let userUrl = new URL(userActor.id);
+            let userMention = "@" + userActor.preferredUsername;
+            let foreignUserMention = userMention += "@" + userUrl.host;
+
             if (target.tag) {
                 for (let tag of target.tag) {
-                    if (tag.type === "Mention" && content.indexOf(tag.name) === -1)
+                    //only insert mentions, and only if they're of someone else and not already present.
+                    if (tag.type === "Mention" && tag.name !== userMention && tag.name !== foreignUserMention && content.indexOf(tag.name) === -1)
                             content += tag.name + " ";
                 }
             }
 
-            if (target.attributedTo) {
+            if (target.attributedTo && target.attributedTo !== Meteor.user().actor) {
                 let actor = Actors.findOne({id: target.attributedTo});
                 let url = new URL(target.attributedTo);
                 let mention = "@" + actor.preferredUsername;
 
                 if (!actor.local) mention += "@" + url.host;
 
-                if (content.indexOf(mention) === -1)
+                if (content.indexOf(mention) === -1 )
                     content += mention + " ";
-
-                contentInput.val(content);
             }
+
+            contentInput.val(content);
         }
 
     } else if (this.parent.targetMode.get() === "Edit") {
