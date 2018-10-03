@@ -149,9 +149,9 @@ const processPost = function(post, callback) {
 
     let mentions = post.content.match(/@([\w\.]*\w+)(@[\w]+(\.\w+)+)?(\:\d+)?/gi);
     let promisedMentions = [];
+
     if (mentions)
         for (let mention of mentions) {
-            //let actor = findActorByMention(mention);
             promisedMentions.push(promiseActorByMention(mention));
         }
 

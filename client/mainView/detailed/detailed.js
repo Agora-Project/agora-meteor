@@ -38,39 +38,56 @@ Template.mainDetailedPost.onCreated(function() {
         }
     });
 
-    this.loadPost = function(post) {
-        subscriptionManager.subscribe('abstractPost', post.id);
-        instance.parent.addPost(post);
+    this.loadPost = function(postID, callback) {
+        if (callback)
+            subscriptionManager.subscribe('abstractPost', postID, {
+                onReady: () => {
+                    instance.parent.addPost(Posts.findOne({id: postID}));
+                    callback();
+                }
+            });
+        else
+            subscriptionManager.subscribe('abstractPost', post.id, {
+                onReady: () => {
+                    instance.parent.addPost(Posts.findOne({id: postID}));
+                }
+            });
     }
 
     this.loadPosts = function() {
         Posts.find({inReplyTo: instance.data.id}).forEach(function(post) {
-            instance.loadPost(post);
+            instance.loadPost(post.id);
         });
 
-        instance.loadPost(Posts.findOne({id: instance.data.inReplyTo}));
+        instance.loadPost(instance.data.inReplyTo);
     }
 
     this.recursiveLoad = function() {
-        frontier = [instance.data.id];
-        visited = [];
-        while (frontier.length > 0) {
+        let visited = [];
 
-            let postID = frontier.shift();
-            instance.loadPost(Posts.findOne({id: postID}));
+        let processPost = function(postID) {
+
+            visited.push(postID);
 
             Posts.find({inReplyTo: postID}).forEach(function(post) {
                 if (visited.indexOf(post.id) === -1) {
-                    frontier.push(post.id)
+                    instance.loadPost(post.id, () => {
+                        processPost(post.id);
+                    });
                 }
             });
 
-            if (instance.data.inReplyTo && visited.indexOf(instance.data.inReplyTo) === -1) {
-                frontier.push(instance.data.inReplyTo)
-            }
+            let replyID = Posts.findOne({id: postID}).inReplyTo;
 
-            visited.push(postID);
-        }
+            if (replyID && visited.indexOf(replyID) === -1) {
+                instance.loadPost(replyID, () => {
+                    console.log("Processing: ", replyID);
+                    processPost(replyID);
+                });
+            }
+        };
+
+        processPost(instance.data.id);
     }
 });
 
@@ -145,8 +162,6 @@ Template.mainDetailedPost.events({
     },
     'click .main-detailed-post-dropbtn': function(event, instance) {
         let dropdownMenu = instance.$('#main-basic-post-dropdown-' + this._id);
-
-        //console.log(dropdownMenu);
 
         dropdownMenu.toggleClass("main-detailed-post-show");
     },
