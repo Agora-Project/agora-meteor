@@ -65,29 +65,29 @@ Template.mainDetailedPost.onCreated(function() {
     this.recursiveLoad = function() {
         let visited = [];
 
-        let processPost = function(postID) {
+        let processPost = function(postID, degrees) {
 
             visited.push(postID);
 
             Posts.find({inReplyTo: postID}).forEach(function(post) {
-                if (visited.indexOf(post.id) === -1) {
+                if (degrees > 0 && visited.indexOf(post.id) === -1) {
                     instance.loadPost(post.id, () => {
-                        processPost(post.id);
+                        processPost(post.id, degrees - 1);
                     });
                 }
             });
 
             let replyID = Posts.findOne({id: postID}).inReplyTo;
 
-            if (replyID && visited.indexOf(replyID) === -1) {
+            if (degrees > 0 && replyID && visited.indexOf(replyID) === -1) {
                 instance.loadPost(replyID, () => {
                     console.log("Processing: ", replyID);
-                    processPost(replyID);
+                    processPost(replyID, degrees - 1);
                 });
             }
         };
 
-        processPost(instance.data.id);
+        processPost(instance.data.id, 10);
     }
 });
 
