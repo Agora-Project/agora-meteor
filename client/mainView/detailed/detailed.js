@@ -39,19 +39,8 @@ Template.mainDetailedPost.onCreated(function() {
     });
 
     this.loadPost = function(postID, callback) {
-        if (callback)
-            subscriptionManager.subscribe('abstractPost', postID, {
-                onReady: () => {
-                    instance.parent.addPost(Posts.findOne({id: postID}));
-                    callback();
-                }
-            });
-        else
-            subscriptionManager.subscribe('abstractPost', post.id, {
-                onReady: () => {
-                    instance.parent.addPost(Posts.findOne({id: postID}));
-                }
-            });
+        subscriptionManager.subscribe('abstractPost', postID);
+        instance.parent.addPost(Posts.findOne({id: postID}));
     }
 
     this.loadPosts = function() {
