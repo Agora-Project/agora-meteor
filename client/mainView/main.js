@@ -77,7 +77,7 @@ Template.mainView.onCreated(function() {
         for (let module of modules) {
 
             //Adjust all the posts displaced by this.
-            for (let updatedPost of results.changedPosts) {
+            for (let updatedPost of results.changedPosts.values()) {
                 module.updatePost(updatedPost._id, updatedPost);
             }
 
@@ -103,7 +103,7 @@ Template.mainView.onCreated(function() {
         for (let module of modules) {
 
             //Adjust all the posts displaced by this.
-            for (let updatedPost of results.changedPosts) {
+            for (let updatedPost of results.changedPosts.values()) {
                 module.updatePost(updatedPost._id, updatedPost);
             }
             //and add the new post.

@@ -17,11 +17,29 @@ MainViewLayout = function() {
     };
 
     this.addPost = function(post) {
-        return LayeredGrapher.insertPost(localPostPositions, post);
+        let results = LayeredGrapher.insertPost(localPostPositions, post);
+        let changedPosts = new Set();
+
+        for (let updatedPost_id of results.changedPosts.values()) {
+            changedPosts.add(localPostPositions.findOne({_id: updatedPost_id}));
+        }
+
+        results.changedPosts = changedPosts;
+
+        return results;
     };
 
     this.removePost = function(post) {
-        return LayeredGrapher.removePost(localPostPositions, post);
+        let results = LayeredGrapher.removePost(localPostPositions, post);
+        let changedPosts = new Set();
+
+        for (let updatedPost_id of results.changedPosts.values()) {
+            changedPosts.add(localPostPositions.findOne({_id: updatedPost_id}));
+        }
+
+        results.changedPosts = changedPosts;
+
+        return results;
     };
 
     this.updatePost = function(_id, fields) {

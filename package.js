@@ -56,6 +56,16 @@ Package.onUse(function(api) {
         'routes.js'
     ], both);
 
+    api.use([
+        'ui',
+        'session',
+        'templating',
+        'reactive-var',
+        'verron:autosize',
+        'momentjs:moment',
+        'gwendall:body-events',
+        'meteorhacks:subs-manager'
+    ], 'client');
 
     api.addFiles([
         'lib/webfinger/lib/webfinger.js',
@@ -123,17 +133,6 @@ Package.onUse(function(api) {
         'client/adminScreen/adminScreen.html',
         'client/adminScreen/adminScreen.css',
         'client/adminScreen/adminScreen.js'
-    ], 'client');
-
-    api.use([
-        'ui',
-        'session',
-        'templating',
-        'reactive-var',
-        'verron:autosize',
-        'momentjs:moment',
-        'gwendall:body-events',
-        'meteorhacks:subs-manager'
     ], 'client');
 });
 
