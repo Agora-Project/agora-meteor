@@ -8,7 +8,7 @@ MainViewCamera = function() {
     let self = this;
     let canvas;
 
-    let p, scale;
+    let cameraPos, scale;
     let postBounds = {left: 0.0, right: 0.0, bottom: 0.0, top: 0.0};
     let MAX_ZOOM = 768.0, minZoom = 0.0;
 
@@ -27,11 +27,11 @@ MainViewCamera = function() {
         //Grab session camera state if it exists.
         let state = Session.get('camera');
         if (state) {
-            p = state.p;
+            cameraPos = state.cameraPos;
             scale = state.scale;
         }
         else {
-            p = {
+            cameraPos = {
                 x: (postBounds.left + postBounds.right)*0.5,
                 y: (postBounds.bottom + postBounds.top)*0.5
             };
@@ -72,7 +72,7 @@ MainViewCamera = function() {
     };
 
     this.getPos = function() {
-        return {x:p.x, y:p.y};
+        return {x: cameraPos.x, y: cameraPos.y};
     };
 
     this.getScale = function() {
@@ -93,38 +93,38 @@ MainViewCamera = function() {
     this.getBounds = function() {
         let w = 0.5*canvas[0].width/scale;
         let h = 0.5*canvas[0].height/scale;
-        let out = {left: p.x - w, right: p.x + w, bottom: p.y - h, top: p.y + h};
-        out.contains = function(v) {
-            return v.x > out.left && v.x < out.right && v.y > out.bottom && v.y < out.top;
+        let out = {left: cameraPos.x - w, right: cameraPos.x + w, bottom: cameraPos.y - h, top: cameraPos.y + h};
+        out.contains = function(point) {
+            return point.x > out.left && point.x < out.right && point.y > out.bottom && point.y < out.top;
         };
         return out;
     };
 
-    this.isPointVisible = function(v) {
-        return self.getBounds().contains(v);
+    this.isPointVisible = function(point) {
+        return self.getBounds().contains(point);
     };
 
     this.getMatrix = function() {
         let w = 2.0*scale/canvas[0].width;
         let h = 2.0*scale/canvas[0].height;
-        return [w, 0.0, -w*p.x,
-                0.0, h, -h*p.y,
+        return [w, 0.0, -w*cameraPos.x,
+                0.0, h, -h*cameraPos.y,
                 0.0, 0.0, 1.0];
     };
 
-    this.toWorld = function(v) {
-        return {x:(v.x - canvas[0].width/2.0)/scale + p.x,
-                y:(canvas[0].height/2.0 - v.y)/scale + p.y};
+    this.toWorld = function(point) {
+        return {x:(point.x - canvas[0].width/2.0)/scale + cameraPos.x,
+                y:(canvas[0].height/2.0 - point.y)/scale + cameraPos.y};
     };
 
-    this.toScreen = function(v) {
-        return {x:(v.x - p.x)*scale + canvas[0].width/2.0,
-                y:(p.y - v.y)*scale + canvas[0].height/2.0};
+    this.toScreen = function(point) {
+        return {x:(point.x - cameraPos.x)*scale + canvas[0].width/2.0,
+                y:(cameraPos.y - point.y)*scale + canvas[0].height/2.0};
     };
 
-    this.goToPos = function(v) {
+    this.goToPos = function(position) {
         this.setScale(MAX_ZOOM);
-        p = v;
+        cameraPos = position;
     }
 
     let mp0 = null;
@@ -142,8 +142,8 @@ MainViewCamera = function() {
             dragging = true;
 
         if (dragging === true) {
-            p.x += (mp0.x - mp.x)/scale;
-            p.y += (mp.y - mp0.y)/scale;
+            cameraPos.x += (mp0.x - mp.x)/scale;
+            cameraPos.y += (mp.y - mp0.y)/scale;
         }
 
         mp0 = mp;
@@ -351,11 +351,11 @@ MainViewCamera = function() {
         }
 
         //move the position accordingly.
-        p.x += 100 * dir.x/scale;
-        p.y += 100 * dir.y/scale;
+        cameraPos.x += 100 * dir.x/scale;
+        cameraPos.y += 100 * dir.y/scale;
 
         //Set camera session state.
-        Session.set('camera', {p: p, scale: scale});
+        Session.set('camera', {cameraPos: cameraPos, scale: scale});
 
     };
 
@@ -386,8 +386,8 @@ MainViewCamera = function() {
             let oldPos = self.toWorld(mp0);
             self.setScale(scale * Math.pow(factor, sdt/time));
             let newPos = self.toWorld(mp0);
-            p.x += oldPos.x - newPos.x;
-            p.y += oldPos.y - newPos.y;
+            cameraPos.x += oldPos.x - newPos.x;
+            cameraPos.y += oldPos.y - newPos.y;
         };
 
         this.isFinished = function() {
@@ -437,10 +437,10 @@ MainViewCamera = function() {
         let w = 0.375*canvas[0].width/scale;
         let h = 0.375*canvas[0].height/scale;
 
-        p.x = Math.max(p.x, postBounds.left - w);
-        p.x = Math.min(p.x, postBounds.right + w);
-        p.y = Math.max(p.y, postBounds.bottom - h);
-        p.y = Math.min(p.y, postBounds.top + h);
+        cameraPos.x = Math.max(cameraPos.x, postBounds.left - w);
+        cameraPos.x = Math.min(cameraPos.x, postBounds.right + w);
+        cameraPos.y = Math.max(cameraPos.y, postBounds.bottom - h);
+        cameraPos.y = Math.min(cameraPos.y, postBounds.top + h);
 
         //perform panning for keyboard events
         let dir = {x: 0, y: 0};
@@ -457,11 +457,11 @@ MainViewCamera = function() {
         if (dir.length > 0) dir.y /= dir.length;
 
         //move the position accordingly.
-        p.x += 10 * dir.x/scale;
-        p.y += 10 * dir.y/scale;
+        cameraPos.x += 10 * dir.x/scale;
+        cameraPos.y += 10 * dir.y/scale;
 
         //Set camera session state.
-        Session.set('camera', {p: p, scale: scale});
+        Session.set('camera', {cameraPos: cameraPos, scale: scale});
     };
 
     this.onZoom = function(callback) {
