@@ -20,14 +20,29 @@ MainViewLayout = function() {
         let results = LayeredGrapher.insertPost(localPostPositions, post);
         let changedPosts = new Set();
 
-        for (let updatedPost_id of results.changedPosts.values()) {
-            changedPosts.add(localPostPositions.findOne({_id: updatedPost_id}));
+        for (let id of results.changedPosts.values()) {
+            changedPosts.add(localPostPositions.findOne({_id: id}));
         }
+
+        results.post = localPostPositions.findOne({id: post.id});
 
         results.changedPosts = changedPosts;
 
         return results;
     };
+
+    this.repositionPost = function(post) {
+      let results = LayeredGrapher.repositionPost(localPostPositions, post);
+      let changedPosts = new Set();
+
+      for (let id of results.changedPosts.values()) {
+          changedPosts.add(localPostPositions.findOne({_id: id}));
+      }
+
+      results.changedPosts = changedPosts;
+
+      return results;
+    }
 
     this.removePost = function(post) {
         let results = LayeredGrapher.removePost(localPostPositions, post);

@@ -118,6 +118,23 @@ Template.mainView.onCreated(function() {
         this.addPost(Posts.findOne({_id: _id}));
     }
 
+    this.repositionPost = function(post) {
+      console.log("Repositioning Posts!");
+      //First, reposition the post.
+      let results = instance.layout.repositionPost(post);
+
+      //Then, for each of the other modules,
+      for (let module of modules) {
+          //adjust all the posts displaced by this.
+          for (let updatedPost of results.changedPosts.values()) {
+              module.updatePost(updatedPost._id, updatedPost);
+          }
+      }
+
+      //Finally, re-do the partitioner.
+      instance.partitioner.init(instance.layout.getPosts());
+    }
+
     Notifier.all(onSubReady, this.onRendered).onFulfilled(function() {
         //Perform initial setup.
         let postCursor = Posts.find({});

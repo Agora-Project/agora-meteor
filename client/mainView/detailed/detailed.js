@@ -39,8 +39,24 @@ Template.mainDetailedPost.onCreated(function() {
     });
 
     this.loadPost = function(postID, callback) {
-        subscriptionManager.subscribe('abstractPost', postID);
-        instance.parent.addPost(Posts.findOne({id: postID}));
+        let loaded = false;
+        if (callback)
+            subscriptionManager.subscribe('abstractPost', postID, {
+                onReady: () => {
+                    if (loaded) return;
+                    instance.parent.addPost(Posts.findOne({id: postID}));
+                    loaded = true;
+                    callback();
+                }
+            });
+        else
+            subscriptionManager.subscribe('abstractPost', postID, {
+                onReady: () => {
+                    if (loaded) return;
+                    instance.parent.addPost(Posts.findOne({id: postID}));
+                    loaded = true;
+                }
+            });
     }
 
     this.loadPosts = function() {
@@ -53,30 +69,44 @@ Template.mainDetailedPost.onCreated(function() {
 
     this.recursiveLoad = function() {
         let visited = [];
+        let postsProcessing = 0;
+
+        let self = this;
 
         let processPost = function(postID, degrees) {
+          postsProcessing++;
+            if (degrees <= 0) {
+              console.log("End Recursion!");
+              return;
+            } else console.log("Processing post, degree:", degrees);
 
             visited.push(postID);
 
             Posts.find({inReplyTo: postID}).forEach(function(post) {
-                if (degrees > 0 && visited.indexOf(post.id) === -1) {
+                if (visited.indexOf(post.id) === -1) {
                     instance.loadPost(post.id, () => {
                         processPost(post.id, degrees - 1);
                     });
-                }
+                } else console.log("End Recursion!");
             });
 
             let replyID = Posts.findOne({id: postID}).inReplyTo;
 
-            if (degrees > 0 && replyID && visited.indexOf(replyID) === -1) {
+            if (replyID && visited.indexOf(replyID) === -1) {
                 instance.loadPost(replyID, () => {
-                    console.log("Processing: ", replyID);
                     processPost(replyID, degrees - 1);
                 });
-            }
+            } else console.log("End Recursion!");
+
+            postsProcessing--;
+            if (postsProcessing === 0) self.repositionPost();
         };
 
         processPost(instance.data.id, 10);
+    }
+
+    this.repositionPost = function() {
+        instance.parent.repositionPost(instance.data);
     }
 });
 
@@ -298,7 +328,7 @@ MainViewDetailedPosts = function(camera, partitioner) {
                 if (hashPost)
                     hashPost.hidden = false;
             });
-            //go through the sorted posts and hide the ones with less priority whenever theres a conflict.
+            //go through the sorted posts and hide the ones with less priority whenever they would overlap.
             visiblePostsByPriority.forEach(function(post, i) {
 
                 post = postPositionHashMap["" + post.position.x + ", " + post.position.y];
