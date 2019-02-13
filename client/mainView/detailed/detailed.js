@@ -74,10 +74,10 @@ Template.mainDetailedPost.onCreated(function() {
         let self = this;
 
         let processPost = function(postID, degrees) {
-          postsProcessing++;
+            postsProcessing++;
             if (degrees <= 0) {
-              console.log("End Recursion!");
-              return;
+                console.log("End Recursion!");
+                return;
             } else console.log("Processing post, degree:", degrees);
 
             visited.push(postID);
