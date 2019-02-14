@@ -41,7 +41,7 @@ MainViewLayout = function() {
     };
 
     this.repositionPost = function(post) {
-      let results = LayeredGrapher.repositionPost(localPostPositions, post);
+      let results = LayeredGrapher.repositionPosts(localPostPositions, post);
 
       return finalizeResults(results, post);
     }

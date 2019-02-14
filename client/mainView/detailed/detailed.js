@@ -58,6 +58,8 @@ Template.mainDetailedPost.onCreated(function() {
         });
 
         instance.loadPost(instance.data.inReplyTo);
+
+        this.repositionPost();
     }
 
     this.recursiveLoad = function() {

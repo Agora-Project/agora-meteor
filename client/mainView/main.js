@@ -70,19 +70,23 @@ Template.mainView.onCreated(function() {
 
     this.removePost = function(post) {
 
+        //Is the post actually present? If not, we can ignore it.
+        if (!instance.layout.getPost(post.id)) return;
+
         //First, remove a post from the layout.
         let results = instance.layout.removePost(post);
 
         //Then, for each of the other modules:
         for (let module of modules) {
 
-            //Adjust all the posts displaced by this.
+            //Remove the post
+            module.removePost(results.post);
+
+            //and adjust all the posts displaced by this.
             for (let updatedPost of results.changedPosts.values()) {
                 module.updatePost(updatedPost._id, updatedPost);
             }
 
-            //and remove the post.
-            module.removePost(results.post);
         }
 
         //Finally, re-do the partitioner.
@@ -90,7 +94,6 @@ Template.mainView.onCreated(function() {
     }
 
     this.addPost = function(post) {
-
         if (!post) return;
 
         //First, check to make sure the post is not already present
