@@ -40,23 +40,16 @@ Template.mainDetailedPost.onCreated(function() {
 
     this.loadPost = function(postID, callback) {
         let loaded = false;
-        if (callback)
-            subscriptionManager.subscribe('abstractPost', postID, {
-                onReady: () => {
-                    if (loaded) return;
-                    instance.parent.addPost(Posts.findOne({id: postID}));
-                    loaded = true;
-                    callback();
-                }
-            });
-        else
-            subscriptionManager.subscribe('abstractPost', postID, {
-                onReady: () => {
-                    if (loaded) return;
-                    instance.parent.addPost(Posts.findOne({id: postID}));
-                    loaded = true;
-                }
-            });
+        subscriptionManager.subscribe('abstractPost', postID, {
+            onReady: () => {
+                if (loaded) return;
+                instance.parent.addPost(Posts.findOne({id: postID}));
+                loaded = true;
+                if (callback) callback();
+            }
+        });
+        let post = Posts.findOne({id: postID});
+        if (post) instance.parent.addPost(post);
     }
 
     this.loadPosts = function() {

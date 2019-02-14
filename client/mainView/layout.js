@@ -19,10 +19,6 @@ MainViewLayout = function() {
 
         let finalPost = localPostPositions.findOne({id: results.post.id});
         if (finalPost) results.post = finalPost;
-        else {
-          console.log("No final post: ", post, results.post);
-          console.log("Action type: ", results.type);
-        }
 
         results.changedPosts = changedPosts;
 
